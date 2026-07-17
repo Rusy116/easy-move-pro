@@ -146,6 +146,13 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
   const set = <K extends keyof FormState>(k: K, v: FormState[K]) =>
     setForm((s) => ({ ...s, [k]: v }));
 
+  // Bedroom count is a UX helper only: it pre-fills the inventory preset.
+  // The pricing engine reads only the resulting `inventory` counts — never
+  // the move size itself.
+  const applyMoveSizePreset = (size: MoveSize) => {
+    setForm((s) => ({ ...s, moveSize: size, inventory: { ...MOVE_SIZE_PRESETS[size] } }));
+  };
+
   // Resolve ZIPs (async — swap for Google Maps later)
   useEffect(() => {
     let cancelled = false;

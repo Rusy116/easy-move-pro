@@ -20,7 +20,9 @@ interface Props {
   value: string;
   onChangeText: (v: string) => void;
   onSelect: (place: PlaceSelection) => void;
-  biasZip?: string; // future: could constrain results
+  biasZip?: string;
+  /** Optional circular bias for suggestions (e.g. selected city centroid). */
+  bias?: { lat: number; lng: number; radiusMeters?: number } | null;
   className?: string;
 }
 
@@ -36,6 +38,7 @@ export function AddressAutocomplete({
   value,
   onChangeText,
   onSelect,
+  bias,
   className,
 }: Props) {
   const [ready, setReady] = useState(false);
@@ -90,12 +93,19 @@ export function AddressAutocomplete({
         const { AutocompleteSuggestion } = (await window.google.maps.importLibrary(
           "places"
         )) as google.maps.PlacesLibrary;
+        const request: google.maps.places.AutocompleteRequest = {
+          input: q,
+          sessionToken: sessionTokenRef.current ?? undefined,
+          includedRegionCodes: ["us"],
+        };
+        if (bias) {
+          request.locationBias = {
+            center: { lat: bias.lat, lng: bias.lng },
+            radius: bias.radiusMeters ?? 15000,
+          } as google.maps.CircleLiteral;
+        }
         const { suggestions } =
-          await AutocompleteSuggestion.fetchAutocompleteSuggestions({
-            input: q,
-            sessionToken: sessionTokenRef.current ?? undefined,
-            includedRegionCodes: ["us"],
-          });
+          await AutocompleteSuggestion.fetchAutocompleteSuggestions(request);
         setSuggestions(suggestions.slice(0, 6));
         setOpen(true);
         setActiveIdx(0);
@@ -108,7 +118,7 @@ export function AddressAutocomplete({
     return () => {
       if (debounceRef.current) window.clearTimeout(debounceRef.current);
     };
-  }, [value, ready]);
+  }, [value, ready, bias?.lat, bias?.lng, bias?.radiusMeters]);
 
   async function pick(s: Suggestion) {
     const pred = s.placePrediction;

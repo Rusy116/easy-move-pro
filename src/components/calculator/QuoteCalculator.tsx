@@ -33,6 +33,7 @@ import {
 import type { ParkingDifficulty } from "@/lib/pricing-engine";
 import { computeDistance } from "@/lib/distance";
 import { isValidZip, resolveZip, type ZipLocation } from "@/lib/zip-database";
+import { lookupZipCities } from "@/lib/zip-cities";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -62,28 +63,43 @@ const PROPERTY_TYPES: { value: PropertyType; label: string; Icon: typeof Home }[
 ];
 
 
+interface SideState {
+  zip: string;
+  city: string;
+  state: string;
+  street: string;          // route (street name only)
+  houseNumber: string;     // separate input
+  fullAddress: string;     // formatted (for storage / distance)
+  lat: number | null;
+  lng: number | null;
+  placeId: string;
+  floor: number;
+  elevator: boolean;
+  longCarry: boolean;
+  parking: ParkingDifficulty;
+}
+
+const EMPTY_SIDE: SideState = {
+  zip: "",
+  city: "",
+  state: "",
+  street: "",
+  houseNumber: "",
+  fullAddress: "",
+  lat: null,
+  lng: null,
+  placeId: "",
+  floor: 0,
+  elevator: false,
+  longCarry: false,
+  parking: "easy",
+};
+
 interface FormState {
-  originZip: string;
-  destinationZip: string;
-  originAddress: string;
-  destinationAddress: string;
-  originLat: number | null;
-  originLng: number | null;
-  originPlaceId: string;
-  destinationLat: number | null;
-  destinationLng: number | null;
-  destinationPlaceId: string;
+  origin: SideState;
+  destination: SideState;
   propertyType: PropertyType;
   inventory: InventoryCounts;
-  // Access per side
-  originStairs: number;
-  destinationStairs: number;
-  originElevator: boolean;
-  destinationElevator: boolean;
-  originLongCarry: boolean;
-  destinationLongCarry: boolean;
-  originParking: ParkingDifficulty;
-  destinationParking: ParkingDifficulty;
   // Services
   packing: boolean;
   unpacking: boolean;
@@ -108,26 +124,10 @@ interface FormState {
 }
 
 const DEFAULT: FormState = {
-  originZip: "",
-  destinationZip: "",
-  originAddress: "",
-  destinationAddress: "",
-  originLat: null,
-  originLng: null,
-  originPlaceId: "",
-  destinationLat: null,
-  destinationLng: null,
-  destinationPlaceId: "",
+  origin: { ...EMPTY_SIDE },
+  destination: { ...EMPTY_SIDE },
   propertyType: "apartment",
   inventory: {},
-  originStairs: 0,
-  destinationStairs: 0,
-  originElevator: false,
-  destinationElevator: false,
-  originLongCarry: false,
-  destinationLongCarry: false,
-  originParking: "easy",
-  destinationParking: "easy",
   packing: false,
   unpacking: false,
   storage: false,
@@ -159,40 +159,49 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
   const set = <K extends keyof FormState>(k: K, v: FormState[K]) =>
     setForm((s) => ({ ...s, [k]: v }));
 
+  const setSide = (
+    which: "origin" | "destination",
+    patch: Partial<SideState>
+  ) =>
+    setForm((s) => ({
+      ...s,
+      [which]: { ...s[which], ...patch },
+    }));
+
   // Resolve ZIPs (async — swap for Google Maps later)
   useEffect(() => {
     let cancelled = false;
-    if (isValidZip(form.originZip)) {
-      resolveZip(form.originZip).then((r) => !cancelled && setOriginLoc(r));
+    if (isValidZip(form.origin.zip)) {
+      resolveZip(form.origin.zip).then((r) => !cancelled && setOriginLoc(r));
     } else setOriginLoc(null);
     return () => {
       cancelled = true;
     };
-  }, [form.originZip]);
+  }, [form.origin.zip]);
 
   useEffect(() => {
     let cancelled = false;
-    if (isValidZip(form.destinationZip)) {
-      resolveZip(form.destinationZip).then((r) => !cancelled && setDestLoc(r));
+    if (isValidZip(form.destination.zip)) {
+      resolveZip(form.destination.zip).then((r) => !cancelled && setDestLoc(r));
     } else setDestLoc(null);
     return () => {
       cancelled = true;
     };
-  }, [form.destinationZip]);
+  }, [form.destination.zip]);
 
   // Compute distance whenever both ZIPs resolved. Use lat/lng from Places when available.
   useEffect(() => {
     let cancelled = false;
-    if (isValidZip(form.originZip) && isValidZip(form.destinationZip)) {
+    if (isValidZip(form.origin.zip) && isValidZip(form.destination.zip)) {
       const oCoords =
-        form.originLat != null && form.originLng != null
-          ? { lat: form.originLat, lng: form.originLng }
+        form.origin.lat != null && form.origin.lng != null
+          ? { lat: form.origin.lat, lng: form.origin.lng }
           : null;
       const dCoords =
-        form.destinationLat != null && form.destinationLng != null
-          ? { lat: form.destinationLat, lng: form.destinationLng }
+        form.destination.lat != null && form.destination.lng != null
+          ? { lat: form.destination.lat, lng: form.destination.lng }
           : null;
-      computeDistance(form.originZip, form.destinationZip, oCoords, dCoords).then((r) => {
+      computeDistance(form.origin.zip, form.destination.zip, oCoords, dCoords).then((r) => {
         if (cancelled || !r) return;
         const sameState = r.origin.state === r.destination.state;
         setDistance({ miles: r.miles, type: sameState ? "local" : "interstate" });
@@ -204,12 +213,12 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
       cancelled = true;
     };
   }, [
-    form.originZip,
-    form.destinationZip,
-    form.originLat,
-    form.originLng,
-    form.destinationLat,
-    form.destinationLng,
+    form.origin.zip,
+    form.destination.zip,
+    form.origin.lat,
+    form.origin.lng,
+    form.destination.lat,
+    form.destination.lng,
   ]);
 
   const canEstimate = Boolean(distance);
@@ -217,21 +226,21 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
   const quote: QuoteResult | null = useMemo(() => {
     if (!distance) return null;
     return computeQuote({
-      originZip: form.originZip,
-      destinationZip: form.destinationZip,
-      originAddress: form.originAddress,
-      destinationAddress: form.destinationAddress,
+      originZip: form.origin.zip,
+      destinationZip: form.destination.zip,
+      originAddress: form.origin.fullAddress,
+      destinationAddress: form.destination.fullAddress,
       distanceMiles: distance.miles,
       moveType: distance.type,
       inventory: form.inventory,
-      originFloor: form.originStairs,
-      destinationFloor: form.destinationStairs,
-      originElevator: form.originElevator,
-      destinationElevator: form.destinationElevator,
-      originLongCarry: form.originLongCarry,
-      destinationLongCarry: form.destinationLongCarry,
-      originParking: form.originParking,
-      destinationParking: form.destinationParking,
+      originFloor: form.origin.floor,
+      destinationFloor: form.destination.floor,
+      originElevator: form.origin.elevator,
+      destinationElevator: form.destination.elevator,
+      originLongCarry: form.origin.longCarry,
+      destinationLongCarry: form.destination.longCarry,
+      originParking: form.origin.parking,
+      destinationParking: form.destination.parking,
       packing: form.packing,
       unpacking: form.unpacking,
       storage: form.storage,
@@ -259,36 +268,37 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
         .filter(([, n]) => n > 0)
         .map(([id, quantity]) => ({ id, quantity }));
 
+      const o = form.origin;
+      const d = form.destination;
+
       const { error } = await supabase.from("quotes").insert({
         user_id: userId,
-        origin_zip: form.originZip,
-        destination_zip: form.destinationZip,
-        origin_address: form.originAddress || null,
-        destination_address: form.destinationAddress || null,
-        origin_lat: form.originLat,
-        origin_lng: form.originLng,
-        destination_lat: form.destinationLat,
-        destination_lng: form.destinationLng,
-        origin_place_id: form.originPlaceId || null,
-        destination_place_id: form.destinationPlaceId || null,
-        origin_city: originLoc?.city ?? null,
-        destination_city: destLoc?.city ?? null,
-        origin_state: originLoc?.state ?? null,
-        destination_state: destLoc?.state ?? null,
+        origin_zip: o.zip,
+        destination_zip: d.zip,
+        origin_address: o.fullAddress || null,
+        destination_address: d.fullAddress || null,
+        origin_lat: o.lat,
+        origin_lng: o.lng,
+        destination_lat: d.lat,
+        destination_lng: d.lng,
+        origin_place_id: o.placeId || null,
+        destination_place_id: d.placeId || null,
+        origin_city: o.city || originLoc?.city || null,
+        destination_city: d.city || destLoc?.city || null,
+        origin_state: o.state || originLoc?.state || null,
+        destination_state: d.state || destLoc?.state || null,
         distance_miles: distance.miles,
         move_type: distance.type,
         move_size: form.propertyType,
-        // legacy fields kept for backwards compatibility
         property_type: form.propertyType,
         bedrooms: 0,
-        floor: Math.max(form.originStairs, form.destinationStairs) + 1,
-        elevator: form.originElevator || form.destinationElevator,
+        floor: Math.max(o.floor, d.floor) + 1,
+        elevator: o.elevator || d.elevator,
         packing: form.packing,
         storage: form.storage,
         assembly: form.assembly,
         heavy_items: form.piano || form.safe || form.gymEquipment,
-        long_carry: form.originLongCarry || form.destinationLongCarry,
-        // new fields
+        long_carry: o.longCarry || d.longCarry,
         unpacking: form.unpacking,
         junk_removal: form.junkRemoval,
         piano: form.piano,
@@ -297,12 +307,12 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
         appliances: form.appliances,
         fragile_items: form.fragileItems,
         insurance_tier: form.insurance,
-        origin_stairs: form.originStairs,
-        destination_stairs: form.destinationStairs,
-        origin_elevator: form.originElevator,
-        destination_elevator: form.destinationElevator,
-        origin_long_carry: form.originLongCarry,
-        destination_long_carry: form.destinationLongCarry,
+        origin_stairs: o.floor,
+        destination_stairs: d.floor,
+        origin_elevator: o.elevator,
+        destination_elevator: d.elevator,
+        origin_long_carry: o.longCarry,
+        destination_long_carry: d.longCarry,
         preferred_time: form.preferredTime,
         flexible_date: form.flexibleDate,
         move_date: form.moveDate || null,
@@ -318,7 +328,14 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
         estimated_high: quote.high,
         contact_email: form.email || null,
         contact_phone: form.phone || null,
-        details: { preferredTime: form.preferredTime, provider: "haversine-v1" } as unknown as never,
+        details: {
+          preferredTime: form.preferredTime,
+          provider: "haversine-v1",
+          originHouseNumber: o.houseNumber,
+          originStreet: o.street,
+          destinationHouseNumber: d.houseNumber,
+          destinationStreet: d.street,
+        } as unknown as never,
       });
       if (error) throw error;
       toast.success("Quote saved. A moving specialist will follow up shortly.");
@@ -329,6 +346,7 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
     }
   }
 
+
   // ---------- Render ---------------------------------------------------------
 
   return (
@@ -336,68 +354,35 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
       <PriceHeader quote={quote} distance={distance} propertyType={form.propertyType} />
 
       <div className="grid gap-6 p-5 sm:p-8 md:grid-cols-2">
-        {/* Route ------------------------------------------------------------ */}
-        <SectionCard step="01" label="Route">
-          <div className="grid gap-3">
-            <ZipInput
-              placeholder="Origin ZIP"
-              value={form.originZip}
-              onChange={(v) => set("originZip", v)}
-              loc={originLoc}
-            />
-            <AddressAutocomplete
-              placeholder="Origin street address"
-              value={form.originAddress}
-              onChangeText={(v) => set("originAddress", v)}
-              onSelect={(p: PlaceSelection) =>
-                setForm((s) => ({
-                  ...s,
-                  originAddress: p.formattedAddress,
-                  originLat: p.lat,
-                  originLng: p.lng,
-                  originPlaceId: p.placeId,
-                  originZip: p.zip || s.originZip,
-                }))
-              }
-            />
-            <div className="flex items-center justify-center text-muted-foreground">
-              <ArrowRight className="h-4 w-4" />
-            </div>
-            <ZipInput
-              placeholder="Destination ZIP"
-              value={form.destinationZip}
-              onChange={(v) => set("destinationZip", v)}
-              loc={destLoc}
-            />
-            <AddressAutocomplete
-              placeholder="Destination street address"
-              value={form.destinationAddress}
-              onChangeText={(v) => set("destinationAddress", v)}
-              onSelect={(p: PlaceSelection) =>
-                setForm((s) => ({
-                  ...s,
-                  destinationAddress: p.formattedAddress,
-                  destinationLat: p.lat,
-                  destinationLng: p.lng,
-                  destinationPlaceId: p.placeId,
-                  destinationZip: p.zip || s.destinationZip,
-                }))
-              }
-            />
-
-            {distance && (
-              <div className="flex items-center gap-2 rounded-lg bg-muted/60 px-3 py-2 text-xs text-muted-foreground">
-                <Truck className="h-3.5 w-3.5 text-sage" />
-                <span className="font-medium text-foreground">{distance.miles} mi</span>
-                <span>·</span>
-                <span className="capitalize">{distance.type} move</span>
-              </div>
-            )}
-          </div>
+        {/* Origin ----------------------------------------------------------- */}
+        <SectionCard step="01" label="Origin">
+          <LocationBlock
+            side={form.origin}
+            onChange={(patch) => setSide("origin", patch)}
+            fallbackLoc={originLoc}
+          />
         </SectionCard>
 
+        {/* Destination ------------------------------------------------------ */}
+        <SectionCard step="02" label="Destination">
+          <LocationBlock
+            side={form.destination}
+            onChange={(patch) => setSide("destination", patch)}
+            fallbackLoc={destLoc}
+          />
+        </SectionCard>
+
+        {distance && (
+          <div className="md:col-span-2 flex items-center gap-2 rounded-lg bg-muted/60 px-3 py-2 text-xs text-muted-foreground">
+            <Truck className="h-3.5 w-3.5 text-sage" />
+            <span className="font-medium text-foreground">{distance.miles} mi</span>
+            <span>·</span>
+            <span className="capitalize">{distance.type} move</span>
+          </div>
+        )}
+
         {/* Property type --------------------------------------------------- */}
-        <SectionCard step="02" label="Property type">
+        <SectionCard step="03" label="Property type" className="md:col-span-2">
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
             {PROPERTY_TYPES.map(({ value, label, Icon }) => {
               const active = form.propertyType === value;
@@ -429,7 +414,7 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
         </SectionCard>
 
         {/* Inventory builder ----------------------------------------------- */}
-        <SectionCard step="03" label="Inventory (optional but recommended)" className="md:col-span-2">
+        <SectionCard step="04" label="Inventory (optional but recommended)" className="md:col-span-2">
           <InventoryBuilder
             counts={form.inventory}
             onChange={(inv) => set("inventory", inv)}
@@ -439,33 +424,6 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
           />
         </SectionCard>
 
-        {/* Access — origin -------------------------------------------------- */}
-        <SectionCard step="04" label="Origin access">
-          <AccessGroup
-            stairs={form.originStairs}
-            elevator={form.originElevator}
-            longCarry={form.originLongCarry}
-            parking={form.originParking}
-            onStairs={(n) => set("originStairs", n)}
-            onElevator={(v) => set("originElevator", v)}
-            onLongCarry={(v) => set("originLongCarry", v)}
-            onParking={(v) => set("originParking", v)}
-          />
-        </SectionCard>
-
-        {/* Access — destination -------------------------------------------- */}
-        <SectionCard step="05" label="Destination access">
-          <AccessGroup
-            stairs={form.destinationStairs}
-            elevator={form.destinationElevator}
-            longCarry={form.destinationLongCarry}
-            parking={form.destinationParking}
-            onStairs={(n) => set("destinationStairs", n)}
-            onElevator={(v) => set("destinationElevator", v)}
-            onLongCarry={(v) => set("destinationLongCarry", v)}
-            onParking={(v) => set("destinationParking", v)}
-          />
-        </SectionCard>
 
         {/* Services --------------------------------------------------------- */}
         <SectionCard step="06" label="Services & add-ons" className="md:col-span-2">
@@ -725,6 +683,257 @@ function ZipInput({
           ""
         )}
       </p>
+    </div>
+  );
+}
+
+function LocationBlock({
+  side,
+  onChange,
+  fallbackLoc,
+}: {
+  side: SideState;
+  onChange: (patch: Partial<SideState>) => void;
+  fallbackLoc: ZipLocation | null;
+}) {
+  const [cities, setCities] = useState<string[]>([]);
+  const [zipCenter, setZipCenter] = useState<{ lat: number; lng: number } | null>(null);
+  const [loadingCities, setLoadingCities] = useState(false);
+
+  // Look up cities + state from ZIP via Google Geocoder.
+  useEffect(() => {
+    let cancelled = false;
+    if (!isValidZip(side.zip)) {
+      setCities([]);
+      setZipCenter(null);
+      return;
+    }
+    setLoadingCities(true);
+    lookupZipCities(side.zip)
+      .then((r) => {
+        if (cancelled) return;
+        if (!r) {
+          // Fallback to local DB
+          setCities(fallbackLoc ? [fallbackLoc.city] : []);
+          setZipCenter(fallbackLoc ? { lat: fallbackLoc.lat, lng: fallbackLoc.lng } : null);
+          if (fallbackLoc && !side.state) {
+            onChange({ state: fallbackLoc.state, city: side.city || fallbackLoc.city });
+          }
+          return;
+        }
+        setCities(r.cities);
+        setZipCenter({ lat: r.lat, lng: r.lng });
+        const patch: Partial<SideState> = {};
+        if (r.state && side.state !== r.state) patch.state = r.state;
+        // Auto-select when only one city
+        if (r.cities.length === 1 && side.city !== r.cities[0]) patch.city = r.cities[0];
+        // If current city isn't in the list, clear it
+        if (side.city && r.cities.length > 0 && !r.cities.includes(side.city)) {
+          patch.city = r.cities.length === 1 ? r.cities[0] : "";
+        }
+        if (Object.keys(patch).length) onChange(patch);
+      })
+      .finally(() => !cancelled && setLoadingCities(false));
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [side.zip]);
+
+  const invalidZip = side.zip.length === 5 && !isValidZip(side.zip);
+
+  return (
+    <div className="grid gap-2.5">
+      {/* ZIP */}
+      <div>
+        <Label className="mb-1 block text-[11px] font-medium text-muted-foreground">
+          ZIP code
+        </Label>
+        <div className="relative">
+          <MapPin className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            placeholder="5-digit ZIP"
+            inputMode="numeric"
+            maxLength={5}
+            value={side.zip}
+            onChange={(e) =>
+              onChange({ zip: e.target.value.replace(/\D/g, "").slice(0, 5) })
+            }
+            className={cn("pl-9 font-mono tracking-wider", invalidZip && "border-destructive")}
+          />
+        </div>
+      </div>
+
+      {/* City */}
+      <div>
+        <Label className="mb-1 block text-[11px] font-medium text-muted-foreground">
+          City
+        </Label>
+        {cities.length > 1 ? (
+          <select
+            value={side.city}
+            onChange={(e) => onChange({ city: e.target.value })}
+            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+          >
+            <option value="">Select a city…</option>
+            {cities.map((c) => (
+              <option key={c} value={c}>
+                {c}
+              </option>
+            ))}
+          </select>
+        ) : (
+          <Input
+            readOnly
+            placeholder={
+              loadingCities
+                ? "Looking up city…"
+                : invalidZip
+                ? "Enter a valid ZIP"
+                : "Auto-detected from ZIP"
+            }
+            value={side.city}
+            className="bg-muted/40"
+          />
+        )}
+      </div>
+
+      {/* Street (Google Places) */}
+      <div>
+        <Label className="mb-1 block text-[11px] font-medium text-muted-foreground">
+          Street
+        </Label>
+        <AddressAutocomplete
+          placeholder="Start typing street name"
+          value={side.street}
+          onChangeText={(v) => onChange({ street: v })}
+          bias={zipCenter}
+          onSelect={(p: PlaceSelection) => {
+            // Split full formatted address into street + house number.
+            // AddressAutocomplete already parses `streetAddress` = "<num> <route>".
+            const parts = p.streetAddress.trim().split(/\s+/);
+            const first = parts[0] ?? "";
+            const hasHouseNum = /^\d/.test(first);
+            const houseNumber = hasHouseNum ? first : side.houseNumber;
+            const streetName = hasHouseNum ? parts.slice(1).join(" ") : p.streetAddress;
+            onChange({
+              street: streetName || p.streetAddress || p.formattedAddress,
+              houseNumber,
+              fullAddress: p.formattedAddress,
+              lat: p.lat,
+              lng: p.lng,
+              placeId: p.placeId,
+              zip: p.zip || side.zip,
+              city: p.city || side.city,
+              state: p.state || side.state,
+            });
+          }}
+        />
+      </div>
+
+      {/* House number + State */}
+      <div className="grid grid-cols-2 gap-2">
+        <div>
+          <Label className="mb-1 block text-[11px] font-medium text-muted-foreground">
+            House number
+          </Label>
+          <Input
+            placeholder="e.g. 123"
+            value={side.houseNumber}
+            onChange={(e) => onChange({ houseNumber: e.target.value.slice(0, 15) })}
+          />
+        </div>
+        <div>
+          <Label className="mb-1 block text-[11px] font-medium text-muted-foreground">
+            State
+          </Label>
+          <Input readOnly value={side.state} placeholder="—" className="bg-muted/40" />
+        </div>
+      </div>
+
+      {/* Floor */}
+      <div className="flex items-center justify-between rounded-md border border-border bg-card px-3 py-2">
+        <div className="text-sm">
+          <div className="font-medium">Floor</div>
+          <div className="text-[11px] text-muted-foreground">0 = ground floor</div>
+        </div>
+        <div className="flex items-center gap-1">
+          <button
+            type="button"
+            onClick={() => onChange({ floor: Math.max(0, side.floor - 1) })}
+            className="grid h-7 w-7 place-items-center rounded-md border border-border bg-card text-muted-foreground hover:bg-accent"
+            aria-label="Decrease floor"
+          >
+            <Minus className="h-3.5 w-3.5" />
+          </button>
+          <span className="w-8 text-center text-sm font-medium tabular-nums">
+            {side.floor}
+          </span>
+          <button
+            type="button"
+            onClick={() => onChange({ floor: Math.min(50, side.floor + 1) })}
+            className="grid h-7 w-7 place-items-center rounded-md border border-border bg-card text-muted-foreground hover:bg-accent"
+            aria-label="Increase floor"
+          >
+            <Plus className="h-3.5 w-3.5" />
+          </button>
+        </div>
+      </div>
+
+      {/* Elevator Yes / No */}
+      <div className="rounded-md border border-border bg-card px-3 py-2 text-sm">
+        <div className="mb-1.5 font-medium">Elevator</div>
+        <div className="grid grid-cols-2 gap-1">
+          {[
+            { v: true, l: "Yes" },
+            { v: false, l: "No" },
+          ].map(({ v, l }) => (
+            <button
+              key={l}
+              type="button"
+              onClick={() => onChange({ elevator: v })}
+              className={cn(
+                "rounded-md border px-2 py-1 text-xs font-medium transition-all",
+                side.elevator === v
+                  ? "border-primary bg-primary/5 text-primary"
+                  : "border-border bg-card text-muted-foreground hover:bg-accent"
+              )}
+            >
+              {l}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Parking distance */}
+      <div className="rounded-md border border-border bg-card px-3 py-2 text-sm">
+        <div className="mb-1.5 font-medium">Parking distance</div>
+        <div className="grid grid-cols-3 gap-1">
+          {(["easy", "moderate", "difficult"] as ParkingDifficulty[]).map((p) => (
+            <button
+              key={p}
+              type="button"
+              onClick={() => onChange({ parking: p })}
+              className={cn(
+                "rounded-md border px-2 py-1 text-xs font-medium capitalize transition-all",
+                side.parking === p
+                  ? "border-primary bg-primary/5 text-primary"
+                  : "border-border bg-card text-muted-foreground hover:bg-accent"
+              )}
+            >
+              {p === "easy" ? "Close" : p === "moderate" ? "Medium" : "Far"}
+            </button>
+          ))}
+        </div>
+        <label className="mt-2 flex cursor-pointer items-center gap-2 text-xs text-muted-foreground">
+          <input
+            type="checkbox"
+            checked={side.longCarry}
+            onChange={(e) => onChange({ longCarry: e.target.checked })}
+          />
+          Long carry (over 75 ft from truck)
+        </label>
+      </div>
     </div>
   );
 }

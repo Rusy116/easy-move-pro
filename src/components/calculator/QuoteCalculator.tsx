@@ -687,6 +687,257 @@ function ZipInput({
   );
 }
 
+function LocationBlock({
+  side,
+  onChange,
+  fallbackLoc,
+}: {
+  side: SideState;
+  onChange: (patch: Partial<SideState>) => void;
+  fallbackLoc: ZipLocation | null;
+}) {
+  const [cities, setCities] = useState<string[]>([]);
+  const [zipCenter, setZipCenter] = useState<{ lat: number; lng: number } | null>(null);
+  const [loadingCities, setLoadingCities] = useState(false);
+
+  // Look up cities + state from ZIP via Google Geocoder.
+  useEffect(() => {
+    let cancelled = false;
+    if (!isValidZip(side.zip)) {
+      setCities([]);
+      setZipCenter(null);
+      return;
+    }
+    setLoadingCities(true);
+    lookupZipCities(side.zip)
+      .then((r) => {
+        if (cancelled) return;
+        if (!r) {
+          // Fallback to local DB
+          setCities(fallbackLoc ? [fallbackLoc.city] : []);
+          setZipCenter(fallbackLoc ? { lat: fallbackLoc.lat, lng: fallbackLoc.lng } : null);
+          if (fallbackLoc && !side.state) {
+            onChange({ state: fallbackLoc.state, city: side.city || fallbackLoc.city });
+          }
+          return;
+        }
+        setCities(r.cities);
+        setZipCenter({ lat: r.lat, lng: r.lng });
+        const patch: Partial<SideState> = {};
+        if (r.state && side.state !== r.state) patch.state = r.state;
+        // Auto-select when only one city
+        if (r.cities.length === 1 && side.city !== r.cities[0]) patch.city = r.cities[0];
+        // If current city isn't in the list, clear it
+        if (side.city && r.cities.length > 0 && !r.cities.includes(side.city)) {
+          patch.city = r.cities.length === 1 ? r.cities[0] : "";
+        }
+        if (Object.keys(patch).length) onChange(patch);
+      })
+      .finally(() => !cancelled && setLoadingCities(false));
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [side.zip]);
+
+  const invalidZip = side.zip.length === 5 && !isValidZip(side.zip);
+
+  return (
+    <div className="grid gap-2.5">
+      {/* ZIP */}
+      <div>
+        <Label className="mb-1 block text-[11px] font-medium text-muted-foreground">
+          ZIP code
+        </Label>
+        <div className="relative">
+          <MapPin className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            placeholder="5-digit ZIP"
+            inputMode="numeric"
+            maxLength={5}
+            value={side.zip}
+            onChange={(e) =>
+              onChange({ zip: e.target.value.replace(/\D/g, "").slice(0, 5) })
+            }
+            className={cn("pl-9 font-mono tracking-wider", invalidZip && "border-destructive")}
+          />
+        </div>
+      </div>
+
+      {/* City */}
+      <div>
+        <Label className="mb-1 block text-[11px] font-medium text-muted-foreground">
+          City
+        </Label>
+        {cities.length > 1 ? (
+          <select
+            value={side.city}
+            onChange={(e) => onChange({ city: e.target.value })}
+            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+          >
+            <option value="">Select a city…</option>
+            {cities.map((c) => (
+              <option key={c} value={c}>
+                {c}
+              </option>
+            ))}
+          </select>
+        ) : (
+          <Input
+            readOnly
+            placeholder={
+              loadingCities
+                ? "Looking up city…"
+                : invalidZip
+                ? "Enter a valid ZIP"
+                : "Auto-detected from ZIP"
+            }
+            value={side.city}
+            className="bg-muted/40"
+          />
+        )}
+      </div>
+
+      {/* Street (Google Places) */}
+      <div>
+        <Label className="mb-1 block text-[11px] font-medium text-muted-foreground">
+          Street
+        </Label>
+        <AddressAutocomplete
+          placeholder="Start typing street name"
+          value={side.street}
+          onChangeText={(v) => onChange({ street: v })}
+          bias={zipCenter}
+          onSelect={(p: PlaceSelection) => {
+            // Split full formatted address into street + house number.
+            // AddressAutocomplete already parses `streetAddress` = "<num> <route>".
+            const parts = p.streetAddress.trim().split(/\s+/);
+            const first = parts[0] ?? "";
+            const hasHouseNum = /^\d/.test(first);
+            const houseNumber = hasHouseNum ? first : side.houseNumber;
+            const streetName = hasHouseNum ? parts.slice(1).join(" ") : p.streetAddress;
+            onChange({
+              street: streetName || p.streetAddress || p.formattedAddress,
+              houseNumber,
+              fullAddress: p.formattedAddress,
+              lat: p.lat,
+              lng: p.lng,
+              placeId: p.placeId,
+              zip: p.zip || side.zip,
+              city: p.city || side.city,
+              state: p.state || side.state,
+            });
+          }}
+        />
+      </div>
+
+      {/* House number + State */}
+      <div className="grid grid-cols-2 gap-2">
+        <div>
+          <Label className="mb-1 block text-[11px] font-medium text-muted-foreground">
+            House number
+          </Label>
+          <Input
+            placeholder="e.g. 123"
+            value={side.houseNumber}
+            onChange={(e) => onChange({ houseNumber: e.target.value.slice(0, 15) })}
+          />
+        </div>
+        <div>
+          <Label className="mb-1 block text-[11px] font-medium text-muted-foreground">
+            State
+          </Label>
+          <Input readOnly value={side.state} placeholder="—" className="bg-muted/40" />
+        </div>
+      </div>
+
+      {/* Floor */}
+      <div className="flex items-center justify-between rounded-md border border-border bg-card px-3 py-2">
+        <div className="text-sm">
+          <div className="font-medium">Floor</div>
+          <div className="text-[11px] text-muted-foreground">0 = ground floor</div>
+        </div>
+        <div className="flex items-center gap-1">
+          <button
+            type="button"
+            onClick={() => onChange({ floor: Math.max(0, side.floor - 1) })}
+            className="grid h-7 w-7 place-items-center rounded-md border border-border bg-card text-muted-foreground hover:bg-accent"
+            aria-label="Decrease floor"
+          >
+            <Minus className="h-3.5 w-3.5" />
+          </button>
+          <span className="w-8 text-center text-sm font-medium tabular-nums">
+            {side.floor}
+          </span>
+          <button
+            type="button"
+            onClick={() => onChange({ floor: Math.min(50, side.floor + 1) })}
+            className="grid h-7 w-7 place-items-center rounded-md border border-border bg-card text-muted-foreground hover:bg-accent"
+            aria-label="Increase floor"
+          >
+            <Plus className="h-3.5 w-3.5" />
+          </button>
+        </div>
+      </div>
+
+      {/* Elevator Yes / No */}
+      <div className="rounded-md border border-border bg-card px-3 py-2 text-sm">
+        <div className="mb-1.5 font-medium">Elevator</div>
+        <div className="grid grid-cols-2 gap-1">
+          {[
+            { v: true, l: "Yes" },
+            { v: false, l: "No" },
+          ].map(({ v, l }) => (
+            <button
+              key={l}
+              type="button"
+              onClick={() => onChange({ elevator: v })}
+              className={cn(
+                "rounded-md border px-2 py-1 text-xs font-medium transition-all",
+                side.elevator === v
+                  ? "border-primary bg-primary/5 text-primary"
+                  : "border-border bg-card text-muted-foreground hover:bg-accent"
+              )}
+            >
+              {l}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Parking distance */}
+      <div className="rounded-md border border-border bg-card px-3 py-2 text-sm">
+        <div className="mb-1.5 font-medium">Parking distance</div>
+        <div className="grid grid-cols-3 gap-1">
+          {(["easy", "moderate", "difficult"] as ParkingDifficulty[]).map((p) => (
+            <button
+              key={p}
+              type="button"
+              onClick={() => onChange({ parking: p })}
+              className={cn(
+                "rounded-md border px-2 py-1 text-xs font-medium capitalize transition-all",
+                side.parking === p
+                  ? "border-primary bg-primary/5 text-primary"
+                  : "border-border bg-card text-muted-foreground hover:bg-accent"
+              )}
+            >
+              {p === "easy" ? "Close" : p === "moderate" ? "Medium" : "Far"}
+            </button>
+          ))}
+        </div>
+        <label className="mt-2 flex cursor-pointer items-center gap-2 text-xs text-muted-foreground">
+          <input
+            type="checkbox"
+            checked={side.longCarry}
+            onChange={(e) => onChange({ longCarry: e.target.checked })}
+          />
+          Long carry (over 75 ft from truck)
+        </label>
+      </div>
+    </div>
+  );
+}
+
 function ToggleCard({
   label,
   desc,

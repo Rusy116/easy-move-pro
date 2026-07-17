@@ -15,7 +15,7 @@ import {
   Home,
   Building2,
   Warehouse,
-  BedDouble,
+  Briefcase,
   ChevronDown,
 } from "lucide-react";
 import {
@@ -27,10 +27,7 @@ import {
 import {
   INVENTORY_CATALOG,
   CATEGORY_LABEL,
-  MOVE_SIZE_LABEL,
-  MOVE_SIZE_PRESETS,
   type InventoryCounts,
-  type MoveSize,
   type InventoryItem,
 } from "@/lib/inventory";
 import type { ParkingDifficulty } from "@/lib/pricing-engine";

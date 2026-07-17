@@ -173,7 +173,7 @@ export function AddressAutocomplete({
     }
   }
 
-  const disabled = !ready && !error;
+  const disabled = disabledProp || (!ready && !error);
 
   const primaryText = useMemo(
     () => (s: Suggestion) => s.placePrediction?.mainText?.text ?? s.placePrediction?.text.text ?? "",

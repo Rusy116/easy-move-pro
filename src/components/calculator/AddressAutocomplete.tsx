@@ -79,7 +79,7 @@ export function AddressAutocomplete({
     if (!ready) return;
     if (debounceRef.current) window.clearTimeout(debounceRef.current);
     const q = value.trim();
-    if (q.length < 3) {
+    if (q.length < 2) {
       setSuggestions([]);
       setLoading(false);
       return;
@@ -94,7 +94,6 @@ export function AddressAutocomplete({
           await AutocompleteSuggestion.fetchAutocompleteSuggestions({
             input: q,
             sessionToken: sessionTokenRef.current ?? undefined,
-            includedPrimaryTypes: ["street_address", "premise", "subpremise", "route"],
             includedRegionCodes: ["us"],
           });
         setSuggestions(suggestions.slice(0, 6));

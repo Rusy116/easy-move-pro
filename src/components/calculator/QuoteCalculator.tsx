@@ -563,12 +563,14 @@ type FromMaybeNull = ZipLocation | null;
 function PriceHeader({
   quote,
   distance,
-  moveSize,
+  propertyType,
 }: {
   quote: QuoteResult | null;
   distance: { miles: number; type: MoveType } | null;
-  moveSize: MoveSize;
+  propertyType: PropertyType;
 }) {
+  const propertyLabel =
+    PROPERTY_TYPES.find((p) => p.value === propertyType)?.label ?? "";
   return (
     <div className="relative overflow-hidden bg-primary px-6 py-6 text-primary-foreground sm:px-8 sm:py-8">
       <div className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-ochre/30 blur-3xl" aria-hidden />
@@ -581,7 +583,7 @@ function PriceHeader({
           <h3 className="mt-3 font-serif text-xl font-medium sm:text-2xl">Instant Moving Quote</h3>
           <p className="mt-1 text-xs opacity-70 sm:text-sm">
             {distance
-              ? `${distance.miles} mi ${distance.type} · ${MOVE_SIZE_LABEL[moveSize]}${quote ? ` · ${quote.numMovers} movers · ${quote.truckSize}` : ""}`
+              ? `${distance.miles} mi ${distance.type} · ${propertyLabel}${quote ? ` · ${quote.numMovers} movers · ${quote.truckSize}` : ""}`
               : "Enter ZIPs to see your live price"}
           </p>
         </div>

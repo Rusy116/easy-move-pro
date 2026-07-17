@@ -243,10 +243,10 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
         destination_state: destLoc?.state ?? null,
         distance_miles: distance.miles,
         move_type: distance.type,
-        move_size: form.moveSize,
+        move_size: form.propertyType,
         // legacy fields kept for backwards compatibility
-        property_type: form.moveSize === "studio" ? "studio" : "apartment",
-        bedrooms: form.moveSize === "studio" ? 0 : Number(form.moveSize.replace("br", "")) || 1,
+        property_type: form.propertyType,
+        bedrooms: 0,
         floor: Math.max(form.originStairs, form.destinationStairs) + 1,
         elevator: form.originElevator || form.destinationElevator,
         packing: form.packing,

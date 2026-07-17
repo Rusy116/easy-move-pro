@@ -49,6 +49,18 @@ import { cn } from "@/lib/utils";
 
 // ---------- Types & defaults -------------------------------------------------
 
+// Property type is a UI-only helper. It does NOT affect pricing.
+// Pricing is derived exclusively from the inventory + logistics factors.
+export type PropertyType = "apartment" | "house" | "office" | "storage";
+
+const PROPERTY_TYPES: { value: PropertyType; label: string; Icon: typeof Home }[] = [
+  { value: "apartment", label: "Apartment", Icon: Building2 },
+  { value: "house", label: "House", Icon: Home },
+  { value: "office", label: "Office", Icon: Briefcase },
+  { value: "storage", label: "Storage", Icon: Warehouse },
+];
+
+
 interface FormState {
   originZip: string;
   destinationZip: string;

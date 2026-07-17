@@ -17,7 +17,9 @@ import {
   Warehouse,
   Briefcase,
   ChevronDown,
+  Info,
 } from "lucide-react";
+import { InsuranceInfoModal } from "./InsuranceInfoModal";
 import {
   computeQuote,
   type InsuranceTier,

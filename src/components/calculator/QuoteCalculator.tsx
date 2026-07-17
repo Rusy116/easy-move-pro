@@ -595,41 +595,128 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
         {!compact && (
           <>
             <SectionCard step="10" label="Contact" className="md:col-span-2">
-              <div className="grid gap-2 sm:grid-cols-2">
-                <Input placeholder="Email" type="email" value={form.email} onChange={(e) => set("email", e.target.value)} maxLength={255} />
-                <Input placeholder="Phone" value={form.phone} onChange={(e) => set("phone", e.target.value)} maxLength={20} />
+              <div className="grid gap-3">
+                <div>
+                  <Label className="mb-1 block text-[11px] font-medium text-muted-foreground">
+                    Full name <span className="text-destructive">*</span>
+                  </Label>
+                  <Input
+                    placeholder="Jane Doe"
+                    value={form.fullName}
+                    onChange={(e) => set("fullName", e.target.value.slice(0, 100))}
+                    maxLength={100}
+                    autoComplete="name"
+                  />
+                </div>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <div>
+                    <Label className="mb-1 block text-[11px] font-medium text-muted-foreground">
+                      Phone number <span className="text-destructive">*</span>
+                    </Label>
+                    <Input
+                      placeholder="(555) 123-4567"
+                      inputMode="tel"
+                      autoComplete="tel"
+                      value={form.phone}
+                      onChange={(e) => set("phone", formatUsPhone(e.target.value))}
+                      maxLength={20}
+                      className={cn(
+                        form.phone && !isValidUsPhone(form.phone) && "border-destructive"
+                      )}
+                    />
+                    {form.phone && !isValidUsPhone(form.phone) && (
+                      <p className="mt-1 text-[11px] text-destructive">
+                        Please enter a valid US phone number.
+                      </p>
+                    )}
+                  </div>
+                  <div>
+                    <Label className="mb-1 block text-[11px] font-medium text-muted-foreground">
+                      Email address <span className="text-destructive">*</span>
+                    </Label>
+                    <Input
+                      type="email"
+                      placeholder="you@example.com"
+                      autoComplete="email"
+                      value={form.email}
+                      onChange={(e) => set("email", e.target.value)}
+                      maxLength={255}
+                      className={cn(
+                        form.email && !isValidEmail(form.email) && "border-destructive"
+                      )}
+                    />
+                    {form.email && !isValidEmail(form.email) && (
+                      <p className="mt-1 text-[11px] text-destructive">
+                        Please enter a valid email address.
+                      </p>
+                    )}
+                  </div>
+                </div>
               </div>
             </SectionCard>
-            <SectionCard step="11" label="Notes (optional)" className="md:col-span-2">
+            <SectionCard step="11" label="Additional notes (optional)" className="md:col-span-2">
               <Textarea
-                placeholder="Anything special about your items or building access?"
+                placeholder="Is there anything else we should know about your move?"
                 value={form.notes}
                 onChange={(e) => set("notes", e.target.value.slice(0, 1000))}
                 rows={3}
               />
+              <p className="mt-1.5 text-[11px] leading-relaxed text-muted-foreground/80">
+                Examples: Gate code · Fragile items · HOA requirements · Narrow stairs · Parking restrictions · Special instructions
+              </p>
             </SectionCard>
           </>
         )}
       </div>
+      )}
 
-      {/* Itemized breakdown + CTA */}
-      {quote && (
+      {/* Stage: form → continue to review */}
+      {stage === "form" && quote && !compact && (
         <div className="border-t border-border bg-muted/40 px-5 py-5 sm:px-8 sm:py-6">
-          {!compact && <ItemizedBreakdown quote={quote} />}
+          <ItemizedBreakdown quote={quote} />
           <div className="mt-5 flex flex-col-reverse items-stretch gap-3 sm:flex-row sm:items-center sm:justify-between">
             <p className="max-w-md text-xs text-muted-foreground">
-              Live estimate powered by our logistics engine. Final price locks in after a vetted mover reviews your inventory.
+              Live estimate powered by our logistics engine. Review your details next — we won't submit until you confirm.
             </p>
-            {!compact ? (
-              <Button onClick={saveQuote} disabled={!canEstimate || saving} size="lg" className="rounded-full">
-                {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Save & request booking
-              </Button>
-            ) : (
-              <span className="text-xs text-muted-foreground">Open the full calculator to book</span>
-            )}
+            <Button
+              onClick={() => {
+                if (!form.fullName.trim()) return toast.error("Please enter your full name.");
+                if (!isValidUsPhone(form.phone)) return toast.error("Please enter a valid US phone number.");
+                if (!isValidEmail(form.email)) return toast.error("Please enter a valid email address.");
+                setStage("review");
+                if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: "smooth" });
+              }}
+              disabled={!canEstimate}
+              size="lg"
+              className="rounded-full"
+            >
+              Review my move
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </Button>
           </div>
         </div>
+      )}
+      {stage === "form" && quote && compact && (
+        <div className="border-t border-border bg-muted/40 px-5 py-4 text-xs text-muted-foreground sm:px-8">
+          Open the full calculator to book
+        </div>
+      )}
+
+      {/* Stage: review */}
+      {stage === "review" && quote && distance && (
+        <ReviewScreen
+          form={form}
+          quote={quote}
+          distance={distance}
+          onEdit={() => setStage("form")}
+          onSubmit={saveQuote}
+          saving={saving}
+        />
+      )}
+
+      {/* Stage: done */}
+      {stage === "done" && (
+        <ThankYouScreen />
       )}
     </div>
   );

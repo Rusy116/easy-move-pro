@@ -93,12 +93,19 @@ export function AddressAutocomplete({
         const { AutocompleteSuggestion } = (await window.google.maps.importLibrary(
           "places"
         )) as google.maps.PlacesLibrary;
+        const request: google.maps.places.AutocompleteRequest = {
+          input: q,
+          sessionToken: sessionTokenRef.current ?? undefined,
+          includedRegionCodes: ["us"],
+        };
+        if (bias) {
+          request.locationBias = {
+            center: { lat: bias.lat, lng: bias.lng },
+            radius: bias.radiusMeters ?? 15000,
+          } as google.maps.CircleLiteral;
+        }
         const { suggestions } =
-          await AutocompleteSuggestion.fetchAutocompleteSuggestions({
-            input: q,
-            sessionToken: sessionTokenRef.current ?? undefined,
-            includedRegionCodes: ["us"],
-          });
+          await AutocompleteSuggestion.fetchAutocompleteSuggestions(request);
         setSuggestions(suggestions.slice(0, 6));
         setOpen(true);
         setActiveIdx(0);

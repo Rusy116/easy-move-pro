@@ -46,6 +46,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { AddressAutocomplete, type PlaceSelection } from "./AddressAutocomplete";
 
 // ---------- Types & defaults -------------------------------------------------
 
@@ -66,6 +67,12 @@ interface FormState {
   destinationZip: string;
   originAddress: string;
   destinationAddress: string;
+  originLat: number | null;
+  originLng: number | null;
+  originPlaceId: string;
+  destinationLat: number | null;
+  destinationLng: number | null;
+  destinationPlaceId: string;
   propertyType: PropertyType;
   inventory: InventoryCounts;
   // Access per side
@@ -105,6 +112,12 @@ const DEFAULT: FormState = {
   destinationZip: "",
   originAddress: "",
   destinationAddress: "",
+  originLat: null,
+  originLng: null,
+  originPlaceId: "",
+  destinationLat: null,
+  destinationLng: null,
+  destinationPlaceId: "",
   propertyType: "apartment",
   inventory: {},
   originStairs: 0,
@@ -167,11 +180,19 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
     };
   }, [form.destinationZip]);
 
-  // Compute distance whenever both ZIPs resolved
+  // Compute distance whenever both ZIPs resolved. Use lat/lng from Places when available.
   useEffect(() => {
     let cancelled = false;
     if (isValidZip(form.originZip) && isValidZip(form.destinationZip)) {
-      computeDistance(form.originZip, form.destinationZip).then((r) => {
+      const oCoords =
+        form.originLat != null && form.originLng != null
+          ? { lat: form.originLat, lng: form.originLng }
+          : null;
+      const dCoords =
+        form.destinationLat != null && form.destinationLng != null
+          ? { lat: form.destinationLat, lng: form.destinationLng }
+          : null;
+      computeDistance(form.originZip, form.destinationZip, oCoords, dCoords).then((r) => {
         if (cancelled || !r) return;
         const sameState = r.origin.state === r.destination.state;
         setDistance({ miles: r.miles, type: sameState ? "local" : "interstate" });
@@ -182,7 +203,14 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
     return () => {
       cancelled = true;
     };
-  }, [form.originZip, form.destinationZip]);
+  }, [
+    form.originZip,
+    form.destinationZip,
+    form.originLat,
+    form.originLng,
+    form.destinationLat,
+    form.destinationLng,
+  ]);
 
   const canEstimate = Boolean(distance);
 
@@ -237,6 +265,12 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
         destination_zip: form.destinationZip,
         origin_address: form.originAddress || null,
         destination_address: form.destinationAddress || null,
+        origin_lat: form.originLat,
+        origin_lng: form.originLng,
+        destination_lat: form.destinationLat,
+        destination_lng: form.destinationLng,
+        origin_place_id: form.originPlaceId || null,
+        destination_place_id: form.destinationPlaceId || null,
         origin_city: originLoc?.city ?? null,
         destination_city: destLoc?.city ?? null,
         origin_state: originLoc?.state ?? null,
@@ -311,10 +345,20 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
               onChange={(v) => set("originZip", v)}
               loc={originLoc}
             />
-            <Input
-              placeholder="Origin street address (optional)"
+            <AddressAutocomplete
+              placeholder="Origin street address"
               value={form.originAddress}
-              onChange={(e) => set("originAddress", e.target.value.slice(0, 200))}
+              onChangeText={(v) => set("originAddress", v)}
+              onSelect={(p: PlaceSelection) =>
+                setForm((s) => ({
+                  ...s,
+                  originAddress: p.formattedAddress,
+                  originLat: p.lat,
+                  originLng: p.lng,
+                  originPlaceId: p.placeId,
+                  originZip: p.zip || s.originZip,
+                }))
+              }
             />
             <div className="flex items-center justify-center text-muted-foreground">
               <ArrowRight className="h-4 w-4" />
@@ -325,11 +369,22 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
               onChange={(v) => set("destinationZip", v)}
               loc={destLoc}
             />
-            <Input
-              placeholder="Destination street address (optional)"
+            <AddressAutocomplete
+              placeholder="Destination street address"
               value={form.destinationAddress}
-              onChange={(e) => set("destinationAddress", e.target.value.slice(0, 200))}
+              onChangeText={(v) => set("destinationAddress", v)}
+              onSelect={(p: PlaceSelection) =>
+                setForm((s) => ({
+                  ...s,
+                  destinationAddress: p.formattedAddress,
+                  destinationLat: p.lat,
+                  destinationLng: p.lng,
+                  destinationPlaceId: p.placeId,
+                  destinationZip: p.zip || s.destinationZip,
+                }))
+              }
             />
+
             {distance && (
               <div className="flex items-center gap-2 rounded-lg bg-muted/60 px-3 py-2 text-xs text-muted-foreground">
                 <Truck className="h-3.5 w-3.5 text-sage" />

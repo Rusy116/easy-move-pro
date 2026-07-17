@@ -131,7 +131,10 @@ export type Database = {
           destination_address: string | null
           destination_city: string | null
           destination_elevator: boolean
+          destination_lat: number | null
+          destination_lng: number | null
           destination_long_carry: boolean
+          destination_place_id: string | null
           destination_stairs: number
           destination_state: string | null
           destination_zip: string
@@ -161,7 +164,10 @@ export type Database = {
           origin_address: string | null
           origin_city: string | null
           origin_elevator: boolean
+          origin_lat: number | null
+          origin_lng: number | null
           origin_long_carry: boolean
+          origin_place_id: string | null
           origin_stairs: number
           origin_state: string | null
           origin_zip: string
@@ -187,7 +193,10 @@ export type Database = {
           destination_address?: string | null
           destination_city?: string | null
           destination_elevator?: boolean
+          destination_lat?: number | null
+          destination_lng?: number | null
           destination_long_carry?: boolean
+          destination_place_id?: string | null
           destination_stairs?: number
           destination_state?: string | null
           destination_zip: string
@@ -217,7 +226,10 @@ export type Database = {
           origin_address?: string | null
           origin_city?: string | null
           origin_elevator?: boolean
+          origin_lat?: number | null
+          origin_lng?: number | null
           origin_long_carry?: boolean
+          origin_place_id?: string | null
           origin_stairs?: number
           origin_state?: string | null
           origin_zip: string
@@ -243,7 +255,10 @@ export type Database = {
           destination_address?: string | null
           destination_city?: string | null
           destination_elevator?: boolean
+          destination_lat?: number | null
+          destination_lng?: number | null
           destination_long_carry?: boolean
+          destination_place_id?: string | null
           destination_stairs?: number
           destination_state?: string | null
           destination_zip?: string
@@ -273,7 +288,10 @@ export type Database = {
           origin_address?: string | null
           origin_city?: string | null
           origin_elevator?: boolean
+          origin_lat?: number | null
+          origin_lng?: number | null
           origin_long_carry?: boolean
+          origin_place_id?: string | null
           origin_stairs?: number
           origin_state?: string | null
           origin_zip?: string

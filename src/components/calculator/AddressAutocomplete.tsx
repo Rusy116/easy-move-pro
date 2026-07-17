@@ -23,6 +23,7 @@ interface Props {
   biasZip?: string;
   /** Optional circular bias for suggestions (e.g. selected city centroid). */
   bias?: { lat: number; lng: number; radiusMeters?: number } | null;
+  disabled?: boolean;
   className?: string;
 }
 

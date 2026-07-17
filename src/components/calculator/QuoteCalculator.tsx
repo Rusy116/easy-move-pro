@@ -67,6 +67,12 @@ interface FormState {
   destinationZip: string;
   originAddress: string;
   destinationAddress: string;
+  originLat: number | null;
+  originLng: number | null;
+  originPlaceId: string;
+  destinationLat: number | null;
+  destinationLng: number | null;
+  destinationPlaceId: string;
   propertyType: PropertyType;
   inventory: InventoryCounts;
   // Access per side
@@ -106,6 +112,12 @@ const DEFAULT: FormState = {
   destinationZip: "",
   originAddress: "",
   destinationAddress: "",
+  originLat: null,
+  originLng: null,
+  originPlaceId: "",
+  destinationLat: null,
+  destinationLng: null,
+  destinationPlaceId: "",
   propertyType: "apartment",
   inventory: {},
   originStairs: 0,

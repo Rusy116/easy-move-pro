@@ -15,7 +15,7 @@ import {
   Home,
   Building2,
   Warehouse,
-  BedDouble,
+  Briefcase,
   ChevronDown,
 } from "lucide-react";
 import {
@@ -27,10 +27,7 @@ import {
 import {
   INVENTORY_CATALOG,
   CATEGORY_LABEL,
-  MOVE_SIZE_LABEL,
-  MOVE_SIZE_PRESETS,
   type InventoryCounts,
-  type MoveSize,
   type InventoryItem,
 } from "@/lib/inventory";
 import type { ParkingDifficulty } from "@/lib/pricing-engine";
@@ -52,12 +49,24 @@ import { cn } from "@/lib/utils";
 
 // ---------- Types & defaults -------------------------------------------------
 
+// Property type is a UI-only helper. It does NOT affect pricing.
+// Pricing is derived exclusively from the inventory + logistics factors.
+export type PropertyType = "apartment" | "house" | "office" | "storage";
+
+const PROPERTY_TYPES: { value: PropertyType; label: string; Icon: typeof Home }[] = [
+  { value: "apartment", label: "Apartment", Icon: Building2 },
+  { value: "house", label: "House", Icon: Home },
+  { value: "office", label: "Office", Icon: Briefcase },
+  { value: "storage", label: "Storage", Icon: Warehouse },
+];
+
+
 interface FormState {
   originZip: string;
   destinationZip: string;
   originAddress: string;
   destinationAddress: string;
-  moveSize: MoveSize;
+  propertyType: PropertyType;
   inventory: InventoryCounts;
   // Access per side
   originStairs: number;
@@ -96,7 +105,7 @@ const DEFAULT: FormState = {
   destinationZip: "",
   originAddress: "",
   destinationAddress: "",
-  moveSize: "2br",
+  propertyType: "apartment",
   inventory: {},
   originStairs: 0,
   destinationStairs: 0,
@@ -125,15 +134,6 @@ const DEFAULT: FormState = {
   notes: "",
 };
 
-const MOVE_SIZES: { value: MoveSize; label: string; Icon: typeof Home }[] = [
-  { value: "studio", label: MOVE_SIZE_LABEL.studio, Icon: Warehouse },
-  { value: "1br", label: MOVE_SIZE_LABEL["1br"], Icon: BedDouble },
-  { value: "2br", label: MOVE_SIZE_LABEL["2br"], Icon: Building2 },
-  { value: "3br", label: MOVE_SIZE_LABEL["3br"], Icon: Home },
-  { value: "4br", label: MOVE_SIZE_LABEL["4br"], Icon: Home },
-  { value: "5br", label: MOVE_SIZE_LABEL["5br"], Icon: Home },
-];
-
 // ---------- Component --------------------------------------------------------
 
 export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
@@ -145,13 +145,6 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
 
   const set = <K extends keyof FormState>(k: K, v: FormState[K]) =>
     setForm((s) => ({ ...s, [k]: v }));
-
-  // Bedroom count is a UX helper only: it pre-fills the inventory preset.
-  // The pricing engine reads only the resulting `inventory` counts — never
-  // the move size itself.
-  const applyMoveSizePreset = (size: MoveSize) => {
-    setForm((s) => ({ ...s, moveSize: size, inventory: { ...MOVE_SIZE_PRESETS[size] } }));
-  };
 
   // Resolve ZIPs (async — swap for Google Maps later)
   useEffect(() => {
@@ -250,10 +243,10 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
         destination_state: destLoc?.state ?? null,
         distance_miles: distance.miles,
         move_type: distance.type,
-        move_size: form.moveSize,
+        move_size: form.propertyType,
         // legacy fields kept for backwards compatibility
-        property_type: form.moveSize === "studio" ? "studio" : "apartment",
-        bedrooms: form.moveSize === "studio" ? 0 : Number(form.moveSize.replace("br", "")) || 1,
+        property_type: form.propertyType,
+        bedrooms: 0,
         floor: Math.max(form.originStairs, form.destinationStairs) + 1,
         elevator: form.originElevator || form.destinationElevator,
         packing: form.packing,
@@ -306,7 +299,7 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
 
   return (
     <div className="overflow-hidden rounded-3xl bg-card shadow-[0_30px_80px_-40px_rgba(20,40,25,0.35)] ring-1 ring-black/5">
-      <PriceHeader quote={quote} distance={distance} moveSize={form.moveSize} />
+      <PriceHeader quote={quote} distance={distance} propertyType={form.propertyType} />
 
       <div className="grid gap-6 p-5 sm:p-8 md:grid-cols-2">
         {/* Route ------------------------------------------------------------ */}
@@ -348,16 +341,16 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
           </div>
         </SectionCard>
 
-        {/* Move size -------------------------------------------------------- */}
-        <SectionCard step="02" label="Move size">
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-            {MOVE_SIZES.map(({ value, label, Icon }) => {
-              const active = form.moveSize === value;
+        {/* Property type --------------------------------------------------- */}
+        <SectionCard step="02" label="Property type">
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+            {PROPERTY_TYPES.map(({ value, label, Icon }) => {
+              const active = form.propertyType === value;
               return (
                 <button
                   key={value}
                   type="button"
-                  onClick={() => applyMoveSizePreset(value)}
+                  onClick={() => set("propertyType", value)}
                   className={cn(
                     "flex flex-col items-start gap-1.5 rounded-xl border p-2.5 text-left transition-all",
                     active
@@ -570,12 +563,14 @@ type FromMaybeNull = ZipLocation | null;
 function PriceHeader({
   quote,
   distance,
-  moveSize,
+  propertyType,
 }: {
   quote: QuoteResult | null;
   distance: { miles: number; type: MoveType } | null;
-  moveSize: MoveSize;
+  propertyType: PropertyType;
 }) {
+  const propertyLabel =
+    PROPERTY_TYPES.find((p) => p.value === propertyType)?.label ?? "";
   return (
     <div className="relative overflow-hidden bg-primary px-6 py-6 text-primary-foreground sm:px-8 sm:py-8">
       <div className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-ochre/30 blur-3xl" aria-hidden />
@@ -588,7 +583,7 @@ function PriceHeader({
           <h3 className="mt-3 font-serif text-xl font-medium sm:text-2xl">Instant Moving Quote</h3>
           <p className="mt-1 text-xs opacity-70 sm:text-sm">
             {distance
-              ? `${distance.miles} mi ${distance.type} · ${MOVE_SIZE_LABEL[moveSize]}${quote ? ` · ${quote.numMovers} movers · ${quote.truckSize}` : ""}`
+              ? `${distance.miles} mi ${distance.type} · ${propertyLabel}${quote ? ` · ${quote.numMovers} movers · ${quote.truckSize}` : ""}`
               : "Enter ZIPs to see your live price"}
           </p>
         </div>

@@ -189,7 +189,7 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
   const [distance, setDistance] = useState<{ miles: number; type: MoveType } | null>(null);
   const [saving, setSaving] = useState(false);
   const [insuranceModal, setInsuranceModal] = useState<InsuranceTier | null>(null);
-  const [stage, setStage] = useState<"form" | "review" | "done">("form");
+  const [stage, setStage] = useState<"form" | "submitting" | "done">("form");
 
   const set = <K extends keyof FormState>(k: K, v: FormState[K]) =>
     setForm((s) => ({ ...s, [k]: v }));
@@ -294,7 +294,7 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
   }, [form, distance]);
 
   async function saveQuote() {
-    if (!quote || !distance) return;
+    if (!quote || !distance) throw new Error("Quote not ready");
     setSaving(true);
     try {
       const { data: sessionData } = await supabase.auth.getSession();
@@ -374,11 +374,39 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
         } as unknown as never,
       });
       if (error) throw error;
-      setStage("done");
-    } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Could not save quote");
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function handleSubmit() {
+    if (
+      !canEstimate ||
+      !form.fullName.trim() ||
+      !isValidUsPhone(form.phone) ||
+      !isValidEmail(form.email)
+    ) {
+      toast.error("Please complete all required fields.");
+      return;
+    }
+    setStage("submitting");
+    const start = Date.now();
+    let saveError: Error | null = null;
+    try {
+      await saveQuote();
+    } catch (e) {
+      saveError = e instanceof Error ? e : new Error("Could not save quote");
+    }
+    const elapsed = Date.now() - start;
+    const remaining = Math.max(0, 2500 - elapsed);
+    if (remaining > 0) {
+      await new Promise((resolve) => setTimeout(resolve, remaining));
+    }
+    if (saveError) {
+      setStage("form");
+      toast.error(saveError.message);
+    } else {
+      setStage("done");
     }
   }
 
@@ -738,55 +766,53 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
       </div>
       )}
 
-      {/* Stage: form → continue to review */}
+      {/* Stage: form → trust section + final CTA */}
       {stage === "form" && quote && !compact && (
-        <div className="border-t border-border bg-muted/40 px-5 py-5 sm:px-8 sm:py-6">
-          <ItemizedBreakdown quote={quote} />
-
-          {/* Trust box */}
-          <div className="mt-6 rounded-2xl border border-border bg-card p-4 sm:p-5">
-            <div className="flex flex-col items-center gap-1 text-center">
-              <div className="flex items-center gap-1 text-ochre" aria-label="Rated 4.9 out of 5">
+        <div className="border-t border-border bg-muted/40 px-5 py-6 sm:px-8 sm:py-8">
+          {/* Trust section */}
+          <div className="rounded-2xl border border-border bg-card p-5 sm:p-6">
+            <div className="flex flex-col items-center gap-2 text-center">
+              <div className="flex items-center gap-1 text-ochre" aria-label="5 out of 5 stars">
                 {"★★★★★".split("").map((s, i) => (
-                  <span key={i} className="text-base leading-none">{s}</span>
+                  <span key={i} className="text-lg leading-none">{s}</span>
                 ))}
               </div>
-              <p className="text-sm font-medium">
-                Rated <span className="tabular-nums">4.9/5</span> by hundreds of customers
-              </p>
+              <p className="text-sm font-semibold">Trusted by Hundreds of Customers</p>
             </div>
-            <div className="mt-3 grid grid-cols-2 gap-2 text-xs sm:grid-cols-4">
+            <div className="mt-4 grid grid-cols-1 gap-2 text-sm sm:grid-cols-2">
               {[
-                "Free Quote",
-                "No Obligation",
+                "Free Instant Quote",
+                "No Hidden Fees",
                 "Licensed & Insured Movers",
-                "Response within 5–15 minutes",
+                "Response Within 5–15 Minutes",
               ].map((label) => (
                 <div
                   key={label}
-                  className="flex items-center gap-1.5 rounded-lg bg-muted/60 px-2 py-1.5"
+                  className="flex items-center gap-2 rounded-lg bg-muted/60 px-3 py-2"
                 >
-                  <Check className="h-3.5 w-3.5 shrink-0 text-sage" />
+                  <Check className="h-4 w-4 shrink-0 text-sage" />
                   <span className="font-medium">{label}</span>
                 </div>
               ))}
             </div>
+            <p className="mt-4 flex items-center justify-center gap-1.5 text-center text-xs text-muted-foreground">
+              <Lock className="h-3 w-3 text-sage" />
+              Your information is encrypted and will never be shared with third parties.
+            </p>
           </div>
 
-          <div className="mt-5 flex flex-col items-stretch gap-2">
+          <div className="mt-5 flex flex-col items-stretch gap-3">
             <Button
-              onClick={() => {
-                setStage("review");
-                if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: "smooth" });
-              }}
+              onClick={handleSubmit}
               disabled={
                 !canEstimate ||
                 !form.fullName.trim() ||
                 !isValidUsPhone(form.phone) ||
-                !isValidEmail(form.email)
+                !isValidEmail(form.email) ||
+                saving
               }
               size="lg"
-              className="w-full rounded-full bg-sage py-6 text-base font-semibold text-primary-foreground shadow-lg transition-transform hover:scale-[1.01] hover:bg-sage/90"
+              className="w-full rounded-full bg-primary py-6 text-base font-semibold text-primary-foreground shadow-lg transition-transform hover:scale-[1.01] hover:bg-primary/90"
             >
               Get My Free Quote
               <ArrowRight className="ml-2 h-4 w-4" />
@@ -796,6 +822,10 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
               regarding your moving estimate.
             </p>
           </div>
+
+          <p className="mt-6 text-center text-[10px] text-muted-foreground/70">
+            © {new Date().getFullYear()} Easy Moving Logistics. All rights reserved.
+          </p>
         </div>
       )}
       {stage === "form" && quote && compact && (

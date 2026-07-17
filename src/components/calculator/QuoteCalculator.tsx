@@ -357,7 +357,7 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
                 <button
                   key={value}
                   type="button"
-                  onClick={() => set("moveSize", value)}
+                  onClick={() => applyMoveSizePreset(value)}
                   className={cn(
                     "flex flex-col items-start gap-1.5 rounded-xl border p-2.5 text-left transition-all",
                     active

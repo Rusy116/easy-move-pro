@@ -105,7 +105,7 @@ const DEFAULT: FormState = {
   destinationZip: "",
   originAddress: "",
   destinationAddress: "",
-  moveSize: "2br",
+  propertyType: "apartment",
   inventory: {},
   originStairs: 0,
   destinationStairs: 0,

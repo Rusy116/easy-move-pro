@@ -54,7 +54,7 @@ interface FormState {
   destinationZip: string;
   originAddress: string;
   destinationAddress: string;
-  moveSize: MoveSize;
+  propertyType: PropertyType;
   inventory: InventoryCounts;
   // Access per side
   originStairs: number;

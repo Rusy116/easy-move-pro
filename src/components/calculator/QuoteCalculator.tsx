@@ -784,33 +784,33 @@ function LocationBlock({
           </select>
         ) : (
           <Input
-            readOnly
             placeholder={
               loadingCities
                 ? "Looking up city…"
                 : invalidZip
                 ? "Enter a valid ZIP"
-                : "Auto-detected from ZIP"
+                : side.zip.length === 5
+                ? "Enter city"
+                : "Enter ZIP first"
             }
             value={side.city}
-            className="bg-muted/40"
+            onChange={(e) => onChange({ city: e.target.value })}
           />
         )}
       </div>
 
-      {/* Street (Google Places) */}
+      {/* Street (Google Places) — enabled only after city is selected */}
       <div>
         <Label className="mb-1 block text-[11px] font-medium text-muted-foreground">
           Street
         </Label>
         <AddressAutocomplete
-          placeholder="Start typing street name"
+          placeholder={side.city ? "Start typing street name" : "Select city first"}
           value={side.street}
           onChangeText={(v) => onChange({ street: v })}
           bias={zipCenter}
+          disabled={!side.city}
           onSelect={(p: PlaceSelection) => {
-            // Split full formatted address into street + house number.
-            // AddressAutocomplete already parses `streetAddress` = "<num> <route>".
             const parts = p.streetAddress.trim().split(/\s+/);
             const first = parts[0] ?? "";
             const hasHouseNum = /^\d/.test(first);

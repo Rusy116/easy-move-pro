@@ -28,10 +28,12 @@ import {
   INVENTORY_CATALOG,
   CATEGORY_LABEL,
   MOVE_SIZE_LABEL,
+  MOVE_SIZE_PRESETS,
   type InventoryCounts,
   type MoveSize,
   type InventoryItem,
 } from "@/lib/inventory";
+import type { ParkingDifficulty } from "@/lib/pricing-engine";
 import { computeDistance } from "@/lib/distance";
 import { isValidZip, resolveZip, type ZipLocation } from "@/lib/zip-database";
 import { Button } from "@/components/ui/button";

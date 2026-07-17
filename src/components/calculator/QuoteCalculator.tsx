@@ -104,6 +104,8 @@ const DEFAULT: FormState = {
   destinationElevator: false,
   originLongCarry: false,
   destinationLongCarry: false,
+  originParking: "easy",
+  destinationParking: "easy",
   packing: false,
   unpacking: false,
   storage: false,

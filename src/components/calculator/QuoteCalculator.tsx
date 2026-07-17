@@ -28,10 +28,12 @@ import {
   INVENTORY_CATALOG,
   CATEGORY_LABEL,
   MOVE_SIZE_LABEL,
+  MOVE_SIZE_PRESETS,
   type InventoryCounts,
   type MoveSize,
   type InventoryItem,
 } from "@/lib/inventory";
+import type { ParkingDifficulty } from "@/lib/pricing-engine";
 import { computeDistance } from "@/lib/distance";
 import { isValidZip, resolveZip, type ZipLocation } from "@/lib/zip-database";
 import { Button } from "@/components/ui/button";
@@ -64,6 +66,8 @@ interface FormState {
   destinationElevator: boolean;
   originLongCarry: boolean;
   destinationLongCarry: boolean;
+  originParking: ParkingDifficulty;
+  destinationParking: ParkingDifficulty;
   // Services
   packing: boolean;
   unpacking: boolean;
@@ -100,6 +104,8 @@ const DEFAULT: FormState = {
   destinationElevator: false,
   originLongCarry: false,
   destinationLongCarry: false,
+  originParking: "easy",
+  destinationParking: "easy",
   packing: false,
   unpacking: false,
   storage: false,
@@ -139,6 +145,13 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
 
   const set = <K extends keyof FormState>(k: K, v: FormState[K]) =>
     setForm((s) => ({ ...s, [k]: v }));
+
+  // Bedroom count is a UX helper only: it pre-fills the inventory preset.
+  // The pricing engine reads only the resulting `inventory` counts — never
+  // the move size itself.
+  const applyMoveSizePreset = (size: MoveSize) => {
+    setForm((s) => ({ ...s, moveSize: size, inventory: { ...MOVE_SIZE_PRESETS[size] } }));
+  };
 
   // Resolve ZIPs (async — swap for Google Maps later)
   useEffect(() => {
@@ -189,14 +202,15 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
       destinationAddress: form.destinationAddress,
       distanceMiles: distance.miles,
       moveType: distance.type,
-      moveSize: form.moveSize,
       inventory: form.inventory,
-      originStairs: form.originStairs,
-      destinationStairs: form.destinationStairs,
+      originFloor: form.originStairs,
+      destinationFloor: form.destinationStairs,
       originElevator: form.originElevator,
       destinationElevator: form.destinationElevator,
       originLongCarry: form.originLongCarry,
       destinationLongCarry: form.destinationLongCarry,
+      originParking: form.originParking,
+      destinationParking: form.destinationParking,
       packing: form.packing,
       unpacking: form.unpacking,
       storage: form.storage,
@@ -343,7 +357,7 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
                 <button
                   key={value}
                   type="button"
-                  onClick={() => set("moveSize", value)}
+                  onClick={() => applyMoveSizePreset(value)}
                   className={cn(
                     "flex flex-col items-start gap-1.5 rounded-xl border p-2.5 text-left transition-all",
                     active
@@ -383,9 +397,11 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
             stairs={form.originStairs}
             elevator={form.originElevator}
             longCarry={form.originLongCarry}
+            parking={form.originParking}
             onStairs={(n) => set("originStairs", n)}
             onElevator={(v) => set("originElevator", v)}
             onLongCarry={(v) => set("originLongCarry", v)}
+            onParking={(v) => set("originParking", v)}
           />
         </SectionCard>
 
@@ -395,9 +411,11 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
             stairs={form.destinationStairs}
             elevator={form.destinationElevator}
             longCarry={form.destinationLongCarry}
+            parking={form.destinationParking}
             onStairs={(n) => set("destinationStairs", n)}
             onElevator={(v) => set("destinationElevator", v)}
             onLongCarry={(v) => set("destinationLongCarry", v)}
+            onParking={(v) => set("destinationParking", v)}
           />
         </SectionCard>
 
@@ -701,39 +719,43 @@ function AccessGroup({
   stairs,
   elevator,
   longCarry,
+  parking,
   onStairs,
   onElevator,
   onLongCarry,
+  onParking,
 }: {
   stairs: number;
   elevator: boolean;
   longCarry: boolean;
+  parking: ParkingDifficulty;
   onStairs: (n: number) => void;
   onElevator: (v: boolean) => void;
   onLongCarry: (v: boolean) => void;
+  onParking: (v: ParkingDifficulty) => void;
 }) {
   return (
     <div className="grid gap-2">
       <div className="flex items-center justify-between rounded-md border border-border bg-card px-3 py-2">
         <div className="text-sm">
-          <div className="font-medium">Stairs (flights)</div>
-          <div className="text-[11px] text-muted-foreground">Excluding ground floor</div>
+          <div className="font-medium">Floor</div>
+          <div className="text-[11px] text-muted-foreground">0 = ground floor</div>
         </div>
         <div className="flex items-center gap-1">
           <button
             type="button"
             onClick={() => onStairs(Math.max(0, stairs - 1))}
             className="grid h-7 w-7 place-items-center rounded-md border border-border bg-card text-muted-foreground hover:bg-accent"
-            aria-label="Decrease stairs"
+            aria-label="Decrease floor"
           >
             <Minus className="h-3.5 w-3.5" />
           </button>
           <span className="w-8 text-center text-sm font-medium tabular-nums">{stairs}</span>
           <button
             type="button"
-            onClick={() => onStairs(Math.min(20, stairs + 1))}
+            onClick={() => onStairs(Math.min(50, stairs + 1))}
             className="grid h-7 w-7 place-items-center rounded-md border border-border bg-card text-muted-foreground hover:bg-accent"
-            aria-label="Increase stairs"
+            aria-label="Increase floor"
           >
             <Plus className="h-3.5 w-3.5" />
           </button>
@@ -753,6 +775,26 @@ function AccessGroup({
         <input type="checkbox" className="sr-only" checked={longCarry} onChange={(e) => onLongCarry(e.target.checked)} />
         Long carry (over 75 ft from truck)
       </label>
+      <div className="rounded-md border border-border bg-card px-3 py-2 text-sm">
+        <div className="mb-1.5 font-medium">Parking difficulty</div>
+        <div className="grid grid-cols-3 gap-1">
+          {(["easy", "moderate", "difficult"] as ParkingDifficulty[]).map((p) => (
+            <button
+              key={p}
+              type="button"
+              onClick={() => onParking(p)}
+              className={cn(
+                "rounded-md border px-2 py-1 text-xs font-medium capitalize transition-all",
+                parking === p
+                  ? "border-primary bg-primary/5 text-primary"
+                  : "border-border bg-card text-muted-foreground hover:bg-accent"
+              )}
+            >
+              {p}
+            </button>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }

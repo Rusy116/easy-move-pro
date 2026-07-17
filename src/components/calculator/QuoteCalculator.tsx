@@ -366,10 +366,11 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
           originStreet: o.street,
           destinationHouseNumber: d.houseNumber,
           destinationStreet: d.street,
+          fullName: form.fullName,
         } as unknown as never,
       });
       if (error) throw error;
-      toast.success("Quote saved. A moving specialist will follow up shortly.");
+      setStage("done");
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Could not save quote");
     } finally {

@@ -385,6 +385,7 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
     <div className="overflow-hidden rounded-3xl bg-card shadow-[0_30px_80px_-40px_rgba(20,40,25,0.35)] ring-1 ring-black/5">
       <PriceHeader quote={quote} distance={distance} propertyType={form.propertyType} />
 
+      {stage === "form" && (
       <div className="grid gap-6 p-5 sm:p-8 md:grid-cols-2">
         {/* Origin ----------------------------------------------------------- */}
         <SectionCard step="01" label="Origin">

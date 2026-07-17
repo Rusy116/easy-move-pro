@@ -128,6 +128,8 @@ interface FormState {
   fullName: string;
   email: string;
   phone: string;
+  contactMethod: "phone" | "sms" | "email";
+  contactTime: "morning" | "afternoon" | "evening" | "anytime";
   notes: string;
 }
 
@@ -153,6 +155,8 @@ const DEFAULT: FormState = {
   fullName: "",
   email: "",
   phone: "",
+  contactMethod: "phone",
+  contactTime: "anytime",
   notes: "",
 };
 

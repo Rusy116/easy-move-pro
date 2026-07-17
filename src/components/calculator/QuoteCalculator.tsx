@@ -180,11 +180,19 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
     };
   }, [form.destinationZip]);
 
-  // Compute distance whenever both ZIPs resolved
+  // Compute distance whenever both ZIPs resolved. Use lat/lng from Places when available.
   useEffect(() => {
     let cancelled = false;
     if (isValidZip(form.originZip) && isValidZip(form.destinationZip)) {
-      computeDistance(form.originZip, form.destinationZip).then((r) => {
+      const oCoords =
+        form.originLat != null && form.originLng != null
+          ? { lat: form.originLat, lng: form.originLng }
+          : null;
+      const dCoords =
+        form.destinationLat != null && form.destinationLng != null
+          ? { lat: form.destinationLat, lng: form.destinationLng }
+          : null;
+      computeDistance(form.originZip, form.destinationZip, oCoords, dCoords).then((r) => {
         if (cancelled || !r) return;
         const sameState = r.origin.state === r.destination.state;
         setDistance({ miles: r.miles, type: sameState ? "local" : "interstate" });
@@ -195,7 +203,14 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
     return () => {
       cancelled = true;
     };
-  }, [form.originZip, form.destinationZip]);
+  }, [
+    form.originZip,
+    form.destinationZip,
+    form.originLat,
+    form.originLng,
+    form.destinationLat,
+    form.destinationLng,
+  ]);
 
   const canEstimate = Boolean(distance);
 

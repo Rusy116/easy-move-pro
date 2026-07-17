@@ -22,13 +22,23 @@ function estimateDuration(miles: number): number {
 
 export async function computeDistance(
   originZip: string,
-  destinationZip: string
+  destinationZip: string,
+  originCoords?: { lat: number; lng: number } | null,
+  destinationCoords?: { lat: number; lng: number } | null
 ): Promise<DistanceResult | null> {
-  const [origin, destination] = await Promise.all([
+  const [originZipLoc, destinationZipLoc] = await Promise.all([
     resolveZip(originZip),
     resolveZip(destinationZip),
   ]);
-  if (!origin || !destination) return null;
+  if (!originZipLoc || !destinationZipLoc) return null;
+
+  // Prefer precise coords from Google Places when available; fall back to ZIP centroid.
+  const origin = originCoords
+    ? { ...originZipLoc, lat: originCoords.lat, lng: originCoords.lng }
+    : originZipLoc;
+  const destination = destinationCoords
+    ? { ...destinationZipLoc, lat: destinationCoords.lat, lng: destinationCoords.lng }
+    : destinationZipLoc;
 
   const straight = haversineMiles(origin, destination);
   const miles = Math.max(3, Math.round(straight * ROAD_MULTIPLIER));

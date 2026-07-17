@@ -118,7 +118,7 @@ export function AddressAutocomplete({
     return () => {
       if (debounceRef.current) window.clearTimeout(debounceRef.current);
     };
-  }, [value, ready]);
+  }, [value, ready, bias?.lat, bias?.lng, bias?.radiusMeters]);
 
   async function pick(s: Suggestion) {
     const pred = s.placePrediction;

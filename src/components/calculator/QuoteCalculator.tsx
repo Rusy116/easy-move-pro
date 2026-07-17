@@ -397,9 +397,11 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
             stairs={form.originStairs}
             elevator={form.originElevator}
             longCarry={form.originLongCarry}
+            parking={form.originParking}
             onStairs={(n) => set("originStairs", n)}
             onElevator={(v) => set("originElevator", v)}
             onLongCarry={(v) => set("originLongCarry", v)}
+            onParking={(v) => set("originParking", v)}
           />
         </SectionCard>
 
@@ -409,9 +411,11 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
             stairs={form.destinationStairs}
             elevator={form.destinationElevator}
             longCarry={form.destinationLongCarry}
+            parking={form.destinationParking}
             onStairs={(n) => set("destinationStairs", n)}
             onElevator={(v) => set("destinationElevator", v)}
             onLongCarry={(v) => set("destinationLongCarry", v)}
+            onParking={(v) => set("destinationParking", v)}
           />
         </SectionCard>
 

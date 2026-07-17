@@ -18,6 +18,11 @@ import {
   Briefcase,
   ChevronDown,
   Info,
+  Pencil,
+  Phone as PhoneIcon,
+  BadgeCheck,
+  Lock,
+  PartyPopper,
 } from "lucide-react";
 import { InsuranceInfoModal } from "./InsuranceInfoModal";
 import {

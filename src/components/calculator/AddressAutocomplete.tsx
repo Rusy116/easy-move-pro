@@ -40,6 +40,7 @@ export function AddressAutocomplete({
   onChangeText,
   onSelect,
   bias,
+  disabled: disabledProp,
   className,
 }: Props) {
   const [ready, setReady] = useState(false);

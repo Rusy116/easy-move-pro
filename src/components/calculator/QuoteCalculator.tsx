@@ -267,7 +267,7 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
         move_date: form.moveDate || null,
         inventory_notes: form.notes || null,
         inventory: inventoryArray,
-        breakdown: quote.breakdown,
+        breakdown: quote.breakdown as unknown as Record<string, unknown>[],
         estimated_cubic_feet: quote.cubicFeet,
         estimated_weight_lbs: quote.weightLbs,
         truck_size: quote.truckSize,

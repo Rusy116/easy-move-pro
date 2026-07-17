@@ -294,7 +294,7 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
   }, [form, distance]);
 
   async function saveQuote() {
-    if (!quote || !distance) return;
+    if (!quote || !distance) throw new Error("Quote not ready");
     setSaving(true);
     try {
       const { data: sessionData } = await supabase.auth.getSession();
@@ -374,11 +374,39 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
         } as unknown as never,
       });
       if (error) throw error;
-      setStage("done");
-    } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Could not save quote");
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function handleSubmit() {
+    if (
+      !canEstimate ||
+      !form.fullName.trim() ||
+      !isValidUsPhone(form.phone) ||
+      !isValidEmail(form.email)
+    ) {
+      toast.error("Please complete all required fields.");
+      return;
+    }
+    setStage("submitting");
+    const start = Date.now();
+    let saveError: Error | null = null;
+    try {
+      await saveQuote();
+    } catch (e) {
+      saveError = e instanceof Error ? e : new Error("Could not save quote");
+    }
+    const elapsed = Date.now() - start;
+    const remaining = Math.max(0, 2500 - elapsed);
+    if (remaining > 0) {
+      await new Promise((resolve) => setTimeout(resolve, remaining));
+    }
+    if (saveError) {
+      setStage("form");
+      toast.error(saveError.message);
+    } else {
+      setStage("done");
     }
   }
 

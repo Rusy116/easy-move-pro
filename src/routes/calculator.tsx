@@ -18,7 +18,7 @@ export const Route = createFileRoute("/calculator")({
 
 function CalculatorPage() {
   return (
-    <SiteLayout>
+    <SiteLayout hideFooter>
       <section className="mx-auto max-w-5xl px-4 sm:px-6 py-16 sm:py-24">
         <div className="mb-10 max-w-2xl">
           <span className="text-xs font-semibold uppercase tracking-widest text-ochre">

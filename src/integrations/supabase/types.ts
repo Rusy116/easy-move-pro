@@ -121,78 +121,171 @@ export type Database = {
       }
       quotes: {
         Row: {
+          appliances: boolean
           assembly: boolean
           bedrooms: number
+          breakdown: Json
           contact_email: string | null
           contact_phone: string | null
           created_at: string
+          destination_address: string | null
           destination_city: string | null
+          destination_elevator: boolean
+          destination_long_carry: boolean
+          destination_stairs: number
+          destination_state: string | null
           destination_zip: string
+          details: Json
+          distance_miles: number | null
           elevator: boolean
+          estimated_cubic_feet: number | null
           estimated_high: number
           estimated_low: number
+          estimated_weight_lbs: number | null
+          flexible_date: boolean
           floor: number
+          fragile_items: boolean
+          gym_equipment: boolean
           heavy_items: boolean
           id: string
+          insurance_tier: string | null
+          inventory: Json
           inventory_notes: string | null
+          junk_removal: boolean
+          labor_hours: number | null
           long_carry: boolean
           move_date: string | null
+          move_size: string | null
+          move_type: string | null
+          num_movers: number | null
+          origin_address: string | null
           origin_city: string | null
+          origin_elevator: boolean
+          origin_long_carry: boolean
+          origin_stairs: number
+          origin_state: string | null
           origin_zip: string
           packing: boolean
+          piano: boolean
+          preferred_time: string | null
           property_type: string
+          safe: boolean
           status: string
           storage: boolean
+          truck_size: string | null
+          unpacking: boolean
           user_id: string | null
         }
         Insert: {
+          appliances?: boolean
           assembly?: boolean
           bedrooms?: number
+          breakdown?: Json
           contact_email?: string | null
           contact_phone?: string | null
           created_at?: string
+          destination_address?: string | null
           destination_city?: string | null
+          destination_elevator?: boolean
+          destination_long_carry?: boolean
+          destination_stairs?: number
+          destination_state?: string | null
           destination_zip: string
+          details?: Json
+          distance_miles?: number | null
           elevator?: boolean
+          estimated_cubic_feet?: number | null
           estimated_high: number
           estimated_low: number
+          estimated_weight_lbs?: number | null
+          flexible_date?: boolean
           floor?: number
+          fragile_items?: boolean
+          gym_equipment?: boolean
           heavy_items?: boolean
           id?: string
+          insurance_tier?: string | null
+          inventory?: Json
           inventory_notes?: string | null
+          junk_removal?: boolean
+          labor_hours?: number | null
           long_carry?: boolean
           move_date?: string | null
+          move_size?: string | null
+          move_type?: string | null
+          num_movers?: number | null
+          origin_address?: string | null
           origin_city?: string | null
+          origin_elevator?: boolean
+          origin_long_carry?: boolean
+          origin_stairs?: number
+          origin_state?: string | null
           origin_zip: string
           packing?: boolean
+          piano?: boolean
+          preferred_time?: string | null
           property_type: string
+          safe?: boolean
           status?: string
           storage?: boolean
+          truck_size?: string | null
+          unpacking?: boolean
           user_id?: string | null
         }
         Update: {
+          appliances?: boolean
           assembly?: boolean
           bedrooms?: number
+          breakdown?: Json
           contact_email?: string | null
           contact_phone?: string | null
           created_at?: string
+          destination_address?: string | null
           destination_city?: string | null
+          destination_elevator?: boolean
+          destination_long_carry?: boolean
+          destination_stairs?: number
+          destination_state?: string | null
           destination_zip?: string
+          details?: Json
+          distance_miles?: number | null
           elevator?: boolean
+          estimated_cubic_feet?: number | null
           estimated_high?: number
           estimated_low?: number
+          estimated_weight_lbs?: number | null
+          flexible_date?: boolean
           floor?: number
+          fragile_items?: boolean
+          gym_equipment?: boolean
           heavy_items?: boolean
           id?: string
+          insurance_tier?: string | null
+          inventory?: Json
           inventory_notes?: string | null
+          junk_removal?: boolean
+          labor_hours?: number | null
           long_carry?: boolean
           move_date?: string | null
+          move_size?: string | null
+          move_type?: string | null
+          num_movers?: number | null
+          origin_address?: string | null
           origin_city?: string | null
+          origin_elevator?: boolean
+          origin_long_carry?: boolean
+          origin_stairs?: number
+          origin_state?: string | null
           origin_zip?: string
           packing?: boolean
+          piano?: boolean
+          preferred_time?: string | null
           property_type?: string
+          safe?: boolean
           status?: string
           storage?: boolean
+          truck_size?: string | null
+          unpacking?: boolean
           user_id?: string | null
         }
         Relationships: []

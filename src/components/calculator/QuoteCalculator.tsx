@@ -266,10 +266,8 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
         flexible_date: form.flexibleDate,
         move_date: form.moveDate || null,
         inventory_notes: form.notes || null,
-        inventory: inventoryArray,
-        breakdown: quote.breakdown as unknown as never,
         inventory: inventoryArray as unknown as never,
-        details: { preferredTime: form.preferredTime, provider: "haversine-v1" } as unknown as never,
+        breakdown: quote.breakdown as unknown as never,
         estimated_cubic_feet: quote.cubicFeet,
         estimated_weight_lbs: quote.weightLbs,
         truck_size: quote.truckSize,
@@ -279,7 +277,7 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
         estimated_high: quote.high,
         contact_email: form.email || null,
         contact_phone: form.phone || null,
-        details: { preferredTime: form.preferredTime, provider: "haversine-v1" },
+        details: { preferredTime: form.preferredTime, provider: "haversine-v1" } as unknown as never,
       });
       if (error) throw error;
       toast.success("Quote saved. A moving specialist will follow up shortly.");

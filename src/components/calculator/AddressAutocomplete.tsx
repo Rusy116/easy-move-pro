@@ -23,6 +23,7 @@ interface Props {
   biasZip?: string;
   /** Optional circular bias for suggestions (e.g. selected city centroid). */
   bias?: { lat: number; lng: number; radiusMeters?: number } | null;
+  disabled?: boolean;
   className?: string;
 }
 
@@ -39,6 +40,7 @@ export function AddressAutocomplete({
   onChangeText,
   onSelect,
   bias,
+  disabled: disabledProp,
   className,
 }: Props) {
   const [ready, setReady] = useState(false);
@@ -171,7 +173,7 @@ export function AddressAutocomplete({
     }
   }
 
-  const disabled = !ready && !error;
+  const disabled = disabledProp || (!ready && !error);
 
   const primaryText = useMemo(
     () => (s: Suggestion) => s.placePrediction?.mainText?.text ?? s.placePrediction?.text.text ?? "",

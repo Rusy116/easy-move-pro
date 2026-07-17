@@ -656,17 +656,81 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
                     )}
                   </div>
                 </div>
+                <p className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                  <Lock className="h-3 w-3 text-sage" />
+                  Your information is private. We never sell or share your personal information.
+                </p>
               </div>
             </SectionCard>
-            <SectionCard step="11" label="Additional notes (optional)" className="md:col-span-2">
+
+            <SectionCard step="11" label="How would you like us to contact you?" className="md:col-span-2">
+              <div className="grid grid-cols-3 gap-2">
+                {(
+                  [
+                    { v: "phone", l: "Phone Call" },
+                    { v: "sms", l: "Text (SMS)" },
+                    { v: "email", l: "Email" },
+                  ] as { v: FormState["contactMethod"]; l: string }[]
+                ).map(({ v, l }) => {
+                  const active = form.contactMethod === v;
+                  return (
+                    <button
+                      key={v}
+                      type="button"
+                      onClick={() => set("contactMethod", v)}
+                      className={cn(
+                        "rounded-xl border px-3 py-2.5 text-sm font-medium transition-all",
+                        active
+                          ? "border-primary bg-primary/5 text-primary ring-2 ring-primary/20"
+                          : "border-border bg-card text-muted-foreground hover:border-primary/40"
+                      )}
+                    >
+                      {l}
+                    </button>
+                  );
+                })}
+              </div>
+            </SectionCard>
+
+            <SectionCard step="12" label="Best time to contact you" className="md:col-span-2">
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                {(
+                  [
+                    { v: "morning", l: "Morning" },
+                    { v: "afternoon", l: "Afternoon" },
+                    { v: "evening", l: "Evening" },
+                    { v: "anytime", l: "Anytime" },
+                  ] as { v: FormState["contactTime"]; l: string }[]
+                ).map(({ v, l }) => {
+                  const active = form.contactTime === v;
+                  return (
+                    <button
+                      key={v}
+                      type="button"
+                      onClick={() => set("contactTime", v)}
+                      className={cn(
+                        "rounded-xl border px-3 py-2.5 text-sm font-medium transition-all",
+                        active
+                          ? "border-primary bg-primary/5 text-primary ring-2 ring-primary/20"
+                          : "border-border bg-card text-muted-foreground hover:border-primary/40"
+                      )}
+                    >
+                      {l}
+                    </button>
+                  );
+                })}
+              </div>
+            </SectionCard>
+
+            <SectionCard step="13" label="Additional information (optional)" className="md:col-span-2">
               <Textarea
-                placeholder="Is there anything else we should know about your move?"
+                placeholder="Gate code, HOA requirements, fragile items, piano, safe, narrow stairs, parking restrictions, or anything else we should know."
                 value={form.notes}
                 onChange={(e) => set("notes", e.target.value.slice(0, 1000))}
                 rows={3}
               />
               <p className="mt-1.5 text-[11px] leading-relaxed text-muted-foreground/80">
-                Examples: Gate code · Fragile items · HOA requirements · Narrow stairs · Parking restrictions · Special instructions
+                Examples: Gate code • Fragile items • HOA requirements • Narrow stairs • Parking restrictions • Special instructions
               </p>
             </SectionCard>
           </>

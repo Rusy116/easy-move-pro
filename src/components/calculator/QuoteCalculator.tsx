@@ -134,15 +134,6 @@ const DEFAULT: FormState = {
   notes: "",
 };
 
-const MOVE_SIZES: { value: MoveSize; label: string; Icon: typeof Home }[] = [
-  { value: "studio", label: MOVE_SIZE_LABEL.studio, Icon: Warehouse },
-  { value: "1br", label: MOVE_SIZE_LABEL["1br"], Icon: BedDouble },
-  { value: "2br", label: MOVE_SIZE_LABEL["2br"], Icon: Building2 },
-  { value: "3br", label: MOVE_SIZE_LABEL["3br"], Icon: Home },
-  { value: "4br", label: MOVE_SIZE_LABEL["4br"], Icon: Home },
-  { value: "5br", label: MOVE_SIZE_LABEL["5br"], Icon: Home },
-];
-
 // ---------- Component --------------------------------------------------------
 
 export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
@@ -154,13 +145,6 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
 
   const set = <K extends keyof FormState>(k: K, v: FormState[K]) =>
     setForm((s) => ({ ...s, [k]: v }));
-
-  // Bedroom count is a UX helper only: it pre-fills the inventory preset.
-  // The pricing engine reads only the resulting `inventory` counts — never
-  // the move size itself.
-  const applyMoveSizePreset = (size: MoveSize) => {
-    setForm((s) => ({ ...s, moveSize: size, inventory: { ...MOVE_SIZE_PRESETS[size] } }));
-  };
 
   // Resolve ZIPs (async — swap for Google Maps later)
   useEffect(() => {

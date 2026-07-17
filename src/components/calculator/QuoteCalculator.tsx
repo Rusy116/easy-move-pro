@@ -742,25 +742,59 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
       {stage === "form" && quote && !compact && (
         <div className="border-t border-border bg-muted/40 px-5 py-5 sm:px-8 sm:py-6">
           <ItemizedBreakdown quote={quote} />
-          <div className="mt-5 flex flex-col-reverse items-stretch gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <p className="max-w-md text-xs text-muted-foreground">
-              Live estimate powered by our logistics engine. Review your details next — we won't submit until you confirm.
-            </p>
+
+          {/* Trust box */}
+          <div className="mt-6 rounded-2xl border border-border bg-card p-4 sm:p-5">
+            <div className="flex flex-col items-center gap-1 text-center">
+              <div className="flex items-center gap-1 text-ochre" aria-label="Rated 4.9 out of 5">
+                {"★★★★★".split("").map((s, i) => (
+                  <span key={i} className="text-base leading-none">{s}</span>
+                ))}
+              </div>
+              <p className="text-sm font-medium">
+                Rated <span className="tabular-nums">4.9/5</span> by hundreds of customers
+              </p>
+            </div>
+            <div className="mt-3 grid grid-cols-2 gap-2 text-xs sm:grid-cols-4">
+              {[
+                "Free Quote",
+                "No Obligation",
+                "Licensed & Insured Movers",
+                "Response within 5–15 minutes",
+              ].map((label) => (
+                <div
+                  key={label}
+                  className="flex items-center gap-1.5 rounded-lg bg-muted/60 px-2 py-1.5"
+                >
+                  <Check className="h-3.5 w-3.5 shrink-0 text-sage" />
+                  <span className="font-medium">{label}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="mt-5 flex flex-col items-stretch gap-2">
             <Button
               onClick={() => {
-                if (!form.fullName.trim()) return toast.error("Please enter your full name.");
-                if (!isValidUsPhone(form.phone)) return toast.error("Please enter a valid US phone number.");
-                if (!isValidEmail(form.email)) return toast.error("Please enter a valid email address.");
                 setStage("review");
                 if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: "smooth" });
               }}
-              disabled={!canEstimate}
+              disabled={
+                !canEstimate ||
+                !form.fullName.trim() ||
+                !isValidUsPhone(form.phone) ||
+                !isValidEmail(form.email)
+              }
               size="lg"
-              className="rounded-full"
+              className="w-full rounded-full bg-sage py-6 text-base font-semibold text-primary-foreground shadow-lg transition-transform hover:scale-[1.01] hover:bg-sage/90"
             >
-              Review my move
+              Get My Free Quote
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
+            <p className="text-center text-[11px] leading-relaxed text-muted-foreground">
+              By submitting this form you agree to be contacted by phone, SMS or email
+              regarding your moving estimate.
+            </p>
           </div>
         </div>
       )}

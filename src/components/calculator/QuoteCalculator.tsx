@@ -341,16 +341,16 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
           </div>
         </SectionCard>
 
-        {/* Move size -------------------------------------------------------- */}
-        <SectionCard step="02" label="Move size">
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-            {MOVE_SIZES.map(({ value, label, Icon }) => {
-              const active = form.moveSize === value;
+        {/* Property type --------------------------------------------------- */}
+        <SectionCard step="02" label="Property type">
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+            {PROPERTY_TYPES.map(({ value, label, Icon }) => {
+              const active = form.propertyType === value;
               return (
                 <button
                   key={value}
                   type="button"
-                  onClick={() => applyMoveSizePreset(value)}
+                  onClick={() => set("propertyType", value)}
                   className={cn(
                     "flex flex-col items-start gap-1.5 rounded-xl border p-2.5 text-left transition-all",
                     active

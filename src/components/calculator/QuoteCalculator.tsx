@@ -719,39 +719,43 @@ function AccessGroup({
   stairs,
   elevator,
   longCarry,
+  parking,
   onStairs,
   onElevator,
   onLongCarry,
+  onParking,
 }: {
   stairs: number;
   elevator: boolean;
   longCarry: boolean;
+  parking: ParkingDifficulty;
   onStairs: (n: number) => void;
   onElevator: (v: boolean) => void;
   onLongCarry: (v: boolean) => void;
+  onParking: (v: ParkingDifficulty) => void;
 }) {
   return (
     <div className="grid gap-2">
       <div className="flex items-center justify-between rounded-md border border-border bg-card px-3 py-2">
         <div className="text-sm">
-          <div className="font-medium">Stairs (flights)</div>
-          <div className="text-[11px] text-muted-foreground">Excluding ground floor</div>
+          <div className="font-medium">Floor</div>
+          <div className="text-[11px] text-muted-foreground">0 = ground floor</div>
         </div>
         <div className="flex items-center gap-1">
           <button
             type="button"
             onClick={() => onStairs(Math.max(0, stairs - 1))}
             className="grid h-7 w-7 place-items-center rounded-md border border-border bg-card text-muted-foreground hover:bg-accent"
-            aria-label="Decrease stairs"
+            aria-label="Decrease floor"
           >
             <Minus className="h-3.5 w-3.5" />
           </button>
           <span className="w-8 text-center text-sm font-medium tabular-nums">{stairs}</span>
           <button
             type="button"
-            onClick={() => onStairs(Math.min(20, stairs + 1))}
+            onClick={() => onStairs(Math.min(50, stairs + 1))}
             className="grid h-7 w-7 place-items-center rounded-md border border-border bg-card text-muted-foreground hover:bg-accent"
-            aria-label="Increase stairs"
+            aria-label="Increase floor"
           >
             <Plus className="h-3.5 w-3.5" />
           </button>
@@ -771,6 +775,26 @@ function AccessGroup({
         <input type="checkbox" className="sr-only" checked={longCarry} onChange={(e) => onLongCarry(e.target.checked)} />
         Long carry (over 75 ft from truck)
       </label>
+      <div className="rounded-md border border-border bg-card px-3 py-2 text-sm">
+        <div className="mb-1.5 font-medium">Parking difficulty</div>
+        <div className="grid grid-cols-3 gap-1">
+          {(["easy", "moderate", "difficult"] as ParkingDifficulty[]).map((p) => (
+            <button
+              key={p}
+              type="button"
+              onClick={() => onParking(p)}
+              className={cn(
+                "rounded-md border px-2 py-1 text-xs font-medium capitalize transition-all",
+                parking === p
+                  ? "border-primary bg-primary/5 text-primary"
+                  : "border-border bg-card text-muted-foreground hover:bg-accent"
+              )}
+            >
+              {p}
+            </button>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }

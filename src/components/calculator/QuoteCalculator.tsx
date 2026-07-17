@@ -62,28 +62,43 @@ const PROPERTY_TYPES: { value: PropertyType; label: string; Icon: typeof Home }[
 ];
 
 
+interface SideState {
+  zip: string;
+  city: string;
+  state: string;
+  street: string;          // route (street name only)
+  houseNumber: string;     // separate input
+  fullAddress: string;     // formatted (for storage / distance)
+  lat: number | null;
+  lng: number | null;
+  placeId: string;
+  floor: number;
+  elevator: boolean;
+  longCarry: boolean;
+  parking: ParkingDifficulty;
+}
+
+const EMPTY_SIDE: SideState = {
+  zip: "",
+  city: "",
+  state: "",
+  street: "",
+  houseNumber: "",
+  fullAddress: "",
+  lat: null,
+  lng: null,
+  placeId: "",
+  floor: 0,
+  elevator: false,
+  longCarry: false,
+  parking: "easy",
+};
+
 interface FormState {
-  originZip: string;
-  destinationZip: string;
-  originAddress: string;
-  destinationAddress: string;
-  originLat: number | null;
-  originLng: number | null;
-  originPlaceId: string;
-  destinationLat: number | null;
-  destinationLng: number | null;
-  destinationPlaceId: string;
+  origin: SideState;
+  destination: SideState;
   propertyType: PropertyType;
   inventory: InventoryCounts;
-  // Access per side
-  originStairs: number;
-  destinationStairs: number;
-  originElevator: boolean;
-  destinationElevator: boolean;
-  originLongCarry: boolean;
-  destinationLongCarry: boolean;
-  originParking: ParkingDifficulty;
-  destinationParking: ParkingDifficulty;
   // Services
   packing: boolean;
   unpacking: boolean;
@@ -108,26 +123,10 @@ interface FormState {
 }
 
 const DEFAULT: FormState = {
-  originZip: "",
-  destinationZip: "",
-  originAddress: "",
-  destinationAddress: "",
-  originLat: null,
-  originLng: null,
-  originPlaceId: "",
-  destinationLat: null,
-  destinationLng: null,
-  destinationPlaceId: "",
+  origin: { ...EMPTY_SIDE },
+  destination: { ...EMPTY_SIDE },
   propertyType: "apartment",
   inventory: {},
-  originStairs: 0,
-  destinationStairs: 0,
-  originElevator: false,
-  destinationElevator: false,
-  originLongCarry: false,
-  destinationLongCarry: false,
-  originParking: "easy",
-  destinationParking: "easy",
   packing: false,
   unpacking: false,
   storage: false,

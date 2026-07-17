@@ -462,27 +462,60 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
             ).map(({ v, t, d }) => {
               const active = form.insurance === v;
               return (
-                <button
+                <div
                   key={v}
-                  type="button"
-                  onClick={() => set("insurance", v)}
                   className={cn(
-                    "flex items-start gap-3 rounded-xl border p-3 text-left transition-all",
-                    active ? "border-primary bg-primary/5 ring-2 ring-primary/20" : "border-border bg-card hover:border-primary/40"
+                    "group relative flex items-start gap-3 rounded-xl border p-3 transition-all",
+                    active
+                      ? "border-primary bg-primary/5 ring-2 ring-primary/20 animate-scale-in"
+                      : "border-border bg-card hover:border-primary/40"
                   )}
                 >
-                  <div className={cn("grid h-8 w-8 shrink-0 place-items-center rounded-lg", active ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground")}>
-                    <Shield className="h-4 w-4" />
-                  </div>
-                  <div>
-                    <div className="text-sm font-medium">{t}</div>
-                    <div className="text-[11px] text-muted-foreground">{d}</div>
-                  </div>
-                </button>
+                  <button
+                    type="button"
+                    onClick={() => set("insurance", v)}
+                    className="flex flex-1 items-start gap-3 text-left"
+                    aria-pressed={active}
+                  >
+                    <div
+                      className={cn(
+                        "grid h-8 w-8 shrink-0 place-items-center rounded-lg transition-colors",
+                        active
+                          ? "bg-primary text-primary-foreground"
+                          : "bg-muted text-muted-foreground"
+                      )}
+                    >
+                      {active ? <Check className="h-4 w-4" /> : <Shield className="h-4 w-4" />}
+                    </div>
+                    <div className="min-w-0">
+                      <div className="text-sm font-medium">{t}</div>
+                      <div className="text-[11px] text-muted-foreground">{d}</div>
+                    </div>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setInsuranceModal(v);
+                    }}
+                    className="grid h-7 w-7 shrink-0 place-items-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                    aria-label={`More details about ${t}`}
+                  >
+                    <Info className="h-4 w-4" />
+                  </button>
+                </div>
               );
             })}
           </div>
         </SectionCard>
+
+        <InsuranceInfoModal
+          tier={insuranceModal}
+          open={insuranceModal !== null}
+          onOpenChange={(o) => !o && setInsuranceModal(null)}
+          onSelect={(t) => set("insurance", t)}
+        />
+
 
         {/* Timing ----------------------------------------------------------- */}
         <SectionCard step="09" label="When are you moving?">

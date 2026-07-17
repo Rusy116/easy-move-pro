@@ -66,6 +66,8 @@ interface FormState {
   destinationElevator: boolean;
   originLongCarry: boolean;
   destinationLongCarry: boolean;
+  originParking: ParkingDifficulty;
+  destinationParking: ParkingDifficulty;
   // Services
   packing: boolean;
   unpacking: boolean;

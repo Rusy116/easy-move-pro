@@ -158,40 +158,49 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
   const set = <K extends keyof FormState>(k: K, v: FormState[K]) =>
     setForm((s) => ({ ...s, [k]: v }));
 
+  const setSide = (
+    which: "origin" | "destination",
+    patch: Partial<SideState>
+  ) =>
+    setForm((s) => ({
+      ...s,
+      [which]: { ...s[which], ...patch },
+    }));
+
   // Resolve ZIPs (async — swap for Google Maps later)
   useEffect(() => {
     let cancelled = false;
-    if (isValidZip(form.originZip)) {
-      resolveZip(form.originZip).then((r) => !cancelled && setOriginLoc(r));
+    if (isValidZip(form.origin.zip)) {
+      resolveZip(form.origin.zip).then((r) => !cancelled && setOriginLoc(r));
     } else setOriginLoc(null);
     return () => {
       cancelled = true;
     };
-  }, [form.originZip]);
+  }, [form.origin.zip]);
 
   useEffect(() => {
     let cancelled = false;
-    if (isValidZip(form.destinationZip)) {
-      resolveZip(form.destinationZip).then((r) => !cancelled && setDestLoc(r));
+    if (isValidZip(form.destination.zip)) {
+      resolveZip(form.destination.zip).then((r) => !cancelled && setDestLoc(r));
     } else setDestLoc(null);
     return () => {
       cancelled = true;
     };
-  }, [form.destinationZip]);
+  }, [form.destination.zip]);
 
   // Compute distance whenever both ZIPs resolved. Use lat/lng from Places when available.
   useEffect(() => {
     let cancelled = false;
-    if (isValidZip(form.originZip) && isValidZip(form.destinationZip)) {
+    if (isValidZip(form.origin.zip) && isValidZip(form.destination.zip)) {
       const oCoords =
-        form.originLat != null && form.originLng != null
-          ? { lat: form.originLat, lng: form.originLng }
+        form.origin.lat != null && form.origin.lng != null
+          ? { lat: form.origin.lat, lng: form.origin.lng }
           : null;
       const dCoords =
-        form.destinationLat != null && form.destinationLng != null
-          ? { lat: form.destinationLat, lng: form.destinationLng }
+        form.destination.lat != null && form.destination.lng != null
+          ? { lat: form.destination.lat, lng: form.destination.lng }
           : null;
-      computeDistance(form.originZip, form.destinationZip, oCoords, dCoords).then((r) => {
+      computeDistance(form.origin.zip, form.destination.zip, oCoords, dCoords).then((r) => {
         if (cancelled || !r) return;
         const sameState = r.origin.state === r.destination.state;
         setDistance({ miles: r.miles, type: sameState ? "local" : "interstate" });
@@ -203,12 +212,12 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
       cancelled = true;
     };
   }, [
-    form.originZip,
-    form.destinationZip,
-    form.originLat,
-    form.originLng,
-    form.destinationLat,
-    form.destinationLng,
+    form.origin.zip,
+    form.destination.zip,
+    form.origin.lat,
+    form.origin.lng,
+    form.destination.lat,
+    form.destination.lng,
   ]);
 
   const canEstimate = Boolean(distance);
@@ -216,21 +225,21 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
   const quote: QuoteResult | null = useMemo(() => {
     if (!distance) return null;
     return computeQuote({
-      originZip: form.originZip,
-      destinationZip: form.destinationZip,
-      originAddress: form.originAddress,
-      destinationAddress: form.destinationAddress,
+      originZip: form.origin.zip,
+      destinationZip: form.destination.zip,
+      originAddress: form.origin.fullAddress,
+      destinationAddress: form.destination.fullAddress,
       distanceMiles: distance.miles,
       moveType: distance.type,
       inventory: form.inventory,
-      originFloor: form.originStairs,
-      destinationFloor: form.destinationStairs,
-      originElevator: form.originElevator,
-      destinationElevator: form.destinationElevator,
-      originLongCarry: form.originLongCarry,
-      destinationLongCarry: form.destinationLongCarry,
-      originParking: form.originParking,
-      destinationParking: form.destinationParking,
+      originFloor: form.origin.floor,
+      destinationFloor: form.destination.floor,
+      originElevator: form.origin.elevator,
+      destinationElevator: form.destination.elevator,
+      originLongCarry: form.origin.longCarry,
+      destinationLongCarry: form.destination.longCarry,
+      originParking: form.origin.parking,
+      destinationParking: form.destination.parking,
       packing: form.packing,
       unpacking: form.unpacking,
       storage: form.storage,
@@ -258,36 +267,37 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
         .filter(([, n]) => n > 0)
         .map(([id, quantity]) => ({ id, quantity }));
 
+      const o = form.origin;
+      const d = form.destination;
+
       const { error } = await supabase.from("quotes").insert({
         user_id: userId,
-        origin_zip: form.originZip,
-        destination_zip: form.destinationZip,
-        origin_address: form.originAddress || null,
-        destination_address: form.destinationAddress || null,
-        origin_lat: form.originLat,
-        origin_lng: form.originLng,
-        destination_lat: form.destinationLat,
-        destination_lng: form.destinationLng,
-        origin_place_id: form.originPlaceId || null,
-        destination_place_id: form.destinationPlaceId || null,
-        origin_city: originLoc?.city ?? null,
-        destination_city: destLoc?.city ?? null,
-        origin_state: originLoc?.state ?? null,
-        destination_state: destLoc?.state ?? null,
+        origin_zip: o.zip,
+        destination_zip: d.zip,
+        origin_address: o.fullAddress || null,
+        destination_address: d.fullAddress || null,
+        origin_lat: o.lat,
+        origin_lng: o.lng,
+        destination_lat: d.lat,
+        destination_lng: d.lng,
+        origin_place_id: o.placeId || null,
+        destination_place_id: d.placeId || null,
+        origin_city: o.city || originLoc?.city || null,
+        destination_city: d.city || destLoc?.city || null,
+        origin_state: o.state || originLoc?.state || null,
+        destination_state: d.state || destLoc?.state || null,
         distance_miles: distance.miles,
         move_type: distance.type,
         move_size: form.propertyType,
-        // legacy fields kept for backwards compatibility
         property_type: form.propertyType,
         bedrooms: 0,
-        floor: Math.max(form.originStairs, form.destinationStairs) + 1,
-        elevator: form.originElevator || form.destinationElevator,
+        floor: Math.max(o.floor, d.floor) + 1,
+        elevator: o.elevator || d.elevator,
         packing: form.packing,
         storage: form.storage,
         assembly: form.assembly,
         heavy_items: form.piano || form.safe || form.gymEquipment,
-        long_carry: form.originLongCarry || form.destinationLongCarry,
-        // new fields
+        long_carry: o.longCarry || d.longCarry,
         unpacking: form.unpacking,
         junk_removal: form.junkRemoval,
         piano: form.piano,
@@ -296,12 +306,12 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
         appliances: form.appliances,
         fragile_items: form.fragileItems,
         insurance_tier: form.insurance,
-        origin_stairs: form.originStairs,
-        destination_stairs: form.destinationStairs,
-        origin_elevator: form.originElevator,
-        destination_elevator: form.destinationElevator,
-        origin_long_carry: form.originLongCarry,
-        destination_long_carry: form.destinationLongCarry,
+        origin_stairs: o.floor,
+        destination_stairs: d.floor,
+        origin_elevator: o.elevator,
+        destination_elevator: d.elevator,
+        origin_long_carry: o.longCarry,
+        destination_long_carry: d.longCarry,
         preferred_time: form.preferredTime,
         flexible_date: form.flexibleDate,
         move_date: form.moveDate || null,
@@ -317,7 +327,14 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
         estimated_high: quote.high,
         contact_email: form.email || null,
         contact_phone: form.phone || null,
-        details: { preferredTime: form.preferredTime, provider: "haversine-v1" } as unknown as never,
+        details: {
+          preferredTime: form.preferredTime,
+          provider: "haversine-v1",
+          originHouseNumber: o.houseNumber,
+          originStreet: o.street,
+          destinationHouseNumber: d.houseNumber,
+          destinationStreet: d.street,
+        } as unknown as never,
       });
       if (error) throw error;
       toast.success("Quote saved. A moving specialist will follow up shortly.");
@@ -327,6 +344,7 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
       setSaving(false);
     }
   }
+
 
   // ---------- Render ---------------------------------------------------------
 

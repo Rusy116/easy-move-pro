@@ -125,6 +125,7 @@ interface FormState {
   preferredTime: "morning" | "midday" | "afternoon" | "flexible";
   flexibleDate: boolean;
   // Contact
+  fullName: string;
   email: string;
   phone: string;
   notes: string;
@@ -149,10 +150,31 @@ const DEFAULT: FormState = {
   moveDate: "",
   preferredTime: "flexible",
   flexibleDate: false,
+  fullName: "",
   email: "",
   phone: "",
   notes: "",
 };
+
+// Format a US phone number as the user types. Accepts free input, keeps digits,
+// and returns "(XXX) XXX-XXXX" (or a partial prefix while typing).
+function formatUsPhone(raw: string): string {
+  const d = raw.replace(/\D/g, "").slice(0, 10);
+  if (d.length === 0) return "";
+  if (d.length < 4) return `(${d}`;
+  if (d.length < 7) return `(${d.slice(0, 3)}) ${d.slice(3)}`;
+  return `(${d.slice(0, 3)}) ${d.slice(3, 6)}-${d.slice(6)}`;
+}
+function phoneDigits(v: string): string {
+  return v.replace(/\D/g, "");
+}
+function isValidUsPhone(v: string): boolean {
+  return phoneDigits(v).length === 10;
+}
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+function isValidEmail(v: string): boolean {
+  return EMAIL_RE.test(v.trim());
+}
 
 // ---------- Component --------------------------------------------------------
 

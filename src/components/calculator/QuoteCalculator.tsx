@@ -339,10 +339,20 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
               onChange={(v) => set("originZip", v)}
               loc={originLoc}
             />
-            <Input
-              placeholder="Origin street address (optional)"
+            <AddressAutocomplete
+              placeholder="Origin street address"
               value={form.originAddress}
-              onChange={(e) => set("originAddress", e.target.value.slice(0, 200))}
+              onChangeText={(v) => set("originAddress", v)}
+              onSelect={(p: PlaceSelection) =>
+                setForm((s) => ({
+                  ...s,
+                  originAddress: p.formattedAddress,
+                  originLat: p.lat,
+                  originLng: p.lng,
+                  originPlaceId: p.placeId,
+                  originZip: p.zip || s.originZip,
+                }))
+              }
             />
             <div className="flex items-center justify-center text-muted-foreground">
               <ArrowRight className="h-4 w-4" />
@@ -353,11 +363,22 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
               onChange={(v) => set("destinationZip", v)}
               loc={destLoc}
             />
-            <Input
-              placeholder="Destination street address (optional)"
+            <AddressAutocomplete
+              placeholder="Destination street address"
               value={form.destinationAddress}
-              onChange={(e) => set("destinationAddress", e.target.value.slice(0, 200))}
+              onChangeText={(v) => set("destinationAddress", v)}
+              onSelect={(p: PlaceSelection) =>
+                setForm((s) => ({
+                  ...s,
+                  destinationAddress: p.formattedAddress,
+                  destinationLat: p.lat,
+                  destinationLng: p.lng,
+                  destinationPlaceId: p.placeId,
+                  destinationZip: p.zip || s.destinationZip,
+                }))
+              }
             />
+
             {distance && (
               <div className="flex items-center gap-2 rounded-lg bg-muted/60 px-3 py-2 text-xs text-muted-foreground">
                 <Truck className="h-3.5 w-3.5 text-sage" />

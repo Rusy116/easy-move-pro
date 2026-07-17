@@ -185,6 +185,7 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
   const [distance, setDistance] = useState<{ miles: number; type: MoveType } | null>(null);
   const [saving, setSaving] = useState(false);
   const [insuranceModal, setInsuranceModal] = useState<InsuranceTier | null>(null);
+  const [stage, setStage] = useState<"form" | "review" | "done">("form");
 
   const set = <K extends keyof FormState>(k: K, v: FormState[K]) =>
     setForm((s) => ({ ...s, [k]: v }));

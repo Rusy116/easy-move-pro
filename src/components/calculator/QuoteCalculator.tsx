@@ -907,32 +907,35 @@ function LocationBlock({
 
       {/* Parking distance */}
       <div className="rounded-md border border-border bg-card px-3 py-2 text-sm">
-        <div className="mb-1.5 font-medium">Parking distance</div>
-        <div className="grid grid-cols-3 gap-1">
-          {(["easy", "moderate", "difficult"] as ParkingDifficulty[]).map((p) => (
+        <div className="mb-1.5 font-medium">
+          How far can the moving truck park from your entrance?
+        </div>
+        <div className="grid gap-1">
+          {(
+            [
+              { v: "easy", l: "Right at the entrance (0–25 ft)", longCarry: false },
+              { v: "moderate", l: "Short walk (25–75 ft)", longCarry: false },
+              { v: "difficult", l: "Long walk (75+ ft)", longCarry: true },
+            ] as { v: ParkingDifficulty; l: string; longCarry: boolean }[]
+          ).map(({ v, l, longCarry }) => (
             <button
-              key={p}
+              key={v}
               type="button"
-              onClick={() => onChange({ parking: p })}
+              onClick={() => onChange({ parking: v, longCarry })}
               className={cn(
-                "rounded-md border px-2 py-1 text-xs font-medium capitalize transition-all",
-                side.parking === p
+                "rounded-md border px-2 py-1.5 text-xs font-medium text-left transition-all",
+                side.parking === v
                   ? "border-primary bg-primary/5 text-primary"
                   : "border-border bg-card text-muted-foreground hover:bg-accent"
               )}
             >
-              {p === "easy" ? "Close" : p === "moderate" ? "Medium" : "Far"}
+              {l}
             </button>
           ))}
         </div>
-        <label className="mt-2 flex cursor-pointer items-center gap-2 text-xs text-muted-foreground">
-          <input
-            type="checkbox"
-            checked={side.longCarry}
-            onChange={(e) => onChange({ longCarry: e.target.checked })}
-          />
-          Long carry (over 75 ft from truck)
-        </label>
+        <p className="mt-2 text-[11px] text-muted-foreground">
+          This affects labor time if movers must carry your items a long distance.
+        </p>
       </div>
     </div>
   );

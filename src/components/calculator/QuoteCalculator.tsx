@@ -1387,3 +1387,313 @@ function ItemizedBreakdown({ quote }: { quote: QuoteResult }) {
     </div>
   );
 }
+
+// ---------- Review & confirmation screens -----------------------------------
+
+function ReviewRow({
+  label,
+  value,
+}: {
+  label: string;
+  value: React.ReactNode;
+}) {
+  return (
+    <div className="flex items-start justify-between gap-4 py-2.5">
+      <div className="flex items-start gap-2 text-sm text-muted-foreground">
+        <Check className="mt-0.5 h-4 w-4 shrink-0 text-sage" />
+        <span>{label}</span>
+      </div>
+      <div className="text-right text-sm font-medium text-foreground">
+        {value || <span className="text-muted-foreground">—</span>}
+      </div>
+    </div>
+  );
+}
+
+function ReviewSection({
+  title,
+  onEdit,
+  children,
+}: {
+  title: string;
+  onEdit: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="rounded-2xl border border-border bg-card p-4 sm:p-5">
+      <div className="mb-2 flex items-center justify-between">
+        <h4 className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
+          {title}
+        </h4>
+        <button
+          type="button"
+          onClick={onEdit}
+          className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium text-primary transition-colors hover:bg-primary/10"
+        >
+          <Pencil className="h-3 w-3" /> Edit
+        </button>
+      </div>
+      <div className="divide-y divide-border/60">{children}</div>
+    </div>
+  );
+}
+
+function ReviewScreen({
+  form,
+  quote,
+  distance,
+  onEdit,
+  onSubmit,
+  saving,
+}: {
+  form: FormState;
+  quote: QuoteResult;
+  distance: { miles: number; type: MoveType };
+  onEdit: () => void;
+  onSubmit: () => void;
+  saving: boolean;
+}) {
+  const propertyLabel =
+    PROPERTY_TYPES.find((p) => p.value === form.propertyType)?.label ?? "";
+
+  const inventorySummary = Object.entries(form.inventory)
+    .filter(([, n]) => n > 0)
+    .map(([id, n]) => {
+      const item = INVENTORY_CATALOG.find((i) => i.id === id);
+      return item ? `${item.label} ×${n}` : null;
+    })
+    .filter(Boolean) as string[];
+
+  const services: string[] = [];
+  if (form.packing) services.push("Packing");
+  if (form.unpacking) services.push("Unpacking");
+  if (form.assembly) services.push("Furniture assembly");
+  if (form.storage) services.push("30-day storage");
+  if (form.junkRemoval) services.push("Junk removal");
+  if (form.appliances) services.push("Appliance disconnect/reconnect");
+  if (form.piano) services.push("Piano");
+  if (form.safe) services.push("Safe");
+  if (form.gymEquipment) services.push("Gym equipment");
+  if (form.fragileItems) services.push("Fragile items");
+
+  const insuranceLabel =
+    form.insurance === "basic"
+      ? "Basic (included)"
+      : form.insurance === "standard"
+      ? "Standard coverage"
+      : "Full value protection";
+
+  function addressLine(s: SideState): string {
+    const line1 = [s.houseNumber, s.street].filter(Boolean).join(" ");
+    const line2 = [s.city, s.state, s.zip].filter(Boolean).join(", ");
+    return [line1, line2].filter(Boolean).join(" · ") || s.fullAddress || "—";
+  }
+
+  return (
+    <div className="border-t border-border bg-muted/30 px-4 py-6 sm:px-8 sm:py-8">
+      <div className="mx-auto max-w-3xl space-y-5">
+        <div className="text-center">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-primary">
+            <Sparkles className="h-3 w-3" /> Almost done
+          </span>
+          <h3 className="mt-3 font-serif text-3xl font-medium tracking-tight sm:text-4xl">
+            Review your move
+          </h3>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Double-check everything below. You can edit any section before submitting.
+          </p>
+        </div>
+
+        {/* Premium estimate card */}
+        <div className="relative overflow-hidden rounded-3xl bg-primary p-6 text-primary-foreground shadow-[0_20px_60px_-30px_rgba(20,40,25,0.5)] sm:p-8">
+          <div className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-ochre/30 blur-3xl" aria-hidden />
+          <div className="relative">
+            <div className="text-[10px] font-semibold uppercase tracking-widest opacity-70">
+              Your estimated moving quote
+            </div>
+            <div className="mt-2 font-serif text-4xl font-medium tabular-nums sm:text-5xl">
+              ${quote.low.toLocaleString()}
+              <span className="mx-2 opacity-40">–</span>${quote.high.toLocaleString()}
+            </div>
+            <div className="mt-1 text-sm opacity-80">
+              {distance.miles} mi {distance.type} move · {quote.numMovers} movers · {quote.truckSize}
+            </div>
+
+            <div className="mt-5 grid gap-1.5 text-sm sm:grid-cols-2">
+              <div className="text-[10px] font-semibold uppercase tracking-widest opacity-70 sm:col-span-2">
+                Included in your estimate
+              </div>
+              {[
+                "Professional movers",
+                "Moving truck",
+                "Loading & unloading",
+                "Fuel",
+                "Mileage",
+                "Basic moving equipment",
+                `${insuranceLabel}`,
+              ].map((s) => (
+                <div key={s} className="flex items-center gap-2">
+                  <Check className="h-4 w-4 text-ochre" /> {s}
+                </div>
+              ))}
+            </div>
+
+            {services.length > 0 && (
+              <div className="mt-5 grid gap-1.5 text-sm sm:grid-cols-2">
+                <div className="text-[10px] font-semibold uppercase tracking-widest opacity-70 sm:col-span-2">
+                  Optional services selected
+                </div>
+                {services.map((s) => (
+                  <div key={s} className="flex items-center gap-2">
+                    <Plus className="h-4 w-4 text-ochre" /> {s}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Trust row */}
+        <div className="grid grid-cols-2 gap-2 rounded-2xl border border-border bg-card p-3 text-xs sm:grid-cols-4">
+          {[
+            { Icon: BadgeCheck, label: "Licensed & insured" },
+            { Icon: Check, label: "No hidden fees" },
+            { Icon: Truck, label: "Professional movers" },
+            { Icon: Lock, label: "Secure online quote" },
+          ].map(({ Icon, label }) => (
+            <div key={label} className="flex items-center gap-2 rounded-lg px-2 py-1.5">
+              <Icon className="h-4 w-4 text-sage" />
+              <span className="font-medium">{label}</span>
+            </div>
+          ))}
+        </div>
+
+        {/* Sections */}
+        <div className="grid gap-3">
+          <ReviewSection title="Route" onEdit={onEdit}>
+            <ReviewRow label="Origin address" value={addressLine(form.origin)} />
+            <ReviewRow label="Destination address" value={addressLine(form.destination)} />
+            <ReviewRow label="Estimated distance" value={`${distance.miles} mi (${distance.type})`} />
+          </ReviewSection>
+
+          <ReviewSection title="Move details" onEdit={onEdit}>
+            <ReviewRow label="Move date" value={form.moveDate || "Flexible"} />
+            <ReviewRow label="Property type" value={propertyLabel} />
+            <ReviewRow label="Estimated move size" value={quote.truckSize} />
+            <ReviewRow label="Estimated volume" value={`${quote.cubicFeet.toLocaleString()} ft³`} />
+            <ReviewRow label="Estimated weight" value={`${quote.weightLbs.toLocaleString()} lb`} />
+          </ReviewSection>
+
+          <ReviewSection title="Inventory" onEdit={onEdit}>
+            <ReviewRow
+              label="Items"
+              value={
+                inventorySummary.length > 0
+                  ? `${inventorySummary.reduce((s, x) => s + parseInt(x.split("×")[1] || "0", 10), 0)} items`
+                  : "No items added"
+              }
+            />
+            {inventorySummary.length > 0 && (
+              <div className="pt-2 text-right text-xs text-muted-foreground">
+                {inventorySummary.slice(0, 8).join(" · ")}
+                {inventorySummary.length > 8 ? ` · +${inventorySummary.length - 8} more` : ""}
+              </div>
+            )}
+          </ReviewSection>
+
+          <ReviewSection title="Services & coverage" onEdit={onEdit}>
+            <ReviewRow
+              label="Selected services"
+              value={services.length ? services.join(", ") : "None"}
+            />
+            <ReviewRow label="Insurance coverage" value={insuranceLabel} />
+          </ReviewSection>
+
+          <ReviewSection title="Contact" onEdit={onEdit}>
+            <ReviewRow label="Full name" value={form.fullName} />
+            <ReviewRow label="Phone" value={form.phone} />
+            <ReviewRow label="Email" value={form.email} />
+            {form.notes && <ReviewRow label="Notes" value={form.notes} />}
+          </ReviewSection>
+
+          <ReviewSection title="Estimated price" onEdit={onEdit}>
+            <ReviewRow
+              label="Price range"
+              value={`$${quote.low.toLocaleString()} – $${quote.high.toLocaleString()}`}
+            />
+            <ReviewRow label="Point estimate" value={`$${quote.total.toLocaleString()}`} />
+          </ReviewSection>
+        </div>
+
+        <div className="flex flex-col-reverse gap-3 pt-2 sm:flex-row sm:items-center sm:justify-between">
+          <Button
+            variant="outline"
+            onClick={onEdit}
+            className="rounded-full"
+          >
+            <Pencil className="mr-2 h-4 w-4" />
+            Edit details
+          </Button>
+          <Button
+            onClick={onSubmit}
+            disabled={saving}
+            size="lg"
+            className="rounded-full bg-sage text-primary-foreground shadow-lg transition-transform hover:scale-[1.02] hover:bg-sage/90"
+          >
+            {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            Get My Final Quote
+            <ArrowRight className="ml-2 h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ThankYouScreen() {
+  return (
+    <div className="border-t border-border bg-gradient-to-b from-primary/5 to-transparent px-4 py-12 sm:px-8 sm:py-16">
+      <div className="mx-auto max-w-xl text-center animate-fade-up">
+        <div className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-sage/15 text-sage">
+          <PartyPopper className="h-8 w-8" />
+        </div>
+        <h3 className="mt-5 font-serif text-4xl font-medium tracking-tight sm:text-5xl">
+          🎉 Thank you!
+        </h3>
+        <p className="mt-4 text-base leading-relaxed text-muted-foreground">
+          We've received your moving request. A moving specialist will review your
+          inventory and contact you shortly to confirm pricing, availability, and
+          scheduling.
+        </p>
+        <div className="mt-8 flex flex-col items-stretch gap-3 sm:flex-row sm:justify-center">
+          <Button
+            asChild
+            size="lg"
+            className="rounded-full bg-sage hover:bg-sage/90"
+          >
+            <a href="tel:+18003279668">
+              <PhoneIcon className="mr-2 h-4 w-4" />
+              Call us now
+            </a>
+          </Button>
+          <Button asChild variant="outline" size="lg" className="rounded-full">
+            <a href="/">Back to home</a>
+          </Button>
+        </div>
+        <div className="mt-8 grid grid-cols-2 gap-2 text-xs sm:grid-cols-4">
+          {[
+            { Icon: BadgeCheck, label: "Licensed & insured" },
+            { Icon: Check, label: "No hidden fees" },
+            { Icon: Truck, label: "Professional movers" },
+            { Icon: Lock, label: "Secure online quote" },
+          ].map(({ Icon, label }) => (
+            <div key={label} className="flex items-center justify-center gap-1.5 rounded-lg border border-border bg-card px-2 py-2">
+              <Icon className="h-3.5 w-3.5 text-sage" />
+              <span className="font-medium">{label}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}

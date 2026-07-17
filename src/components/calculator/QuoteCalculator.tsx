@@ -353,68 +353,35 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
       <PriceHeader quote={quote} distance={distance} propertyType={form.propertyType} />
 
       <div className="grid gap-6 p-5 sm:p-8 md:grid-cols-2">
-        {/* Route ------------------------------------------------------------ */}
-        <SectionCard step="01" label="Route">
-          <div className="grid gap-3">
-            <ZipInput
-              placeholder="Origin ZIP"
-              value={form.originZip}
-              onChange={(v) => set("originZip", v)}
-              loc={originLoc}
-            />
-            <AddressAutocomplete
-              placeholder="Origin street address"
-              value={form.originAddress}
-              onChangeText={(v) => set("originAddress", v)}
-              onSelect={(p: PlaceSelection) =>
-                setForm((s) => ({
-                  ...s,
-                  originAddress: p.formattedAddress,
-                  originLat: p.lat,
-                  originLng: p.lng,
-                  originPlaceId: p.placeId,
-                  originZip: p.zip || s.originZip,
-                }))
-              }
-            />
-            <div className="flex items-center justify-center text-muted-foreground">
-              <ArrowRight className="h-4 w-4" />
-            </div>
-            <ZipInput
-              placeholder="Destination ZIP"
-              value={form.destinationZip}
-              onChange={(v) => set("destinationZip", v)}
-              loc={destLoc}
-            />
-            <AddressAutocomplete
-              placeholder="Destination street address"
-              value={form.destinationAddress}
-              onChangeText={(v) => set("destinationAddress", v)}
-              onSelect={(p: PlaceSelection) =>
-                setForm((s) => ({
-                  ...s,
-                  destinationAddress: p.formattedAddress,
-                  destinationLat: p.lat,
-                  destinationLng: p.lng,
-                  destinationPlaceId: p.placeId,
-                  destinationZip: p.zip || s.destinationZip,
-                }))
-              }
-            />
-
-            {distance && (
-              <div className="flex items-center gap-2 rounded-lg bg-muted/60 px-3 py-2 text-xs text-muted-foreground">
-                <Truck className="h-3.5 w-3.5 text-sage" />
-                <span className="font-medium text-foreground">{distance.miles} mi</span>
-                <span>·</span>
-                <span className="capitalize">{distance.type} move</span>
-              </div>
-            )}
-          </div>
+        {/* Origin ----------------------------------------------------------- */}
+        <SectionCard step="01" label="Origin">
+          <LocationBlock
+            side={form.origin}
+            onChange={(patch) => setSide("origin", patch)}
+            fallbackLoc={originLoc}
+          />
         </SectionCard>
 
+        {/* Destination ------------------------------------------------------ */}
+        <SectionCard step="02" label="Destination">
+          <LocationBlock
+            side={form.destination}
+            onChange={(patch) => setSide("destination", patch)}
+            fallbackLoc={destLoc}
+          />
+        </SectionCard>
+
+        {distance && (
+          <div className="md:col-span-2 flex items-center gap-2 rounded-lg bg-muted/60 px-3 py-2 text-xs text-muted-foreground">
+            <Truck className="h-3.5 w-3.5 text-sage" />
+            <span className="font-medium text-foreground">{distance.miles} mi</span>
+            <span>·</span>
+            <span className="capitalize">{distance.type} move</span>
+          </div>
+        )}
+
         {/* Property type --------------------------------------------------- */}
-        <SectionCard step="02" label="Property type">
+        <SectionCard step="03" label="Property type" className="md:col-span-2">
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
             {PROPERTY_TYPES.map(({ value, label, Icon }) => {
               const active = form.propertyType === value;
@@ -446,7 +413,7 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
         </SectionCard>
 
         {/* Inventory builder ----------------------------------------------- */}
-        <SectionCard step="03" label="Inventory (optional but recommended)" className="md:col-span-2">
+        <SectionCard step="04" label="Inventory (optional but recommended)" className="md:col-span-2">
           <InventoryBuilder
             counts={form.inventory}
             onChange={(inv) => set("inventory", inv)}
@@ -456,33 +423,6 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
           />
         </SectionCard>
 
-        {/* Access — origin -------------------------------------------------- */}
-        <SectionCard step="04" label="Origin access">
-          <AccessGroup
-            stairs={form.originStairs}
-            elevator={form.originElevator}
-            longCarry={form.originLongCarry}
-            parking={form.originParking}
-            onStairs={(n) => set("originStairs", n)}
-            onElevator={(v) => set("originElevator", v)}
-            onLongCarry={(v) => set("originLongCarry", v)}
-            onParking={(v) => set("originParking", v)}
-          />
-        </SectionCard>
-
-        {/* Access — destination -------------------------------------------- */}
-        <SectionCard step="05" label="Destination access">
-          <AccessGroup
-            stairs={form.destinationStairs}
-            elevator={form.destinationElevator}
-            longCarry={form.destinationLongCarry}
-            parking={form.destinationParking}
-            onStairs={(n) => set("destinationStairs", n)}
-            onElevator={(v) => set("destinationElevator", v)}
-            onLongCarry={(v) => set("destinationLongCarry", v)}
-            onParking={(v) => set("destinationParking", v)}
-          />
-        </SectionCard>
 
         {/* Services --------------------------------------------------------- */}
         <SectionCard step="06" label="Services & add-ons" className="md:col-span-2">

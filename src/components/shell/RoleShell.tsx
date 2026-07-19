@@ -56,7 +56,7 @@ export function RoleShell({ brand, eyebrow, accent, nav, children }: RoleShellPr
             </div>
             <nav className="hidden md:flex items-center gap-1">
               {nav.map((n) => {
-                const active = pathname === n.to || (n.to !== "/" && pathname.startsWith(n.to + "/"));
+                const active = pathname === n.to;
                 return (
                   <Link
                     key={n.to}

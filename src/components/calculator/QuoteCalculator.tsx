@@ -190,7 +190,17 @@ function isValidEmail(v: string): boolean {
   return EMAIL_RE.test(v.trim());
 }
 
+// Snapshot returned to the ThankYou screen so we can render/download the PDF
+// after the form has been reset.
+interface SavedQuoteSnapshot {
+  id: string;
+  quoteNumber: string;
+  portalToken: string;
+  pdfInput: import("@/lib/estimate-pdf").EstimatePdfInput;
+}
+
 // ---------- Component --------------------------------------------------------
+
 
 export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
   const [form, setForm] = useState<FormState>(() => createInitialForm());
@@ -200,7 +210,7 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
   const [saving, setSaving] = useState(false);
   const [insuranceModal, setInsuranceModal] = useState<InsuranceTier | null>(null);
   const [stage, setStage] = useState<"form" | "submitting" | "done">("form");
-  const [quoteId, setQuoteId] = useState<string | null>(null);
+  const [savedQuote, setSavedQuote] = useState<SavedQuoteSnapshot | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
   const set = <K extends keyof FormState>(k: K, v: FormState[K]) =>
@@ -327,7 +337,11 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
     setInsuranceModal(null);
   }
 
-  async function saveQuote(): Promise<string> {
+  async function saveQuote(): Promise<{
+    id: string;
+    quoteNumber: string;
+    portalToken: string;
+  }> {
     if (!quote || !distance) throw new Error("Quote not ready");
     const { data: sessionData } = await supabase.auth.getSession();
     const userId = sessionData.session?.user.id ?? null;
@@ -343,79 +357,90 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
         ? crypto.randomUUID()
         : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 
-    const { error } = await supabase.from("quotes").insert({
-      id: clientQuoteId,
-      user_id: userId,
-      origin_zip: o.zip,
-      destination_zip: d.zip,
-      origin_address: o.fullAddress || null,
-      destination_address: d.fullAddress || null,
-      origin_lat: o.lat,
-      origin_lng: o.lng,
-      destination_lat: d.lat,
-      destination_lng: d.lng,
-      origin_place_id: o.placeId || null,
-      destination_place_id: d.placeId || null,
-      origin_city: o.city || originLoc?.city || null,
-      destination_city: d.city || destLoc?.city || null,
-      origin_state: o.state || originLoc?.state || null,
-      destination_state: d.state || destLoc?.state || null,
-      distance_miles: distance.miles,
-      move_type: distance.type,
-      move_size: form.propertyType,
-      property_type: form.propertyType,
-      bedrooms: 0,
-      floor: Math.max(o.floor, d.floor) + 1,
-      elevator: o.elevator || d.elevator,
-      packing: form.packing,
-      storage: form.storage,
-      assembly: form.assembly,
-      heavy_items: form.piano || form.safe || form.gymEquipment,
-      long_carry: o.longCarry || d.longCarry,
-      unpacking: form.unpacking,
-      junk_removal: form.junkRemoval,
-      piano: form.piano,
-      safe: form.safe,
-      gym_equipment: form.gymEquipment,
-      appliances: form.appliances,
-      fragile_items: form.fragileItems,
-      insurance_tier: form.insurance,
-      origin_stairs: o.floor,
-      destination_stairs: d.floor,
-      origin_elevator: o.elevator,
-      destination_elevator: d.elevator,
-      origin_long_carry: o.longCarry,
-      destination_long_carry: d.longCarry,
-      preferred_time: form.preferredTime,
-      flexible_date: form.flexibleDate,
-      move_date: form.moveDate || null,
-      inventory_notes: form.notes || null,
-      inventory: inventoryArray as unknown as never,
-      breakdown: quote.breakdown as unknown as never,
-      estimated_cubic_feet: quote.cubicFeet,
-      estimated_weight_lbs: quote.weightLbs,
-      truck_size: quote.truckSize,
-      num_movers: quote.numMovers,
-      labor_hours: quote.laborHours,
-      estimated_low: quote.low,
-      estimated_high: quote.high,
-      contact_email: form.email || null,
-      contact_phone: form.phone || null,
-      details: {
-        preferredTime: form.preferredTime,
-        provider: "haversine-v1",
-        clientQuoteId,
-        originHouseNumber: o.houseNumber,
-        originStreet: o.street,
-        destinationHouseNumber: d.houseNumber,
-        destinationStreet: d.street,
-        fullName: form.fullName,
-        contactMethod: form.contactMethod,
-        contactTime: form.contactTime,
-      } as unknown as never,
-    });
+    const { data: inserted, error } = await supabase
+      .from("quotes")
+      .insert({
+        id: clientQuoteId,
+        user_id: userId,
+        origin_zip: o.zip,
+        destination_zip: d.zip,
+        origin_address: o.fullAddress || null,
+        destination_address: d.fullAddress || null,
+        origin_lat: o.lat,
+        origin_lng: o.lng,
+        destination_lat: d.lat,
+        destination_lng: d.lng,
+        origin_place_id: o.placeId || null,
+        destination_place_id: d.placeId || null,
+        origin_city: o.city || originLoc?.city || null,
+        destination_city: d.city || destLoc?.city || null,
+        origin_state: o.state || originLoc?.state || null,
+        destination_state: d.state || destLoc?.state || null,
+        distance_miles: distance.miles,
+        move_type: distance.type,
+        move_size: form.propertyType,
+        property_type: form.propertyType,
+        bedrooms: 0,
+        floor: Math.max(o.floor, d.floor) + 1,
+        elevator: o.elevator || d.elevator,
+        packing: form.packing,
+        storage: form.storage,
+        assembly: form.assembly,
+        heavy_items: form.piano || form.safe || form.gymEquipment,
+        long_carry: o.longCarry || d.longCarry,
+        unpacking: form.unpacking,
+        junk_removal: form.junkRemoval,
+        piano: form.piano,
+        safe: form.safe,
+        gym_equipment: form.gymEquipment,
+        appliances: form.appliances,
+        fragile_items: form.fragileItems,
+        insurance_tier: form.insurance,
+        origin_stairs: o.floor,
+        destination_stairs: d.floor,
+        origin_elevator: o.elevator,
+        destination_elevator: d.elevator,
+        origin_long_carry: o.longCarry,
+        destination_long_carry: d.longCarry,
+        preferred_time: form.preferredTime,
+        flexible_date: form.flexibleDate,
+        move_date: form.moveDate || null,
+        inventory_notes: form.notes || null,
+        inventory: inventoryArray as unknown as never,
+        breakdown: quote.breakdown as unknown as never,
+        estimated_cubic_feet: quote.cubicFeet,
+        estimated_weight_lbs: quote.weightLbs,
+        truck_size: quote.truckSize,
+        num_movers: quote.numMovers,
+        labor_hours: quote.laborHours,
+        estimated_low: quote.low,
+        estimated_high: quote.high,
+        contact_email: form.email || null,
+        contact_phone: form.phone || null,
+        details: {
+          preferredTime: form.preferredTime,
+          provider: "haversine-v1",
+          clientQuoteId,
+          originHouseNumber: o.houseNumber,
+          originStreet: o.street,
+          destinationHouseNumber: d.houseNumber,
+          destinationStreet: d.street,
+          fullName: form.fullName,
+          contactMethod: form.contactMethod,
+          contactTime: form.contactTime,
+        } as unknown as never,
+      })
+      .select("id, quote_number, portal_token")
+      .single();
     if (error) throw error;
-    return clientQuoteId;
+    if (!inserted?.quote_number || !inserted?.portal_token) {
+      throw new Error("Quote saved but identifiers missing. Please contact support.");
+    }
+    return {
+      id: inserted.id,
+      quoteNumber: inserted.quote_number,
+      portalToken: inserted.portal_token,
+    };
   }
 
   async function handleSubmit() {
@@ -434,8 +459,53 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
     setStage("submitting");
     const start = Date.now();
     try {
-      const savedQuoteId = await saveQuote();
-      setQuoteId(savedQuoteId);
+      const saved = await saveQuote();
+      const inventoryArray = Object.entries(form.inventory)
+        .filter(([, n]) => n > 0)
+        .map(([id, quantity]) => ({ id, quantity }));
+      const portalUrl =
+        typeof window !== "undefined"
+          ? `${window.location.origin}/portal/${saved.quoteNumber}?token=${saved.portalToken}`
+          : `/portal/${saved.quoteNumber}?token=${saved.portalToken}`;
+      const snapshot: SavedQuoteSnapshot = {
+        id: saved.id,
+        quoteNumber: saved.quoteNumber,
+        portalToken: saved.portalToken,
+        pdfInput: {
+          quoteNumber: saved.quoteNumber,
+          customer: {
+            fullName: form.fullName,
+            email: form.email,
+            phone: form.phone,
+          },
+          origin: {
+            fullAddress: form.origin.fullAddress,
+            city: form.origin.city,
+            state: form.origin.state,
+            zip: form.origin.zip,
+          },
+          destination: {
+            fullAddress: form.destination.fullAddress,
+            city: form.destination.city,
+            state: form.destination.state,
+            zip: form.destination.zip,
+          },
+          moveDate: form.moveDate || null,
+          distanceMiles: distance?.miles ?? 0,
+          numMovers: quote?.numMovers ?? 0,
+          laborHours: quote?.laborHours ?? 0,
+          truckSize: quote?.truckSize ?? "",
+          cubicFeet: quote?.cubicFeet ?? 0,
+          weightLbs: quote?.weightLbs ?? 0,
+          estimatedLow: quote?.low ?? 0,
+          estimatedHigh: quote?.high ?? 0,
+          inventory: inventoryArray,
+          breakdown: quote?.breakdown ?? [],
+          insurance: form.insurance,
+          portalUrl,
+        },
+      };
+      setSavedQuote(snapshot);
       resetCalculatorForm();
       toast.success("Your moving quote request was submitted.");
     } catch (e) {
@@ -463,10 +533,10 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
   if (stage === "done") {
     return (
       <ThankYouScreen
-        quoteId={quoteId}
+        saved={savedQuote}
         onEdit={() => {
           resetCalculatorForm();
-          setQuoteId(null);
+          setSavedQuote(null);
           setSubmitError(null);
           setSaving(false);
           setStage("form");
@@ -1876,13 +1946,22 @@ function SubmittingScreen() {
 }
 
 function ThankYouScreen({
-  quoteId,
+  saved,
   onEdit,
 }: {
-  quoteId: string | null;
+  saved: SavedQuoteSnapshot | null;
   onEdit: () => void;
 }) {
-  const shortId = quoteId ? quoteId.slice(0, 8).toUpperCase() : null;
+  const portalHref = saved
+    ? `/portal/${saved.quoteNumber}?token=${saved.portalToken}`
+    : null;
+
+  async function handleDownload() {
+    if (!saved) return;
+    const { downloadEstimatePdf } = await import("@/lib/estimate-pdf");
+    downloadEstimatePdf(saved.pdfInput);
+  }
+
   return (
     <div className="border-t border-border bg-gradient-to-b from-primary/5 to-transparent px-4 py-12 sm:px-8 sm:py-16">
       <div className="mx-auto max-w-xl text-center animate-fade-up">
@@ -1895,30 +1974,41 @@ function ThankYouScreen({
         <p className="mt-4 text-base leading-relaxed text-muted-foreground">
           We've received your moving request.
           <br />
-          Our moving specialists will contact you within 5–15 minutes.
+          A moving specialist will contact you within 5–15 minutes.
         </p>
 
-        {shortId && (
+        {saved && (
           <div className="mx-auto mt-6 inline-flex flex-col items-center gap-1 rounded-2xl border border-border bg-card px-5 py-3">
             <span className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
-              Quote ID
+              Quote Number
             </span>
             <span className="font-mono text-base font-semibold text-foreground">
-              #{shortId}
+              {saved.quoteNumber}
             </span>
           </div>
         )}
 
         <div className="mt-8 flex flex-col items-stretch gap-3 sm:flex-row sm:justify-center">
           <Button
-            onClick={onEdit}
-            variant="outline"
+            onClick={handleDownload}
             size="lg"
             className="rounded-full"
+            disabled={!saved}
           >
+            Download PDF Estimate
+          </Button>
+          {portalHref && (
+            <Button asChild size="lg" variant="outline" className="rounded-full">
+              <a href={portalHref}>View & Accept Estimate</a>
+            </Button>
+          )}
+        </div>
+
+        <div className="mt-4 flex flex-col items-stretch gap-3 sm:flex-row sm:justify-center">
+          <Button onClick={onEdit} variant="ghost" size="sm" className="rounded-full">
             Edit Request
           </Button>
-          <Button asChild size="lg" className="rounded-full">
+          <Button asChild variant="ghost" size="sm" className="rounded-full">
             <a href="/">Back to Home</a>
           </Button>
         </div>

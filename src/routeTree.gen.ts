@@ -20,6 +20,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CitiesIndexRouteImport } from './routes/cities.index'
 import { Route as BlogIndexRouteImport } from './routes/blog.index'
+import { Route as PortalQuoteNumberRouteImport } from './routes/portal.$quoteNumber'
 import { Route as CitiesCityRouteImport } from './routes/cities.$city'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
@@ -79,6 +80,11 @@ const BlogIndexRoute = BlogIndexRouteImport.update({
   path: '/blog/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PortalQuoteNumberRoute = PortalQuoteNumberRouteImport.update({
+  id: '/portal/$quoteNumber',
+  path: '/portal/$quoteNumber',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CitiesCityRoute = CitiesCityRouteImport.update({
   id: '/cities/$city',
   path: '/cities/$city',
@@ -113,6 +119,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/cities/$city': typeof CitiesCityRoute
+  '/portal/$quoteNumber': typeof PortalQuoteNumberRoute
   '/blog/': typeof BlogIndexRoute
   '/cities/': typeof CitiesIndexRoute
 }
@@ -129,6 +136,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/cities/$city': typeof CitiesCityRoute
+  '/portal/$quoteNumber': typeof PortalQuoteNumberRoute
   '/blog': typeof BlogIndexRoute
   '/cities': typeof CitiesIndexRoute
 }
@@ -147,6 +155,7 @@ export interface FileRoutesById {
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/cities/$city': typeof CitiesCityRoute
+  '/portal/$quoteNumber': typeof PortalQuoteNumberRoute
   '/blog/': typeof BlogIndexRoute
   '/cities/': typeof CitiesIndexRoute
 }
@@ -165,6 +174,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/blog/$slug'
     | '/cities/$city'
+    | '/portal/$quoteNumber'
     | '/blog/'
     | '/cities/'
   fileRoutesByTo: FileRoutesByTo
@@ -181,6 +191,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/blog/$slug'
     | '/cities/$city'
+    | '/portal/$quoteNumber'
     | '/blog'
     | '/cities'
   id:
@@ -198,6 +209,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard'
     | '/blog/$slug'
     | '/cities/$city'
+    | '/portal/$quoteNumber'
     | '/blog/'
     | '/cities/'
   fileRoutesById: FileRoutesById
@@ -214,6 +226,7 @@ export interface RootRouteChildren {
   StoreRoute: typeof StoreRoute
   BlogSlugRoute: typeof BlogSlugRoute
   CitiesCityRoute: typeof CitiesCityRoute
+  PortalQuoteNumberRoute: typeof PortalQuoteNumberRoute
   BlogIndexRoute: typeof BlogIndexRoute
   CitiesIndexRoute: typeof CitiesIndexRoute
 }
@@ -297,6 +310,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BlogIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/portal/$quoteNumber': {
+      id: '/portal/$quoteNumber'
+      path: '/portal/$quoteNumber'
+      fullPath: '/portal/$quoteNumber'
+      preLoaderRoute: typeof PortalQuoteNumberRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/cities/$city': {
       id: '/cities/$city'
       path: '/cities/$city'
@@ -353,6 +373,7 @@ const rootRouteChildren: RootRouteChildren = {
   StoreRoute: StoreRoute,
   BlogSlugRoute: BlogSlugRoute,
   CitiesCityRoute: CitiesCityRoute,
+  PortalQuoteNumberRoute: PortalQuoteNumberRoute,
   BlogIndexRoute: BlogIndexRoute,
   CitiesIndexRoute: CitiesIndexRoute,
 }

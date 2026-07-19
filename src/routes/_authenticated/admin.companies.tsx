@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useCallback, useEffect, useState } from "react";
-import { SiteLayout } from "@/components/site/SiteLayout";
+import { AdminShell } from "@/components/admin/AdminShell";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -87,14 +87,14 @@ function CompaniesAdmin() {
 
   if (isAdmin === null) {
     return (
-      <SiteLayout>
+      <AdminShell>
         <div className="p-16 text-center text-muted-foreground">Loading…</div>
-      </SiteLayout>
+      </AdminShell>
     );
   }
   if (!isAdmin) {
     return (
-      <SiteLayout>
+      <AdminShell>
         <section className="mx-auto max-w-2xl px-4 py-24 text-center">
           <h1 className="font-serif text-4xl">Admin access required</h1>
           <Link
@@ -104,12 +104,12 @@ function CompaniesAdmin() {
             ← Back to dashboard
           </Link>
         </section>
-      </SiteLayout>
+      </AdminShell>
     );
   }
 
   return (
-    <SiteLayout>
+    <AdminShell>
       <section className="mx-auto max-w-6xl px-4 sm:px-6 py-8 md:py-12">
         <div className="flex items-end justify-between flex-wrap gap-4">
           <div>
@@ -252,7 +252,7 @@ function CompaniesAdmin() {
           />
         </Dialog>
       )}
-    </SiteLayout>
+    </AdminShell>
   );
 }
 

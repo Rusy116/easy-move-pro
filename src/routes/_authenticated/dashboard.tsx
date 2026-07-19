@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { SiteLayout } from "@/components/site/SiteLayout";
+import { CustomerShell } from "@/components/customer/CustomerShell";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
@@ -17,7 +17,7 @@ import {
   ClipboardList,
   Shield,
 } from "lucide-react";
-import { PageHeader, StatCard, SkeletonRows } from "@/components/dashboard/DashboardChrome";
+import { PageHeader, StatCard, SkeletonRows } from "@/components/shell/Chrome";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({ meta: [{ title: "Customer Dashboard — Easy Moving" }] }),
@@ -92,7 +92,7 @@ function DashboardPage() {
   }, [quotes]);
 
   return (
-    <SiteLayout>
+    <CustomerShell>
       <div className="min-h-screen bg-gradient-to-b from-sage-soft/40 to-background">
         <section className="mx-auto max-w-6xl px-4 sm:px-6 py-10 md:py-16">
           <PageHeader
@@ -264,6 +264,6 @@ function DashboardPage() {
           </div>
         </section>
       </div>
-    </SiteLayout>
+    </CustomerShell>
   );
 }

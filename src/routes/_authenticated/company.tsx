@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useCallback, useEffect, useState } from "react";
-import { SiteLayout } from "@/components/site/SiteLayout";
+import { CompanyShell } from "@/components/company/CompanyShell";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { Phone, Mail, MapPin, Calendar, RefreshCw, ArrowRight, Truck, ClipboardList, Inbox } from "lucide-react";
-import { StatCard, SkeletonRows } from "@/components/dashboard/DashboardChrome";
+import { StatCard, SkeletonRows } from "@/components/shell/Chrome";
 
 export const Route = createFileRoute("/_authenticated/company")({
   head: () => ({ meta: [{ title: "Moving Company Portal — Easy Moving" }] }),
@@ -162,7 +162,7 @@ function CompanyPortal() {
 
   if (loading) {
     return (
-      <SiteLayout>
+      <CompanyShell>
         <section className="mx-auto max-w-7xl px-4 sm:px-6 py-12">
           <div className="skeleton h-24 w-full" />
           <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
@@ -172,13 +172,13 @@ function CompanyPortal() {
           </div>
           <div className="mt-6"><SkeletonRows n={4} /></div>
         </section>
-      </SiteLayout>
+      </CompanyShell>
     );
   }
 
   if (!company) {
     return (
-      <SiteLayout>
+      <CompanyShell>
         <section className="mx-auto max-w-2xl px-4 py-24 text-center">
           <h1 className="font-serif text-4xl">Company account required</h1>
           <p className="mt-4 text-muted-foreground">
@@ -195,7 +195,7 @@ function CompanyPortal() {
             ← Back to dashboard
           </Link>
         </section>
-      </SiteLayout>
+      </CompanyShell>
     );
   }
 
@@ -205,7 +205,7 @@ function CompanyPortal() {
   }, {});
 
   return (
-    <SiteLayout>
+    <CompanyShell>
       <div className="min-h-screen bg-gradient-to-b from-sage-soft/30 to-background">
       <section className="mx-auto max-w-7xl px-4 sm:px-6 py-8 md:py-12">
         {/* Company header */}
@@ -395,7 +395,7 @@ function CompanyPortal() {
           onSaveNotes={saveNotes}
         />
       )}
-    </SiteLayout>
+    </CompanyShell>
   );
 }
 

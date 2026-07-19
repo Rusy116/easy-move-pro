@@ -1,0 +1,1 @@
+DROP POLICY IF EXISTS "System insert history" ON public.quote_status_history;

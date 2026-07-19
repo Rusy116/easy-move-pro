@@ -4,6 +4,7 @@ import { SiteLayout } from "@/components/site/SiteLayout";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
+import { CheckCircle2, FileText } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({ meta: [{ title: "Customer Dashboard — Easy Moving" }] }),
@@ -12,6 +13,8 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
 
 interface Quote {
   id: string;
+  quote_number: string | null;
+  portal_token: string | null;
   origin_zip: string;
   destination_zip: string;
   origin_city: string | null;
@@ -22,6 +25,7 @@ interface Quote {
   estimated_low: number;
   estimated_high: number;
   status: string;
+  accepted_at: string | null;
   created_at: string;
 }
 
@@ -77,30 +81,56 @@ function DashboardPage() {
             </div>
           ) : (
             <div className="mt-6 grid gap-3">
-              {quotes.map((q) => (
-                <div key={q.id} className="rounded-2xl border border-border bg-card p-6">
-                  <div className="flex flex-wrap items-start justify-between gap-4">
-                    <div>
-                      <div className="text-xs text-muted-foreground">
-                        {new Date(q.created_at).toLocaleDateString()}
+              {quotes.map((q) => {
+                const portalHref =
+                  q.quote_number && q.portal_token
+                    ? `/portal/${q.quote_number}?token=${q.portal_token}`
+                    : null;
+                return (
+                  <div key={q.id} className="rounded-2xl border border-border bg-card p-6">
+                    <div className="flex flex-wrap items-start justify-between gap-4">
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                          <span className="font-mono">{q.quote_number ?? q.id.slice(0, 8)}</span>
+                          <span>·</span>
+                          <span>{new Date(q.created_at).toLocaleDateString()}</span>
+                        </div>
+                        <div className="mt-1 font-serif text-xl font-medium">
+                          {q.origin_city ?? q.origin_zip} → {q.destination_city ?? q.destination_zip}
+                        </div>
+                        <div className="mt-1 text-sm text-muted-foreground capitalize">
+                          {q.property_type}
+                          {q.move_date ? ` · Move ${q.move_date}` : ""}
+                        </div>
                       </div>
-                      <div className="mt-1 font-serif text-xl font-medium">
-                        {q.origin_city ?? q.origin_zip} → {q.destination_city ?? q.destination_zip}
-                      </div>
-                      <div className="mt-1 text-sm text-muted-foreground">
-                        {q.bedrooms}BR {q.property_type}
-                        {q.move_date ? ` · Move ${q.move_date}` : ""}
+                      <div className="text-right">
+                        <div className="font-serif text-2xl text-primary">
+                          ${Number(q.estimated_low).toLocaleString()} – ${Number(q.estimated_high).toLocaleString()}
+                        </div>
+                        <div className="mt-2 flex items-center justify-end gap-2">
+                          {q.accepted_at ? (
+                            <Badge className="bg-emerald-500/10 text-emerald-700 border border-emerald-600/30">
+                              <CheckCircle2 className="mr-1 h-3 w-3" /> Accepted
+                            </Badge>
+                          ) : (
+                            <Badge variant="outline" className="capitalize">{q.status}</Badge>
+                          )}
+                        </div>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <div className="font-serif text-2xl text-primary">
-                        ${Number(q.estimated_low).toLocaleString()} – ${Number(q.estimated_high).toLocaleString()}
+                    {portalHref && (
+                      <div className="mt-4 flex justify-end">
+                        <Button asChild variant="outline" size="sm" className="rounded-full">
+                          <a href={portalHref}>
+                            <FileText className="mr-2 h-4 w-4" />
+                            {q.accepted_at ? "View estimate" : "View & accept"}
+                          </a>
+                        </Button>
                       </div>
-                      <Badge variant="outline" className="mt-2 capitalize">{q.status}</Badge>
-                    </div>
+                    )}
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>

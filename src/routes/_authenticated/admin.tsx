@@ -28,7 +28,12 @@ import {
 } from "@/components/ui/table";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Phone, Mail, Clock, StickyNote, RefreshCw } from "lucide-react";
+import { Phone, Mail, Clock, StickyNote, RefreshCw, Bell, CheckCircle2 } from "lucide-react";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({ meta: [{ title: "Admin — Easy Moving" }] }),
@@ -219,10 +224,13 @@ function AdminPage() {
               {total.toLocaleString()} total · live updates on
             </p>
           </div>
-          <Button variant="outline" onClick={() => void load()} disabled={loading}>
-            <RefreshCw className={`mr-2 h-4 w-4 ${loading ? "animate-spin" : ""}`} />
-            Refresh
-          </Button>
+          <div className="flex items-center gap-2">
+            <NotificationsBell />
+            <Button variant="outline" onClick={() => void load()} disabled={loading}>
+              <RefreshCw className={`mr-2 h-4 w-4 ${loading ? "animate-spin" : ""}`} />
+              Refresh
+            </Button>
+          </div>
         </div>
 
         {/* Filters */}
@@ -621,4 +629,110 @@ function Row({ label, value }: { label: string; value: unknown }) {
 
 function fmtBool(v: unknown) {
   return v === true ? "Yes" : v === false ? "No" : "—";
+}
+
+type AdminNotification = {
+  id: string;
+  type: string;
+  quote_id: string | null;
+  message: string;
+  read_at: string | null;
+  created_at: string;
+};
+
+function NotificationsBell() {
+  const [items, setItems] = useState<AdminNotification[]>([]);
+  const [open, setOpen] = useState(false);
+
+  const load = useCallback(async () => {
+    const { data } = await supabase
+      .from("admin_notifications")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .limit(20);
+    setItems((data ?? []) as AdminNotification[]);
+  }, []);
+
+  useEffect(() => {
+    void load();
+    const ch = supabase
+      .channel("admin_notifications_stream")
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "admin_notifications" },
+        (payload) => {
+          const row = payload.new as AdminNotification;
+          setItems((prev) => [row, ...prev].slice(0, 20));
+          toast.success(row.message);
+        },
+      )
+      .subscribe();
+    return () => {
+      void supabase.removeChannel(ch);
+    };
+  }, [load]);
+
+  const unread = items.filter((n) => !n.read_at).length;
+
+  async function markAllRead() {
+    const ids = items.filter((n) => !n.read_at).map((n) => n.id);
+    if (ids.length === 0) return;
+    await supabase
+      .from("admin_notifications")
+      .update({ read_at: new Date().toISOString() })
+      .in("id", ids);
+    setItems((prev) => prev.map((n) => (n.read_at ? n : { ...n, read_at: new Date().toISOString() })));
+  }
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button variant="outline" size="icon" className="relative">
+          <Bell className="h-4 w-4" />
+          {unread > 0 && (
+            <span className="absolute -top-1 -right-1 grid h-5 min-w-[1.25rem] place-items-center rounded-full bg-emerald-600 px-1 text-[10px] font-semibold text-white">
+              {unread}
+            </span>
+          )}
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-80 p-0" align="end">
+        <div className="flex items-center justify-between border-b border-border px-4 py-2">
+          <div className="text-sm font-semibold">Notifications</div>
+          {unread > 0 && (
+            <button
+              onClick={() => void markAllRead()}
+              className="text-xs text-muted-foreground hover:text-foreground"
+            >
+              Mark all read
+            </button>
+          )}
+        </div>
+        <div className="max-h-96 overflow-y-auto">
+          {items.length === 0 ? (
+            <div className="px-4 py-8 text-center text-sm text-muted-foreground">
+              No notifications yet.
+            </div>
+          ) : (
+            items.map((n) => (
+              <div
+                key={n.id}
+                className={`flex items-start gap-2 border-b border-border/60 px-4 py-3 text-sm last:border-0 ${
+                  n.read_at ? "opacity-60" : ""
+                }`}
+              >
+                <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />
+                <div className="min-w-0 flex-1">
+                  <div className="truncate">{n.message}</div>
+                  <div className="mt-0.5 text-[11px] text-muted-foreground">
+                    {new Date(n.created_at).toLocaleString()}
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      </PopoverContent>
+    </Popover>
+  );
 }

@@ -238,7 +238,7 @@ function DashboardPage() {
           />
 
           {loading ? (
-            <div className="mt-8"><SkeletonRows rows={4} /></div>
+            <div className="mt-8"><SkeletonRows n={4} /></div>
           ) : (
             <>
               {/* KPI row */}

@@ -1788,6 +1788,22 @@ function ReviewScreen({
   );
 }
 
+function SubmittingScreen() {
+  return (
+    <div className="border-t border-border bg-muted/30 px-4 py-20 sm:px-8">
+      <div className="mx-auto max-w-sm text-center animate-fade-up">
+        <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary">
+          <Loader2 className="h-8 w-8 animate-spin" />
+        </div>
+        <h3 className="font-serif text-2xl font-medium tracking-tight">Preparing your quote…</h3>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Please wait while our logistics engine calculates your final estimate.
+        </p>
+      </div>
+    </div>
+  );
+}
+
 function ThankYouScreen() {
   return (
     <div className="border-t border-border bg-gradient-to-b from-primary/5 to-transparent px-4 py-12 sm:px-8 sm:py-16">

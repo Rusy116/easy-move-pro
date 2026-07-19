@@ -194,6 +194,7 @@ export type Database = {
       }
       quotes: {
         Row: {
+          accepted_at: string | null
           appliances: boolean
           assembly: boolean
           bedrooms: number
@@ -214,6 +215,7 @@ export type Database = {
           details: Json
           distance_miles: number | null
           elevator: boolean
+          estimate_email_sent_at: string | null
           estimated_cubic_feet: number | null
           estimated_high: number
           estimated_low: number
@@ -246,8 +248,10 @@ export type Database = {
           origin_zip: string
           packing: boolean
           piano: boolean
+          portal_token: string | null
           preferred_time: string | null
           property_type: string
+          quote_number: string | null
           safe: boolean
           status: string
           storage: boolean
@@ -256,6 +260,7 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
+          accepted_at?: string | null
           appliances?: boolean
           assembly?: boolean
           bedrooms?: number
@@ -276,6 +281,7 @@ export type Database = {
           details?: Json
           distance_miles?: number | null
           elevator?: boolean
+          estimate_email_sent_at?: string | null
           estimated_cubic_feet?: number | null
           estimated_high: number
           estimated_low: number
@@ -308,8 +314,10 @@ export type Database = {
           origin_zip: string
           packing?: boolean
           piano?: boolean
+          portal_token?: string | null
           preferred_time?: string | null
           property_type: string
+          quote_number?: string | null
           safe?: boolean
           status?: string
           storage?: boolean
@@ -318,6 +326,7 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
+          accepted_at?: string | null
           appliances?: boolean
           assembly?: boolean
           bedrooms?: number
@@ -338,6 +347,7 @@ export type Database = {
           details?: Json
           distance_miles?: number | null
           elevator?: boolean
+          estimate_email_sent_at?: string | null
           estimated_cubic_feet?: number | null
           estimated_high?: number
           estimated_low?: number
@@ -370,8 +380,10 @@ export type Database = {
           origin_zip?: string
           packing?: boolean
           piano?: boolean
+          portal_token?: string | null
           preferred_time?: string | null
           property_type?: string
+          quote_number?: string | null
           safe?: boolean
           status?: string
           storage?: boolean
@@ -407,6 +419,16 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      accept_quote: {
+        Args: { _portal_token: string; _quote_number: string }
+        Returns: {
+          accepted_at: string
+          id: string
+          quote_number: string
+          status: string
+        }[]
+      }
+      generate_quote_number: { Args: never; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

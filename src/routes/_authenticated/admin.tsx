@@ -273,7 +273,9 @@ function AdminPage() {
           const q = payload.new as QuoteRow;
           setRows((prev) => prev.map((r) => (r.id === q.id ? q : r)));
           setSelected((cur) => (cur?.id === q.id ? q : cur));
+          void loadStats();
         }
+
       )
       .subscribe();
     return () => { void supabase.removeChannel(channel); };

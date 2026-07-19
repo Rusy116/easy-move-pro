@@ -121,15 +121,8 @@ function DashboardPage() {
                     <Plus className="mr-1.5 h-4 w-4" /> New quote
                   </Button>
                 </Link>
-                <Button
-                  variant="outline"
-                  className="rounded-full"
-                  onClick={signOut}
-                  aria-label="Sign out"
-                >
-                  <LogOut className="h-4 w-4" />
-                </Button>
               </>
+
             }
           />
 

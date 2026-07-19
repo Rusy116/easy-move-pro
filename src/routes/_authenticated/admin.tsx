@@ -547,6 +547,8 @@ function QuoteDetailDialog({
             </ul>
           </Section>
         )}
+        <AssignCompanies quoteId={quote.id} />
+
 
         {/* Notes */}
         <Section title={<><StickyNote className="inline h-4 w-4 mr-1" />Notes ({notes.length})</>}>

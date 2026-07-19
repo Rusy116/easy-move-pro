@@ -161,6 +161,15 @@ const DEFAULT: FormState = {
   notes: "",
 };
 
+function createInitialForm(): FormState {
+  return {
+    ...DEFAULT,
+    origin: { ...EMPTY_SIDE },
+    destination: { ...EMPTY_SIDE },
+    inventory: {},
+  };
+}
+
 // Format a US phone number as the user types. Accepts free input, keeps digits,
 // and returns "(XXX) XXX-XXXX" (or a partial prefix while typing).
 function formatUsPhone(raw: string): string {
@@ -184,7 +193,7 @@ function isValidEmail(v: string): boolean {
 // ---------- Component --------------------------------------------------------
 
 export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
-  const [form, setForm] = useState<FormState>(DEFAULT);
+  const [form, setForm] = useState<FormState>(() => createInitialForm());
   const [originLoc, setOriginLoc] = useState<ZipLocation | null>(null);
   const [destLoc, setDestLoc] = useState<FromMaybeNull>(null);
   const [distance, setDistance] = useState<{ miles: number; type: MoveType } | null>(null);
@@ -192,6 +201,7 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
   const [insuranceModal, setInsuranceModal] = useState<InsuranceTier | null>(null);
   const [stage, setStage] = useState<"form" | "submitting" | "done">("form");
   const [quoteId, setQuoteId] = useState<string | null>(null);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const set = <K extends keyof FormState>(k: K, v: FormState[K]) =>
     setForm((s) => ({ ...s, [k]: v }));
@@ -204,6 +214,20 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
       ...s,
       [which]: { ...s[which], ...patch },
     }));
+
+  const setLocationSide = (
+    which: "origin" | "destination",
+    patch: Partial<SideState>,
+    expectedZip?: string
+  ) =>
+    setForm((s) => {
+      const current = s[which];
+      if (expectedZip && current.zip !== expectedZip) return s;
+      return {
+        ...s,
+        [which]: { ...current, ...patch },
+      };
+    });
 
   // Resolve ZIPs (async — swap for Google Maps later)
   useEffect(() => {
@@ -295,100 +319,107 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
     });
   }, [form, distance]);
 
-  async function saveQuote() {
+  function resetCalculatorForm() {
+    setForm(createInitialForm());
+    setOriginLoc(null);
+    setDestLoc(null);
+    setDistance(null);
+    setInsuranceModal(null);
+  }
+
+  async function saveQuote(): Promise<string> {
     if (!quote || !distance) throw new Error("Quote not ready");
-    setSaving(true);
-    try {
-      const { data: sessionData } = await supabase.auth.getSession();
-      const userId = sessionData.session?.user.id ?? null;
-      const inventoryArray = Object.entries(form.inventory)
-        .filter(([, n]) => n > 0)
-        .map(([id, quantity]) => ({ id, quantity }));
+    const { data: sessionData } = await supabase.auth.getSession();
+    const userId = sessionData.session?.user.id ?? null;
+    const inventoryArray = Object.entries(form.inventory)
+      .filter(([, n]) => n > 0)
+      .map(([id, quantity]) => ({ id, quantity }));
 
-      const o = form.origin;
-      const d = form.destination;
+    const o = form.origin;
+    const d = form.destination;
 
-      const clientQuoteId =
-        typeof crypto !== "undefined" && "randomUUID" in crypto
-          ? crypto.randomUUID()
-          : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+    const clientQuoteId =
+      typeof crypto !== "undefined" && "randomUUID" in crypto
+        ? crypto.randomUUID()
+        : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 
-      const { error } = await supabase.from("quotes").insert({
-        user_id: userId,
-        origin_zip: o.zip,
-        destination_zip: d.zip,
-        origin_address: o.fullAddress || null,
-        destination_address: d.fullAddress || null,
-        origin_lat: o.lat,
-        origin_lng: o.lng,
-        destination_lat: d.lat,
-        destination_lng: d.lng,
-        origin_place_id: o.placeId || null,
-        destination_place_id: d.placeId || null,
-        origin_city: o.city || originLoc?.city || null,
-        destination_city: d.city || destLoc?.city || null,
-        origin_state: o.state || originLoc?.state || null,
-        destination_state: d.state || destLoc?.state || null,
-        distance_miles: distance.miles,
-        move_type: distance.type,
-        move_size: form.propertyType,
-        property_type: form.propertyType,
-        bedrooms: 0,
-        floor: Math.max(o.floor, d.floor) + 1,
-        elevator: o.elevator || d.elevator,
-        packing: form.packing,
-        storage: form.storage,
-        assembly: form.assembly,
-        heavy_items: form.piano || form.safe || form.gymEquipment,
-        long_carry: o.longCarry || d.longCarry,
-        unpacking: form.unpacking,
-        junk_removal: form.junkRemoval,
-        piano: form.piano,
-        safe: form.safe,
-        gym_equipment: form.gymEquipment,
-        appliances: form.appliances,
-        fragile_items: form.fragileItems,
-        insurance_tier: form.insurance,
-        origin_stairs: o.floor,
-        destination_stairs: d.floor,
-        origin_elevator: o.elevator,
-        destination_elevator: d.elevator,
-        origin_long_carry: o.longCarry,
-        destination_long_carry: d.longCarry,
-        preferred_time: form.preferredTime,
-        flexible_date: form.flexibleDate,
-        move_date: form.moveDate || null,
-        inventory_notes: form.notes || null,
-        inventory: inventoryArray as unknown as never,
-        breakdown: quote.breakdown as unknown as never,
-        estimated_cubic_feet: quote.cubicFeet,
-        estimated_weight_lbs: quote.weightLbs,
-        truck_size: quote.truckSize,
-        num_movers: quote.numMovers,
-        labor_hours: quote.laborHours,
-        estimated_low: quote.low,
-        estimated_high: quote.high,
-        contact_email: form.email || null,
-        contact_phone: form.phone || null,
-        details: {
-          preferredTime: form.preferredTime,
-          provider: "haversine-v1",
-          clientQuoteId,
-          originHouseNumber: o.houseNumber,
-          originStreet: o.street,
-          destinationHouseNumber: d.houseNumber,
-          destinationStreet: d.street,
-          fullName: form.fullName,
-        } as unknown as never,
-      });
-      if (error) throw error;
-      setQuoteId(clientQuoteId);
-    } finally {
-      setSaving(false);
-    }
+    const { error } = await supabase.from("quotes").insert({
+      id: clientQuoteId,
+      user_id: userId,
+      origin_zip: o.zip,
+      destination_zip: d.zip,
+      origin_address: o.fullAddress || null,
+      destination_address: d.fullAddress || null,
+      origin_lat: o.lat,
+      origin_lng: o.lng,
+      destination_lat: d.lat,
+      destination_lng: d.lng,
+      origin_place_id: o.placeId || null,
+      destination_place_id: d.placeId || null,
+      origin_city: o.city || originLoc?.city || null,
+      destination_city: d.city || destLoc?.city || null,
+      origin_state: o.state || originLoc?.state || null,
+      destination_state: d.state || destLoc?.state || null,
+      distance_miles: distance.miles,
+      move_type: distance.type,
+      move_size: form.propertyType,
+      property_type: form.propertyType,
+      bedrooms: 0,
+      floor: Math.max(o.floor, d.floor) + 1,
+      elevator: o.elevator || d.elevator,
+      packing: form.packing,
+      storage: form.storage,
+      assembly: form.assembly,
+      heavy_items: form.piano || form.safe || form.gymEquipment,
+      long_carry: o.longCarry || d.longCarry,
+      unpacking: form.unpacking,
+      junk_removal: form.junkRemoval,
+      piano: form.piano,
+      safe: form.safe,
+      gym_equipment: form.gymEquipment,
+      appliances: form.appliances,
+      fragile_items: form.fragileItems,
+      insurance_tier: form.insurance,
+      origin_stairs: o.floor,
+      destination_stairs: d.floor,
+      origin_elevator: o.elevator,
+      destination_elevator: d.elevator,
+      origin_long_carry: o.longCarry,
+      destination_long_carry: d.longCarry,
+      preferred_time: form.preferredTime,
+      flexible_date: form.flexibleDate,
+      move_date: form.moveDate || null,
+      inventory_notes: form.notes || null,
+      inventory: inventoryArray as unknown as never,
+      breakdown: quote.breakdown as unknown as never,
+      estimated_cubic_feet: quote.cubicFeet,
+      estimated_weight_lbs: quote.weightLbs,
+      truck_size: quote.truckSize,
+      num_movers: quote.numMovers,
+      labor_hours: quote.laborHours,
+      estimated_low: quote.low,
+      estimated_high: quote.high,
+      contact_email: form.email || null,
+      contact_phone: form.phone || null,
+      details: {
+        preferredTime: form.preferredTime,
+        provider: "haversine-v1",
+        clientQuoteId,
+        originHouseNumber: o.houseNumber,
+        originStreet: o.street,
+        destinationHouseNumber: d.houseNumber,
+        destinationStreet: d.street,
+        fullName: form.fullName,
+        contactMethod: form.contactMethod,
+        contactTime: form.contactTime,
+      } as unknown as never,
+    });
+    if (error) throw error;
+    return clientQuoteId;
   }
 
   async function handleSubmit() {
+    if (saving || stage !== "form") return;
     if (
       !canEstimate ||
       !form.fullName.trim() ||
@@ -398,29 +429,51 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
       toast.error("Please complete all required fields.");
       return;
     }
+    setSubmitError(null);
+    setSaving(true);
     setStage("submitting");
     const start = Date.now();
-    let saveError: Error | null = null;
     try {
-      await saveQuote();
+      const savedQuoteId = await saveQuote();
+      setQuoteId(savedQuoteId);
+      resetCalculatorForm();
+      toast.success("Your moving quote request was submitted.");
     } catch (e) {
-      saveError = e instanceof Error ? e : new Error("Could not save quote");
+      const message = e instanceof Error && e.message
+        ? e.message
+        : "We couldn't submit your quote. Please try again.";
+      setSubmitError(message);
+      setStage("form");
+      toast.error(message);
+      setSaving(false);
+      return;
     }
     const elapsed = Date.now() - start;
     const remaining = Math.max(0, 2500 - elapsed);
     if (remaining > 0) {
       await new Promise((resolve) => setTimeout(resolve, remaining));
     }
-    if (saveError) {
-      setStage("form");
-      toast.error(saveError.message);
-    } else {
-      setStage("done");
-    }
+    setSaving(false);
+    setStage("done");
   }
 
 
   // ---------- Render ---------------------------------------------------------
+
+  if (stage === "done") {
+    return (
+      <ThankYouScreen
+        quoteId={quoteId}
+        onEdit={() => {
+          resetCalculatorForm();
+          setQuoteId(null);
+          setSubmitError(null);
+          setSaving(false);
+          setStage("form");
+        }}
+      />
+    );
+  }
 
   return (
     <div className="overflow-hidden rounded-3xl bg-card shadow-[0_30px_80px_-40px_rgba(20,40,25,0.35)] ring-1 ring-black/5">
@@ -432,7 +485,7 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
         <SectionCard step="01" label="Origin">
           <LocationBlock
             side={form.origin}
-            onChange={(patch) => setSide("origin", patch)}
+            onChange={(patch, expectedZip) => setLocationSide("origin", patch, expectedZip)}
             fallbackLoc={originLoc}
           />
         </SectionCard>
@@ -441,7 +494,7 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
         <SectionCard step="02" label="Destination">
           <LocationBlock
             side={form.destination}
-            onChange={(patch) => setSide("destination", patch)}
+            onChange={(patch, expectedZip) => setLocationSide("destination", patch, expectedZip)}
             fallbackLoc={destLoc}
           />
         </SectionCard>
@@ -848,6 +901,11 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
               </a>
               .
             </p>
+            {submitError && (
+              <div className="rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-center text-sm font-medium text-destructive" role="alert">
+                {submitError}
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -860,10 +918,6 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
       {/* Stage: submitting */}
       {stage === "submitting" && <SubmittingScreen />}
 
-      {/* Stage: done */}
-      {stage === "done" && (
-        <ThankYouScreen quoteId={quoteId} onEdit={() => setStage("form")} />
-      )}
     </div>
   );
 }
@@ -992,7 +1046,7 @@ function LocationBlock({
   fallbackLoc,
 }: {
   side: SideState;
-  onChange: (patch: Partial<SideState>) => void;
+  onChange: (patch: Partial<SideState>, expectedZip?: string) => void;
   fallbackLoc: ZipLocation | null;
 }) {
   const [cities, setCities] = useState<string[]>([]);
@@ -1002,13 +1056,22 @@ function LocationBlock({
   // Look up cities + state from ZIP via Google Geocoder.
   useEffect(() => {
     let cancelled = false;
-    if (!isValidZip(side.zip)) {
+    const zipAtLookupStart = side.zip;
+    if (!isValidZip(zipAtLookupStart)) {
       setCities([]);
       setZipCenter(null);
       return;
     }
+    if (fallbackLoc) {
+      setCities([fallbackLoc.city]);
+      setZipCenter({ lat: fallbackLoc.lat, lng: fallbackLoc.lng });
+      const patch: Partial<SideState> = {};
+      if (side.state !== fallbackLoc.state) patch.state = fallbackLoc.state;
+      if (!side.city) patch.city = fallbackLoc.city;
+      if (Object.keys(patch).length) onChange(patch, zipAtLookupStart);
+    }
     setLoadingCities(true);
-    lookupZipCities(side.zip)
+    lookupZipCities(zipAtLookupStart)
       .then((r) => {
         if (cancelled) return;
         if (!r) {
@@ -1016,7 +1079,7 @@ function LocationBlock({
           setCities(fallbackLoc ? [fallbackLoc.city] : []);
           setZipCenter(fallbackLoc ? { lat: fallbackLoc.lat, lng: fallbackLoc.lng } : null);
           if (fallbackLoc && !side.state) {
-            onChange({ state: fallbackLoc.state, city: side.city || fallbackLoc.city });
+            onChange({ state: fallbackLoc.state, city: side.city || fallbackLoc.city }, zipAtLookupStart);
           }
           return;
         }
@@ -1030,7 +1093,7 @@ function LocationBlock({
         if (side.city && r.cities.length > 0 && !r.cities.includes(side.city)) {
           patch.city = r.cities.length === 1 ? r.cities[0] : "";
         }
-        if (Object.keys(patch).length) onChange(patch);
+        if (Object.keys(patch).length) onChange(patch, zipAtLookupStart);
       })
       .finally(() => !cancelled && setLoadingCities(false));
     return () => {

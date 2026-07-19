@@ -666,7 +666,7 @@ function NotificationsBell() {
     setItems((prev) => prev.map((n) => (n.read_at ? n : { ...n, read_at: new Date().toISOString() })));
   }
 
-  const _ = useMemo(() => null, []);
+  
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -713,6 +713,3 @@ function NotificationsBell() {
     </Popover>
   );
 }
-{/* keep imports referenced */}
-export const _keep = _unused;
-const _unused = null;

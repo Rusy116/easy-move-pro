@@ -812,14 +812,35 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
                 !form.fullName.trim() ||
                 !isValidUsPhone(form.phone) ||
                 !isValidEmail(form.email) ||
-                saving
+                saving ||
+                stage !== "form"
               }
               size="lg"
-              className="w-full rounded-full bg-primary py-6 text-base font-semibold uppercase tracking-wide text-primary-foreground shadow-lg transition-transform hover:scale-[1.01] hover:bg-primary/90"
+              className="w-full rounded-full bg-primary py-6 text-base font-semibold uppercase tracking-wide text-primary-foreground shadow-lg transition-transform hover:scale-[1.01] hover:bg-primary/90 disabled:opacity-70"
             >
-              Get My Free Moving Quote
-              <ArrowRight className="ml-2 h-4 w-4" />
+              {saving ? (
+                <>
+                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                  Submitting…
+                </>
+              ) : (
+                <>
+                  <Check className="mr-2 h-5 w-5" />
+                  Get My Free Moving Quote
+                </>
+              )}
             </Button>
+            <p className="text-center text-[11px] leading-relaxed text-muted-foreground">
+              By clicking Get My Free Moving Quote, you agree to our{" "}
+              <a href="/privacy" className="font-medium text-primary underline-offset-2 hover:underline">
+                Privacy Policy
+              </a>{" "}
+              and{" "}
+              <a href="/terms" className="font-medium text-primary underline-offset-2 hover:underline">
+                Terms of Service
+              </a>
+              .
+            </p>
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
               {[
                 "No hidden fees",
@@ -836,10 +857,6 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
                 </div>
               ))}
             </div>
-            <p className="text-center text-[11px] leading-relaxed text-muted-foreground">
-              By submitting this form you agree to be contacted by phone, SMS or email
-              regarding your moving estimate.
-            </p>
           </div>
 
           <p className="mt-6 text-center text-[10px] text-muted-foreground/70">

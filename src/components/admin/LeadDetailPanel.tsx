@@ -126,10 +126,11 @@ export function LeadDetailPanel({
 
   async function addNote() {
     if (!quote || !newNote.trim()) return;
+    const q = quote;
     setSavingNote(true);
     const { data: userData } = await supabase.auth.getUser();
     const { error } = await supabase.from("quote_notes").insert({
-      quote_id: quote.id,
+      quote_id: q.id,
       body: newNote.trim(),
       author_id: userData.user?.id ?? null,
       author_email: userData.user?.email ?? null,

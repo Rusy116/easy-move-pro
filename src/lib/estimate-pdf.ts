@@ -158,7 +158,7 @@ export function generateEstimatePdf(input: EstimatePdfInput): jsPDF {
   const itemsWithNames = input.inventory
     .map((it) => {
       const meta = findItem(it.id);
-      return meta ? { name: meta.name, quantity: it.quantity } : null;
+      return meta ? { name: meta.label, quantity: it.quantity } : null;
     })
     .filter(Boolean) as { name: string; quantity: number }[];
 

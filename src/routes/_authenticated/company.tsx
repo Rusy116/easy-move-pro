@@ -385,6 +385,7 @@ function CompanyPortal() {
           })}
         </div>
       </section>
+      </div>
 
       {selected && (
         <AssignmentDetail

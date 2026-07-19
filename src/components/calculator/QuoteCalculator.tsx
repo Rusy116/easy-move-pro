@@ -23,6 +23,7 @@ import {
   BadgeCheck,
   Lock,
   PartyPopper,
+  CheckCircle2,
 } from "lucide-react";
 import { InsuranceInfoModal } from "./InsuranceInfoModal";
 import {

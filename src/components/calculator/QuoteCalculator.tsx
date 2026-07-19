@@ -771,7 +771,7 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
       )}
 
       {/* Stage: form → trust section + final CTA */}
-      {stage === "form" && quote && !compact && (
+      {stage === "form" && !compact && (
         <div className="border-t border-border bg-muted/40 px-5 py-6 sm:px-8 sm:py-8">
           {/* Trust section */}
           <div className="rounded-2xl border border-border bg-card p-5 sm:p-6">

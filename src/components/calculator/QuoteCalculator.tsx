@@ -842,27 +842,7 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
               </a>
               .
             </p>
-            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-              {[
-                "No hidden fees",
-                "Licensed & insured movers",
-                "Your information is secure",
-                "Response within 5–15 minutes",
-              ].map((label) => (
-                <div
-                  key={label}
-                  className="flex items-center gap-2 rounded-lg bg-card px-3 py-2 text-sm"
-                >
-                  <Check className="h-4 w-4 shrink-0 text-sage" />
-                  <span className="font-medium">{label}</span>
-                </div>
-              ))}
-            </div>
           </div>
-
-          <p className="mt-6 text-center text-[10px] text-muted-foreground/70">
-            © {new Date().getFullYear()} Easy Moving Logistics. All rights reserved.
-          </p>
         </div>
       )}
       {stage === "form" && quote && compact && (

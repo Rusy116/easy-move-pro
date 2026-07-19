@@ -612,14 +612,7 @@ export type Database = {
       }
     }
     Views: {
-      admin_users: {
-        Row: {
-          email: string | null
-          full_name: string | null
-          id: string | null
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Functions: {
       accept_quote: {

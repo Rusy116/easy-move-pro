@@ -327,7 +327,11 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
     setInsuranceModal(null);
   }
 
-  async function saveQuote(): Promise<string> {
+  async function saveQuote(): Promise<{
+    id: string;
+    quoteNumber: string;
+    portalToken: string;
+  }> {
     if (!quote || !distance) throw new Error("Quote not ready");
     const { data: sessionData } = await supabase.auth.getSession();
     const userId = sessionData.session?.user.id ?? null;
@@ -343,79 +347,90 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
         ? crypto.randomUUID()
         : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 
-    const { error } = await supabase.from("quotes").insert({
-      id: clientQuoteId,
-      user_id: userId,
-      origin_zip: o.zip,
-      destination_zip: d.zip,
-      origin_address: o.fullAddress || null,
-      destination_address: d.fullAddress || null,
-      origin_lat: o.lat,
-      origin_lng: o.lng,
-      destination_lat: d.lat,
-      destination_lng: d.lng,
-      origin_place_id: o.placeId || null,
-      destination_place_id: d.placeId || null,
-      origin_city: o.city || originLoc?.city || null,
-      destination_city: d.city || destLoc?.city || null,
-      origin_state: o.state || originLoc?.state || null,
-      destination_state: d.state || destLoc?.state || null,
-      distance_miles: distance.miles,
-      move_type: distance.type,
-      move_size: form.propertyType,
-      property_type: form.propertyType,
-      bedrooms: 0,
-      floor: Math.max(o.floor, d.floor) + 1,
-      elevator: o.elevator || d.elevator,
-      packing: form.packing,
-      storage: form.storage,
-      assembly: form.assembly,
-      heavy_items: form.piano || form.safe || form.gymEquipment,
-      long_carry: o.longCarry || d.longCarry,
-      unpacking: form.unpacking,
-      junk_removal: form.junkRemoval,
-      piano: form.piano,
-      safe: form.safe,
-      gym_equipment: form.gymEquipment,
-      appliances: form.appliances,
-      fragile_items: form.fragileItems,
-      insurance_tier: form.insurance,
-      origin_stairs: o.floor,
-      destination_stairs: d.floor,
-      origin_elevator: o.elevator,
-      destination_elevator: d.elevator,
-      origin_long_carry: o.longCarry,
-      destination_long_carry: d.longCarry,
-      preferred_time: form.preferredTime,
-      flexible_date: form.flexibleDate,
-      move_date: form.moveDate || null,
-      inventory_notes: form.notes || null,
-      inventory: inventoryArray as unknown as never,
-      breakdown: quote.breakdown as unknown as never,
-      estimated_cubic_feet: quote.cubicFeet,
-      estimated_weight_lbs: quote.weightLbs,
-      truck_size: quote.truckSize,
-      num_movers: quote.numMovers,
-      labor_hours: quote.laborHours,
-      estimated_low: quote.low,
-      estimated_high: quote.high,
-      contact_email: form.email || null,
-      contact_phone: form.phone || null,
-      details: {
-        preferredTime: form.preferredTime,
-        provider: "haversine-v1",
-        clientQuoteId,
-        originHouseNumber: o.houseNumber,
-        originStreet: o.street,
-        destinationHouseNumber: d.houseNumber,
-        destinationStreet: d.street,
-        fullName: form.fullName,
-        contactMethod: form.contactMethod,
-        contactTime: form.contactTime,
-      } as unknown as never,
-    });
+    const { data: inserted, error } = await supabase
+      .from("quotes")
+      .insert({
+        id: clientQuoteId,
+        user_id: userId,
+        origin_zip: o.zip,
+        destination_zip: d.zip,
+        origin_address: o.fullAddress || null,
+        destination_address: d.fullAddress || null,
+        origin_lat: o.lat,
+        origin_lng: o.lng,
+        destination_lat: d.lat,
+        destination_lng: d.lng,
+        origin_place_id: o.placeId || null,
+        destination_place_id: d.placeId || null,
+        origin_city: o.city || originLoc?.city || null,
+        destination_city: d.city || destLoc?.city || null,
+        origin_state: o.state || originLoc?.state || null,
+        destination_state: d.state || destLoc?.state || null,
+        distance_miles: distance.miles,
+        move_type: distance.type,
+        move_size: form.propertyType,
+        property_type: form.propertyType,
+        bedrooms: 0,
+        floor: Math.max(o.floor, d.floor) + 1,
+        elevator: o.elevator || d.elevator,
+        packing: form.packing,
+        storage: form.storage,
+        assembly: form.assembly,
+        heavy_items: form.piano || form.safe || form.gymEquipment,
+        long_carry: o.longCarry || d.longCarry,
+        unpacking: form.unpacking,
+        junk_removal: form.junkRemoval,
+        piano: form.piano,
+        safe: form.safe,
+        gym_equipment: form.gymEquipment,
+        appliances: form.appliances,
+        fragile_items: form.fragileItems,
+        insurance_tier: form.insurance,
+        origin_stairs: o.floor,
+        destination_stairs: d.floor,
+        origin_elevator: o.elevator,
+        destination_elevator: d.elevator,
+        origin_long_carry: o.longCarry,
+        destination_long_carry: d.longCarry,
+        preferred_time: form.preferredTime,
+        flexible_date: form.flexibleDate,
+        move_date: form.moveDate || null,
+        inventory_notes: form.notes || null,
+        inventory: inventoryArray as unknown as never,
+        breakdown: quote.breakdown as unknown as never,
+        estimated_cubic_feet: quote.cubicFeet,
+        estimated_weight_lbs: quote.weightLbs,
+        truck_size: quote.truckSize,
+        num_movers: quote.numMovers,
+        labor_hours: quote.laborHours,
+        estimated_low: quote.low,
+        estimated_high: quote.high,
+        contact_email: form.email || null,
+        contact_phone: form.phone || null,
+        details: {
+          preferredTime: form.preferredTime,
+          provider: "haversine-v1",
+          clientQuoteId,
+          originHouseNumber: o.houseNumber,
+          originStreet: o.street,
+          destinationHouseNumber: d.houseNumber,
+          destinationStreet: d.street,
+          fullName: form.fullName,
+          contactMethod: form.contactMethod,
+          contactTime: form.contactTime,
+        } as unknown as never,
+      })
+      .select("id, quote_number, portal_token")
+      .single();
     if (error) throw error;
-    return clientQuoteId;
+    if (!inserted?.quote_number || !inserted?.portal_token) {
+      throw new Error("Quote saved but identifiers missing. Please contact support.");
+    }
+    return {
+      id: inserted.id,
+      quoteNumber: inserted.quote_number,
+      portalToken: inserted.portal_token,
+    };
   }
 
   async function handleSubmit() {

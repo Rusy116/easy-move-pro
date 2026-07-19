@@ -28,13 +28,27 @@ import {
 } from "@/components/ui/table";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Phone, Mail, Clock, StickyNote, RefreshCw, Bell, CheckCircle2 } from "lucide-react";
+import {
+  Phone,
+  Mail,
+  Clock,
+  StickyNote,
+  RefreshCw,
+  Bell,
+  CheckCircle2,
+  LayoutDashboard,
+  Users,
+  DollarSign,
+  Inbox,
+  Search,
+} from "lucide-react";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { AssignCompanies } from "@/components/admin/AssignCompanies";
+import { PageHeader, StatCard } from "@/components/dashboard/DashboardChrome";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({ meta: [{ title: "Admin — Easy Moving" }] }),

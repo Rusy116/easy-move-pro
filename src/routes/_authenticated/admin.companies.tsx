@@ -24,7 +24,7 @@ import {
 import { toast } from "sonner";
 import { useServerFn } from "@tanstack/react-start";
 import { attachMemberByEmail } from "@/lib/companies.functions";
-import { Plus, UserPlus, Building2 } from "lucide-react";
+import { Plus, UserPlus, Building2, Trash2 } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/admin/companies")({
   head: () => ({ meta: [{ title: "Moving Companies — Admin" }] }),

@@ -190,6 +190,7 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
   const [saving, setSaving] = useState(false);
   const [insuranceModal, setInsuranceModal] = useState<InsuranceTier | null>(null);
   const [stage, setStage] = useState<"form" | "submitting" | "done">("form");
+  const [quoteId, setQuoteId] = useState<string | null>(null);
 
   const set = <K extends keyof FormState>(k: K, v: FormState[K]) =>
     setForm((s) => ({ ...s, [k]: v }));

@@ -70,7 +70,13 @@ function DashboardPage() {
             <h1 className="mt-2 font-serif text-4xl font-medium">Welcome back</h1>
             <p className="mt-1 text-sm text-muted-foreground">{email}</p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
+            {roles.includes("mover") && (
+              <Link to="/company"><Button variant="secondary" className="rounded-full">Company portal</Button></Link>
+            )}
+            {roles.includes("admin") && (
+              <Link to="/admin"><Button variant="secondary" className="rounded-full">Admin</Button></Link>
+            )}
             <Link to="/calculator"><Button className="rounded-full">New quote</Button></Link>
             <Button variant="outline" className="rounded-full" onClick={signOut}>Sign out</Button>
           </div>

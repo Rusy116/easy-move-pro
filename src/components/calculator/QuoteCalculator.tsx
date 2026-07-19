@@ -1825,36 +1825,54 @@ function SubmittingScreen() {
   );
 }
 
-function ThankYouScreen() {
+function ThankYouScreen({
+  quoteId,
+  onEdit,
+}: {
+  quoteId: string | null;
+  onEdit: () => void;
+}) {
+  const shortId = quoteId ? quoteId.slice(0, 8).toUpperCase() : null;
   return (
     <div className="border-t border-border bg-gradient-to-b from-primary/5 to-transparent px-4 py-12 sm:px-8 sm:py-16">
       <div className="mx-auto max-w-xl text-center animate-fade-up">
-        <div className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-sage/15 text-sage">
-          <PartyPopper className="h-8 w-8" />
+        <div className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-emerald-500/15 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400">
+          <CheckCircle2 className="h-9 w-9" />
         </div>
         <h3 className="mt-5 font-serif text-4xl font-medium tracking-tight sm:text-5xl">
-          🎉 Thank you!
+          Thank you!
         </h3>
         <p className="mt-4 text-base leading-relaxed text-muted-foreground">
-          We've received your moving request. A moving specialist will review your
-          inventory and contact you shortly to confirm pricing, availability, and
-          scheduling.
+          We've received your moving request.
+          <br />
+          Our moving specialists will contact you within 5–15 minutes.
         </p>
+
+        {shortId && (
+          <div className="mx-auto mt-6 inline-flex flex-col items-center gap-1 rounded-2xl border border-border bg-card px-5 py-3">
+            <span className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+              Quote ID
+            </span>
+            <span className="font-mono text-base font-semibold text-foreground">
+              #{shortId}
+            </span>
+          </div>
+        )}
+
         <div className="mt-8 flex flex-col items-stretch gap-3 sm:flex-row sm:justify-center">
           <Button
-            asChild
+            onClick={onEdit}
+            variant="outline"
             size="lg"
-            className="rounded-full bg-sage hover:bg-sage/90"
+            className="rounded-full"
           >
-            <a href="tel:+18003279668">
-              <PhoneIcon className="mr-2 h-4 w-4" />
-              Call us now
-            </a>
+            Edit Request
           </Button>
-          <Button asChild variant="outline" size="lg" className="rounded-full">
-            <a href="/">Back to home</a>
+          <Button asChild size="lg" className="rounded-full">
+            <a href="/">Back to Home</a>
           </Button>
         </div>
+
         <div className="mt-8 grid grid-cols-2 gap-2 text-xs sm:grid-cols-4">
           {[
             { Icon: BadgeCheck, label: "Licensed & insured" },

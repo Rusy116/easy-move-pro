@@ -874,7 +874,9 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
       {stage === "submitting" && <SubmittingScreen />}
 
       {/* Stage: done */}
-      {stage === "done" && <ThankYouScreen />}
+      {stage === "done" && (
+        <ThankYouScreen quoteId={quoteId} onEdit={() => setStage("form")} />
+      )}
     </div>
   );
 }

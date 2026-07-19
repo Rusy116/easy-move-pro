@@ -340,36 +340,26 @@ function AdminPage() {
           }
         />
 
-        {/* KPI stats */}
-        <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <StatCard label="Total quotes" value={total.toLocaleString()} icon={<Inbox className="h-4 w-4" />} />
+        {/* KPI stats — global */}
+        <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+          <StatCard label="Total" value={stats.total.toLocaleString()} icon={<Inbox className="h-4 w-4" />} />
+          <StatCard label="Active" value={stats.active.toLocaleString()} tone="info" hint="new · contacted · scheduled" icon={<Bell className="h-4 w-4" />} />
+          <StatCard label="Accepted" value={stats.accepted.toLocaleString()} tone="success" icon={<CheckCircle2 className="h-4 w-4" />} />
+          <StatCard label="Won" value={stats.won.toLocaleString()} tone="success" icon={<CheckCircle2 className="h-4 w-4" />} />
+          <StatCard label="Lost" value={stats.lost.toLocaleString()} icon={<Inbox className="h-4 w-4" />} />
           <StatCard
-            label="New"
-            value={rows.filter((r) => r.status === "new").length}
-            tone="info"
-            hint="on this page"
-            icon={<Bell className="h-4 w-4" />}
-          />
-          <StatCard
-            label="Won"
-            value={rows.filter((r) => r.status === "won").length}
-            tone="success"
-            hint="on this page"
-            icon={<CheckCircle2 className="h-4 w-4" />}
-          />
-          <StatCard
-            label="Avg estimate"
+            label="Revenue (won)"
             value={
-              rows.length
-                ? `$${Math.round(
-                    rows.reduce((s, r) => s + (Number(r.estimated_low) + Number(r.estimated_high)) / 2, 0) / rows.length,
-                  ).toLocaleString()}`
-                : "—"
+              stats.won === 0
+                ? "—"
+                : `$${Math.round(stats.revenueLow / 1000)}k–$${Math.round(stats.revenueHigh / 1000)}k`
             }
-            hint="on this page"
+            tone="success"
+            hint="sum of estimates"
             icon={<DollarSign className="h-4 w-4" />}
           />
         </div>
+
 
         {/* Status chips */}
         <div className="mt-8 flex flex-wrap items-center gap-2">

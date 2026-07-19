@@ -28,13 +28,27 @@ import {
 } from "@/components/ui/table";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Phone, Mail, Clock, StickyNote, RefreshCw, Bell, CheckCircle2 } from "lucide-react";
+import {
+  Phone,
+  Mail,
+  Clock,
+  StickyNote,
+  RefreshCw,
+  Bell,
+  CheckCircle2,
+  LayoutDashboard,
+  Users,
+  DollarSign,
+  Inbox,
+  Search,
+} from "lucide-react";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { AssignCompanies } from "@/components/admin/AssignCompanies";
+import { PageHeader, StatCard } from "@/components/dashboard/DashboardChrome";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({ meta: [{ title: "Admin — Easy Moving" }] }),
@@ -216,38 +230,95 @@ function AdminPage() {
 
   return (
     <SiteLayout>
+      <div className="min-h-screen bg-gradient-to-b from-sage-soft/30 to-background">
       <section className="mx-auto max-w-7xl px-4 sm:px-6 py-8 md:py-12">
-        <div className="flex items-end justify-between flex-wrap gap-4">
-          <div>
-            <span className="text-xs font-semibold uppercase tracking-widest text-ochre">Admin CRM</span>
-            <h1 className="mt-2 font-serif text-3xl md:text-4xl font-medium">Quotes</h1>
-            <p className="mt-1 text-sm text-muted-foreground">
-              {total.toLocaleString()} total · live updates on
-            </p>
-          </div>
-          <div className="flex items-center gap-2">
-            <Button asChild variant="outline" size="sm">
-              <Link to="/admin/companies">Companies</Link>
-            </Button>
-            <NotificationsBell />
-            <Button variant="outline" onClick={() => void load()} disabled={loading}>
-              <RefreshCw className={`mr-2 h-4 w-4 ${loading ? "animate-spin" : ""}`} />
-              Refresh
-            </Button>
-          </div>
+        <PageHeader
+          eyebrow="Admin CRM"
+          title="Quotes"
+          subtitle={
+            <span className="inline-flex items-center gap-2">
+              <span className="relative flex h-2 w-2">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-500 opacity-60" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-600" />
+              </span>
+              {total.toLocaleString()} total · live
+            </span>
+          }
+          icon={<LayoutDashboard className="h-5 w-5" />}
+          actions={
+            <>
+              <Button asChild variant="outline" size="sm" className="rounded-full">
+                <Link to="/admin/companies"><Users className="mr-1.5 h-4 w-4" />Companies</Link>
+              </Button>
+              <NotificationsBell />
+              <Button variant="outline" onClick={() => void load()} disabled={loading} size="sm" className="rounded-full">
+                <RefreshCw className={`mr-2 h-4 w-4 ${loading ? "animate-spin" : ""}`} />
+                Refresh
+              </Button>
+            </>
+          }
+        />
+
+        {/* KPI stats */}
+        <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <StatCard label="Total quotes" value={total.toLocaleString()} icon={<Inbox className="h-4 w-4" />} />
+          <StatCard
+            label="New"
+            value={rows.filter((r) => r.status === "new").length}
+            tone="info"
+            hint="on this page"
+            icon={<Bell className="h-4 w-4" />}
+          />
+          <StatCard
+            label="Won"
+            value={rows.filter((r) => r.status === "won").length}
+            tone="success"
+            hint="on this page"
+            icon={<CheckCircle2 className="h-4 w-4" />}
+          />
+          <StatCard
+            label="Avg estimate"
+            value={
+              rows.length
+                ? `$${Math.round(
+                    rows.reduce((s, r) => s + (Number(r.estimated_low) + Number(r.estimated_high)) / 2, 0) / rows.length,
+                  ).toLocaleString()}`
+                : "—"
+            }
+            hint="on this page"
+            icon={<DollarSign className="h-4 w-4" />}
+          />
+        </div>
+
+        {/* Status chips */}
+        <div className="mt-8 flex flex-wrap items-center gap-2">
+          <button
+            onClick={() => setStatusFilter("all")}
+            className={`rounded-full px-3.5 py-1.5 text-xs font-medium transition ring-focus ${
+              statusFilter === "all"
+                ? "bg-primary text-primary-foreground shadow-sm"
+                : "bg-card border border-border text-muted-foreground hover:text-foreground hover:border-primary/30"
+            }`}
+          >
+            All
+          </button>
+          {STATUSES.map((s) => (
+            <button
+              key={s}
+              onClick={() => setStatusFilter(s)}
+              className={`rounded-full border px-3.5 py-1.5 text-xs font-medium capitalize transition ring-focus ${
+                statusFilter === s
+                  ? STATUS_STYLES[s] + " shadow-sm"
+                  : "bg-card border-border text-muted-foreground hover:text-foreground hover:border-primary/30"
+              }`}
+            >
+              {s}
+            </button>
+          ))}
         </div>
 
         {/* Filters */}
-        <div className="mt-6 grid gap-3 rounded-2xl border border-border bg-card p-4 sm:grid-cols-2 lg:grid-cols-5">
-          <Field label="Status">
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All statuses</SelectItem>
-                {STATUSES.map((s) => <SelectItem key={s} value={s} className="capitalize">{s}</SelectItem>)}
-              </SelectContent>
-            </Select>
-          </Field>
+        <div className="mt-4 grid gap-3 rounded-2xl border border-border bg-card p-4 shadow-sm sm:grid-cols-2 lg:grid-cols-4">
           <Field label="From date">
             <Input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} />
           </Field>
@@ -258,24 +329,27 @@ function AdminPage() {
             <Input placeholder="e.g. Alex" value={customerName} onChange={(e) => setCustomerName(e.target.value)} />
           </Field>
           <Field label="Phone / email / ID">
-            <Input placeholder="Search…" value={search} onChange={(e) => setSearch(e.target.value)} />
+            <div className="relative">
+              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+              <Input className="pl-8" placeholder="Search…" value={search} onChange={(e) => setSearch(e.target.value)} />
+            </div>
           </Field>
         </div>
 
         {/* Desktop table */}
-        <div className="mt-6 hidden md:block overflow-x-auto rounded-2xl border border-border bg-card">
+        <div className="mt-6 hidden md:block overflow-x-auto rounded-2xl border border-border bg-card shadow-sm">
           <Table>
             <TableHeader>
-              <TableRow>
-                <TableHead>ID</TableHead>
-                <TableHead>Submitted</TableHead>
-                <TableHead>Customer</TableHead>
-                <TableHead>Phone</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Origin</TableHead>
-                <TableHead>Destination</TableHead>
-                <TableHead>Estimate</TableHead>
-                <TableHead>Status</TableHead>
+              <TableRow className="bg-muted/40 hover:bg-muted/40">
+                <TableHead className="text-[11px] uppercase tracking-wider">ID</TableHead>
+                <TableHead className="text-[11px] uppercase tracking-wider">Submitted</TableHead>
+                <TableHead className="text-[11px] uppercase tracking-wider">Customer</TableHead>
+                <TableHead className="text-[11px] uppercase tracking-wider">Phone</TableHead>
+                <TableHead className="text-[11px] uppercase tracking-wider">Email</TableHead>
+                <TableHead className="text-[11px] uppercase tracking-wider">Origin</TableHead>
+                <TableHead className="text-[11px] uppercase tracking-wider">Destination</TableHead>
+                <TableHead className="text-[11px] uppercase tracking-wider">Estimate</TableHead>
+                <TableHead className="text-[11px] uppercase tracking-wider">Status</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -356,6 +430,7 @@ function AdminPage() {
           onStatusChange={updateStatus}
         />
       </section>
+      </div>
     </SiteLayout>
   );
 }

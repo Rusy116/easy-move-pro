@@ -1,10 +1,23 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle2, FileText } from "lucide-react";
+import {
+  CheckCircle2,
+  FileText,
+  Plus,
+  LogOut,
+  Truck,
+  ArrowRight,
+  Calendar,
+  MapPin,
+  DollarSign,
+  ClipboardList,
+  Shield,
+} from "lucide-react";
+import { PageHeader, StatCard, SkeletonRows } from "@/components/dashboard/DashboardChrome";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({ meta: [{ title: "Customer Dashboard — Easy Moving" }] }),
@@ -61,94 +74,196 @@ function DashboardPage() {
     navigate({ to: "/" });
   }
 
+  const stats = useMemo(() => {
+    const accepted = quotes.filter((q) => q.accepted_at).length;
+    const active = quotes.filter(
+      (q) => !q.accepted_at && !["lost", "cancelled"].includes(q.status),
+    ).length;
+    const avg =
+      quotes.length === 0
+        ? 0
+        : Math.round(
+            quotes.reduce(
+              (sum, q) => sum + (Number(q.estimated_low) + Number(q.estimated_high)) / 2,
+              0,
+            ) / quotes.length,
+          );
+    return { total: quotes.length, accepted, active, avg };
+  }, [quotes]);
+
   return (
     <SiteLayout>
-      <section className="mx-auto max-w-6xl px-4 sm:px-6 py-16">
-        <div className="flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <span className="text-xs font-semibold uppercase tracking-widest text-ochre">Dashboard</span>
-            <h1 className="mt-2 font-serif text-4xl font-medium">Welcome back</h1>
-            <p className="mt-1 text-sm text-muted-foreground">{email}</p>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {roles.includes("mover") && (
-              <Link to="/company"><Button variant="secondary" className="rounded-full">Company portal</Button></Link>
-            )}
-            {roles.includes("admin") && (
-              <Link to="/admin"><Button variant="secondary" className="rounded-full">Admin</Button></Link>
-            )}
-            <Link to="/calculator"><Button className="rounded-full">New quote</Button></Link>
-            <Button variant="outline" className="rounded-full" onClick={signOut}>Sign out</Button>
-          </div>
-        </div>
+      <div className="min-h-screen bg-gradient-to-b from-sage-soft/40 to-background">
+        <section className="mx-auto max-w-6xl px-4 sm:px-6 py-10 md:py-16">
+          <PageHeader
+            eyebrow="Customer dashboard"
+            title="Welcome back"
+            subtitle={<span className="truncate">{email}</span>}
+            icon={<Shield className="h-5 w-5" />}
+            actions={
+              <>
+                {roles.includes("mover") && (
+                  <Link to="/company">
+                    <Button variant="secondary" className="rounded-full">
+                      <Truck className="mr-1.5 h-4 w-4" /> Company portal
+                    </Button>
+                  </Link>
+                )}
+                {roles.includes("admin") && (
+                  <Link to="/admin">
+                    <Button variant="secondary" className="rounded-full">
+                      Admin
+                    </Button>
+                  </Link>
+                )}
+                <Link to="/calculator">
+                  <Button className="rounded-full shadow-sm">
+                    <Plus className="mr-1.5 h-4 w-4" /> New quote
+                  </Button>
+                </Link>
+                <Button
+                  variant="outline"
+                  className="rounded-full"
+                  onClick={signOut}
+                  aria-label="Sign out"
+                >
+                  <LogOut className="h-4 w-4" />
+                </Button>
+              </>
+            }
+          />
 
-        <div className="mt-10">
-          <h2 className="font-serif text-2xl font-medium">Your quotes</h2>
-          {loading ? (
-            <div className="mt-6 text-sm text-muted-foreground">Loading…</div>
-          ) : quotes.length === 0 ? (
-            <div className="mt-6 rounded-2xl border border-dashed border-border p-10 text-center">
-              <p className="text-muted-foreground">You don't have any quotes yet.</p>
-              <Link to="/calculator" className="mt-4 inline-block">
-                <Button className="rounded-full">Get your first quote</Button>
-              </Link>
+          {/* Stats */}
+          <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <StatCard
+              label="Quotes"
+              value={stats.total}
+              icon={<ClipboardList className="h-4 w-4" />}
+            />
+            <StatCard
+              label="Active"
+              value={stats.active}
+              tone="info"
+              icon={<Calendar className="h-4 w-4" />}
+            />
+            <StatCard
+              label="Accepted"
+              value={stats.accepted}
+              tone="success"
+              icon={<CheckCircle2 className="h-4 w-4" />}
+            />
+            <StatCard
+              label="Avg estimate"
+              value={stats.avg ? `$${stats.avg.toLocaleString()}` : "—"}
+              icon={<DollarSign className="h-4 w-4" />}
+            />
+          </div>
+
+          {/* Quotes list */}
+          <div className="mt-10">
+            <div className="flex items-end justify-between">
+              <h2 className="font-serif text-2xl font-medium">Your quotes</h2>
+              {quotes.length > 0 && (
+                <span className="text-xs text-muted-foreground">
+                  {quotes.length} {quotes.length === 1 ? "quote" : "quotes"}
+                </span>
+              )}
             </div>
-          ) : (
-            <div className="mt-6 grid gap-3">
-              {quotes.map((q) => {
-                const portalHref =
-                  q.quote_number && q.portal_token
-                    ? `/portal/${q.quote_number}?token=${q.portal_token}`
-                    : null;
-                return (
-                  <div key={q.id} className="rounded-2xl border border-border bg-card p-6">
-                    <div className="flex flex-wrap items-start justify-between gap-4">
-                      <div className="min-w-0">
-                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                          <span className="font-mono">{q.quote_number ?? q.id.slice(0, 8)}</span>
-                          <span>·</span>
-                          <span>{new Date(q.created_at).toLocaleDateString()}</span>
+
+            {loading ? (
+              <div className="mt-6">
+                <SkeletonRows n={3} />
+              </div>
+            ) : quotes.length === 0 ? (
+              <div className="mt-6 card-premium p-10 text-center">
+                <div className="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-sage-soft text-sage">
+                  <Truck className="h-6 w-6" />
+                </div>
+                <p className="mt-4 font-serif text-lg">No quotes yet</p>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Get an instant estimate in under a minute.
+                </p>
+                <Link to="/calculator" className="mt-4 inline-block">
+                  <Button className="rounded-full">
+                    Get your first quote <ArrowRight className="ml-1.5 h-4 w-4" />
+                  </Button>
+                </Link>
+              </div>
+            ) : (
+              <div className="mt-6 grid gap-3">
+                {quotes.map((q) => {
+                  const portalHref =
+                    q.quote_number && q.portal_token
+                      ? `/portal/${q.quote_number}?token=${q.portal_token}`
+                      : null;
+                  return (
+                    <article
+                      key={q.id}
+                      className="card-premium card-premium-hover p-5 sm:p-6 animate-fade-in-soft"
+                    >
+                      <div className="flex flex-wrap items-start justify-between gap-4">
+                        <div className="min-w-0 flex-1">
+                          <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                            <span className="font-mono font-medium text-foreground/80">
+                              {q.quote_number ?? q.id.slice(0, 8)}
+                            </span>
+                            <span aria-hidden>·</span>
+                            <span>{new Date(q.created_at).toLocaleDateString()}</span>
+                          </div>
+                          <div className="mt-1.5 flex items-center gap-2 font-serif text-xl font-medium">
+                            <MapPin className="h-4 w-4 shrink-0 text-sage" />
+                            <span className="truncate">
+                              {q.origin_city ?? q.origin_zip}
+                              <ArrowRight className="mx-2 inline h-4 w-4 text-muted-foreground" />
+                              {q.destination_city ?? q.destination_zip}
+                            </span>
+                          </div>
+                          <div className="mt-1 flex flex-wrap items-center gap-3 text-sm text-muted-foreground capitalize">
+                            <span>{q.property_type}</span>
+                            {q.move_date && (
+                              <span className="inline-flex items-center gap-1">
+                                <Calendar className="h-3.5 w-3.5" /> {q.move_date}
+                              </span>
+                            )}
+                          </div>
                         </div>
-                        <div className="mt-1 font-serif text-xl font-medium">
-                          {q.origin_city ?? q.origin_zip} → {q.destination_city ?? q.destination_zip}
-                        </div>
-                        <div className="mt-1 text-sm text-muted-foreground capitalize">
-                          {q.property_type}
-                          {q.move_date ? ` · Move ${q.move_date}` : ""}
+                        <div className="text-right">
+                          <div className="font-serif text-2xl font-medium tabular-nums text-gradient-brand">
+                            ${Number(q.estimated_low).toLocaleString()} – $
+                            {Number(q.estimated_high).toLocaleString()}
+                          </div>
+                          <div className="mt-2 flex items-center justify-end gap-2">
+                            {q.accepted_at ? (
+                              <Badge className="bg-emerald-500/10 text-emerald-700 border border-emerald-600/30">
+                                <CheckCircle2 className="mr-1 h-3 w-3" /> Accepted
+                              </Badge>
+                            ) : (
+                              <Badge variant="outline" className="capitalize">
+                                {q.status}
+                              </Badge>
+                            )}
+                          </div>
                         </div>
                       </div>
-                      <div className="text-right">
-                        <div className="font-serif text-2xl text-primary">
-                          ${Number(q.estimated_low).toLocaleString()} – ${Number(q.estimated_high).toLocaleString()}
+                      {portalHref && (
+                        <div className="mt-4 flex justify-end border-t border-border/60 pt-3">
+                          <Button asChild variant="ghost" size="sm" className="rounded-full">
+                            <a href={portalHref}>
+                              <FileText className="mr-2 h-4 w-4" />
+                              {q.accepted_at ? "View estimate" : "View & accept"}
+                              <ArrowRight className="ml-1 h-3.5 w-3.5" />
+                            </a>
+                          </Button>
                         </div>
-                        <div className="mt-2 flex items-center justify-end gap-2">
-                          {q.accepted_at ? (
-                            <Badge className="bg-emerald-500/10 text-emerald-700 border border-emerald-600/30">
-                              <CheckCircle2 className="mr-1 h-3 w-3" /> Accepted
-                            </Badge>
-                          ) : (
-                            <Badge variant="outline" className="capitalize">{q.status}</Badge>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                    {portalHref && (
-                      <div className="mt-4 flex justify-end">
-                        <Button asChild variant="outline" size="sm" className="rounded-full">
-                          <a href={portalHref}>
-                            <FileText className="mr-2 h-4 w-4" />
-                            {q.accepted_at ? "View estimate" : "View & accept"}
-                          </a>
-                        </Button>
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
-      </section>
+                      )}
+                    </article>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </section>
+      </div>
     </SiteLayout>
   );
 }

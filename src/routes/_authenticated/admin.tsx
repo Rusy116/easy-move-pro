@@ -226,6 +226,9 @@ function AdminPage() {
             </p>
           </div>
           <div className="flex items-center gap-2">
+            <Button asChild variant="outline" size="sm">
+              <Link to="/admin/companies">Companies</Link>
+            </Button>
             <NotificationsBell />
             <Button variant="outline" onClick={() => void load()} disabled={loading}>
               <RefreshCw className={`mr-2 h-4 w-4 ${loading ? "animate-spin" : ""}`} />

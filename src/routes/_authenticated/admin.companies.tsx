@@ -24,7 +24,7 @@ import {
 import { toast } from "sonner";
 import { useServerFn } from "@tanstack/react-start";
 import { attachMemberByEmail } from "@/lib/companies.functions";
-import { Plus, UserPlus, Building2 } from "lucide-react";
+import { Plus, UserPlus, Building2, Trash2 } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/admin/companies")({
   head: () => ({ meta: [{ title: "Moving Companies — Admin" }] }),
@@ -208,7 +208,25 @@ function CompaniesAdmin() {
                   <UserPlus className="mr-1.5 h-4 w-4" />
                   Add member
                 </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="ml-auto text-rose-700 hover:bg-rose-50 hover:text-rose-800 border-rose-200"
+                  onClick={async () => {
+                    if (!confirm(`Delete ${c.name}? All lead assignments for this company will be removed.`)) return;
+                    await supabase.from("quote_assignments").delete().eq("company_id", c.id);
+                    await supabase.from("company_members").delete().eq("company_id", c.id);
+                    const { error } = await supabase.from("moving_companies").delete().eq("id", c.id);
+                    if (error) { toast.error(error.message); return; }
+                    toast.success("Company deleted");
+                    void load();
+                  }}
+                >
+                  <Trash2 className="mr-1.5 h-4 w-4" />
+                  Delete
+                </Button>
               </div>
+
             </div>
           ))}
         </div>

@@ -110,6 +110,18 @@ function getCustomerName(q: QuoteRow): string {
   return d?.fullName?.trim() || "—";
 }
 
+type Company = { id: string; name: string };
+
+type Stats = {
+  total: number;
+  active: number;
+  accepted: number;
+  won: number;
+  lost: number;
+  revenueLow: number;
+  revenueHigh: number;
+};
+
 function AdminPage() {
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   const [rows, setRows] = useState<QuoteRow[]>([]);
@@ -121,8 +133,15 @@ function AdminPage() {
   const [dateFrom, setDateFrom] = useState<string>("");
   const [dateTo, setDateTo] = useState<string>("");
   const [customerName, setCustomerName] = useState<string>("");
+  const [cityFilter, setCityFilter] = useState<string>("");
+  const [companyFilter, setCompanyFilter] = useState<string>("all");
   const [search, setSearch] = useState<string>("");
   const [selected, setSelected] = useState<QuoteRow | null>(null);
+
+  const [companies, setCompanies] = useState<Company[]>([]);
+  const [stats, setStats] = useState<Stats>({
+    total: 0, active: 0, accepted: 0, won: 0, lost: 0, revenueLow: 0, revenueHigh: 0,
+  });
 
   useEffect(() => {
     (async () => {
@@ -136,9 +155,62 @@ function AdminPage() {
     })();
   }, []);
 
+  useEffect(() => {
+    if (!isAdmin) return;
+    void (async () => {
+      const { data } = await supabase.from("moving_companies").select("id,name").order("name");
+      setCompanies((data ?? []) as Company[]);
+    })();
+  }, [isAdmin]);
+
+  const loadStats = useCallback(async () => {
+    if (!isAdmin) return;
+    const activeStatuses = ["new", "contacted", "scheduled"];
+    const [totalR, activeR, acceptedR, wonR, lostR, wonRev] = await Promise.all([
+      supabase.from("quotes").select("id", { count: "exact", head: true }),
+      supabase.from("quotes").select("id", { count: "exact", head: true }).in("status", activeStatuses),
+      supabase.from("quotes").select("id", { count: "exact", head: true }).not("accepted_at", "is", null),
+      supabase.from("quotes").select("id", { count: "exact", head: true }).eq("status", "won"),
+      supabase.from("quotes").select("id", { count: "exact", head: true }).eq("status", "lost"),
+      supabase.from("quotes").select("estimated_low,estimated_high").eq("status", "won"),
+    ]);
+    const rev = (wonRev.data ?? []).reduce(
+      (acc, r: { estimated_low: number; estimated_high: number }) => ({
+        low: acc.low + Number(r.estimated_low || 0),
+        high: acc.high + Number(r.estimated_high || 0),
+      }),
+      { low: 0, high: 0 },
+    );
+    setStats({
+      total: totalR.count ?? 0,
+      active: activeR.count ?? 0,
+      accepted: acceptedR.count ?? 0,
+      won: wonR.count ?? 0,
+      lost: lostR.count ?? 0,
+      revenueLow: rev.low,
+      revenueHigh: rev.high,
+    });
+  }, [isAdmin]);
+
+  useEffect(() => { void loadStats(); }, [loadStats]);
+
   const load = useCallback(async () => {
     if (!isAdmin) return;
     setLoading(true);
+
+    // Company filter: pre-fetch quote ids assigned to the chosen company
+    let restrictQuoteIds: string[] | null = null;
+    if (companyFilter !== "all") {
+      const { data: asg } = await supabase
+        .from("quote_assignments")
+        .select("quote_id")
+        .eq("company_id", companyFilter);
+      restrictQuoteIds = (asg ?? []).map((a) => a.quote_id as string);
+      if (restrictQuoteIds.length === 0) {
+        setRows([]); setTotal(0); setLoading(false); return;
+      }
+    }
+
     let q = supabase
       .from("quotes")
       .select("*", { count: "exact" })
@@ -147,13 +219,16 @@ function AdminPage() {
     if (statusFilter !== "all") q = q.eq("status", statusFilter);
     if (dateFrom) q = q.gte("created_at", `${dateFrom}T00:00:00`);
     if (dateTo) q = q.lte("created_at", `${dateTo}T23:59:59`);
-    if (customerName.trim()) {
-      q = q.ilike("details->>fullName", `%${customerName.trim()}%`);
+    if (customerName.trim()) q = q.ilike("details->>fullName", `%${customerName.trim()}%`);
+    if (cityFilter.trim()) {
+      const c = cityFilter.trim();
+      q = q.or(`origin_city.ilike.%${c}%,destination_city.ilike.%${c}%`);
     }
+    if (restrictQuoteIds) q = q.in("id", restrictQuoteIds);
     if (search.trim()) {
       const s = search.trim();
       q = q.or(
-        `contact_phone.ilike.%${s}%,contact_email.ilike.%${s}%,id.eq.${isUuid(s) ? s : "00000000-0000-0000-0000-000000000000"}`
+        `contact_phone.ilike.%${s}%,contact_email.ilike.%${s}%,quote_number.ilike.%${s}%,id.eq.${isUuid(s) ? s : "00000000-0000-0000-0000-000000000000"}`
       );
     }
 
@@ -168,10 +243,11 @@ function AdminPage() {
       setTotal(count ?? 0);
     }
     setLoading(false);
-  }, [isAdmin, statusFilter, dateFrom, dateTo, customerName, search, page]);
+  }, [isAdmin, statusFilter, dateFrom, dateTo, customerName, cityFilter, companyFilter, search, page]);
 
   useEffect(() => { void load(); }, [load]);
-  useEffect(() => { setPage(0); }, [statusFilter, dateFrom, dateTo, customerName, search]);
+  useEffect(() => { setPage(0); }, [statusFilter, dateFrom, dateTo, customerName, cityFilter, companyFilter, search]);
+
 
   // Realtime: new quotes and status updates appear instantly
   useEffect(() => {
@@ -185,8 +261,10 @@ function AdminPage() {
           const q = payload.new as QuoteRow;
           setRows((prev) => [q, ...prev].slice(0, PAGE_SIZE));
           setTotal((t) => t + 1);
+          void loadStats();
           toast.success(`New quote from ${getCustomerName(q)}`);
         }
+
       )
       .on(
         "postgres_changes",
@@ -195,11 +273,14 @@ function AdminPage() {
           const q = payload.new as QuoteRow;
           setRows((prev) => prev.map((r) => (r.id === q.id ? q : r)));
           setSelected((cur) => (cur?.id === q.id ? q : cur));
+          void loadStats();
         }
+
       )
       .subscribe();
     return () => { void supabase.removeChannel(channel); };
-  }, [isAdmin]);
+  }, [isAdmin, loadStats]);
+
 
   async function updateStatus(id: string, status: string) {
     const { error } = await supabase.from("quotes").update({ status }).eq("id", id);
@@ -259,36 +340,26 @@ function AdminPage() {
           }
         />
 
-        {/* KPI stats */}
-        <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <StatCard label="Total quotes" value={total.toLocaleString()} icon={<Inbox className="h-4 w-4" />} />
+        {/* KPI stats — global */}
+        <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+          <StatCard label="Total" value={stats.total.toLocaleString()} icon={<Inbox className="h-4 w-4" />} />
+          <StatCard label="Active" value={stats.active.toLocaleString()} tone="info" hint="new · contacted · scheduled" icon={<Bell className="h-4 w-4" />} />
+          <StatCard label="Accepted" value={stats.accepted.toLocaleString()} tone="success" icon={<CheckCircle2 className="h-4 w-4" />} />
+          <StatCard label="Won" value={stats.won.toLocaleString()} tone="success" icon={<CheckCircle2 className="h-4 w-4" />} />
+          <StatCard label="Lost" value={stats.lost.toLocaleString()} icon={<Inbox className="h-4 w-4" />} />
           <StatCard
-            label="New"
-            value={rows.filter((r) => r.status === "new").length}
-            tone="info"
-            hint="on this page"
-            icon={<Bell className="h-4 w-4" />}
-          />
-          <StatCard
-            label="Won"
-            value={rows.filter((r) => r.status === "won").length}
-            tone="success"
-            hint="on this page"
-            icon={<CheckCircle2 className="h-4 w-4" />}
-          />
-          <StatCard
-            label="Avg estimate"
+            label="Revenue (won)"
             value={
-              rows.length
-                ? `$${Math.round(
-                    rows.reduce((s, r) => s + (Number(r.estimated_low) + Number(r.estimated_high)) / 2, 0) / rows.length,
-                  ).toLocaleString()}`
-                : "—"
+              stats.won === 0
+                ? "—"
+                : `$${Math.round(stats.revenueLow / 1000)}k–$${Math.round(stats.revenueHigh / 1000)}k`
             }
-            hint="on this page"
+            tone="success"
+            hint="sum of estimates"
             icon={<DollarSign className="h-4 w-4" />}
           />
         </div>
+
 
         {/* Status chips */}
         <div className="mt-8 flex flex-wrap items-center gap-2">
@@ -318,7 +389,7 @@ function AdminPage() {
         </div>
 
         {/* Filters */}
-        <div className="mt-4 grid gap-3 rounded-2xl border border-border bg-card p-4 shadow-sm sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-4 grid gap-3 rounded-2xl border border-border bg-card p-4 shadow-sm sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
           <Field label="From date">
             <Input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} />
           </Field>
@@ -328,13 +399,28 @@ function AdminPage() {
           <Field label="Customer name">
             <Input placeholder="e.g. Alex" value={customerName} onChange={(e) => setCustomerName(e.target.value)} />
           </Field>
-          <Field label="Phone / email / ID">
+          <Field label="City">
+            <Input placeholder="Origin or destination" value={cityFilter} onChange={(e) => setCityFilter(e.target.value)} />
+          </Field>
+          <Field label="Company">
+            <Select value={companyFilter} onValueChange={setCompanyFilter}>
+              <SelectTrigger><SelectValue placeholder="All companies" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All companies</SelectItem>
+                {companies.map((c) => (
+                  <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </Field>
+          <Field label="Phone / email / quote #">
             <div className="relative">
               <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
               <Input className="pl-8" placeholder="Search…" value={search} onChange={(e) => setSearch(e.target.value)} />
             </div>
           </Field>
         </div>
+
 
         {/* Desktop table */}
         <div className="mt-6 hidden md:block overflow-x-auto rounded-2xl border border-border bg-card shadow-sm">

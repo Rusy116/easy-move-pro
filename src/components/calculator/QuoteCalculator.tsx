@@ -721,10 +721,11 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
             </SectionCard>
 
             <SectionCard step="12" label="Best time to contact you" className="md:col-span-2">
-              <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-5">
                 {(
                   [
                     { v: "morning", l: "Morning" },
+                    { v: "midday", l: "Midday" },
                     { v: "afternoon", l: "Afternoon" },
                     { v: "evening", l: "Evening" },
                     { v: "anytime", l: "Anytime" },

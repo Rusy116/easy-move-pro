@@ -163,7 +163,15 @@ function CompanyPortal() {
   if (loading) {
     return (
       <SiteLayout>
-        <div className="p-16 text-center text-muted-foreground">Loading…</div>
+        <section className="mx-auto max-w-7xl px-4 sm:px-6 py-12">
+          <div className="skeleton h-24 w-full" />
+          <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="skeleton h-24" />
+            ))}
+          </div>
+          <div className="mt-6"><SkeletonRows n={4} /></div>
+        </section>
       </SiteLayout>
     );
   }

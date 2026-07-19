@@ -131,7 +131,7 @@ function CompanyPortal() {
   }, [load]);
 
   async function updateStatus(a: Assignment, next: AssignStatus) {
-    const patch: Record<string, unknown> = { status: next };
+    const patch: { status: AssignStatus; contacted_at?: string } = { status: next };
     if (next === "contacted" && !a.contacted_at) patch.contacted_at = new Date().toISOString();
     const { error } = await supabase.from("quote_assignments").update(patch).eq("id", a.id);
     if (error) {

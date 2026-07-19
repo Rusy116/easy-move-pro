@@ -1946,13 +1946,22 @@ function SubmittingScreen() {
 }
 
 function ThankYouScreen({
-  quoteId,
+  saved,
   onEdit,
 }: {
-  quoteId: string | null;
+  saved: SavedQuoteSnapshot | null;
   onEdit: () => void;
 }) {
-  const shortId = quoteId ? quoteId.slice(0, 8).toUpperCase() : null;
+  const portalHref = saved
+    ? `/portal/${saved.quoteNumber}?token=${saved.portalToken}`
+    : null;
+
+  async function handleDownload() {
+    if (!saved) return;
+    const { downloadEstimatePdf } = await import("@/lib/estimate-pdf");
+    downloadEstimatePdf(saved.pdfInput);
+  }
+
   return (
     <div className="border-t border-border bg-gradient-to-b from-primary/5 to-transparent px-4 py-12 sm:px-8 sm:py-16">
       <div className="mx-auto max-w-xl text-center animate-fade-up">
@@ -1965,30 +1974,41 @@ function ThankYouScreen({
         <p className="mt-4 text-base leading-relaxed text-muted-foreground">
           We've received your moving request.
           <br />
-          Our moving specialists will contact you within 5–15 minutes.
+          A moving specialist will contact you within 5–15 minutes.
         </p>
 
-        {shortId && (
+        {saved && (
           <div className="mx-auto mt-6 inline-flex flex-col items-center gap-1 rounded-2xl border border-border bg-card px-5 py-3">
             <span className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
-              Quote ID
+              Quote Number
             </span>
             <span className="font-mono text-base font-semibold text-foreground">
-              #{shortId}
+              {saved.quoteNumber}
             </span>
           </div>
         )}
 
         <div className="mt-8 flex flex-col items-stretch gap-3 sm:flex-row sm:justify-center">
           <Button
-            onClick={onEdit}
-            variant="outline"
+            onClick={handleDownload}
             size="lg"
             className="rounded-full"
+            disabled={!saved}
           >
+            Download PDF Estimate
+          </Button>
+          {portalHref && (
+            <Button asChild size="lg" variant="outline" className="rounded-full">
+              <a href={portalHref}>View & Accept Estimate</a>
+            </Button>
+          )}
+        </div>
+
+        <div className="mt-4 flex flex-col items-stretch gap-3 sm:flex-row sm:justify-center">
+          <Button onClick={onEdit} variant="ghost" size="sm" className="rounded-full">
             Edit Request
           </Button>
-          <Button asChild size="lg" className="rounded-full">
+          <Button asChild variant="ghost" size="sm" className="rounded-full">
             <a href="/">Back to Home</a>
           </Button>
         </div>

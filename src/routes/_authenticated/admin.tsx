@@ -389,7 +389,7 @@ function AdminPage() {
         </div>
 
         {/* Filters */}
-        <div className="mt-4 grid gap-3 rounded-2xl border border-border bg-card p-4 shadow-sm sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-4 grid gap-3 rounded-2xl border border-border bg-card p-4 shadow-sm sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
           <Field label="From date">
             <Input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} />
           </Field>
@@ -399,13 +399,28 @@ function AdminPage() {
           <Field label="Customer name">
             <Input placeholder="e.g. Alex" value={customerName} onChange={(e) => setCustomerName(e.target.value)} />
           </Field>
-          <Field label="Phone / email / ID">
+          <Field label="City">
+            <Input placeholder="Origin or destination" value={cityFilter} onChange={(e) => setCityFilter(e.target.value)} />
+          </Field>
+          <Field label="Company">
+            <Select value={companyFilter} onValueChange={setCompanyFilter}>
+              <SelectTrigger><SelectValue placeholder="All companies" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All companies</SelectItem>
+                {companies.map((c) => (
+                  <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </Field>
+          <Field label="Phone / email / quote #">
             <div className="relative">
               <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
               <Input className="pl-8" placeholder="Search…" value={search} onChange={(e) => setSearch(e.target.value)} />
             </div>
           </Field>
         </div>
+
 
         {/* Desktop table */}
         <div className="mt-6 hidden md:block overflow-x-auto rounded-2xl border border-border bg-card shadow-sm">

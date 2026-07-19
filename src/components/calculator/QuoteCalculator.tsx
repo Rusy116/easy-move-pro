@@ -813,11 +813,27 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
                 saving
               }
               size="lg"
-              className="w-full rounded-full bg-primary py-6 text-base font-semibold text-primary-foreground shadow-lg transition-transform hover:scale-[1.01] hover:bg-primary/90"
+              className="w-full rounded-full bg-primary py-6 text-base font-semibold uppercase tracking-wide text-primary-foreground shadow-lg transition-transform hover:scale-[1.01] hover:bg-primary/90"
             >
-              Get My Free Quote
+              Get My Free Moving Quote
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+              {[
+                "No hidden fees",
+                "Licensed & insured movers",
+                "Your information is secure",
+                "Response within 5–15 minutes",
+              ].map((label) => (
+                <div
+                  key={label}
+                  className="flex items-center gap-2 rounded-lg bg-card px-3 py-2 text-sm"
+                >
+                  <Check className="h-4 w-4 shrink-0 text-sage" />
+                  <span className="font-medium">{label}</span>
+                </div>
+              ))}
+            </div>
             <p className="text-center text-[11px] leading-relaxed text-muted-foreground">
               By submitting this form you agree to be contacted by phone, SMS or email
               regarding your moving estimate.
@@ -835,13 +851,11 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
         </div>
       )}
 
-
-
+      {/* Stage: submitting */}
+      {stage === "submitting" && <SubmittingScreen />}
 
       {/* Stage: done */}
-      {stage === "done" && (
-        <ThankYouScreen />
-      )}
+      {stage === "done" && <ThankYouScreen />}
     </div>
   );
 }

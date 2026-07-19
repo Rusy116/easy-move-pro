@@ -1,0 +1,1 @@
+ALTER TABLE public.quotes ALTER COLUMN status SET DEFAULT 'new';

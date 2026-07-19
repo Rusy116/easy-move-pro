@@ -308,7 +308,12 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
       const o = form.origin;
       const d = form.destination;
 
-      const { data: inserted, error } = await supabase.from("quotes").insert({
+      const clientQuoteId =
+        typeof crypto !== "undefined" && "randomUUID" in crypto
+          ? crypto.randomUUID()
+          : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+
+      const { error } = await supabase.from("quotes").insert({
         user_id: userId,
         origin_zip: o.zip,
         destination_zip: d.zip,
@@ -368,15 +373,16 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
         details: {
           preferredTime: form.preferredTime,
           provider: "haversine-v1",
+          clientQuoteId,
           originHouseNumber: o.houseNumber,
           originStreet: o.street,
           destinationHouseNumber: d.houseNumber,
           destinationStreet: d.street,
           fullName: form.fullName,
         } as unknown as never,
-      }).select("id").single();
+      });
       if (error) throw error;
-      if (inserted?.id) setQuoteId(inserted.id as string);
+      setQuoteId(clientQuoteId);
     } finally {
       setSaving(false);
     }

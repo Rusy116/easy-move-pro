@@ -224,10 +224,13 @@ function AdminPage() {
               {total.toLocaleString()} total · live updates on
             </p>
           </div>
-          <Button variant="outline" onClick={() => void load()} disabled={loading}>
-            <RefreshCw className={`mr-2 h-4 w-4 ${loading ? "animate-spin" : ""}`} />
-            Refresh
-          </Button>
+          <div className="flex items-center gap-2">
+            <NotificationsBell />
+            <Button variant="outline" onClick={() => void load()} disabled={loading}>
+              <RefreshCw className={`mr-2 h-4 w-4 ${loading ? "animate-spin" : ""}`} />
+              Refresh
+            </Button>
+          </div>
         </div>
 
         {/* Filters */}

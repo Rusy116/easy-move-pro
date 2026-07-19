@@ -312,7 +312,7 @@ function CompanyPortal() {
             return (
               <div
                 key={a.id}
-                className="rounded-2xl border border-border bg-card p-4 md:p-5 hover:shadow-sm transition"
+                className="card-premium card-premium-hover p-4 md:p-5 animate-fade-in-soft"
               >
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div className="min-w-0">

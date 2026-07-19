@@ -110,6 +110,18 @@ function getCustomerName(q: QuoteRow): string {
   return d?.fullName?.trim() || "—";
 }
 
+type Company = { id: string; name: string };
+
+type Stats = {
+  total: number;
+  active: number;
+  accepted: number;
+  won: number;
+  lost: number;
+  revenueLow: number;
+  revenueHigh: number;
+};
+
 function AdminPage() {
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   const [rows, setRows] = useState<QuoteRow[]>([]);
@@ -121,8 +133,15 @@ function AdminPage() {
   const [dateFrom, setDateFrom] = useState<string>("");
   const [dateTo, setDateTo] = useState<string>("");
   const [customerName, setCustomerName] = useState<string>("");
+  const [cityFilter, setCityFilter] = useState<string>("");
+  const [companyFilter, setCompanyFilter] = useState<string>("all");
   const [search, setSearch] = useState<string>("");
   const [selected, setSelected] = useState<QuoteRow | null>(null);
+
+  const [companies, setCompanies] = useState<Company[]>([]);
+  const [stats, setStats] = useState<Stats>({
+    total: 0, active: 0, accepted: 0, won: 0, lost: 0, revenueLow: 0, revenueHigh: 0,
+  });
 
   useEffect(() => {
     (async () => {
@@ -136,9 +155,62 @@ function AdminPage() {
     })();
   }, []);
 
+  useEffect(() => {
+    if (!isAdmin) return;
+    void (async () => {
+      const { data } = await supabase.from("moving_companies").select("id,name").order("name");
+      setCompanies((data ?? []) as Company[]);
+    })();
+  }, [isAdmin]);
+
+  const loadStats = useCallback(async () => {
+    if (!isAdmin) return;
+    const activeStatuses = ["new", "contacted", "scheduled"];
+    const [totalR, activeR, acceptedR, wonR, lostR, wonRev] = await Promise.all([
+      supabase.from("quotes").select("id", { count: "exact", head: true }),
+      supabase.from("quotes").select("id", { count: "exact", head: true }).in("status", activeStatuses),
+      supabase.from("quotes").select("id", { count: "exact", head: true }).not("accepted_at", "is", null),
+      supabase.from("quotes").select("id", { count: "exact", head: true }).eq("status", "won"),
+      supabase.from("quotes").select("id", { count: "exact", head: true }).eq("status", "lost"),
+      supabase.from("quotes").select("estimated_low,estimated_high").eq("status", "won"),
+    ]);
+    const rev = (wonRev.data ?? []).reduce(
+      (acc, r: { estimated_low: number; estimated_high: number }) => ({
+        low: acc.low + Number(r.estimated_low || 0),
+        high: acc.high + Number(r.estimated_high || 0),
+      }),
+      { low: 0, high: 0 },
+    );
+    setStats({
+      total: totalR.count ?? 0,
+      active: activeR.count ?? 0,
+      accepted: acceptedR.count ?? 0,
+      won: wonR.count ?? 0,
+      lost: lostR.count ?? 0,
+      revenueLow: rev.low,
+      revenueHigh: rev.high,
+    });
+  }, [isAdmin]);
+
+  useEffect(() => { void loadStats(); }, [loadStats]);
+
   const load = useCallback(async () => {
     if (!isAdmin) return;
     setLoading(true);
+
+    // Company filter: pre-fetch quote ids assigned to the chosen company
+    let restrictQuoteIds: string[] | null = null;
+    if (companyFilter !== "all") {
+      const { data: asg } = await supabase
+        .from("quote_assignments")
+        .select("quote_id")
+        .eq("company_id", companyFilter);
+      restrictQuoteIds = (asg ?? []).map((a) => a.quote_id as string);
+      if (restrictQuoteIds.length === 0) {
+        setRows([]); setTotal(0); setLoading(false); return;
+      }
+    }
+
     let q = supabase
       .from("quotes")
       .select("*", { count: "exact" })
@@ -147,13 +219,16 @@ function AdminPage() {
     if (statusFilter !== "all") q = q.eq("status", statusFilter);
     if (dateFrom) q = q.gte("created_at", `${dateFrom}T00:00:00`);
     if (dateTo) q = q.lte("created_at", `${dateTo}T23:59:59`);
-    if (customerName.trim()) {
-      q = q.ilike("details->>fullName", `%${customerName.trim()}%`);
+    if (customerName.trim()) q = q.ilike("details->>fullName", `%${customerName.trim()}%`);
+    if (cityFilter.trim()) {
+      const c = cityFilter.trim();
+      q = q.or(`origin_city.ilike.%${c}%,destination_city.ilike.%${c}%`);
     }
+    if (restrictQuoteIds) q = q.in("id", restrictQuoteIds);
     if (search.trim()) {
       const s = search.trim();
       q = q.or(
-        `contact_phone.ilike.%${s}%,contact_email.ilike.%${s}%,id.eq.${isUuid(s) ? s : "00000000-0000-0000-0000-000000000000"}`
+        `contact_phone.ilike.%${s}%,contact_email.ilike.%${s}%,quote_number.ilike.%${s}%,id.eq.${isUuid(s) ? s : "00000000-0000-0000-0000-000000000000"}`
       );
     }
 
@@ -168,10 +243,11 @@ function AdminPage() {
       setTotal(count ?? 0);
     }
     setLoading(false);
-  }, [isAdmin, statusFilter, dateFrom, dateTo, customerName, search, page]);
+  }, [isAdmin, statusFilter, dateFrom, dateTo, customerName, cityFilter, companyFilter, search, page]);
 
   useEffect(() => { void load(); }, [load]);
-  useEffect(() => { setPage(0); }, [statusFilter, dateFrom, dateTo, customerName, search]);
+  useEffect(() => { setPage(0); }, [statusFilter, dateFrom, dateTo, customerName, cityFilter, companyFilter, search]);
+
 
   // Realtime: new quotes and status updates appear instantly
   useEffect(() => {

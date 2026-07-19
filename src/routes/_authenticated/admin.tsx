@@ -269,7 +269,7 @@ function AdminPage() {
             <TableBody>
               {rows.map((q) => (
                 <TableRow key={q.id} className="cursor-pointer hover:bg-muted/40" onClick={() => setSelected(q)}>
-                  <TableCell className="font-mono text-xs">{q.id.slice(0, 8)}</TableCell>
+                  <TableCell className="font-mono text-xs">{q.quote_number ?? q.id.slice(0, 8)}</TableCell>
                   <TableCell className="whitespace-nowrap text-muted-foreground">
                     {new Date(q.created_at).toLocaleString()}
                   </TableCell>

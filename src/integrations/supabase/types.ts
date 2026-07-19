@@ -91,6 +91,38 @@ export type Database = {
         }
         Relationships: []
       }
+      company_members: {
+        Row: {
+          company_id: string
+          created_at: string
+          id: string
+          role: string
+          user_id: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          id?: string
+          role?: string
+          user_id: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          id?: string
+          role?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_members_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "moving_companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       digital_products: {
         Row: {
           cover_url: string | null
@@ -127,6 +159,60 @@ export type Database = {
         }
         Relationships: []
       }
+      moving_companies: {
+        Row: {
+          active: boolean
+          created_at: string
+          dot_number: string | null
+          email: string | null
+          id: string
+          license_status: string
+          logo_url: string | null
+          mc_number: string | null
+          name: string
+          notes: string | null
+          phone: string | null
+          rating: number | null
+          service_states: string[]
+          slug: string | null
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          dot_number?: string | null
+          email?: string | null
+          id?: string
+          license_status?: string
+          logo_url?: string | null
+          mc_number?: string | null
+          name: string
+          notes?: string | null
+          phone?: string | null
+          rating?: number | null
+          service_states?: string[]
+          slug?: string | null
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          dot_number?: string | null
+          email?: string | null
+          id?: string
+          license_status?: string
+          logo_url?: string | null
+          mc_number?: string | null
+          name?: string
+          notes?: string | null
+          phone?: string | null
+          rating?: number | null
+          service_states?: string[]
+          slug?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -153,6 +239,57 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      quote_assignments: {
+        Row: {
+          assigned_by: string | null
+          company_id: string
+          contacted_at: string | null
+          created_at: string
+          id: string
+          notes: string | null
+          quote_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          assigned_by?: string | null
+          company_id: string
+          contacted_at?: string | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          quote_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          assigned_by?: string | null
+          company_id?: string
+          contacted_at?: string | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          quote_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quote_assignments_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "moving_companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quote_assignments_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "quotes"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       quote_notes: {
         Row: {
@@ -463,6 +600,7 @@ export type Database = {
           status: string
         }[]
       }
+      current_user_company_id: { Args: never; Returns: string }
       generate_quote_number: { Args: never; Returns: string }
       has_role: {
         Args: {

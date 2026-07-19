@@ -34,6 +34,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { AssignCompanies } from "@/components/admin/AssignCompanies";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({ meta: [{ title: "Admin — Easy Moving" }] }),
@@ -225,6 +226,9 @@ function AdminPage() {
             </p>
           </div>
           <div className="flex items-center gap-2">
+            <Button asChild variant="outline" size="sm">
+              <Link to="/admin/companies">Companies</Link>
+            </Button>
             <NotificationsBell />
             <Button variant="outline" onClick={() => void load()} disabled={loading}>
               <RefreshCw className={`mr-2 h-4 w-4 ${loading ? "animate-spin" : ""}`} />
@@ -546,6 +550,8 @@ function QuoteDetailDialog({
             </ul>
           </Section>
         )}
+        <AssignCompanies quoteId={quote.id} />
+
 
         {/* Notes */}
         <Section title={<><StickyNote className="inline h-4 w-4 mr-1" />Notes ({notes.length})</>}>

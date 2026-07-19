@@ -34,11 +34,19 @@ function DashboardPage() {
   const [quotes, setQuotes] = useState<Quote[]>([]);
   const [email, setEmail] = useState<string>("");
   const [loading, setLoading] = useState(true);
+  const [roles, setRoles] = useState<string[]>([]);
 
   useEffect(() => {
     (async () => {
       const { data: user } = await supabase.auth.getUser();
       setEmail(user.user?.email ?? "");
+      if (user.user) {
+        const { data: r } = await supabase
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", user.user.id);
+        setRoles((r ?? []).map((x) => x.role as string));
+      }
       const { data } = await supabase
         .from("quotes")
         .select("*")
@@ -62,7 +70,13 @@ function DashboardPage() {
             <h1 className="mt-2 font-serif text-4xl font-medium">Welcome back</h1>
             <p className="mt-1 text-sm text-muted-foreground">{email}</p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
+            {roles.includes("mover") && (
+              <Link to="/company"><Button variant="secondary" className="rounded-full">Company portal</Button></Link>
+            )}
+            {roles.includes("admin") && (
+              <Link to="/admin"><Button variant="secondary" className="rounded-full">Admin</Button></Link>
+            )}
             <Link to="/calculator"><Button className="rounded-full">New quote</Button></Link>
             <Button variant="outline" className="rounded-full" onClick={signOut}>Sign out</Button>
           </div>

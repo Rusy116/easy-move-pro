@@ -119,6 +119,79 @@ export type Database = {
         }
         Relationships: []
       }
+      quote_notes: {
+        Row: {
+          author_email: string | null
+          author_id: string | null
+          body: string
+          created_at: string
+          id: string
+          quote_id: string
+        }
+        Insert: {
+          author_email?: string | null
+          author_id?: string | null
+          body: string
+          created_at?: string
+          id?: string
+          quote_id: string
+        }
+        Update: {
+          author_email?: string | null
+          author_id?: string | null
+          body?: string
+          created_at?: string
+          id?: string
+          quote_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quote_notes_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "quotes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      quote_status_history: {
+        Row: {
+          changed_by: string | null
+          changed_by_email: string | null
+          created_at: string
+          from_status: string | null
+          id: string
+          quote_id: string
+          to_status: string
+        }
+        Insert: {
+          changed_by?: string | null
+          changed_by_email?: string | null
+          created_at?: string
+          from_status?: string | null
+          id?: string
+          quote_id: string
+          to_status: string
+        }
+        Update: {
+          changed_by?: string | null
+          changed_by_email?: string | null
+          created_at?: string
+          from_status?: string | null
+          id?: string
+          quote_id?: string
+          to_status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quote_status_history_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "quotes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       quotes: {
         Row: {
           appliances: boolean

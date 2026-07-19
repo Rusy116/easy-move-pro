@@ -23,6 +23,7 @@ import {
   BadgeCheck,
   Lock,
   PartyPopper,
+  CheckCircle2,
 } from "lucide-react";
 import { InsuranceInfoModal } from "./InsuranceInfoModal";
 import {
@@ -190,6 +191,7 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
   const [saving, setSaving] = useState(false);
   const [insuranceModal, setInsuranceModal] = useState<InsuranceTier | null>(null);
   const [stage, setStage] = useState<"form" | "submitting" | "done">("form");
+  const [quoteId, setQuoteId] = useState<string | null>(null);
 
   const set = <K extends keyof FormState>(k: K, v: FormState[K]) =>
     setForm((s) => ({ ...s, [k]: v }));
@@ -306,7 +308,7 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
       const o = form.origin;
       const d = form.destination;
 
-      const { error } = await supabase.from("quotes").insert({
+      const { data: inserted, error } = await supabase.from("quotes").insert({
         user_id: userId,
         origin_zip: o.zip,
         destination_zip: d.zip,
@@ -372,8 +374,9 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
           destinationStreet: d.street,
           fullName: form.fullName,
         } as unknown as never,
-      });
+      }).select("id").single();
       if (error) throw error;
+      if (inserted?.id) setQuoteId(inserted.id as string);
     } finally {
       setSaving(false);
     }
@@ -810,14 +813,35 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
                 !form.fullName.trim() ||
                 !isValidUsPhone(form.phone) ||
                 !isValidEmail(form.email) ||
-                saving
+                saving ||
+                stage !== "form"
               }
               size="lg"
-              className="w-full rounded-full bg-primary py-6 text-base font-semibold uppercase tracking-wide text-primary-foreground shadow-lg transition-transform hover:scale-[1.01] hover:bg-primary/90"
+              className="w-full rounded-full bg-primary py-6 text-base font-semibold uppercase tracking-wide text-primary-foreground shadow-lg transition-transform hover:scale-[1.01] hover:bg-primary/90 disabled:opacity-70"
             >
-              Get My Free Moving Quote
-              <ArrowRight className="ml-2 h-4 w-4" />
+              {saving ? (
+                <>
+                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                  Submitting…
+                </>
+              ) : (
+                <>
+                  <Check className="mr-2 h-5 w-5" />
+                  Get My Free Moving Quote
+                </>
+              )}
             </Button>
+            <p className="text-center text-[11px] leading-relaxed text-muted-foreground">
+              By clicking Get My Free Moving Quote, you agree to our{" "}
+              <a href="/privacy" className="font-medium text-primary underline-offset-2 hover:underline">
+                Privacy Policy
+              </a>{" "}
+              and{" "}
+              <a href="/terms" className="font-medium text-primary underline-offset-2 hover:underline">
+                Terms of Service
+              </a>
+              .
+            </p>
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
               {[
                 "No hidden fees",
@@ -834,10 +858,6 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
                 </div>
               ))}
             </div>
-            <p className="text-center text-[11px] leading-relaxed text-muted-foreground">
-              By submitting this form you agree to be contacted by phone, SMS or email
-              regarding your moving estimate.
-            </p>
           </div>
 
           <p className="mt-6 text-center text-[10px] text-muted-foreground/70">
@@ -855,7 +875,9 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
       {stage === "submitting" && <SubmittingScreen />}
 
       {/* Stage: done */}
-      {stage === "done" && <ThankYouScreen />}
+      {stage === "done" && (
+        <ThankYouScreen quoteId={quoteId} onEdit={() => setStage("form")} />
+      )}
     </div>
   );
 }
@@ -1804,36 +1826,54 @@ function SubmittingScreen() {
   );
 }
 
-function ThankYouScreen() {
+function ThankYouScreen({
+  quoteId,
+  onEdit,
+}: {
+  quoteId: string | null;
+  onEdit: () => void;
+}) {
+  const shortId = quoteId ? quoteId.slice(0, 8).toUpperCase() : null;
   return (
     <div className="border-t border-border bg-gradient-to-b from-primary/5 to-transparent px-4 py-12 sm:px-8 sm:py-16">
       <div className="mx-auto max-w-xl text-center animate-fade-up">
-        <div className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-sage/15 text-sage">
-          <PartyPopper className="h-8 w-8" />
+        <div className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-emerald-500/15 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400">
+          <CheckCircle2 className="h-9 w-9" />
         </div>
         <h3 className="mt-5 font-serif text-4xl font-medium tracking-tight sm:text-5xl">
-          🎉 Thank you!
+          Thank you!
         </h3>
         <p className="mt-4 text-base leading-relaxed text-muted-foreground">
-          We've received your moving request. A moving specialist will review your
-          inventory and contact you shortly to confirm pricing, availability, and
-          scheduling.
+          We've received your moving request.
+          <br />
+          Our moving specialists will contact you within 5–15 minutes.
         </p>
+
+        {shortId && (
+          <div className="mx-auto mt-6 inline-flex flex-col items-center gap-1 rounded-2xl border border-border bg-card px-5 py-3">
+            <span className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+              Quote ID
+            </span>
+            <span className="font-mono text-base font-semibold text-foreground">
+              #{shortId}
+            </span>
+          </div>
+        )}
+
         <div className="mt-8 flex flex-col items-stretch gap-3 sm:flex-row sm:justify-center">
           <Button
-            asChild
+            onClick={onEdit}
+            variant="outline"
             size="lg"
-            className="rounded-full bg-sage hover:bg-sage/90"
+            className="rounded-full"
           >
-            <a href="tel:+18003279668">
-              <PhoneIcon className="mr-2 h-4 w-4" />
-              Call us now
-            </a>
+            Edit Request
           </Button>
-          <Button asChild variant="outline" size="lg" className="rounded-full">
-            <a href="/">Back to home</a>
+          <Button asChild size="lg" className="rounded-full">
+            <a href="/">Back to Home</a>
           </Button>
         </div>
+
         <div className="mt-8 grid grid-cols-2 gap-2 text-xs sm:grid-cols-4">
           {[
             { Icon: BadgeCheck, label: "Licensed & insured" },

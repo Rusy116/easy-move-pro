@@ -51,13 +51,14 @@ export function StatCard({
   value: ReactNode;
   hint?: ReactNode;
   icon?: ReactNode;
-  tone?: "default" | "success" | "warning" | "info";
+  tone?: "default" | "success" | "warning" | "info" | "danger";
 }) {
   const tones: Record<string, string> = {
     default: "text-foreground",
     success: "text-emerald-700",
     warning: "text-amber-700",
     info: "text-sky-700",
+    danger: "text-rose-700",
   };
   return (
     <div className="card-premium card-premium-hover p-4 sm:p-5">

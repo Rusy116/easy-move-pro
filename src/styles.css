@@ -111,16 +111,31 @@
   from { opacity: 0; transform: translateY(16px); }
   to { opacity: 1; transform: translateY(0); }
 }
+@keyframes fade-in-soft {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
 @keyframes shimmer {
   0% { background-position: -400px 0; }
   100% { background-position: 400px 0; }
+}
+@keyframes pulse-ring {
+  0% { box-shadow: 0 0 0 0 color-mix(in oklab, var(--sage) 40%, transparent); }
+  70% { box-shadow: 0 0 0 10px color-mix(in oklab, var(--sage) 0%, transparent); }
+  100% { box-shadow: 0 0 0 0 color-mix(in oklab, var(--sage) 0%, transparent); }
 }
 
 @utility animate-fade-up {
   animation: fade-up 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
+@utility animate-fade-in-soft {
+  animation: fade-in-soft 0.4s ease-out both;
+}
 @utility animate-float-slow {
   animation: float-slow 6s ease-in-out infinite;
+}
+@utility animate-pulse-ring {
+  animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 @utility grid-lines {
   background-image:
@@ -134,3 +149,41 @@
   background-clip: text;
   color: transparent;
 }
+@utility card-premium {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: calc(var(--radius) + 4px);
+  box-shadow:
+    0 1px 2px oklch(0.18 0.01 260 / 0.04),
+    0 8px 24px -12px oklch(0.18 0.01 260 / 0.08);
+  transition: box-shadow 0.25s ease, transform 0.25s ease, border-color 0.25s ease;
+}
+@utility card-premium-hover {
+  &:hover {
+    border-color: color-mix(in oklab, var(--sage) 30%, var(--border));
+    box-shadow:
+      0 1px 2px oklch(0.18 0.01 260 / 0.04),
+      0 20px 40px -20px oklch(0.42 0.03 155 / 0.18);
+    transform: translateY(-1px);
+  }
+}
+@utility surface-elevated {
+  background: linear-gradient(180deg, var(--card) 0%, color-mix(in oklab, var(--sage-soft) 25%, var(--card)) 100%);
+  border: 1px solid var(--border);
+}
+@utility ring-focus {
+  &:focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+}
+@utility skeleton {
+  background: linear-gradient(90deg,
+    color-mix(in oklab, var(--muted) 60%, transparent) 0%,
+    color-mix(in oklab, var(--muted) 90%, transparent) 50%,
+    color-mix(in oklab, var(--muted) 60%, transparent) 100%);
+  background-size: 400px 100%;
+  animation: shimmer 1.4s linear infinite;
+  border-radius: var(--radius);
+}
+

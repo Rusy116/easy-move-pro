@@ -129,7 +129,7 @@ interface FormState {
   email: string;
   phone: string;
   contactMethod: "phone" | "sms" | "email";
-  contactTime: "morning" | "afternoon" | "evening" | "anytime";
+  contactTime: "morning" | "midday" | "afternoon" | "evening" | "anytime";
   notes: string;
 }
 
@@ -721,10 +721,11 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
             </SectionCard>
 
             <SectionCard step="12" label="Best time to contact you" className="md:col-span-2">
-              <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-5">
                 {(
                   [
                     { v: "morning", l: "Morning" },
+                    { v: "midday", l: "Midday" },
                     { v: "afternoon", l: "Afternoon" },
                     { v: "evening", l: "Evening" },
                     { v: "anytime", l: "Anytime" },
@@ -812,11 +813,27 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
                 saving
               }
               size="lg"
-              className="w-full rounded-full bg-primary py-6 text-base font-semibold text-primary-foreground shadow-lg transition-transform hover:scale-[1.01] hover:bg-primary/90"
+              className="w-full rounded-full bg-primary py-6 text-base font-semibold uppercase tracking-wide text-primary-foreground shadow-lg transition-transform hover:scale-[1.01] hover:bg-primary/90"
             >
-              Get My Free Quote
+              Get My Free Moving Quote
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+              {[
+                "No hidden fees",
+                "Licensed & insured movers",
+                "Your information is secure",
+                "Response within 5–15 minutes",
+              ].map((label) => (
+                <div
+                  key={label}
+                  className="flex items-center gap-2 rounded-lg bg-card px-3 py-2 text-sm"
+                >
+                  <Check className="h-4 w-4 shrink-0 text-sage" />
+                  <span className="font-medium">{label}</span>
+                </div>
+              ))}
+            </div>
             <p className="text-center text-[11px] leading-relaxed text-muted-foreground">
               By submitting this form you agree to be contacted by phone, SMS or email
               regarding your moving estimate.
@@ -834,13 +851,11 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
         </div>
       )}
 
-
-
+      {/* Stage: submitting */}
+      {stage === "submitting" && <SubmittingScreen />}
 
       {/* Stage: done */}
-      {stage === "done" && (
-        <ThankYouScreen />
-      )}
+      {stage === "done" && <ThankYouScreen />}
     </div>
   );
 }
@@ -1768,6 +1783,22 @@ function ReviewScreen({
             <ArrowRight className="ml-2 h-4 w-4" />
           </Button>
         </div>
+      </div>
+    </div>
+  );
+}
+
+function SubmittingScreen() {
+  return (
+    <div className="border-t border-border bg-muted/30 px-4 py-20 sm:px-8">
+      <div className="mx-auto max-w-sm text-center animate-fade-up">
+        <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary">
+          <Loader2 className="h-8 w-8 animate-spin" />
+        </div>
+        <h3 className="font-serif text-2xl font-medium tracking-tight">Preparing your quote…</h3>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Please wait while our logistics engine calculates your final estimate.
+        </p>
       </div>
     </div>
   );

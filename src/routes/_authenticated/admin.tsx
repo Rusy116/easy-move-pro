@@ -430,6 +430,7 @@ function AdminPage() {
           onStatusChange={updateStatus}
         />
       </section>
+      </div>
     </SiteLayout>
   );
 }

@@ -34,11 +34,19 @@ function DashboardPage() {
   const [quotes, setQuotes] = useState<Quote[]>([]);
   const [email, setEmail] = useState<string>("");
   const [loading, setLoading] = useState(true);
+  const [roles, setRoles] = useState<string[]>([]);
 
   useEffect(() => {
     (async () => {
       const { data: user } = await supabase.auth.getUser();
       setEmail(user.user?.email ?? "");
+      if (user.user) {
+        const { data: r } = await supabase
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", user.user.id);
+        setRoles((r ?? []).map((x) => x.role as string));
+      }
       const { data } = await supabase
         .from("quotes")
         .select("*")

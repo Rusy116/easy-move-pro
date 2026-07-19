@@ -834,17 +834,8 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
         </div>
       )}
 
-      {/* Stage: review */}
-      {stage === "review" && quote && distance && (
-        <ReviewScreen
-          form={form}
-          quote={quote}
-          distance={distance}
-          onEdit={() => setStage("form")}
-          onSubmit={saveQuote}
-          saving={saving}
-        />
-      )}
+
+
 
       {/* Stage: done */}
       {stage === "done" && (

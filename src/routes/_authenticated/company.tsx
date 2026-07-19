@@ -19,7 +19,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Phone, Mail, MapPin, Calendar, RefreshCw } from "lucide-react";
+import { Phone, Mail, MapPin, Calendar, RefreshCw, ArrowRight, Truck, ClipboardList } from "lucide-react";
+import { StatCard, SkeletonRows } from "@/components/dashboard/DashboardChrome";
 
 export const Route = createFileRoute("/_authenticated/company")({
   head: () => ({ meta: [{ title: "Moving Company Portal — Easy Moving" }] }),

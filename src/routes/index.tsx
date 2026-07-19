@@ -145,7 +145,7 @@ function HomePage() {
           </div>
 
           <div className="mx-auto mt-12 max-w-5xl sm:mt-16">
-            <QuoteCalculator />
+            <QuoteCalculator compact />
             <div className="mt-4 text-center">
               <Link
                 to="/calculator"

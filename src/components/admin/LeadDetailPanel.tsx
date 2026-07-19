@@ -142,6 +142,7 @@ export function LeadDetailPanel({
   }
 
   async function onBrokerChange(v: string | null) {
+    if (!quote) return;
     setBrokerId(v);
     await assignBroker(quote.id, v);
   }

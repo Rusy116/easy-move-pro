@@ -129,7 +129,7 @@ interface FormState {
   email: string;
   phone: string;
   contactMethod: "phone" | "sms" | "email";
-  contactTime: "morning" | "afternoon" | "evening" | "anytime";
+  contactTime: "morning" | "midday" | "afternoon" | "evening" | "anytime";
   notes: string;
 }
 

@@ -307,7 +307,7 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
       const o = form.origin;
       const d = form.destination;
 
-      const { error } = await supabase.from("quotes").insert({
+      const { data: inserted, error } = await supabase.from("quotes").insert({
         user_id: userId,
         origin_zip: o.zip,
         destination_zip: d.zip,
@@ -373,8 +373,9 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
           destinationStreet: d.street,
           fullName: form.fullName,
         } as unknown as never,
-      });
+      }).select("id").single();
       if (error) throw error;
+      if (inserted?.id) setQuoteId(inserted.id as string);
     } finally {
       setSaving(false);
     }

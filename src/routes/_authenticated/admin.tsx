@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { SiteLayout } from "@/components/site/SiteLayout";
+import { AdminShell } from "@/components/admin/AdminShell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -48,7 +48,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { AssignCompanies } from "@/components/admin/AssignCompanies";
-import { PageHeader, StatCard } from "@/components/dashboard/DashboardChrome";
+import { PageHeader, StatCard } from "@/components/shell/Chrome";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({ meta: [{ title: "Admin — Easy Moving" }] }),
@@ -293,11 +293,11 @@ function AdminPage() {
   const pageCount = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
   if (isAdmin === null) {
-    return <SiteLayout><div className="p-16 text-center text-muted-foreground">Loading…</div></SiteLayout>;
+    return <AdminShell><div className="p-16 text-center text-muted-foreground">Loading…</div></AdminShell>;
   }
   if (!isAdmin) {
     return (
-      <SiteLayout>
+      <AdminShell>
         <section className="mx-auto max-w-2xl px-4 py-24 text-center">
           <h1 className="font-serif text-4xl">Admin access required</h1>
           <p className="mt-4 text-muted-foreground">
@@ -305,12 +305,12 @@ function AdminPage() {
           </p>
           <Link to="/dashboard" className="mt-6 inline-block text-primary hover:underline">← Back to dashboard</Link>
         </section>
-      </SiteLayout>
+      </AdminShell>
     );
   }
 
   return (
-    <SiteLayout>
+    <AdminShell>
       <div className="min-h-screen bg-gradient-to-b from-sage-soft/30 to-background">
       <section className="mx-auto max-w-7xl px-4 sm:px-6 py-8 md:py-12">
         <PageHeader
@@ -517,7 +517,7 @@ function AdminPage() {
         />
       </section>
       </div>
-    </SiteLayout>
+    </AdminShell>
   );
 }
 

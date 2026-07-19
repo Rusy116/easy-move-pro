@@ -190,7 +190,17 @@ function isValidEmail(v: string): boolean {
   return EMAIL_RE.test(v.trim());
 }
 
+// Snapshot returned to the ThankYou screen so we can render/download the PDF
+// after the form has been reset.
+interface SavedQuoteSnapshot {
+  id: string;
+  quoteNumber: string;
+  portalToken: string;
+  pdfInput: import("@/lib/estimate-pdf").EstimatePdfInput;
+}
+
 // ---------- Component --------------------------------------------------------
+
 
 export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
   const [form, setForm] = useState<FormState>(() => createInitialForm());

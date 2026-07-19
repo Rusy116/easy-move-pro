@@ -459,8 +459,53 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
     setStage("submitting");
     const start = Date.now();
     try {
-      const savedQuoteId = await saveQuote();
-      setQuoteId(savedQuoteId);
+      const saved = await saveQuote();
+      const inventoryArray = Object.entries(form.inventory)
+        .filter(([, n]) => n > 0)
+        .map(([id, quantity]) => ({ id, quantity }));
+      const portalUrl =
+        typeof window !== "undefined"
+          ? `${window.location.origin}/portal/${saved.quoteNumber}?token=${saved.portalToken}`
+          : `/portal/${saved.quoteNumber}?token=${saved.portalToken}`;
+      const snapshot: SavedQuoteSnapshot = {
+        id: saved.id,
+        quoteNumber: saved.quoteNumber,
+        portalToken: saved.portalToken,
+        pdfInput: {
+          quoteNumber: saved.quoteNumber,
+          customer: {
+            fullName: form.fullName,
+            email: form.email,
+            phone: form.phone,
+          },
+          origin: {
+            fullAddress: form.origin.fullAddress,
+            city: form.origin.city,
+            state: form.origin.state,
+            zip: form.origin.zip,
+          },
+          destination: {
+            fullAddress: form.destination.fullAddress,
+            city: form.destination.city,
+            state: form.destination.state,
+            zip: form.destination.zip,
+          },
+          moveDate: form.moveDate || null,
+          distanceMiles: distance?.miles ?? 0,
+          numMovers: quote?.numMovers ?? 0,
+          laborHours: quote?.laborHours ?? 0,
+          truckSize: quote?.truckSize ?? "",
+          cubicFeet: quote?.cubicFeet ?? 0,
+          weightLbs: quote?.weightLbs ?? 0,
+          estimatedLow: quote?.low ?? 0,
+          estimatedHigh: quote?.high ?? 0,
+          inventory: inventoryArray,
+          breakdown: quote?.breakdown ?? [],
+          insurance: form.insurance,
+          portalUrl,
+        },
+      };
+      setSavedQuote(snapshot);
       resetCalculatorForm();
       toast.success("Your moving quote request was submitted.");
     } catch (e) {
@@ -488,10 +533,10 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
   if (stage === "done") {
     return (
       <ThankYouScreen
-        quoteId={quoteId}
+        saved={savedQuote}
         onEdit={() => {
           resetCalculatorForm();
-          setQuoteId(null);
+          setSavedQuote(null);
           setSubmitError(null);
           setSaving(false);
           setStage("form");

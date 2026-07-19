@@ -261,8 +261,10 @@ function AdminPage() {
           const q = payload.new as QuoteRow;
           setRows((prev) => [q, ...prev].slice(0, PAGE_SIZE));
           setTotal((t) => t + 1);
+          void loadStats();
           toast.success(`New quote from ${getCustomerName(q)}`);
         }
+
       )
       .on(
         "postgres_changes",

@@ -246,33 +246,51 @@ export type Database = {
           company_id: string
           contacted_at: string | null
           created_at: string
+          declined_at: string | null
           id: string
+          lost_at: string | null
           notes: string | null
           quote_id: string
+          quoted_amount: number | null
+          quoted_at: string | null
           status: string
           updated_at: string
+          viewed_at: string | null
+          won_at: string | null
         }
         Insert: {
           assigned_by?: string | null
           company_id: string
           contacted_at?: string | null
           created_at?: string
+          declined_at?: string | null
           id?: string
+          lost_at?: string | null
           notes?: string | null
           quote_id: string
+          quoted_amount?: number | null
+          quoted_at?: string | null
           status?: string
           updated_at?: string
+          viewed_at?: string | null
+          won_at?: string | null
         }
         Update: {
           assigned_by?: string | null
           company_id?: string
           contacted_at?: string | null
           created_at?: string
+          declined_at?: string | null
           id?: string
+          lost_at?: string | null
           notes?: string | null
           quote_id?: string
+          quoted_amount?: number | null
+          quoted_at?: string | null
           status?: string
           updated_at?: string
+          viewed_at?: string | null
+          won_at?: string | null
         }
         Relationships: [
           {
@@ -369,6 +387,7 @@ export type Database = {
           accepted_at: string | null
           appliances: boolean
           assembly: boolean
+          assigned_broker_id: string | null
           bedrooms: number
           breakdown: Json
           contact_email: string | null
@@ -403,6 +422,7 @@ export type Database = {
           inventory_notes: string | null
           junk_removal: boolean
           labor_hours: number | null
+          last_activity_at: string
           long_carry: boolean
           move_date: string | null
           move_size: string | null
@@ -435,6 +455,7 @@ export type Database = {
           accepted_at?: string | null
           appliances?: boolean
           assembly?: boolean
+          assigned_broker_id?: string | null
           bedrooms?: number
           breakdown?: Json
           contact_email?: string | null
@@ -469,6 +490,7 @@ export type Database = {
           inventory_notes?: string | null
           junk_removal?: boolean
           labor_hours?: number | null
+          last_activity_at?: string
           long_carry?: boolean
           move_date?: string | null
           move_size?: string | null
@@ -501,6 +523,7 @@ export type Database = {
           accepted_at?: string | null
           appliances?: boolean
           assembly?: boolean
+          assigned_broker_id?: string | null
           bedrooms?: number
           breakdown?: Json
           contact_email?: string | null
@@ -535,6 +558,7 @@ export type Database = {
           inventory_notes?: string | null
           junk_removal?: boolean
           labor_hours?: number | null
+          last_activity_at?: string
           long_carry?: boolean
           move_date?: string | null
           move_size?: string | null

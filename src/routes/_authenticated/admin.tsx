@@ -279,7 +279,8 @@ function AdminPage() {
       )
       .subscribe();
     return () => { void supabase.removeChannel(channel); };
-  }, [isAdmin]);
+  }, [isAdmin, loadStats]);
+
 
   async function updateStatus(id: string, status: string) {
     const { error } = await supabase.from("quotes").update({ status }).eq("id", id);

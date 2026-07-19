@@ -431,10 +431,13 @@ function QuoteDetailDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-3 flex-wrap">
             <span>{getCustomerName(quote)}</span>
-            <span className="font-mono text-xs text-muted-foreground">{quote.id.slice(0, 8)}</span>
+            <span className="font-mono text-xs text-muted-foreground">{quote.quote_number ?? quote.id.slice(0, 8)}</span>
             <Badge variant="outline" className={`capitalize ${STATUS_STYLES[quote.status as Status] ?? ""}`}>
               {quote.status}
             </Badge>
+            {quote.accepted_at && (
+              <Badge className="bg-emerald-500/10 text-emerald-700 border-emerald-600/30">Accepted</Badge>
+            )}
           </DialogTitle>
         </DialogHeader>
 
@@ -444,10 +447,17 @@ function QuoteDetailDialog({
             <a href={phone ? `tel:${phone}` : undefined}><Phone className="mr-2 h-4 w-4" />Call</a>
           </Button>
           <Button asChild size="sm" variant="outline" disabled={!email}>
-            <a href={email ? `mailto:${email}?subject=Your%20Easy%20Moving%20Quote%20${quote.id.slice(0,8)}` : undefined}>
+            <a href={email ? `mailto:${email}?subject=Your%20Easy%20Moving%20Quote%20${quote.quote_number ?? quote.id.slice(0,8)}` : undefined}>
               <Mail className="mr-2 h-4 w-4" />Email
             </a>
           </Button>
+          {quote.quote_number && quote.portal_token && (
+            <Button asChild size="sm" variant="outline">
+              <a href={`/portal/${quote.quote_number}?token=${quote.portal_token}`} target="_blank" rel="noreferrer">
+                Open Portal
+              </a>
+            </Button>
+          )}
           <div className="ml-auto flex items-center gap-2">
             <span className="text-sm text-muted-foreground">Status:</span>
             <Select value={quote.status} onValueChange={(v) => void onStatusChange(quote.id, v)}>

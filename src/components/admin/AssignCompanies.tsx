@@ -119,9 +119,16 @@ export function AssignCompanies({ quoteId }: { quoteId: string }) {
   }
 
   async function updateStage(a: Assignment, stage: AssignStage) {
-    const patch: Record<string, unknown> = { status: stage };
+    const patch: {
+      status: string;
+      viewed_at?: string;
+      quoted_at?: string;
+      declined_at?: string;
+      won_at?: string;
+      lost_at?: string;
+    } = { status: stage };
     const stamp = stageStampField(stage);
-    if (stamp && !a[stamp]) patch[stamp] = new Date().toISOString();
+    if (stamp && !a[stamp]) (patch as Record<string, string>)[stamp] = new Date().toISOString();
     const { data, error } = await supabase
       .from("quote_assignments")
       .update(patch)

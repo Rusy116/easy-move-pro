@@ -61,6 +61,9 @@ type QuoteRow = {
   estimated_low: number;
   estimated_high: number;
   status: string;
+  quote_number: string | null;
+  portal_token: string | null;
+  accepted_at: string | null;
   details: Record<string, unknown> | null;
   [key: string]: unknown;
 };

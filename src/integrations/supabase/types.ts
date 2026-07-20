@@ -971,6 +971,87 @@ export type Database = {
         }
         Relationships: []
       }
+      partner_applications: {
+        Row: {
+          admin_notes: string | null
+          company_name: string
+          contact_email: string
+          contact_name: string
+          contact_phone: string
+          created_at: string
+          crew_size: number | null
+          id: string
+          insurance_carrier: string | null
+          insurance_policy: string | null
+          mc_number: string | null
+          service_cities: string[] | null
+          service_radius_miles: number | null
+          service_states: string[] | null
+          services_offered: string[] | null
+          source: string | null
+          status: Database["public"]["Enums"]["partner_application_status"]
+          trucks_count: number | null
+          updated_at: string
+          usdot_number: string | null
+          user_id: string | null
+          utm: Json | null
+          website: string | null
+          years_in_business: number | null
+        }
+        Insert: {
+          admin_notes?: string | null
+          company_name: string
+          contact_email: string
+          contact_name: string
+          contact_phone: string
+          created_at?: string
+          crew_size?: number | null
+          id?: string
+          insurance_carrier?: string | null
+          insurance_policy?: string | null
+          mc_number?: string | null
+          service_cities?: string[] | null
+          service_radius_miles?: number | null
+          service_states?: string[] | null
+          services_offered?: string[] | null
+          source?: string | null
+          status?: Database["public"]["Enums"]["partner_application_status"]
+          trucks_count?: number | null
+          updated_at?: string
+          usdot_number?: string | null
+          user_id?: string | null
+          utm?: Json | null
+          website?: string | null
+          years_in_business?: number | null
+        }
+        Update: {
+          admin_notes?: string | null
+          company_name?: string
+          contact_email?: string
+          contact_name?: string
+          contact_phone?: string
+          created_at?: string
+          crew_size?: number | null
+          id?: string
+          insurance_carrier?: string | null
+          insurance_policy?: string | null
+          mc_number?: string | null
+          service_cities?: string[] | null
+          service_radius_miles?: number | null
+          service_states?: string[] | null
+          services_offered?: string[] | null
+          source?: string | null
+          status?: Database["public"]["Enums"]["partner_application_status"]
+          trucks_count?: number | null
+          updated_at?: string
+          usdot_number?: string | null
+          user_id?: string | null
+          utm?: Json | null
+          website?: string | null
+          years_in_business?: number | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -1888,6 +1969,12 @@ export type Database = {
         | "invalid"
         | "expired"
       lead_phase_enum: "unassigned" | "exclusive" | "open_market" | "closed"
+      partner_application_status:
+        | "draft"
+        | "submitted"
+        | "reviewing"
+        | "approved"
+        | "rejected"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -2058,6 +2145,13 @@ export const Constants = {
         "expired",
       ],
       lead_phase_enum: ["unassigned", "exclusive", "open_market", "closed"],
+      partner_application_status: [
+        "draft",
+        "submitted",
+        "reviewing",
+        "approved",
+        "rejected",
+      ],
     },
   },
 } as const

@@ -63,6 +63,12 @@ type QuoteRow = {
   assigned_broker_id: string | null;
   last_activity_at: string | null;
   details: Record<string, unknown> | null;
+  lead_phase: string | null;
+  exclusive_expires_at: string | null;
+  exclusive_paused_at: string | null;
+  exclusive_pause_reason: string | null;
+  visibility_mask: Record<string, boolean> | null;
+  closed_reason: string | null;
   [key: string]: unknown;
 };
 

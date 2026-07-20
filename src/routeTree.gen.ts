@@ -26,6 +26,7 @@ import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedCompanyRouteImport } from './routes/_authenticated/company'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
+import { Route as ApiPublicSlaTickRouteImport } from './routes/api/public/sla-tick'
 import { Route as AuthenticatedAdminDashboardRouteImport } from './routes/_authenticated/admin.dashboard'
 import { Route as AuthenticatedAdminCompaniesRouteImport } from './routes/_authenticated/admin.companies'
 
@@ -113,6 +114,11 @@ const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const ApiPublicSlaTickRoute = ApiPublicSlaTickRouteImport.update({
+  id: '/api/public/sla-tick',
+  path: '/api/public/sla-tick',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedAdminDashboardRoute =
   AuthenticatedAdminDashboardRouteImport.update({
     id: '/dashboard',
@@ -145,6 +151,7 @@ export interface FileRoutesByFullPath {
   '/cities/': typeof CitiesIndexRoute
   '/admin/companies': typeof AuthenticatedAdminCompaniesRoute
   '/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
+  '/api/public/sla-tick': typeof ApiPublicSlaTickRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -165,6 +172,7 @@ export interface FileRoutesByTo {
   '/cities': typeof CitiesIndexRoute
   '/admin/companies': typeof AuthenticatedAdminCompaniesRoute
   '/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
+  '/api/public/sla-tick': typeof ApiPublicSlaTickRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -187,6 +195,7 @@ export interface FileRoutesById {
   '/cities/': typeof CitiesIndexRoute
   '/_authenticated/admin/companies': typeof AuthenticatedAdminCompaniesRoute
   '/_authenticated/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
+  '/api/public/sla-tick': typeof ApiPublicSlaTickRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -209,6 +218,7 @@ export interface FileRouteTypes {
     | '/cities/'
     | '/admin/companies'
     | '/admin/dashboard'
+    | '/api/public/sla-tick'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -229,6 +239,7 @@ export interface FileRouteTypes {
     | '/cities'
     | '/admin/companies'
     | '/admin/dashboard'
+    | '/api/public/sla-tick'
   id:
     | '__root__'
     | '/'
@@ -250,6 +261,7 @@ export interface FileRouteTypes {
     | '/cities/'
     | '/_authenticated/admin/companies'
     | '/_authenticated/admin/dashboard'
+    | '/api/public/sla-tick'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -267,6 +279,7 @@ export interface RootRouteChildren {
   PortalQuoteNumberRoute: typeof PortalQuoteNumberRoute
   BlogIndexRoute: typeof BlogIndexRoute
   CitiesIndexRoute: typeof CitiesIndexRoute
+  ApiPublicSlaTickRoute: typeof ApiPublicSlaTickRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -390,6 +403,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/api/public/sla-tick': {
+      id: '/api/public/sla-tick'
+      path: '/api/public/sla-tick'
+      fullPath: '/api/public/sla-tick'
+      preLoaderRoute: typeof ApiPublicSlaTickRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/admin/dashboard': {
       id: '/_authenticated/admin/dashboard'
       path: '/dashboard'
@@ -450,6 +470,7 @@ const rootRouteChildren: RootRouteChildren = {
   PortalQuoteNumberRoute: PortalQuoteNumberRoute,
   BlogIndexRoute: BlogIndexRoute,
   CitiesIndexRoute: CitiesIndexRoute,
+  ApiPublicSlaTickRoute: ApiPublicSlaTickRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

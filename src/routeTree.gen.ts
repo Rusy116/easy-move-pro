@@ -12,6 +12,16 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as StoreRouteImport } from './routes/store'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as ServicesRouteImport } from './routes/services'
+import { Route as OpenMarketplaceRouteImport } from './routes/open-marketplace'
+import { Route as MovingScheduleSoftwareRouteImport } from './routes/moving-schedule-software'
+import { Route as MovingLeadsRouteImport } from './routes/moving-leads'
+import { Route as MovingEstimateSoftwareRouteImport } from './routes/moving-estimate-software'
+import { Route as MovingDispatchSoftwareRouteImport } from './routes/moving-dispatch-software'
+import { Route as MovingCompanySoftwareRouteImport } from './routes/moving-company-software'
+import { Route as MovingCompanyCrmRouteImport } from './routes/moving-company-crm'
+import { Route as LeadGenerationRouteImport } from './routes/lead-generation'
+import { Route as JoinRouteImport } from './routes/join'
+import { Route as ExclusiveMovingLeadsRouteImport } from './routes/exclusive-moving-leads'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as CalculatorRouteImport } from './routes/calculator'
 import { Route as AuthRouteImport } from './routes/auth'
@@ -62,6 +72,56 @@ const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
 const ServicesRoute = ServicesRouteImport.update({
   id: '/services',
   path: '/services',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OpenMarketplaceRoute = OpenMarketplaceRouteImport.update({
+  id: '/open-marketplace',
+  path: '/open-marketplace',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MovingScheduleSoftwareRoute = MovingScheduleSoftwareRouteImport.update({
+  id: '/moving-schedule-software',
+  path: '/moving-schedule-software',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MovingLeadsRoute = MovingLeadsRouteImport.update({
+  id: '/moving-leads',
+  path: '/moving-leads',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MovingEstimateSoftwareRoute = MovingEstimateSoftwareRouteImport.update({
+  id: '/moving-estimate-software',
+  path: '/moving-estimate-software',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MovingDispatchSoftwareRoute = MovingDispatchSoftwareRouteImport.update({
+  id: '/moving-dispatch-software',
+  path: '/moving-dispatch-software',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MovingCompanySoftwareRoute = MovingCompanySoftwareRouteImport.update({
+  id: '/moving-company-software',
+  path: '/moving-company-software',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MovingCompanyCrmRoute = MovingCompanyCrmRouteImport.update({
+  id: '/moving-company-crm',
+  path: '/moving-company-crm',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LeadGenerationRoute = LeadGenerationRouteImport.update({
+  id: '/lead-generation',
+  path: '/lead-generation',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const JoinRoute = JoinRouteImport.update({
+  id: '/join',
+  path: '/join',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ExclusiveMovingLeadsRoute = ExclusiveMovingLeadsRouteImport.update({
+  id: '/exclusive-moving-leads',
+  path: '/exclusive-moving-leads',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ContactRoute = ContactRouteImport.update({
@@ -267,6 +327,16 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/calculator': typeof CalculatorRoute
   '/contact': typeof ContactRoute
+  '/exclusive-moving-leads': typeof ExclusiveMovingLeadsRoute
+  '/join': typeof JoinRoute
+  '/lead-generation': typeof LeadGenerationRoute
+  '/moving-company-crm': typeof MovingCompanyCrmRoute
+  '/moving-company-software': typeof MovingCompanySoftwareRoute
+  '/moving-dispatch-software': typeof MovingDispatchSoftwareRoute
+  '/moving-estimate-software': typeof MovingEstimateSoftwareRoute
+  '/moving-leads': typeof MovingLeadsRoute
+  '/moving-schedule-software': typeof MovingScheduleSoftwareRoute
+  '/open-marketplace': typeof OpenMarketplaceRoute
   '/services': typeof ServicesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/store': typeof StoreRoute
@@ -307,6 +377,16 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/calculator': typeof CalculatorRoute
   '/contact': typeof ContactRoute
+  '/exclusive-moving-leads': typeof ExclusiveMovingLeadsRoute
+  '/join': typeof JoinRoute
+  '/lead-generation': typeof LeadGenerationRoute
+  '/moving-company-crm': typeof MovingCompanyCrmRoute
+  '/moving-company-software': typeof MovingCompanySoftwareRoute
+  '/moving-dispatch-software': typeof MovingDispatchSoftwareRoute
+  '/moving-estimate-software': typeof MovingEstimateSoftwareRoute
+  '/moving-leads': typeof MovingLeadsRoute
+  '/moving-schedule-software': typeof MovingScheduleSoftwareRoute
+  '/open-marketplace': typeof OpenMarketplaceRoute
   '/services': typeof ServicesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/store': typeof StoreRoute
@@ -348,6 +428,16 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/calculator': typeof CalculatorRoute
   '/contact': typeof ContactRoute
+  '/exclusive-moving-leads': typeof ExclusiveMovingLeadsRoute
+  '/join': typeof JoinRoute
+  '/lead-generation': typeof LeadGenerationRoute
+  '/moving-company-crm': typeof MovingCompanyCrmRoute
+  '/moving-company-software': typeof MovingCompanySoftwareRoute
+  '/moving-dispatch-software': typeof MovingDispatchSoftwareRoute
+  '/moving-estimate-software': typeof MovingEstimateSoftwareRoute
+  '/moving-leads': typeof MovingLeadsRoute
+  '/moving-schedule-software': typeof MovingScheduleSoftwareRoute
+  '/open-marketplace': typeof OpenMarketplaceRoute
   '/services': typeof ServicesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/store': typeof StoreRoute
@@ -390,6 +480,16 @@ export interface FileRouteTypes {
     | '/auth'
     | '/calculator'
     | '/contact'
+    | '/exclusive-moving-leads'
+    | '/join'
+    | '/lead-generation'
+    | '/moving-company-crm'
+    | '/moving-company-software'
+    | '/moving-dispatch-software'
+    | '/moving-estimate-software'
+    | '/moving-leads'
+    | '/moving-schedule-software'
+    | '/open-marketplace'
     | '/services'
     | '/sitemap.xml'
     | '/store'
@@ -430,6 +530,16 @@ export interface FileRouteTypes {
     | '/auth'
     | '/calculator'
     | '/contact'
+    | '/exclusive-moving-leads'
+    | '/join'
+    | '/lead-generation'
+    | '/moving-company-crm'
+    | '/moving-company-software'
+    | '/moving-dispatch-software'
+    | '/moving-estimate-software'
+    | '/moving-leads'
+    | '/moving-schedule-software'
+    | '/open-marketplace'
     | '/services'
     | '/sitemap.xml'
     | '/store'
@@ -470,6 +580,16 @@ export interface FileRouteTypes {
     | '/auth'
     | '/calculator'
     | '/contact'
+    | '/exclusive-moving-leads'
+    | '/join'
+    | '/lead-generation'
+    | '/moving-company-crm'
+    | '/moving-company-software'
+    | '/moving-dispatch-software'
+    | '/moving-estimate-software'
+    | '/moving-leads'
+    | '/moving-schedule-software'
+    | '/open-marketplace'
     | '/services'
     | '/sitemap.xml'
     | '/store'
@@ -512,6 +632,16 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   CalculatorRoute: typeof CalculatorRoute
   ContactRoute: typeof ContactRoute
+  ExclusiveMovingLeadsRoute: typeof ExclusiveMovingLeadsRoute
+  JoinRoute: typeof JoinRoute
+  LeadGenerationRoute: typeof LeadGenerationRoute
+  MovingCompanyCrmRoute: typeof MovingCompanyCrmRoute
+  MovingCompanySoftwareRoute: typeof MovingCompanySoftwareRoute
+  MovingDispatchSoftwareRoute: typeof MovingDispatchSoftwareRoute
+  MovingEstimateSoftwareRoute: typeof MovingEstimateSoftwareRoute
+  MovingLeadsRoute: typeof MovingLeadsRoute
+  MovingScheduleSoftwareRoute: typeof MovingScheduleSoftwareRoute
+  OpenMarketplaceRoute: typeof OpenMarketplaceRoute
   ServicesRoute: typeof ServicesRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   StoreRoute: typeof StoreRoute
@@ -548,6 +678,76 @@ declare module '@tanstack/react-router' {
       path: '/services'
       fullPath: '/services'
       preLoaderRoute: typeof ServicesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/open-marketplace': {
+      id: '/open-marketplace'
+      path: '/open-marketplace'
+      fullPath: '/open-marketplace'
+      preLoaderRoute: typeof OpenMarketplaceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/moving-schedule-software': {
+      id: '/moving-schedule-software'
+      path: '/moving-schedule-software'
+      fullPath: '/moving-schedule-software'
+      preLoaderRoute: typeof MovingScheduleSoftwareRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/moving-leads': {
+      id: '/moving-leads'
+      path: '/moving-leads'
+      fullPath: '/moving-leads'
+      preLoaderRoute: typeof MovingLeadsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/moving-estimate-software': {
+      id: '/moving-estimate-software'
+      path: '/moving-estimate-software'
+      fullPath: '/moving-estimate-software'
+      preLoaderRoute: typeof MovingEstimateSoftwareRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/moving-dispatch-software': {
+      id: '/moving-dispatch-software'
+      path: '/moving-dispatch-software'
+      fullPath: '/moving-dispatch-software'
+      preLoaderRoute: typeof MovingDispatchSoftwareRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/moving-company-software': {
+      id: '/moving-company-software'
+      path: '/moving-company-software'
+      fullPath: '/moving-company-software'
+      preLoaderRoute: typeof MovingCompanySoftwareRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/moving-company-crm': {
+      id: '/moving-company-crm'
+      path: '/moving-company-crm'
+      fullPath: '/moving-company-crm'
+      preLoaderRoute: typeof MovingCompanyCrmRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lead-generation': {
+      id: '/lead-generation'
+      path: '/lead-generation'
+      fullPath: '/lead-generation'
+      preLoaderRoute: typeof LeadGenerationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/join': {
+      id: '/join'
+      path: '/join'
+      fullPath: '/join'
+      preLoaderRoute: typeof JoinRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/exclusive-moving-leads': {
+      id: '/exclusive-moving-leads'
+      path: '/exclusive-moving-leads'
+      fullPath: '/exclusive-moving-leads'
+      preLoaderRoute: typeof ExclusiveMovingLeadsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/contact': {
@@ -880,6 +1080,16 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   CalculatorRoute: CalculatorRoute,
   ContactRoute: ContactRoute,
+  ExclusiveMovingLeadsRoute: ExclusiveMovingLeadsRoute,
+  JoinRoute: JoinRoute,
+  LeadGenerationRoute: LeadGenerationRoute,
+  MovingCompanyCrmRoute: MovingCompanyCrmRoute,
+  MovingCompanySoftwareRoute: MovingCompanySoftwareRoute,
+  MovingDispatchSoftwareRoute: MovingDispatchSoftwareRoute,
+  MovingEstimateSoftwareRoute: MovingEstimateSoftwareRoute,
+  MovingLeadsRoute: MovingLeadsRoute,
+  MovingScheduleSoftwareRoute: MovingScheduleSoftwareRoute,
+  OpenMarketplaceRoute: OpenMarketplaceRoute,
   ServicesRoute: ServicesRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   StoreRoute: StoreRoute,

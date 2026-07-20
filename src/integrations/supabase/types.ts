@@ -44,6 +44,13 @@ export type Database = {
             foreignKeyName: "admin_notifications_quote_id_fkey"
             columns: ["quote_id"]
             isOneToOne: false
+            referencedRelation: "mover_lead_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "admin_notifications_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
             referencedRelation: "quotes"
             referencedColumns: ["id"]
           },
@@ -93,6 +100,13 @@ export type Database = {
           reason?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "audit_log_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "mover_lead_view"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "audit_log_quote_id_fkey"
             columns: ["quote_id"]
@@ -277,6 +291,13 @@ export type Database = {
             foreignKeyName: "estimate_revisions_quote_id_fkey"
             columns: ["quote_id"]
             isOneToOne: false
+            referencedRelation: "mover_lead_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "estimate_revisions_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
             referencedRelation: "quotes"
             referencedColumns: ["id"]
           },
@@ -335,6 +356,13 @@ export type Database = {
             columns: ["company_id"]
             isOneToOne: false
             referencedRelation: "moving_companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lead_events_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "mover_lead_view"
             referencedColumns: ["id"]
           },
           {
@@ -521,6 +549,13 @@ export type Database = {
             foreignKeyName: "quote_assignments_quote_id_fkey"
             columns: ["quote_id"]
             isOneToOne: false
+            referencedRelation: "mover_lead_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quote_assignments_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
             referencedRelation: "quotes"
             referencedColumns: ["id"]
           },
@@ -552,6 +587,13 @@ export type Database = {
           quote_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "quote_notes_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "mover_lead_view"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "quote_notes_quote_id_fkey"
             columns: ["quote_id"]
@@ -590,6 +632,13 @@ export type Database = {
           to_status?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "quote_status_history_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "mover_lead_view"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "quote_status_history_quote_id_fkey"
             columns: ["quote_id"]
@@ -903,7 +952,177 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      mover_lead_view: {
+        Row: {
+          appliances: boolean | null
+          assembly: boolean | null
+          contact_email: string | null
+          contact_phone: string | null
+          created_at: string | null
+          destination_address: string | null
+          destination_city: string | null
+          destination_elevator: boolean | null
+          destination_long_carry: boolean | null
+          destination_stairs: number | null
+          destination_state: string | null
+          destination_zip: string | null
+          distance_miles: number | null
+          elevator: boolean | null
+          estimated_cubic_feet: number | null
+          estimated_high: number | null
+          estimated_low: number | null
+          estimated_weight_lbs: number | null
+          exclusive_expires_at: string | null
+          exclusive_paused_at: string | null
+          exclusive_started_at: string | null
+          flexible_date: boolean | null
+          floor: number | null
+          fragile_items: boolean | null
+          full_name: string | null
+          gym_equipment: boolean | null
+          heavy_items: boolean | null
+          id: string | null
+          insurance_tier: string | null
+          inventory: Json | null
+          junk_removal: boolean | null
+          last_activity_at: string | null
+          lead_phase: Database["public"]["Enums"]["lead_phase_enum"] | null
+          move_date: string | null
+          move_size: string | null
+          move_type: string | null
+          num_movers: number | null
+          open_market_opened_at: string | null
+          origin_address: string | null
+          origin_city: string | null
+          origin_elevator: boolean | null
+          origin_long_carry: boolean | null
+          origin_stairs: number | null
+          origin_state: string | null
+          origin_zip: string | null
+          packing: boolean | null
+          piano: boolean | null
+          preferred_time: string | null
+          property_type: string | null
+          quote_number: string | null
+          safe: boolean | null
+          storage: boolean | null
+          truck_size: string | null
+          unpacking: boolean | null
+        }
+        Insert: {
+          appliances?: boolean | null
+          assembly?: boolean | null
+          contact_email?: never
+          contact_phone?: never
+          created_at?: string | null
+          destination_address?: never
+          destination_city?: string | null
+          destination_elevator?: boolean | null
+          destination_long_carry?: boolean | null
+          destination_stairs?: number | null
+          destination_state?: string | null
+          destination_zip?: string | null
+          distance_miles?: number | null
+          elevator?: boolean | null
+          estimated_cubic_feet?: number | null
+          estimated_high?: number | null
+          estimated_low?: number | null
+          estimated_weight_lbs?: number | null
+          exclusive_expires_at?: string | null
+          exclusive_paused_at?: string | null
+          exclusive_started_at?: string | null
+          flexible_date?: boolean | null
+          floor?: number | null
+          fragile_items?: boolean | null
+          full_name?: never
+          gym_equipment?: boolean | null
+          heavy_items?: boolean | null
+          id?: string | null
+          insurance_tier?: string | null
+          inventory?: Json | null
+          junk_removal?: boolean | null
+          last_activity_at?: string | null
+          lead_phase?: Database["public"]["Enums"]["lead_phase_enum"] | null
+          move_date?: string | null
+          move_size?: string | null
+          move_type?: string | null
+          num_movers?: number | null
+          open_market_opened_at?: string | null
+          origin_address?: never
+          origin_city?: string | null
+          origin_elevator?: boolean | null
+          origin_long_carry?: boolean | null
+          origin_stairs?: number | null
+          origin_state?: string | null
+          origin_zip?: string | null
+          packing?: boolean | null
+          piano?: boolean | null
+          preferred_time?: string | null
+          property_type?: string | null
+          quote_number?: string | null
+          safe?: boolean | null
+          storage?: boolean | null
+          truck_size?: string | null
+          unpacking?: boolean | null
+        }
+        Update: {
+          appliances?: boolean | null
+          assembly?: boolean | null
+          contact_email?: never
+          contact_phone?: never
+          created_at?: string | null
+          destination_address?: never
+          destination_city?: string | null
+          destination_elevator?: boolean | null
+          destination_long_carry?: boolean | null
+          destination_stairs?: number | null
+          destination_state?: string | null
+          destination_zip?: string | null
+          distance_miles?: number | null
+          elevator?: boolean | null
+          estimated_cubic_feet?: number | null
+          estimated_high?: number | null
+          estimated_low?: number | null
+          estimated_weight_lbs?: number | null
+          exclusive_expires_at?: string | null
+          exclusive_paused_at?: string | null
+          exclusive_started_at?: string | null
+          flexible_date?: boolean | null
+          floor?: number | null
+          fragile_items?: boolean | null
+          full_name?: never
+          gym_equipment?: boolean | null
+          heavy_items?: boolean | null
+          id?: string | null
+          insurance_tier?: string | null
+          inventory?: Json | null
+          junk_removal?: boolean | null
+          last_activity_at?: string | null
+          lead_phase?: Database["public"]["Enums"]["lead_phase_enum"] | null
+          move_date?: string | null
+          move_size?: string | null
+          move_type?: string | null
+          num_movers?: number | null
+          open_market_opened_at?: string | null
+          origin_address?: never
+          origin_city?: string | null
+          origin_elevator?: boolean | null
+          origin_long_carry?: boolean | null
+          origin_stairs?: number | null
+          origin_state?: string | null
+          origin_zip?: string | null
+          packing?: boolean | null
+          piano?: boolean | null
+          preferred_time?: string | null
+          property_type?: string | null
+          quote_number?: string | null
+          safe?: boolean | null
+          storage?: boolean | null
+          truck_size?: string | null
+          unpacking?: boolean | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       accept_quote: {
@@ -916,6 +1135,159 @@ export type Database = {
         }[]
       }
       current_user_company_id: { Args: never; Returns: string }
+      default_visibility_mask: { Args: never; Returns: Json }
+      fn_assign_exclusive: {
+        Args: { _company_id: string; _quote_id: string; _sla_hours?: number }
+        Returns: {
+          accepted_at: string | null
+          assigned_by: string | null
+          closed_at: string | null
+          company_id: string
+          contacted_at: string | null
+          created_at: string
+          decline_reason: string | null
+          declined_at: string | null
+          id: string
+          invited_at: string
+          is_exclusive: boolean
+          lost_at: string | null
+          notes: string | null
+          override_mask: Json
+          quote_id: string
+          quoted_amount: number | null
+          quoted_at: string | null
+          sla_due_at: string | null
+          state: Database["public"]["Enums"]["assignment_state_enum"]
+          status: string
+          updated_at: string
+          viewed_at: string | null
+          won_at: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "quote_assignments"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      fn_close_lead: {
+        Args: { _quote_id: string; _reason: string }
+        Returns: undefined
+      }
+      fn_current_mover_company: { Args: never; Returns: string }
+      fn_extend_sla: {
+        Args: { _minutes: number; _quote_id: string }
+        Returns: undefined
+      }
+      fn_force_open_market: {
+        Args: { _quote_id: string; _reason?: string }
+        Returns: undefined
+      }
+      fn_mover_claim_open_market: {
+        Args: { _quote_id: string }
+        Returns: {
+          accepted_at: string | null
+          assigned_by: string | null
+          closed_at: string | null
+          company_id: string
+          contacted_at: string | null
+          created_at: string
+          decline_reason: string | null
+          declined_at: string | null
+          id: string
+          invited_at: string
+          is_exclusive: boolean
+          lost_at: string | null
+          notes: string | null
+          override_mask: Json
+          quote_id: string
+          quoted_amount: number | null
+          quoted_at: string | null
+          sla_due_at: string | null
+          state: Database["public"]["Enums"]["assignment_state_enum"]
+          status: string
+          updated_at: string
+          viewed_at: string | null
+          won_at: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "quote_assignments"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      fn_mover_decline: {
+        Args: { _assignment_id: string; _reason?: string }
+        Returns: undefined
+      }
+      fn_mover_mark_contacted: {
+        Args: { _assignment_id: string; _notes?: string }
+        Returns: undefined
+      }
+      fn_mover_open_assignment: {
+        Args: { _assignment_id: string }
+        Returns: undefined
+      }
+      fn_pause_sla: {
+        Args: { _quote_id: string; _reason: string }
+        Returns: undefined
+      }
+      fn_reassign_exclusive: {
+        Args: {
+          _new_company_id: string
+          _quote_id: string
+          _sla_hours?: number
+        }
+        Returns: {
+          accepted_at: string | null
+          assigned_by: string | null
+          closed_at: string | null
+          company_id: string
+          contacted_at: string | null
+          created_at: string
+          decline_reason: string | null
+          declined_at: string | null
+          id: string
+          invited_at: string
+          is_exclusive: boolean
+          lost_at: string | null
+          notes: string | null
+          override_mask: Json
+          quote_id: string
+          quoted_amount: number | null
+          quoted_at: string | null
+          sla_due_at: string | null
+          state: Database["public"]["Enums"]["assignment_state_enum"]
+          status: string
+          updated_at: string
+          viewed_at: string | null
+          won_at: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "quote_assignments"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      fn_reopen_lead: { Args: { _quote_id: string }; Returns: undefined }
+      fn_resume_sla: { Args: { _quote_id: string }; Returns: undefined }
+      fn_set_visibility_mask: {
+        Args: { _mask: Json; _quote_id: string }
+        Returns: undefined
+      }
+      fn_sla_tick: {
+        Args: never
+        Returns: {
+          assignment_id: string
+          quote_id: string
+        }[]
+      }
+      fn_withdraw_assignment: {
+        Args: { _assignment_id: string; _reason?: string }
+        Returns: undefined
+      }
       generate_quote_number: { Args: never; Returns: string }
       has_role: {
         Args: {
@@ -924,6 +1296,19 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_admin: { Args: never; Returns: boolean }
+      log_lead_event: {
+        Args: {
+          _actor_role: string
+          _assignment_id?: string
+          _company_id?: string
+          _event_type: string
+          _payload?: Json
+          _quote_id: string
+        }
+        Returns: undefined
+      }
+      mover_can_see_quote: { Args: { _quote_id: string }; Returns: boolean }
     }
     Enums: {
       app_role: "admin" | "mover" | "customer"

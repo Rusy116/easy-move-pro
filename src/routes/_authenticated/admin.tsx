@@ -493,6 +493,7 @@ function AdminPage() {
                   <TableHead className="text-[11px] uppercase tracking-wider">Estimate</TableHead>
                   <TableHead className="text-[11px] uppercase tracking-wider">Broker</TableHead>
                   <TableHead className="text-[11px] uppercase tracking-wider">Movers</TableHead>
+                  <TableHead className="text-[11px] uppercase tracking-wider">Phase</TableHead>
                   <TableHead className="text-[11px] uppercase tracking-wider">Status</TableHead>
                   <TableHead className="text-[11px] uppercase tracking-wider">Activity</TableHead>
                 </TableRow>

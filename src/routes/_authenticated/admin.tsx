@@ -23,6 +23,8 @@ import {
 import { PageHeader, StatCard } from "@/components/shell/Chrome";
 import { LeadDetailPanel } from "@/components/admin/LeadDetailPanel";
 import { BrokerSelect, assignBroker, useBrokers } from "@/components/admin/BrokerSelect";
+import { LeadPhaseBadge } from "@/components/admin/LeadPhaseBadge";
+import { SlaCountdown } from "@/components/admin/SlaCountdown";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({ meta: [{ title: "Admin — Easy Moving" }] }),

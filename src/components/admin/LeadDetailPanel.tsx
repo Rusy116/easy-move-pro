@@ -96,49 +96,56 @@ export function LeadDetailPanel({
   onClose: () => void;
   onStatusChange: (id: string, status: string) => void | Promise<void>;
 }) {
+  const [lastQuote, setLastQuote] = useState<Quote | null>(quote);
+  useEffect(() => {
+    if (quote) setLastQuote(quote);
+  }, [quote]);
+  const q = quote ?? lastQuote;
+
   const [notes, setNotes] = useState<Note[]>([]);
   const [history, setHistory] = useState<History[]>([]);
   const [newNote, setNewNote] = useState("");
   const [savingNote, setSavingNote] = useState(false);
-  const [brokerId, setBrokerId] = useState<string | null>(quote?.assigned_broker_id ?? null);
+  const [brokerId, setBrokerId] = useState<string | null>(q?.assigned_broker_id ?? null);
 
   useEffect(() => {
-    setBrokerId(quote?.assigned_broker_id ?? null);
-  }, [quote?.id, quote?.assigned_broker_id]);
+    setBrokerId(q?.assigned_broker_id ?? null);
+  }, [q?.id, q?.assigned_broker_id]);
 
   useEffect(() => {
-    if (!quote) return;
+    if (!q) return;
+    const qid = q.id;
     void (async () => {
       const [{ data: n }, { data: h }] = await Promise.all([
-        supabase.from("quote_notes").select("*").eq("quote_id", quote.id).order("created_at", { ascending: false }),
-        supabase.from("quote_status_history").select("*").eq("quote_id", quote.id).order("created_at", { ascending: false }),
+        supabase.from("quote_notes").select("*").eq("quote_id", qid).order("created_at", { ascending: false }),
+        supabase.from("quote_status_history").select("*").eq("quote_id", qid).order("created_at", { ascending: false }),
       ]);
       setNotes((n as Note[]) ?? []);
       setHistory((h as History[]) ?? []);
     })();
 
     const channel = supabase
-      .channel(`quote-${quote.id}`)
-      .on("postgres_changes", { event: "INSERT", schema: "public", table: "quote_notes", filter: `quote_id=eq.${quote.id}` },
+      .channel(`quote-${qid}`)
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "quote_notes", filter: `quote_id=eq.${qid}` },
         (p) => setNotes((prev) => [p.new as Note, ...prev]))
-      .on("postgres_changes", { event: "INSERT", schema: "public", table: "quote_status_history", filter: `quote_id=eq.${quote.id}` },
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "quote_status_history", filter: `quote_id=eq.${qid}` },
         (p) => setHistory((prev) => [p.new as History, ...prev]))
       .subscribe();
     return () => { void supabase.removeChannel(channel); };
-  }, [quote?.id]);
+  }, [q?.id]);
 
-  const inventory = useMemo(() => quote?.inventory ?? [], [quote]);
-  const breakdown = useMemo(() => quote?.breakdown ?? [], [quote]);
+  const inventory = useMemo(() => q?.inventory ?? [], [q]);
+  const breakdown = useMemo(() => q?.breakdown ?? [], [q]);
 
   const doPause = useServerFn(pauseSla);
   const doResume = useServerFn(resumeSla);
   const doExtend = useServerFn(extendSla);
   const doClose = useServerFn(closeLead);
 
-  if (!quote) return null;
-  const details = quote.details ?? {};
-  const phone = quote.contact_phone ?? "";
-  const email = quote.contact_email ?? "";
+  if (!q) return null;
+  const details = q.details ?? {};
+  const phone = q.contact_phone ?? "";
+  const email = q.contact_email ?? "";
 
   async function addNote() {
     if (!quote || !newNote.trim()) return;

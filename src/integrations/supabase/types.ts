@@ -390,6 +390,7 @@ export type Database = {
           phone: string | null
           rating: number | null
           service_states: string[]
+          settings: Json
           slug: string | null
           suspended: boolean
           updated_at: string
@@ -409,6 +410,7 @@ export type Database = {
           phone?: string | null
           rating?: number | null
           service_states?: string[]
+          settings?: Json
           slug?: string | null
           suspended?: boolean
           updated_at?: string
@@ -428,6 +430,7 @@ export type Database = {
           phone?: string | null
           rating?: number | null
           service_states?: string[]
+          settings?: Json
           slug?: string | null
           suspended?: boolean
           updated_at?: string

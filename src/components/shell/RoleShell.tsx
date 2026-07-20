@@ -54,7 +54,7 @@ export function RoleShell({ brand, eyebrow, accent, nav, children }: RoleShellPr
                 <div className="truncate font-serif text-base font-medium">{brand}</div>
               </div>
             </div>
-            <nav className="hidden md:flex items-center gap-1">
+            <nav className="hidden md:flex flex-wrap items-center gap-1">
               {nav.map((n) => {
                 const active = pathname === n.to;
                 return (

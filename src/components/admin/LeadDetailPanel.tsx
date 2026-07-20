@@ -74,6 +74,12 @@ type Quote = {
   details: Record<string, unknown> | null;
   inventory: Array<{ id: string; quantity: number }>;
   breakdown: Array<{ label: string; amount: number }>;
+  lead_phase: string | null;
+  exclusive_expires_at: string | null;
+  exclusive_paused_at: string | null;
+  exclusive_pause_reason: string | null;
+  visibility_mask: Record<string, boolean> | null;
+  closed_reason: string | null;
 };
 
 function getCustomerName(q: Quote): string {

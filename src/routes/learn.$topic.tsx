@@ -50,7 +50,7 @@ function LearnPage() {
       <SeoHero eyebrow="Guide" title={page.hero} subhead={page.description} />
       <section className="border-b border-border">
         <article className="mx-auto max-w-3xl px-4 sm:px-6 py-16 prose prose-neutral dark:prose-invert">
-          {page.sections.map((s) => (
+          {page.sections.map((s: { heading: string; body: string }) => (
             <div key={s.heading} className="mb-8">
               <h2 className="font-serif text-2xl md:text-3xl font-semibold tracking-tight text-foreground">{s.heading}</h2>
               <p className="mt-3 text-base leading-relaxed text-muted-foreground">{s.body}</p>

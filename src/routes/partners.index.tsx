@@ -16,7 +16,7 @@ const FAQ = [
   { q: "Can I choose the areas I serve?", a: "Yes — set state, city, and radius coverage during onboarding." },
 ];
 
-export const Route = createFileRoute("/partners")({
+export const Route = createFileRoute("/partners/")({
   head: () => ({
     meta: seoMeta({
       title: "Become an Easy Moving Partner — Grow Your Moving Business",

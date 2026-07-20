@@ -18,9 +18,13 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as PartnersIndexRouteImport } from './routes/partners.index'
 import { Route as CitiesIndexRouteImport } from './routes/cities.index'
 import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as PortalQuoteNumberRouteImport } from './routes/portal.$quoteNumber'
+import { Route as PartnersLocationRouteImport } from './routes/partners.$location'
+import { Route as LearnTopicRouteImport } from './routes/learn.$topic'
+import { Route as CompareSlugRouteImport } from './routes/compare.$slug'
 import { Route as CitiesCityRouteImport } from './routes/cities.$city'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
@@ -89,6 +93,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PartnersIndexRoute = PartnersIndexRouteImport.update({
+  id: '/partners/',
+  path: '/partners/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CitiesIndexRoute = CitiesIndexRouteImport.update({
   id: '/cities/',
   path: '/cities/',
@@ -102,6 +111,21 @@ const BlogIndexRoute = BlogIndexRouteImport.update({
 const PortalQuoteNumberRoute = PortalQuoteNumberRouteImport.update({
   id: '/portal/$quoteNumber',
   path: '/portal/$quoteNumber',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PartnersLocationRoute = PartnersLocationRouteImport.update({
+  id: '/partners/$location',
+  path: '/partners/$location',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LearnTopicRoute = LearnTopicRouteImport.update({
+  id: '/learn/$topic',
+  path: '/learn/$topic',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CompareSlugRoute = CompareSlugRouteImport.update({
+  id: '/compare/$slug',
+  path: '/compare/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CitiesCityRoute = CitiesCityRouteImport.update({
@@ -251,9 +275,13 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/cities/$city': typeof CitiesCityRoute
+  '/compare/$slug': typeof CompareSlugRoute
+  '/learn/$topic': typeof LearnTopicRoute
+  '/partners/$location': typeof PartnersLocationRoute
   '/portal/$quoteNumber': typeof PortalQuoteNumberRoute
   '/blog/': typeof BlogIndexRoute
   '/cities/': typeof CitiesIndexRoute
+  '/partners/': typeof PartnersIndexRoute
   '/admin/companies': typeof AuthenticatedAdminCompaniesRoute
   '/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
   '/company/analytics': typeof AuthenticatedCompanyAnalyticsRoute
@@ -286,9 +314,13 @@ export interface FileRoutesByTo {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/cities/$city': typeof CitiesCityRoute
+  '/compare/$slug': typeof CompareSlugRoute
+  '/learn/$topic': typeof LearnTopicRoute
+  '/partners/$location': typeof PartnersLocationRoute
   '/portal/$quoteNumber': typeof PortalQuoteNumberRoute
   '/blog': typeof BlogIndexRoute
   '/cities': typeof CitiesIndexRoute
+  '/partners': typeof PartnersIndexRoute
   '/admin/companies': typeof AuthenticatedAdminCompaniesRoute
   '/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
   '/company/analytics': typeof AuthenticatedCompanyAnalyticsRoute
@@ -324,9 +356,13 @@ export interface FileRoutesById {
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/cities/$city': typeof CitiesCityRoute
+  '/compare/$slug': typeof CompareSlugRoute
+  '/learn/$topic': typeof LearnTopicRoute
+  '/partners/$location': typeof PartnersLocationRoute
   '/portal/$quoteNumber': typeof PortalQuoteNumberRoute
   '/blog/': typeof BlogIndexRoute
   '/cities/': typeof CitiesIndexRoute
+  '/partners/': typeof PartnersIndexRoute
   '/_authenticated/admin/companies': typeof AuthenticatedAdminCompaniesRoute
   '/_authenticated/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
   '/_authenticated/company/analytics': typeof AuthenticatedCompanyAnalyticsRoute
@@ -362,9 +398,13 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/blog/$slug'
     | '/cities/$city'
+    | '/compare/$slug'
+    | '/learn/$topic'
+    | '/partners/$location'
     | '/portal/$quoteNumber'
     | '/blog/'
     | '/cities/'
+    | '/partners/'
     | '/admin/companies'
     | '/admin/dashboard'
     | '/company/analytics'
@@ -397,9 +437,13 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/blog/$slug'
     | '/cities/$city'
+    | '/compare/$slug'
+    | '/learn/$topic'
+    | '/partners/$location'
     | '/portal/$quoteNumber'
     | '/blog'
     | '/cities'
+    | '/partners'
     | '/admin/companies'
     | '/admin/dashboard'
     | '/company/analytics'
@@ -434,9 +478,13 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard'
     | '/blog/$slug'
     | '/cities/$city'
+    | '/compare/$slug'
+    | '/learn/$topic'
+    | '/partners/$location'
     | '/portal/$quoteNumber'
     | '/blog/'
     | '/cities/'
+    | '/partners/'
     | '/_authenticated/admin/companies'
     | '/_authenticated/admin/dashboard'
     | '/_authenticated/company/analytics'
@@ -469,9 +517,13 @@ export interface RootRouteChildren {
   StoreRoute: typeof StoreRoute
   BlogSlugRoute: typeof BlogSlugRoute
   CitiesCityRoute: typeof CitiesCityRoute
+  CompareSlugRoute: typeof CompareSlugRoute
+  LearnTopicRoute: typeof LearnTopicRoute
+  PartnersLocationRoute: typeof PartnersLocationRoute
   PortalQuoteNumberRoute: typeof PortalQuoteNumberRoute
   BlogIndexRoute: typeof BlogIndexRoute
   CitiesIndexRoute: typeof CitiesIndexRoute
+  PartnersIndexRoute: typeof PartnersIndexRoute
   ApiPublicSlaTickRoute: typeof ApiPublicSlaTickRoute
 }
 
@@ -540,6 +592,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/partners/': {
+      id: '/partners/'
+      path: '/partners'
+      fullPath: '/partners/'
+      preLoaderRoute: typeof PartnersIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/cities/': {
       id: '/cities/'
       path: '/cities'
@@ -559,6 +618,27 @@ declare module '@tanstack/react-router' {
       path: '/portal/$quoteNumber'
       fullPath: '/portal/$quoteNumber'
       preLoaderRoute: typeof PortalQuoteNumberRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/partners/$location': {
+      id: '/partners/$location'
+      path: '/partners/$location'
+      fullPath: '/partners/$location'
+      preLoaderRoute: typeof PartnersLocationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/learn/$topic': {
+      id: '/learn/$topic'
+      path: '/learn/$topic'
+      fullPath: '/learn/$topic'
+      preLoaderRoute: typeof LearnTopicRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/compare/$slug': {
+      id: '/compare/$slug'
+      path: '/compare/$slug'
+      fullPath: '/compare/$slug'
+      preLoaderRoute: typeof CompareSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/cities/$city': {
@@ -805,9 +885,13 @@ const rootRouteChildren: RootRouteChildren = {
   StoreRoute: StoreRoute,
   BlogSlugRoute: BlogSlugRoute,
   CitiesCityRoute: CitiesCityRoute,
+  CompareSlugRoute: CompareSlugRoute,
+  LearnTopicRoute: LearnTopicRoute,
+  PartnersLocationRoute: PartnersLocationRoute,
   PortalQuoteNumberRoute: PortalQuoteNumberRoute,
   BlogIndexRoute: BlogIndexRoute,
   CitiesIndexRoute: CitiesIndexRoute,
+  PartnersIndexRoute: PartnersIndexRoute,
   ApiPublicSlaTickRoute: ApiPublicSlaTickRoute,
 }
 export const routeTree = rootRouteImport

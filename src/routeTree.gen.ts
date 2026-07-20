@@ -26,6 +26,7 @@ import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedCompanyRouteImport } from './routes/_authenticated/company'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
+import { Route as AuthenticatedCompanyIndexRouteImport } from './routes/_authenticated/company.index'
 import { Route as ApiPublicSlaTickRouteImport } from './routes/api/public/sla-tick'
 import { Route as AuthenticatedAdminDashboardRouteImport } from './routes/_authenticated/admin.dashboard'
 import { Route as AuthenticatedAdminCompaniesRouteImport } from './routes/_authenticated/admin.companies'
@@ -114,6 +115,12 @@ const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedCompanyIndexRoute =
+  AuthenticatedCompanyIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedCompanyRoute,
+  } as any)
 const ApiPublicSlaTickRoute = ApiPublicSlaTickRouteImport.update({
   id: '/api/public/sla-tick',
   path: '/api/public/sla-tick',
@@ -142,7 +149,7 @@ export interface FileRoutesByFullPath {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/store': typeof StoreRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
-  '/company': typeof AuthenticatedCompanyRoute
+  '/company': typeof AuthenticatedCompanyRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/cities/$city': typeof CitiesCityRoute
@@ -152,6 +159,7 @@ export interface FileRoutesByFullPath {
   '/admin/companies': typeof AuthenticatedAdminCompaniesRoute
   '/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
   '/api/public/sla-tick': typeof ApiPublicSlaTickRoute
+  '/company/': typeof AuthenticatedCompanyIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -163,7 +171,6 @@ export interface FileRoutesByTo {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/store': typeof StoreRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
-  '/company': typeof AuthenticatedCompanyRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/cities/$city': typeof CitiesCityRoute
@@ -173,6 +180,7 @@ export interface FileRoutesByTo {
   '/admin/companies': typeof AuthenticatedAdminCompaniesRoute
   '/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
   '/api/public/sla-tick': typeof ApiPublicSlaTickRoute
+  '/company': typeof AuthenticatedCompanyIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -186,7 +194,7 @@ export interface FileRoutesById {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/store': typeof StoreRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
-  '/_authenticated/company': typeof AuthenticatedCompanyRoute
+  '/_authenticated/company': typeof AuthenticatedCompanyRouteWithChildren
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/cities/$city': typeof CitiesCityRoute
@@ -196,6 +204,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/companies': typeof AuthenticatedAdminCompaniesRoute
   '/_authenticated/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
   '/api/public/sla-tick': typeof ApiPublicSlaTickRoute
+  '/_authenticated/company/': typeof AuthenticatedCompanyIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -219,6 +228,7 @@ export interface FileRouteTypes {
     | '/admin/companies'
     | '/admin/dashboard'
     | '/api/public/sla-tick'
+    | '/company/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -230,7 +240,6 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/store'
     | '/admin'
-    | '/company'
     | '/dashboard'
     | '/blog/$slug'
     | '/cities/$city'
@@ -240,6 +249,7 @@ export interface FileRouteTypes {
     | '/admin/companies'
     | '/admin/dashboard'
     | '/api/public/sla-tick'
+    | '/company'
   id:
     | '__root__'
     | '/'
@@ -262,6 +272,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/companies'
     | '/_authenticated/admin/dashboard'
     | '/api/public/sla-tick'
+    | '/_authenticated/company/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -403,6 +414,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/company/': {
+      id: '/_authenticated/company/'
+      path: '/'
+      fullPath: '/company/'
+      preLoaderRoute: typeof AuthenticatedCompanyIndexRouteImport
+      parentRoute: typeof AuthenticatedCompanyRoute
+    }
     '/api/public/sla-tick': {
       id: '/api/public/sla-tick'
       path: '/api/public/sla-tick'
@@ -440,15 +458,26 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
 const AuthenticatedAdminRouteWithChildren =
   AuthenticatedAdminRoute._addFileChildren(AuthenticatedAdminRouteChildren)
 
+interface AuthenticatedCompanyRouteChildren {
+  AuthenticatedCompanyIndexRoute: typeof AuthenticatedCompanyIndexRoute
+}
+
+const AuthenticatedCompanyRouteChildren: AuthenticatedCompanyRouteChildren = {
+  AuthenticatedCompanyIndexRoute: AuthenticatedCompanyIndexRoute,
+}
+
+const AuthenticatedCompanyRouteWithChildren =
+  AuthenticatedCompanyRoute._addFileChildren(AuthenticatedCompanyRouteChildren)
+
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRouteWithChildren
-  AuthenticatedCompanyRoute: typeof AuthenticatedCompanyRoute
+  AuthenticatedCompanyRoute: typeof AuthenticatedCompanyRouteWithChildren
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRouteWithChildren,
-  AuthenticatedCompanyRoute: AuthenticatedCompanyRoute,
+  AuthenticatedCompanyRoute: AuthenticatedCompanyRouteWithChildren,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
 }
 

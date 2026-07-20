@@ -208,12 +208,15 @@ export const BUCKET_META: Record<Bucket, { label: string; icon: React.ReactNode 
   lost:        { label: "Lost",        icon: <XCircle className="h-4 w-4" /> },
 };
 
-export type LeadStatusTab = "new" | "contacted" | "estimate_sent" | "won" | "lost" | "completed";
+export type LeadStatusTab = "new" | "contacted" | "estimate_sent" | "scheduled" | "won" | "lost" | "completed";
 
 export function statusTabOf(r: MergedLead): LeadStatusTab | null {
   const a = r.assignment;
   if (!a) return null;
-  if (a.state === "won" || a.state === "accepted") return "completed";
+  const md = r.lead.move_date ? new Date(r.lead.move_date).getTime() : null;
+  const inFuture = md != null && md >= Date.now() - 24 * 60 * 60 * 1000;
+  if (a.state === "won") return "completed";
+  if (a.state === "accepted") return inFuture ? "scheduled" : "won";
   if (["lost", "declined", "withdrawn", "expired"].includes(a.state)) return "lost";
   if (a.state === "quoted") return "estimate_sent";
   if (a.contacted_at) return "contacted";

@@ -130,6 +130,11 @@ export function LeadDetailPanel({
   const inventory = useMemo(() => quote?.inventory ?? [], [quote]);
   const breakdown = useMemo(() => quote?.breakdown ?? [], [quote]);
 
+  const doPause = useServerFn(pauseSla);
+  const doResume = useServerFn(resumeSla);
+  const doExtend = useServerFn(extendSla);
+  const doClose = useServerFn(closeLead);
+
   if (!quote) return null;
   const details = quote.details ?? {};
   const phone = quote.contact_phone ?? "";
@@ -158,10 +163,7 @@ export function LeadDetailPanel({
     await assignBroker(quote.id, v);
   }
 
-  const doPause = useServerFn(pauseSla);
-  const doResume = useServerFn(resumeSla);
-  const doExtend = useServerFn(extendSla);
-  const doClose = useServerFn(closeLead);
+
 
   async function runEngine(fn: () => Promise<unknown>, ok: string) {
     try {

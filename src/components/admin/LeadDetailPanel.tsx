@@ -227,6 +227,72 @@ export function LeadDetailPanel({
               value={`$${Number(quote.estimated_low).toLocaleString()}–$${Number(quote.estimated_high).toLocaleString()}`}
             />
           </div>
+
+          {/* Lead phase / SLA / visibility */}
+          <div className="mt-3 flex flex-wrap items-center gap-2 rounded-lg border border-border bg-background/60 px-3 py-2">
+            <LeadPhaseBadge phase={quote.lead_phase} />
+            {quote.lead_phase === "exclusive" && (
+              <SlaCountdown
+                expiresAt={quote.exclusive_expires_at}
+                pausedAt={quote.exclusive_paused_at}
+              />
+            )}
+            <span className="inline-flex items-center gap-1 rounded-full border border-border bg-card px-2 py-0.5 text-[11px] text-muted-foreground" title="Mover PII visibility">
+              <EyeOff className="h-3 w-3" />
+              {(() => {
+                const m = quote.visibility_mask ?? {};
+                const hidden = Object.values(m).filter(Boolean).length;
+                return hidden > 0 ? `${hidden} PII field${hidden > 1 ? "s" : ""} hidden` : "Full visibility";
+              })()}
+            </span>
+            {quote.closed_reason && (
+              <Badge variant="outline" className="text-[11px] capitalize">Closed · {quote.closed_reason}</Badge>
+            )}
+
+            {/* Engine quick actions */}
+            <div className="ml-auto flex flex-wrap items-center gap-1.5">
+              {quote.lead_phase === "exclusive" && !quote.exclusive_paused_at && (
+                <Button size="sm" variant="ghost" className="h-7 px-2 text-xs"
+                  onClick={() => void runEngine(
+                    () => doPause({ data: { quoteId: quote.id, reason: "manual" } }),
+                    "SLA paused")}>
+                  <PauseCircle className="mr-1 h-3.5 w-3.5" />Pause
+                </Button>
+              )}
+              {quote.lead_phase === "exclusive" && quote.exclusive_paused_at && (
+                <Button size="sm" variant="ghost" className="h-7 px-2 text-xs"
+                  onClick={() => void runEngine(
+                    () => doResume({ data: { quoteId: quote.id } }),
+                    "SLA resumed")}>
+                  <PlayCircle className="mr-1 h-3.5 w-3.5" />Resume
+                </Button>
+              )}
+              {quote.lead_phase === "exclusive" && (
+                <Button size="sm" variant="ghost" className="h-7 px-2 text-xs"
+                  onClick={() => void runEngine(
+                    () => doExtend({ data: { quoteId: quote.id, minutes: 60 } }),
+                    "SLA extended +1h")}>
+                  <Clock className="mr-1 h-3.5 w-3.5" />+1h
+                </Button>
+              )}
+              {quote.lead_phase !== "closed" && (
+                <Button size="sm" variant="ghost" className="h-7 px-2 text-xs text-rose-700 hover:text-rose-800"
+                  onClick={() => {
+                    const reason = window.prompt("Close reason (won/lost/cancelled/duplicate/invalid)", "lost");
+                    if (!reason) return;
+                    if (!["won", "lost", "cancelled", "duplicate", "invalid"].includes(reason)) {
+                      toast.error("Invalid reason"); return;
+                    }
+                    void runEngine(
+                      () => doClose({ data: { quoteId: quote.id, reason: reason as "won" | "lost" | "cancelled" | "duplicate" | "invalid" } }),
+                      "Lead closed",
+                    );
+                  }}>
+                  <XCircle className="mr-1 h-3.5 w-3.5" />Close
+                </Button>
+              )}
+            </div>
+          </div>
         </div>
 
         <Tabs defaultValue="profile" className="w-full">

@@ -11,7 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
-import { Phone, Mail, StickyNote, Clock, ExternalLink, Building2, User, Package, MapPin, EyeOff, PauseCircle, PlayCircle, XCircle } from "lucide-react";
+import { Phone, Mail, StickyNote, Clock, ExternalLink, Building2, User, Package, MapPin, EyeOff, PauseCircle, PlayCircle, XCircle, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
@@ -184,7 +184,15 @@ export function LeadDetailPanel({
   return (
     <Sheet open={!!quote} onOpenChange={(o) => !o && onClose()}>
       <SheetContent side="right" className="w-full sm:max-w-2xl overflow-y-auto p-0">
-        <div className="sticky top-0 z-10 border-b border-border bg-card px-6 py-4">
+        <button
+          type="button"
+          onClick={() => onClose()}
+          aria-label="Close panel"
+          className="absolute right-3 top-3 z-30 inline-flex h-9 w-9 items-center justify-center rounded-full border border-border bg-card text-muted-foreground shadow-sm hover:bg-accent hover:text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+        >
+          <X className="h-4 w-4" />
+        </button>
+        <div className="sticky top-0 z-10 border-b border-border bg-card px-6 py-4 pr-16">
           <SheetHeader>
             <SheetTitle className="flex flex-wrap items-center gap-3">
               <span className="text-xl">{getCustomerName(q)}</span>

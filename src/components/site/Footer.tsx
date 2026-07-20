@@ -12,8 +12,8 @@ export function Footer() {
             </p>
           </div>
           <FooterCol title="Platform" items={[["Calculator", "/calculator"], ["Services", "/services"], ["City Pages", "/cities"], ["Digital Store", "/store"]]} />
+          <FooterCol title="For Movers" items={[["Partners", "/partners"], ["Moving Leads", "/moving-leads"], ["Exclusive Leads", "/exclusive-moving-leads"], ["CRM", "/moving-company-crm"], ["Software", "/moving-company-software"], ["Join Easy Moving", "/join"]]} />
           <FooterCol title="Company" items={[["About", "/about"], ["Blog", "/blog"], ["Contact", "/contact"]]} />
-          <FooterCol title="Account" items={[["Sign in", "/auth"], ["Customer Dashboard", "/dashboard"], ["Admin", "/admin"]]} />
         </div>
         <div className="mt-16 flex flex-col items-start justify-between gap-4 border-t border-border pt-8 sm:flex-row sm:items-center">
           <p className="text-xs text-muted-foreground">© {new Date().getFullYear()} Easy Moving Logistics. All rights reserved.</p>

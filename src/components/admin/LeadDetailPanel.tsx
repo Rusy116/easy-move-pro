@@ -11,11 +11,16 @@ import { Textarea } from "@/components/ui/textarea";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
-import { Phone, Mail, StickyNote, Clock, ExternalLink, Building2, User, Package, MapPin } from "lucide-react";
+import { Phone, Mail, StickyNote, Clock, ExternalLink, Building2, User, Package, MapPin, EyeOff, PauseCircle, PlayCircle, XCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { AssignCompanies } from "./AssignCompanies";
 import { BrokerSelect, assignBroker } from "./BrokerSelect";
+import { SlaCountdown } from "./SlaCountdown";
+import { LeadPhaseBadge } from "./LeadPhaseBadge";
+import { LeadEventsTimeline } from "./LeadEventsTimeline";
+import { pauseSla, resumeSla, extendSla, closeLead } from "@/lib/leads.functions";
 
 export const LEAD_STATUSES = ["new", "contacted", "scheduled", "won", "lost", "cancelled"] as const;
 

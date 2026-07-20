@@ -579,7 +579,7 @@ function AdminPage() {
                   );
                 })}
                 {rows.length === 0 && !loading && (
-                  <TableRow><TableCell colSpan={11} className="p-8 text-center text-muted-foreground">No quotes match your filters.</TableCell></TableRow>
+                  <TableRow><TableCell colSpan={12} className="p-8 text-center text-muted-foreground">No quotes match your filters.</TableCell></TableRow>
                 )}
               </TableBody>
             </Table>

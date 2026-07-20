@@ -148,8 +148,8 @@ export function LeadDetailPanel({
   const email = q.contact_email ?? "";
 
   async function addNote() {
-    if (!quote || !newNote.trim()) return;
-    const q = quote;
+    if (!q || !newNote.trim()) return;
+    const q = q;
     setSavingNote(true);
     const { data: userData } = await supabase.auth.getUser();
     const { error } = await supabase.from("quote_notes").insert({
@@ -165,9 +165,9 @@ export function LeadDetailPanel({
   }
 
   async function onBrokerChange(v: string | null) {
-    if (!quote) return;
+    if (!q) return;
     setBrokerId(v);
-    await assignBroker(quote.id, v);
+    await assignBroker(q.id, v);
   }
 
 
@@ -182,19 +182,19 @@ export function LeadDetailPanel({
   }
 
   return (
-    <Sheet open={!!quote} onOpenChange={(o) => !o && onClose()}>
+    <Sheet open={!!q} onOpenChange={(o) => !o && onClose()}>
       <SheetContent side="right" className="w-full sm:max-w-2xl overflow-y-auto p-0">
         <div className="sticky top-0 z-10 border-b border-border bg-card px-6 py-4">
           <SheetHeader>
             <SheetTitle className="flex flex-wrap items-center gap-3">
-              <span className="text-xl">{getCustomerName(quote)}</span>
+              <span className="text-xl">{getCustomerName(q)}</span>
               <span className="font-mono text-xs text-muted-foreground">
-                {quote.quote_number ?? quote.id.slice(0, 8)}
+                {q.quote_number ?? q.id.slice(0, 8)}
               </span>
-              <Badge variant="outline" className={`capitalize ${STATUS_STYLES[quote.status] ?? ""}`}>
-                {quote.status}
+              <Badge variant="outline" className={`capitalize ${STATUS_STYLES[q.status] ?? ""}`}>
+                {q.status}
               </Badge>
-              {quote.accepted_at && (
+              {q.accepted_at && (
                 <Badge className="bg-emerald-500/10 text-emerald-700 border-emerald-600/30">Accepted</Badge>
               )}
             </SheetTitle>
@@ -205,19 +205,19 @@ export function LeadDetailPanel({
               <a href={phone ? `tel:${phone}` : undefined}><Phone className="mr-2 h-4 w-4" />Call</a>
             </Button>
             <Button asChild size="sm" variant="outline" disabled={!email}>
-              <a href={email ? `mailto:${email}?subject=Your%20Easy%20Moving%20Quote%20${quote.quote_number ?? ""}` : undefined}>
+              <a href={email ? `mailto:${email}?subject=Your%20Easy%20Moving%20Quote%20${q.quote_number ?? ""}` : undefined}>
                 <Mail className="mr-2 h-4 w-4" />Email
               </a>
             </Button>
-            {quote.quote_number && quote.portal_token && (
+            {q.quote_number && q.portal_token && (
               <Button asChild size="sm" variant="outline">
-                <a href={`/portal/${quote.quote_number}?token=${quote.portal_token}`} target="_blank" rel="noreferrer">
+                <a href={`/portal/${q.quote_number}?token=${q.portal_token}`} target="_blank" rel="noreferrer">
                   <ExternalLink className="mr-2 h-4 w-4" />Portal
                 </a>
               </Button>
             )}
             <div className="ml-auto flex items-center gap-2">
-              <Select value={quote.status} onValueChange={(v) => void onStatusChange(quote.id, v)}>
+              <Select value={q.status} onValueChange={(v) => void onStatusChange(q.id, v)}>
                 <SelectTrigger className="h-8 w-[140px] capitalize"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   {LEAD_STATUSES.map((s) => <SelectItem key={s} value={s} className="capitalize">{s}</SelectItem>)}
@@ -230,61 +230,61 @@ export function LeadDetailPanel({
             <MiniStat label="Broker">
               <BrokerSelect value={brokerId} onChange={(v) => void onBrokerChange(v)} size="sm" />
             </MiniStat>
-            <MiniStat label="Move date" value={quote.move_date ?? "—"} />
+            <MiniStat label="Move date" value={q.move_date ?? "—"} />
             <MiniStat
               label="Estimate"
-              value={`$${Number(quote.estimated_low).toLocaleString()}–$${Number(quote.estimated_high).toLocaleString()}`}
+              value={`$${Number(q.estimated_low).toLocaleString()}–$${Number(q.estimated_high).toLocaleString()}`}
             />
           </div>
 
           {/* Lead phase / SLA / visibility */}
           <div className="mt-3 flex flex-wrap items-center gap-2 rounded-lg border border-border bg-background/60 px-3 py-2">
-            <LeadPhaseBadge phase={quote.lead_phase} />
-            {quote.lead_phase === "exclusive" && (
+            <LeadPhaseBadge phase={q.lead_phase} />
+            {q.lead_phase === "exclusive" && (
               <SlaCountdown
-                expiresAt={quote.exclusive_expires_at}
-                pausedAt={quote.exclusive_paused_at}
+                expiresAt={q.exclusive_expires_at}
+                pausedAt={q.exclusive_paused_at}
               />
             )}
             <span className="inline-flex items-center gap-1 rounded-full border border-border bg-card px-2 py-0.5 text-[11px] text-muted-foreground" title="Mover PII visibility">
               <EyeOff className="h-3 w-3" />
               {(() => {
-                const m = quote.visibility_mask ?? {};
+                const m = q.visibility_mask ?? {};
                 const hidden = Object.values(m).filter(Boolean).length;
                 return hidden > 0 ? `${hidden} PII field${hidden > 1 ? "s" : ""} hidden` : "Full visibility";
               })()}
             </span>
-            {quote.closed_reason && (
-              <Badge variant="outline" className="text-[11px] capitalize">Closed · {quote.closed_reason}</Badge>
+            {q.closed_reason && (
+              <Badge variant="outline" className="text-[11px] capitalize">Closed · {q.closed_reason}</Badge>
             )}
 
             {/* Engine quick actions */}
             <div className="ml-auto flex flex-wrap items-center gap-1.5">
-              {quote.lead_phase === "exclusive" && !quote.exclusive_paused_at && (
+              {q.lead_phase === "exclusive" && !q.exclusive_paused_at && (
                 <Button size="sm" variant="ghost" className="h-7 px-2 text-xs"
                   onClick={() => void runEngine(
-                    () => doPause({ data: { quoteId: quote.id, reason: "manual" } }),
+                    () => doPause({ data: { quoteId: q.id, reason: "manual" } }),
                     "SLA paused")}>
                   <PauseCircle className="mr-1 h-3.5 w-3.5" />Pause
                 </Button>
               )}
-              {quote.lead_phase === "exclusive" && quote.exclusive_paused_at && (
+              {q.lead_phase === "exclusive" && q.exclusive_paused_at && (
                 <Button size="sm" variant="ghost" className="h-7 px-2 text-xs"
                   onClick={() => void runEngine(
-                    () => doResume({ data: { quoteId: quote.id } }),
+                    () => doResume({ data: { quoteId: q.id } }),
                     "SLA resumed")}>
                   <PlayCircle className="mr-1 h-3.5 w-3.5" />Resume
                 </Button>
               )}
-              {quote.lead_phase === "exclusive" && (
+              {q.lead_phase === "exclusive" && (
                 <Button size="sm" variant="ghost" className="h-7 px-2 text-xs"
                   onClick={() => void runEngine(
-                    () => doExtend({ data: { quoteId: quote.id, minutes: 60 } }),
+                    () => doExtend({ data: { quoteId: q.id, minutes: 60 } }),
                     "SLA extended +1h")}>
                   <Clock className="mr-1 h-3.5 w-3.5" />+1h
                 </Button>
               )}
-              {quote.lead_phase !== "closed" && (
+              {q.lead_phase !== "closed" && (
                 <Button size="sm" variant="ghost" className="h-7 px-2 text-xs text-rose-700 hover:text-rose-800"
                   onClick={() => {
                     const reason = window.prompt("Close reason (won/lost/cancelled/duplicate/invalid)", "lost");
@@ -293,7 +293,7 @@ export function LeadDetailPanel({
                       toast.error("Invalid reason"); return;
                     }
                     void runEngine(
-                      () => doClose({ data: { quoteId: quote.id, reason: reason as "won" | "lost" | "cancelled" | "duplicate" | "invalid" } }),
+                      () => doClose({ data: { quoteId: q.id, reason: reason as "won" | "lost" | "cancelled" | "duplicate" | "invalid" } }),
                       "Lead closed",
                     );
                   }}>
@@ -316,40 +316,40 @@ export function LeadDetailPanel({
           <TabsContent value="profile" className="px-6 py-4 space-y-4">
             <div className="grid gap-4 md:grid-cols-2">
               <Section title="Customer">
-                <Row label="Name" value={getCustomerName(quote)} />
+                <Row label="Name" value={getCustomerName(q)} />
                 <Row label="Email" value={email} />
                 <Row label="Phone" value={phone} />
                 <Row label="Contact method" value={(details as { contactMethod?: string }).contactMethod} />
                 <Row label="Best time" value={(details as { contactTime?: string }).contactTime} />
               </Section>
               <Section title="Move">
-                <Row label="Date" value={quote.move_date} />
-                <Row label="Time" value={quote.preferred_time} />
-                <Row label="Property" value={quote.property_type} />
-                <Row label="Type" value={quote.move_type} />
-                <Row label="Distance" value={quote.distance_miles ? `${quote.distance_miles} mi` : null} />
-                <Row label="Insurance" value={quote.insurance_tier} />
+                <Row label="Date" value={q.move_date} />
+                <Row label="Time" value={q.preferred_time} />
+                <Row label="Property" value={q.property_type} />
+                <Row label="Type" value={q.move_type} />
+                <Row label="Distance" value={q.distance_miles ? `${q.distance_miles} mi` : null} />
+                <Row label="Insurance" value={q.insurance_tier} />
               </Section>
               <Section title={<span className="inline-flex items-center gap-1"><MapPin className="h-3 w-3" />Origin</span>}>
-                <Row label="Address" value={quote.origin_address} />
-                <Row label="City" value={quote.origin_city} />
-                <Row label="ZIP" value={quote.origin_zip} />
-                <Row label="Floor" value={quote.origin_stairs} />
-                <Row label="Elevator" value={quote.origin_elevator ? "Yes" : "No"} />
+                <Row label="Address" value={q.origin_address} />
+                <Row label="City" value={q.origin_city} />
+                <Row label="ZIP" value={q.origin_zip} />
+                <Row label="Floor" value={q.origin_stairs} />
+                <Row label="Elevator" value={q.origin_elevator ? "Yes" : "No"} />
               </Section>
               <Section title={<span className="inline-flex items-center gap-1"><MapPin className="h-3 w-3" />Destination</span>}>
-                <Row label="Address" value={quote.destination_address} />
-                <Row label="City" value={quote.destination_city} />
-                <Row label="ZIP" value={quote.destination_zip} />
-                <Row label="Floor" value={quote.destination_stairs} />
-                <Row label="Elevator" value={quote.destination_elevator ? "Yes" : "No"} />
+                <Row label="Address" value={q.destination_address} />
+                <Row label="City" value={q.destination_city} />
+                <Row label="ZIP" value={q.destination_zip} />
+                <Row label="Floor" value={q.destination_stairs} />
+                <Row label="Elevator" value={q.destination_elevator ? "Yes" : "No"} />
               </Section>
               <Section title="Logistics">
-                <Row label="Cubic feet" value={quote.estimated_cubic_feet} />
-                <Row label="Weight (lbs)" value={quote.estimated_weight_lbs} />
-                <Row label="Truck size" value={quote.truck_size} />
-                <Row label="Movers" value={quote.num_movers} />
-                <Row label="Labor hours" value={quote.labor_hours} />
+                <Row label="Cubic feet" value={q.estimated_cubic_feet} />
+                <Row label="Weight (lbs)" value={q.estimated_weight_lbs} />
+                <Row label="Truck size" value={q.truck_size} />
+                <Row label="Movers" value={q.num_movers} />
+                <Row label="Labor hours" value={q.labor_hours} />
               </Section>
               {breakdown.length > 0 && (
                 <Section title="Price breakdown">
@@ -382,7 +382,7 @@ export function LeadDetailPanel({
           </TabsContent>
 
           <TabsContent value="assign" className="px-6 py-4">
-            <AssignCompanies quoteId={quote.id} />
+            <AssignCompanies quoteId={q.id} />
           </TabsContent>
 
           <TabsContent value="notes" className="px-6 py-4 space-y-3">
@@ -414,7 +414,7 @@ export function LeadDetailPanel({
           <TabsContent value="timeline" className="px-6 py-4 space-y-6">
             <div>
               <div className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Lead events</div>
-              <LeadEventsTimeline quoteId={quote.id} />
+              <LeadEventsTimeline quoteId={q.id} />
             </div>
             {history.length > 0 && (
               <div>

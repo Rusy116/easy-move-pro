@@ -49,6 +49,59 @@ export type Database = {
           },
         ]
       }
+      audit_log: {
+        Row: {
+          action: string
+          actor_email: string | null
+          actor_id: string | null
+          actor_role: string | null
+          after: Json | null
+          before: Json | null
+          created_at: string
+          entity_id: string | null
+          entity_type: string
+          id: string
+          quote_id: string | null
+          reason: string | null
+        }
+        Insert: {
+          action: string
+          actor_email?: string | null
+          actor_id?: string | null
+          actor_role?: string | null
+          after?: Json | null
+          before?: Json | null
+          created_at?: string
+          entity_id?: string | null
+          entity_type: string
+          id?: string
+          quote_id?: string | null
+          reason?: string | null
+        }
+        Update: {
+          action?: string
+          actor_email?: string | null
+          actor_id?: string | null
+          actor_role?: string | null
+          after?: Json | null
+          before?: Json | null
+          created_at?: string
+          entity_id?: string | null
+          entity_type?: string
+          id?: string
+          quote_id?: string | null
+          reason?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "audit_log_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "quotes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       blog_posts: {
         Row: {
           author_id: string | null
@@ -159,9 +212,144 @@ export type Database = {
         }
         Relationships: []
       }
+      estimate_revisions: {
+        Row: {
+          amount: number
+          assignment_id: string
+          breakdown: Json
+          company_id: string
+          currency: string
+          id: string
+          is_current: boolean
+          notes: string | null
+          quote_id: string
+          revision: number
+          submitted_at: string
+          submitted_by: string | null
+          valid_until: string | null
+        }
+        Insert: {
+          amount: number
+          assignment_id: string
+          breakdown?: Json
+          company_id: string
+          currency?: string
+          id?: string
+          is_current?: boolean
+          notes?: string | null
+          quote_id: string
+          revision?: number
+          submitted_at?: string
+          submitted_by?: string | null
+          valid_until?: string | null
+        }
+        Update: {
+          amount?: number
+          assignment_id?: string
+          breakdown?: Json
+          company_id?: string
+          currency?: string
+          id?: string
+          is_current?: boolean
+          notes?: string | null
+          quote_id?: string
+          revision?: number
+          submitted_at?: string
+          submitted_by?: string | null
+          valid_until?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "estimate_revisions_assignment_id_fkey"
+            columns: ["assignment_id"]
+            isOneToOne: false
+            referencedRelation: "quote_assignments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "estimate_revisions_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "moving_companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "estimate_revisions_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "quotes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lead_events: {
+        Row: {
+          actor_email: string | null
+          actor_id: string | null
+          actor_type: string
+          assignment_id: string | null
+          company_id: string | null
+          created_at: string
+          event_type: string
+          id: string
+          is_public: boolean
+          payload: Json
+          quote_id: string
+        }
+        Insert: {
+          actor_email?: string | null
+          actor_id?: string | null
+          actor_type: string
+          assignment_id?: string | null
+          company_id?: string | null
+          created_at?: string
+          event_type: string
+          id?: string
+          is_public?: boolean
+          payload?: Json
+          quote_id: string
+        }
+        Update: {
+          actor_email?: string | null
+          actor_id?: string | null
+          actor_type?: string
+          assignment_id?: string | null
+          company_id?: string | null
+          created_at?: string
+          event_type?: string
+          id?: string
+          is_public?: boolean
+          payload?: Json
+          quote_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_events_assignment_id_fkey"
+            columns: ["assignment_id"]
+            isOneToOne: false
+            referencedRelation: "quote_assignments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lead_events_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "moving_companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lead_events_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "quotes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       moving_companies: {
         Row: {
           active: boolean
+          approved: boolean
           created_at: string
           dot_number: string | null
           email: string | null
@@ -175,10 +363,12 @@ export type Database = {
           rating: number | null
           service_states: string[]
           slug: string | null
+          suspended: boolean
           updated_at: string
         }
         Insert: {
           active?: boolean
+          approved?: boolean
           created_at?: string
           dot_number?: string | null
           email?: string | null
@@ -192,10 +382,12 @@ export type Database = {
           rating?: number | null
           service_states?: string[]
           slug?: string | null
+          suspended?: boolean
           updated_at?: string
         }
         Update: {
           active?: boolean
+          approved?: boolean
           created_at?: string
           dot_number?: string | null
           email?: string | null
@@ -209,6 +401,7 @@ export type Database = {
           rating?: number | null
           service_states?: string[]
           slug?: string | null
+          suspended?: boolean
           updated_at?: string
         }
         Relationships: []
@@ -242,51 +435,75 @@ export type Database = {
       }
       quote_assignments: {
         Row: {
+          accepted_at: string | null
           assigned_by: string | null
+          closed_at: string | null
           company_id: string
           contacted_at: string | null
           created_at: string
+          decline_reason: string | null
           declined_at: string | null
           id: string
+          invited_at: string
+          is_exclusive: boolean
           lost_at: string | null
           notes: string | null
+          override_mask: Json
           quote_id: string
           quoted_amount: number | null
           quoted_at: string | null
+          sla_due_at: string | null
+          state: Database["public"]["Enums"]["assignment_state_enum"]
           status: string
           updated_at: string
           viewed_at: string | null
           won_at: string | null
         }
         Insert: {
+          accepted_at?: string | null
           assigned_by?: string | null
+          closed_at?: string | null
           company_id: string
           contacted_at?: string | null
           created_at?: string
+          decline_reason?: string | null
           declined_at?: string | null
           id?: string
+          invited_at?: string
+          is_exclusive?: boolean
           lost_at?: string | null
           notes?: string | null
+          override_mask?: Json
           quote_id: string
           quoted_amount?: number | null
           quoted_at?: string | null
+          sla_due_at?: string | null
+          state?: Database["public"]["Enums"]["assignment_state_enum"]
           status?: string
           updated_at?: string
           viewed_at?: string | null
           won_at?: string | null
         }
         Update: {
+          accepted_at?: string | null
           assigned_by?: string | null
+          closed_at?: string | null
           company_id?: string
           contacted_at?: string | null
           created_at?: string
+          decline_reason?: string | null
           declined_at?: string | null
           id?: string
+          invited_at?: string
+          is_exclusive?: boolean
           lost_at?: string | null
           notes?: string | null
+          override_mask?: Json
           quote_id?: string
           quoted_amount?: number | null
           quoted_at?: string | null
+          sla_due_at?: string | null
+          state?: Database["public"]["Enums"]["assignment_state_enum"]
           status?: string
           updated_at?: string
           viewed_at?: string | null
@@ -390,6 +607,10 @@ export type Database = {
           assigned_broker_id: string | null
           bedrooms: number
           breakdown: Json
+          closed_at: string | null
+          closed_reason:
+            | Database["public"]["Enums"]["lead_closed_reason_enum"]
+            | null
           contact_email: string | null
           contact_phone: string | null
           created_at: string
@@ -411,6 +632,11 @@ export type Database = {
           estimated_high: number
           estimated_low: number
           estimated_weight_lbs: number | null
+          exclusive_assignment_id: string | null
+          exclusive_expires_at: string | null
+          exclusive_pause_reason: string | null
+          exclusive_paused_at: string | null
+          exclusive_started_at: string | null
           flexible_date: boolean
           floor: number
           fragile_items: boolean
@@ -423,11 +649,13 @@ export type Database = {
           junk_removal: boolean
           labor_hours: number | null
           last_activity_at: string
+          lead_phase: Database["public"]["Enums"]["lead_phase_enum"]
           long_carry: boolean
           move_date: string | null
           move_size: string | null
           move_type: string | null
           num_movers: number | null
+          open_market_opened_at: string | null
           origin_address: string | null
           origin_city: string | null
           origin_elevator: boolean
@@ -450,6 +678,7 @@ export type Database = {
           truck_size: string | null
           unpacking: boolean
           user_id: string | null
+          visibility_mask: Json
         }
         Insert: {
           accepted_at?: string | null
@@ -458,6 +687,10 @@ export type Database = {
           assigned_broker_id?: string | null
           bedrooms?: number
           breakdown?: Json
+          closed_at?: string | null
+          closed_reason?:
+            | Database["public"]["Enums"]["lead_closed_reason_enum"]
+            | null
           contact_email?: string | null
           contact_phone?: string | null
           created_at?: string
@@ -479,6 +712,11 @@ export type Database = {
           estimated_high: number
           estimated_low: number
           estimated_weight_lbs?: number | null
+          exclusive_assignment_id?: string | null
+          exclusive_expires_at?: string | null
+          exclusive_pause_reason?: string | null
+          exclusive_paused_at?: string | null
+          exclusive_started_at?: string | null
           flexible_date?: boolean
           floor?: number
           fragile_items?: boolean
@@ -491,11 +729,13 @@ export type Database = {
           junk_removal?: boolean
           labor_hours?: number | null
           last_activity_at?: string
+          lead_phase?: Database["public"]["Enums"]["lead_phase_enum"]
           long_carry?: boolean
           move_date?: string | null
           move_size?: string | null
           move_type?: string | null
           num_movers?: number | null
+          open_market_opened_at?: string | null
           origin_address?: string | null
           origin_city?: string | null
           origin_elevator?: boolean
@@ -518,6 +758,7 @@ export type Database = {
           truck_size?: string | null
           unpacking?: boolean
           user_id?: string | null
+          visibility_mask?: Json
         }
         Update: {
           accepted_at?: string | null
@@ -526,6 +767,10 @@ export type Database = {
           assigned_broker_id?: string | null
           bedrooms?: number
           breakdown?: Json
+          closed_at?: string | null
+          closed_reason?:
+            | Database["public"]["Enums"]["lead_closed_reason_enum"]
+            | null
           contact_email?: string | null
           contact_phone?: string | null
           created_at?: string
@@ -547,6 +792,11 @@ export type Database = {
           estimated_high?: number
           estimated_low?: number
           estimated_weight_lbs?: number | null
+          exclusive_assignment_id?: string | null
+          exclusive_expires_at?: string | null
+          exclusive_pause_reason?: string | null
+          exclusive_paused_at?: string | null
+          exclusive_started_at?: string | null
           flexible_date?: boolean
           floor?: number
           fragile_items?: boolean
@@ -559,11 +809,13 @@ export type Database = {
           junk_removal?: boolean
           labor_hours?: number | null
           last_activity_at?: string
+          lead_phase?: Database["public"]["Enums"]["lead_phase_enum"]
           long_carry?: boolean
           move_date?: string | null
           move_size?: string | null
           move_type?: string | null
           num_movers?: number | null
+          open_market_opened_at?: string | null
           origin_address?: string | null
           origin_city?: string | null
           origin_elevator?: boolean
@@ -586,6 +838,45 @@ export type Database = {
           truck_size?: string | null
           unpacking?: boolean
           user_id?: string | null
+          visibility_mask?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quotes_exclusive_assignment_id_fkey"
+            columns: ["exclusive_assignment_id"]
+            isOneToOne: false
+            referencedRelation: "quote_assignments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sla_policies: {
+        Row: {
+          created_at: string
+          exclusive_window_minutes: number
+          id: string
+          is_default: boolean
+          name: string
+          reminder_minutes: number[]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          exclusive_window_minutes?: number
+          id?: string
+          is_default?: boolean
+          name: string
+          reminder_minutes?: number[]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          exclusive_window_minutes?: number
+          id?: string
+          is_default?: boolean
+          name?: string
+          reminder_minutes?: number[]
+          updated_at?: string
         }
         Relationships: []
       }
@@ -636,6 +927,24 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "mover" | "customer"
+      assignment_state_enum:
+        | "invited"
+        | "active"
+        | "quoted"
+        | "accepted"
+        | "won"
+        | "lost"
+        | "declined"
+        | "withdrawn"
+        | "expired"
+      lead_closed_reason_enum:
+        | "won"
+        | "lost"
+        | "cancelled"
+        | "duplicate"
+        | "invalid"
+        | "expired"
+      lead_phase_enum: "unassigned" | "exclusive" | "open_market" | "closed"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -764,6 +1073,26 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "mover", "customer"],
+      assignment_state_enum: [
+        "invited",
+        "active",
+        "quoted",
+        "accepted",
+        "won",
+        "lost",
+        "declined",
+        "withdrawn",
+        "expired",
+      ],
+      lead_closed_reason_enum: [
+        "won",
+        "lost",
+        "cancelled",
+        "duplicate",
+        "invalid",
+        "expired",
+      ],
+      lead_phase_enum: ["unassigned", "exclusive", "open_market", "closed"],
     },
   },
 } as const

@@ -550,6 +550,18 @@ function AdminPage() {
                           <span className="text-muted-foreground text-xs">—</span>
                         )}
                       </TableCell>
+                      <TableCell>
+                        <div className="flex flex-col items-start gap-1">
+                          <LeadPhaseBadge phase={q.lead_phase} />
+                          {q.lead_phase === "exclusive" && (
+                            <SlaCountdown
+                              expiresAt={q.exclusive_expires_at}
+                              pausedAt={q.exclusive_paused_at}
+                              compact
+                            />
+                          )}
+                        </div>
+                      </TableCell>
                       <TableCell onClick={(e) => e.stopPropagation()}>
                         <Select value={q.status} onValueChange={(v) => void updateStatus(q.id, v)}>
                           <SelectTrigger className={`h-7 w-[120px] text-xs capitalize border ${STATUS_STYLES[q.status as Status] ?? ""}`}>

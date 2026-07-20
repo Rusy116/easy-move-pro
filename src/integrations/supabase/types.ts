@@ -158,6 +158,346 @@ export type Database = {
         }
         Relationships: []
       }
+      company_conversations: {
+        Row: {
+          company_id: string
+          created_at: string
+          created_by: string | null
+          id: string
+          kind: Database["public"]["Enums"]["company_conv_kind"]
+          last_message_at: string
+          quote_id: string | null
+          subject: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          kind?: Database["public"]["Enums"]["company_conv_kind"]
+          last_message_at?: string
+          quote_id?: string | null
+          subject: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          kind?: Database["public"]["Enums"]["company_conv_kind"]
+          last_message_at?: string
+          quote_id?: string | null
+          subject?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_conversations_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "moving_companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_conversations_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "mover_lead_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_conversations_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "quotes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      company_crews: {
+        Row: {
+          company_id: string
+          created_at: string
+          id: string
+          lead_name: string | null
+          name: string
+          notes: string | null
+          phone: string | null
+          size: number
+          status: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          id?: string
+          lead_name?: string | null
+          name: string
+          notes?: string | null
+          phone?: string | null
+          size?: number
+          status?: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          id?: string
+          lead_name?: string | null
+          name?: string
+          notes?: string | null
+          phone?: string | null
+          size?: number
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_crews_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "moving_companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      company_documents: {
+        Row: {
+          company_id: string
+          created_at: string
+          external_url: string | null
+          id: string
+          invoice_id: string | null
+          kind: Database["public"]["Enums"]["company_doc_kind"]
+          mime: string | null
+          name: string
+          parent_id: string | null
+          quote_id: string | null
+          size_bytes: number | null
+          storage_path: string | null
+          uploaded_by: string | null
+          version: number
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          external_url?: string | null
+          id?: string
+          invoice_id?: string | null
+          kind?: Database["public"]["Enums"]["company_doc_kind"]
+          mime?: string | null
+          name: string
+          parent_id?: string | null
+          quote_id?: string | null
+          size_bytes?: number | null
+          storage_path?: string | null
+          uploaded_by?: string | null
+          version?: number
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          external_url?: string | null
+          id?: string
+          invoice_id?: string | null
+          kind?: Database["public"]["Enums"]["company_doc_kind"]
+          mime?: string | null
+          name?: string
+          parent_id?: string | null
+          quote_id?: string | null
+          size_bytes?: number | null
+          storage_path?: string | null
+          uploaded_by?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_documents_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "moving_companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_documents_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "company_invoices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_documents_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "company_documents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_documents_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "mover_lead_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_documents_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "quotes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      company_invoice_items: {
+        Row: {
+          amount: number
+          company_id: string
+          created_at: string
+          description: string
+          id: string
+          invoice_id: string
+          position: number
+          quantity: number
+          unit_price: number
+        }
+        Insert: {
+          amount?: number
+          company_id: string
+          created_at?: string
+          description: string
+          id?: string
+          invoice_id: string
+          position?: number
+          quantity?: number
+          unit_price?: number
+        }
+        Update: {
+          amount?: number
+          company_id?: string
+          created_at?: string
+          description?: string
+          id?: string
+          invoice_id?: string
+          position?: number
+          quantity?: number
+          unit_price?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_invoice_items_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "moving_companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_invoice_items_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "company_invoices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      company_invoices: {
+        Row: {
+          amount_paid: number
+          company_id: string
+          created_at: string
+          created_by: string | null
+          currency: string
+          customer_email: string | null
+          customer_name: string | null
+          customer_phone: string | null
+          discount_amount: number
+          due_date: string | null
+          id: string
+          issue_date: string
+          kind: Database["public"]["Enums"]["company_invoice_kind"]
+          notes: string | null
+          number: string
+          paid_at: string | null
+          pdf_path: string | null
+          quote_id: string | null
+          status: Database["public"]["Enums"]["company_invoice_status"]
+          subtotal: number
+          tax_amount: number
+          tax_rate: number
+          total: number
+          updated_at: string
+        }
+        Insert: {
+          amount_paid?: number
+          company_id: string
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          customer_email?: string | null
+          customer_name?: string | null
+          customer_phone?: string | null
+          discount_amount?: number
+          due_date?: string | null
+          id?: string
+          issue_date?: string
+          kind?: Database["public"]["Enums"]["company_invoice_kind"]
+          notes?: string | null
+          number: string
+          paid_at?: string | null
+          pdf_path?: string | null
+          quote_id?: string | null
+          status?: Database["public"]["Enums"]["company_invoice_status"]
+          subtotal?: number
+          tax_amount?: number
+          tax_rate?: number
+          total?: number
+          updated_at?: string
+        }
+        Update: {
+          amount_paid?: number
+          company_id?: string
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          customer_email?: string | null
+          customer_name?: string | null
+          customer_phone?: string | null
+          discount_amount?: number
+          due_date?: string | null
+          id?: string
+          issue_date?: string
+          kind?: Database["public"]["Enums"]["company_invoice_kind"]
+          notes?: string | null
+          number?: string
+          paid_at?: string | null
+          pdf_path?: string | null
+          quote_id?: string | null
+          status?: Database["public"]["Enums"]["company_invoice_status"]
+          subtotal?: number
+          tax_amount?: number
+          tax_rate?: number
+          total?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_invoices_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "moving_companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_invoices_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "mover_lead_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_invoices_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "quotes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       company_members: {
         Row: {
           company_id: string
@@ -183,6 +523,200 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "company_members_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "moving_companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      company_messages: {
+        Row: {
+          attachments: Json
+          body: string
+          company_id: string
+          conversation_id: string
+          created_at: string
+          id: string
+          read_at: string | null
+          sender_name: string | null
+          sender_role: string
+          sender_user_id: string | null
+        }
+        Insert: {
+          attachments?: Json
+          body: string
+          company_id: string
+          conversation_id: string
+          created_at?: string
+          id?: string
+          read_at?: string | null
+          sender_name?: string | null
+          sender_role?: string
+          sender_user_id?: string | null
+        }
+        Update: {
+          attachments?: Json
+          body?: string
+          company_id?: string
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          read_at?: string | null
+          sender_name?: string | null
+          sender_role?: string
+          sender_user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_messages_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "moving_companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "company_conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      company_notifications: {
+        Row: {
+          body: string | null
+          company_id: string
+          created_at: string
+          id: string
+          payload: Json
+          quote_id: string | null
+          read_at: string | null
+          title: string
+          type: string
+          user_id: string | null
+        }
+        Insert: {
+          body?: string | null
+          company_id: string
+          created_at?: string
+          id?: string
+          payload?: Json
+          quote_id?: string | null
+          read_at?: string | null
+          title: string
+          type: string
+          user_id?: string | null
+        }
+        Update: {
+          body?: string | null
+          company_id?: string
+          created_at?: string
+          id?: string
+          payload?: Json
+          quote_id?: string | null
+          read_at?: string | null
+          title?: string
+          type?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_notifications_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "moving_companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_notifications_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "mover_lead_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_notifications_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "quotes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      company_service_areas: {
+        Row: {
+          company_id: string
+          created_at: string
+          id: string
+          kind: Database["public"]["Enums"]["company_service_area_kind"]
+          radius_miles: number | null
+          value: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          id?: string
+          kind: Database["public"]["Enums"]["company_service_area_kind"]
+          radius_miles?: number | null
+          value: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          id?: string
+          kind?: Database["public"]["Enums"]["company_service_area_kind"]
+          radius_miles?: number | null
+          value?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_service_areas_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "moving_companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      company_trucks: {
+        Row: {
+          capacity_cuft: number | null
+          capacity_lbs: number | null
+          company_id: string
+          created_at: string
+          id: string
+          name: string
+          notes: string | null
+          plate: string | null
+          status: string
+        }
+        Insert: {
+          capacity_cuft?: number | null
+          capacity_lbs?: number | null
+          company_id: string
+          created_at?: string
+          id?: string
+          name: string
+          notes?: string | null
+          plate?: string | null
+          status?: string
+        }
+        Update: {
+          capacity_cuft?: number | null
+          capacity_lbs?: number | null
+          company_id?: string
+          created_at?: string
+          id?: string
+          name?: string
+          notes?: string | null
+          plate?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_trucks_company_id_fkey"
             columns: ["company_id"]
             isOneToOne: false
             referencedRelation: "moving_companies"
@@ -1291,6 +1825,7 @@ export type Database = {
         Args: { _assignment_id: string; _reason?: string }
         Returns: undefined
       }
+      generate_company_invoice_number: { Args: never; Returns: string }
       generate_quote_number: { Args: never; Returns: string }
       has_role: {
         Args: {
@@ -1325,6 +1860,26 @@ export type Database = {
         | "declined"
         | "withdrawn"
         | "expired"
+      company_conv_kind: "broker" | "internal"
+      company_doc_kind:
+        | "estimate"
+        | "invoice"
+        | "bill_of_lading"
+        | "contract"
+        | "insurance"
+        | "license"
+        | "photo"
+        | "attachment"
+        | "other"
+      company_invoice_kind: "deposit" | "final" | "extra" | "adjustment"
+      company_invoice_status:
+        | "draft"
+        | "sent"
+        | "partially_paid"
+        | "paid"
+        | "void"
+        | "overdue"
+      company_service_area_kind: "city" | "zip" | "state" | "radius"
       lead_closed_reason_enum:
         | "won"
         | "lost"
@@ -1472,6 +2027,28 @@ export const Constants = {
         "withdrawn",
         "expired",
       ],
+      company_conv_kind: ["broker", "internal"],
+      company_doc_kind: [
+        "estimate",
+        "invoice",
+        "bill_of_lading",
+        "contract",
+        "insurance",
+        "license",
+        "photo",
+        "attachment",
+        "other",
+      ],
+      company_invoice_kind: ["deposit", "final", "extra", "adjustment"],
+      company_invoice_status: [
+        "draft",
+        "sent",
+        "partially_paid",
+        "paid",
+        "void",
+        "overdue",
+      ],
+      company_service_area_kind: ["city", "zip", "state", "radius"],
       lead_closed_reason_enum: [
         "won",
         "lost",

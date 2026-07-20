@@ -1,0 +1,1 @@
+ALTER TABLE public.moving_companies ADD COLUMN IF NOT EXISTS settings jsonb NOT NULL DEFAULT '{}'::jsonb;

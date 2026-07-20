@@ -158,6 +158,20 @@ export function LeadDetailPanel({
     await assignBroker(quote.id, v);
   }
 
+  const doPause = useServerFn(pauseSla);
+  const doResume = useServerFn(resumeSla);
+  const doExtend = useServerFn(extendSla);
+  const doClose = useServerFn(closeLead);
+
+  async function runEngine(fn: () => Promise<unknown>, ok: string) {
+    try {
+      await fn();
+      toast.success(ok);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Failed");
+    }
+  }
+
   return (
     <Sheet open={!!quote} onOpenChange={(o) => !o && onClose()}>
       <SheetContent side="right" className="w-full sm:max-w-2xl overflow-y-auto p-0">

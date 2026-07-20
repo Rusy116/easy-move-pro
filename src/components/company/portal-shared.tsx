@@ -407,7 +407,7 @@ export function LeadDetailDialog({
   const [busy, setBusy] = useState<string | null>(null);
   const [declineReason, setDeclineReason] = useState("");
   const [tab, setTab] = useState<"profile" | "inventory" | "estimate" | "notes" | "timeline">("profile");
-  const [events, setEvents] = useState<Array<{ id: string; event_type: string; actor_role: string; created_at: string }>>([]);
+  const [events, setEvents] = useState<Array<{ id: string; event_type: string; actor_type: string; created_at: string }>>([]);
   const [revisions, setRevisions] = useState<Array<{ id: string; revision: number; amount: number; submitted_at: string; is_current: boolean; notes: string | null; breakdown: Record<string, unknown> | null }>>([]);
 
   const openFn      = useServerFn(moverOpenAssignment);
@@ -419,7 +419,7 @@ export function LeadDetailDialog({
     if (a && !a.viewed_at) { void openFn({ data: { assignmentId: a.id } }).catch(() => {}); }
     // Load timeline + estimate revisions for this quote
     void supabase.from("lead_events")
-      .select("id,event_type,actor_role,created_at")
+      .select("id,event_type,actor_type,created_at")
       .eq("quote_id", l.id)
       .order("created_at", { ascending: false })
       .limit(50)
@@ -627,7 +627,7 @@ export function LeadDetailDialog({
               <li key={ev.id} className="rounded-lg border border-border bg-card/40 px-3 py-2 flex items-center justify-between">
                 <div>
                   <span className="font-medium">{ev.event_type.replace(/\./g, " ")}</span>
-                  <span className="ml-2 text-xs text-muted-foreground">by {ev.actor_role}</span>
+                  <span className="ml-2 text-xs text-muted-foreground">by {ev.actor_type}</span>
                 </div>
                 <span className="text-xs text-muted-foreground">{new Date(ev.created_at).toLocaleString()}</span>
               </li>

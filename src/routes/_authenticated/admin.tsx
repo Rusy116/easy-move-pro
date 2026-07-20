@@ -23,6 +23,8 @@ import {
 import { PageHeader, StatCard } from "@/components/shell/Chrome";
 import { LeadDetailPanel } from "@/components/admin/LeadDetailPanel";
 import { BrokerSelect, assignBroker, useBrokers } from "@/components/admin/BrokerSelect";
+import { LeadPhaseBadge } from "@/components/admin/LeadPhaseBadge";
+import { SlaCountdown } from "@/components/admin/SlaCountdown";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({ meta: [{ title: "Admin — Easy Moving" }] }),
@@ -63,6 +65,12 @@ type QuoteRow = {
   assigned_broker_id: string | null;
   last_activity_at: string | null;
   details: Record<string, unknown> | null;
+  lead_phase: string | null;
+  exclusive_expires_at: string | null;
+  exclusive_paused_at: string | null;
+  exclusive_pause_reason: string | null;
+  visibility_mask: Record<string, boolean> | null;
+  closed_reason: string | null;
   [key: string]: unknown;
 };
 
@@ -485,6 +493,7 @@ function AdminPage() {
                   <TableHead className="text-[11px] uppercase tracking-wider">Estimate</TableHead>
                   <TableHead className="text-[11px] uppercase tracking-wider">Broker</TableHead>
                   <TableHead className="text-[11px] uppercase tracking-wider">Movers</TableHead>
+                  <TableHead className="text-[11px] uppercase tracking-wider">Phase</TableHead>
                   <TableHead className="text-[11px] uppercase tracking-wider">Status</TableHead>
                   <TableHead className="text-[11px] uppercase tracking-wider">Activity</TableHead>
                 </TableRow>
@@ -541,6 +550,18 @@ function AdminPage() {
                           <span className="text-muted-foreground text-xs">—</span>
                         )}
                       </TableCell>
+                      <TableCell>
+                        <div className="flex flex-col items-start gap-1">
+                          <LeadPhaseBadge phase={q.lead_phase} />
+                          {q.lead_phase === "exclusive" && (
+                            <SlaCountdown
+                              expiresAt={q.exclusive_expires_at}
+                              pausedAt={q.exclusive_paused_at}
+                              compact
+                            />
+                          )}
+                        </div>
+                      </TableCell>
                       <TableCell onClick={(e) => e.stopPropagation()}>
                         <Select value={q.status} onValueChange={(v) => void updateStatus(q.id, v)}>
                           <SelectTrigger className={`h-7 w-[120px] text-xs capitalize border ${STATUS_STYLES[q.status as Status] ?? ""}`}>
@@ -558,7 +579,7 @@ function AdminPage() {
                   );
                 })}
                 {rows.length === 0 && !loading && (
-                  <TableRow><TableCell colSpan={11} className="p-8 text-center text-muted-foreground">No quotes match your filters.</TableCell></TableRow>
+                  <TableRow><TableCell colSpan={12} className="p-8 text-center text-muted-foreground">No quotes match your filters.</TableCell></TableRow>
                 )}
               </TableBody>
             </Table>

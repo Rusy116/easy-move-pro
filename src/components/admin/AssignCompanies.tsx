@@ -1,259 +1,348 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useServerFn } from "@tanstack/react-start";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Building2, X } from "lucide-react";
+import { Building2, X, Lock, Globe, Sparkles } from "lucide-react";
+import {
+  assignExclusive, reassignExclusive, withdrawAssignment, forceOpenMarket,
+} from "@/lib/leads.functions";
+import { SlaCountdown } from "./SlaCountdown";
+import { LeadPhaseBadge } from "./LeadPhaseBadge";
 
 type Company = {
   id: string;
   name: string;
-  license_status: string;
-  service_states: string[];
-  active: boolean;
+  service_states: string[] | null;
+  approved: boolean | null;
+  suspended: boolean | null;
 };
 
 type Assignment = {
   id: string;
   quote_id: string;
   company_id: string;
-  status: string;
-  created_at: string;
+  state: string;
+  status: string | null;
+  is_exclusive: boolean;
+  invited_at: string | null;
   viewed_at: string | null;
+  contacted_at: string | null;
   quoted_at: string | null;
   declined_at: string | null;
-  won_at: string | null;
-  lost_at: string | null;
-  quoted_amount: number | null;
+  closed_at: string | null;
+  sla_due_at: string | null;
+  decline_reason: string | null;
+  created_at: string;
 };
 
-export const ASSIGN_STAGES = [
-  "invited",
-  "viewed",
-  "quoted",
-  "negotiating",
-  "accepted",
-  "declined",
-  "won",
-  "lost",
-] as const;
-export type AssignStage = (typeof ASSIGN_STAGES)[number];
+type QuotePhaseRow = {
+  id: string;
+  lead_phase: string | null;
+  exclusive_assignment_id: string | null;
+  exclusive_expires_at: string | null;
+  exclusive_paused_at: string | null;
+  exclusive_pause_reason: string | null;
+};
 
-export const ASSIGN_STAGE_STYLES: Record<string, string> = {
+const STATE_STYLES: Record<string, string> = {
   invited: "bg-blue-100 text-blue-800 border-blue-300",
-  assigned: "bg-blue-100 text-blue-800 border-blue-300",
-  viewed: "bg-sky-100 text-sky-800 border-sky-300",
-  contacted: "bg-sky-100 text-sky-800 border-sky-300",
+  active: "bg-sky-100 text-sky-800 border-sky-300",
   quoted: "bg-purple-100 text-purple-800 border-purple-300",
-  negotiating: "bg-amber-100 text-amber-800 border-amber-300",
   accepted: "bg-emerald-100 text-emerald-800 border-emerald-300",
   declined: "bg-neutral-200 text-neutral-700 border-neutral-300",
-  won: "bg-emerald-600 text-white border-emerald-700",
+  expired: "bg-rose-100 text-rose-800 border-rose-300",
+  withdrawn: "bg-slate-200 text-slate-700 border-slate-300",
+  superseded: "bg-slate-200 text-slate-700 border-slate-300",
   lost: "bg-rose-100 text-rose-800 border-rose-300",
 };
 
-function stageStampField(stage: string): keyof Assignment | null {
-  switch (stage) {
-    case "viewed": return "viewed_at";
-    case "quoted": return "quoted_at";
-    case "declined": return "declined_at";
-    case "won": return "won_at";
-    case "lost": return "lost_at";
-    default: return null;
-  }
-}
+const TERMINAL = new Set(["accepted", "declined", "expired", "withdrawn", "superseded", "lost"]);
 
 export function AssignCompanies({ quoteId }: { quoteId: string }) {
   const [companies, setCompanies] = useState<Company[]>([]);
   const [assignments, setAssignments] = useState<Assignment[]>([]);
+  const [quote, setQuote] = useState<QuotePhaseRow | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
+  const [slaHours, setSlaHours] = useState<number>(12);
 
-  useEffect(() => {
-    (async () => {
-      const [{ data: cs }, { data: asg }] = await Promise.all([
-        supabase.from("moving_companies").select("*").eq("active", true).order("name"),
-        supabase.from("quote_assignments").select("*").eq("quote_id", quoteId),
-      ]);
-      setCompanies((cs ?? []) as Company[]);
-      setAssignments((asg ?? []) as Assignment[]);
-    })();
+  const doAssignExclusive = useServerFn(assignExclusive);
+  const doReassignExclusive = useServerFn(reassignExclusive);
+  const doWithdraw = useServerFn(withdrawAssignment);
+  const doForceOpen = useServerFn(forceOpenMarket);
+
+  const reload = useCallback(async () => {
+    const [{ data: cs }, { data: asg }, { data: q }] = await Promise.all([
+      supabase
+        .from("moving_companies")
+        .select("id,name,service_states,approved,suspended")
+        .order("name"),
+      supabase.from("quote_assignments").select("*").eq("quote_id", quoteId).order("created_at", { ascending: false }),
+      supabase
+        .from("quotes")
+        .select("id,lead_phase,exclusive_assignment_id,exclusive_expires_at,exclusive_paused_at,exclusive_pause_reason")
+        .eq("id", quoteId)
+        .maybeSingle(),
+    ]);
+    setCompanies((cs ?? []) as Company[]);
+    setAssignments((asg ?? []) as Assignment[]);
+    setQuote((q ?? null) as QuotePhaseRow | null);
   }, [quoteId]);
 
-  const assignedIds = new Set(assignments.map((a) => a.company_id));
-  const available = companies.filter((c) => !assignedIds.has(c.id));
+  useEffect(() => {
+    void reload();
+    const ch = supabase
+      .channel(`assign-${quoteId}`)
+      .on("postgres_changes",
+        { event: "*", schema: "public", table: "quote_assignments", filter: `quote_id=eq.${quoteId}` },
+        () => void reload())
+      .on("postgres_changes",
+        { event: "UPDATE", schema: "public", table: "quotes", filter: `id=eq.${quoteId}` },
+        (p) => setQuote(p.new as QuotePhaseRow))
+      .subscribe();
+    return () => { void supabase.removeChannel(ch); };
+  }, [quoteId, reload]);
+
+  const activeAssignments = assignments.filter((a) => !TERMINAL.has(a.state));
+  const historical = assignments.filter((a) => TERMINAL.has(a.state));
+  const activeCompanyIds = new Set(activeAssignments.map((a) => a.company_id));
+  const available = companies.filter((c) => !activeCompanyIds.has(c.id) && !c.suspended);
+
+  const phase = quote?.lead_phase ?? "unassigned";
+  const isExclusive = phase === "exclusive";
+  const isOpenMarket = phase === "open_market";
+  const isClosed = phase === "closed";
 
   async function assign(companyId: string) {
     setBusy(companyId);
-    const { data: userData } = await supabase.auth.getUser();
-    const { data, error } = await supabase
-      .from("quote_assignments")
-      .insert({
-        quote_id: quoteId,
-        company_id: companyId,
-        status: "invited",
-        assigned_by: userData.user?.id,
-      })
-      .select("*")
-      .single();
-    setBusy(null);
-    if (error) return toast.error(error.message);
-    setAssignments((prev) => [...prev, data as Assignment]);
-    toast.success("Invited");
+    try {
+      if (isExclusive) {
+        await doReassignExclusive({ data: { quoteId, newCompanyId: companyId, slaHours } });
+        toast.success("Reassigned exclusively");
+      } else {
+        await doAssignExclusive({ data: { quoteId, companyId, slaHours } });
+        toast.success(`Assigned · ${slaHours}h exclusive`);
+      }
+      await reload();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Failed");
+    } finally {
+      setBusy(null);
+    }
   }
 
-  async function unassign(a: Assignment) {
+  async function withdraw(a: Assignment) {
     setBusy(a.id);
-    const { error } = await supabase.from("quote_assignments").delete().eq("id", a.id);
-    setBusy(null);
-    if (error) return toast.error(error.message);
-    setAssignments((prev) => prev.filter((x) => x.id !== a.id));
-    toast.success("Removed");
+    try {
+      await doWithdraw({ data: { assignmentId: a.id } });
+      toast.success("Assignment withdrawn");
+      await reload();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Failed");
+    } finally {
+      setBusy(null);
+    }
   }
 
-  async function updateStage(a: Assignment, stage: AssignStage) {
-    const patch: {
-      status: string;
-      viewed_at?: string;
-      quoted_at?: string;
-      declined_at?: string;
-      won_at?: string;
-      lost_at?: string;
-    } = { status: stage };
-    const stamp = stageStampField(stage);
-    if (stamp && !a[stamp]) (patch as Record<string, string>)[stamp] = new Date().toISOString();
-    const { data, error } = await supabase
-      .from("quote_assignments")
-      .update(patch)
-      .eq("id", a.id)
-      .select("*")
-      .single();
-    if (error) return toast.error(error.message);
-    setAssignments((prev) => prev.map((x) => (x.id === a.id ? (data as Assignment) : x)));
-  }
-
-  async function updateQuoted(a: Assignment, amount: number | null) {
-    const { data, error } = await supabase
-      .from("quote_assignments")
-      .update({ quoted_amount: amount })
-      .eq("id", a.id)
-      .select("*")
-      .single();
-    if (error) return toast.error(error.message);
-    setAssignments((prev) => prev.map((x) => (x.id === a.id ? (data as Assignment) : x)));
+  async function openMarket() {
+    setBusy("open-market");
+    try {
+      await doForceOpen({ data: { quoteId, reason: "broker_force" } });
+      toast.success("Lead released to open market");
+      await reload();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Failed");
+    } finally {
+      setBusy(null);
+    }
   }
 
   return (
-    <div className="rounded-xl border border-border bg-card/50 p-4">
-      <div className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-        <Building2 className="h-4 w-4" />
-        Assigned moving companies ({assignments.length})
+    <div className="space-y-4">
+      {/* Phase header */}
+      <div className="rounded-xl border border-border bg-card/50 p-4">
+        <div className="flex flex-wrap items-center gap-2">
+          <LeadPhaseBadge phase={phase} />
+          {isExclusive && (
+            <SlaCountdown
+              expiresAt={quote?.exclusive_expires_at ?? null}
+              pausedAt={quote?.exclusive_paused_at ?? null}
+            />
+          )}
+          {quote?.exclusive_pause_reason && (
+            <span className="text-xs text-muted-foreground">
+              Paused: {quote.exclusive_pause_reason}
+            </span>
+          )}
+          <div className="ml-auto flex flex-wrap items-center gap-2">
+            {!isClosed && (isExclusive || activeAssignments.length > 0) && (
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => void openMarket()}
+                disabled={busy === "open-market"}
+              >
+                <Globe className="mr-1.5 h-3.5 w-3.5" />
+                Force open market
+              </Button>
+            )}
+          </div>
+        </div>
       </div>
 
-      {assignments.length === 0 && (
-        <p className="text-sm text-muted-foreground mb-3">
-          Not yet assigned. Invite one or more companies below.
-        </p>
-      )}
+      {/* Active assignments */}
+      <div className="rounded-xl border border-border bg-card/50 p-4">
+        <div className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <Building2 className="h-4 w-4" />
+          Active assignments ({activeAssignments.length})
+        </div>
 
-      <div className="space-y-2">
-        {assignments.map((a) => {
-          const c = companies.find((x) => x.id === a.company_id);
-          return (
-            <div
-              key={a.id}
-              className="rounded-lg border border-border bg-background p-3 text-sm"
-            >
-              <div className="flex items-start justify-between gap-2">
-                <div className="min-w-0 flex-1">
-                  <div className="font-medium truncate">{c?.name ?? "Unknown company"}</div>
-                  <div className="mt-0.5 text-xs text-muted-foreground">
-                    Invited {new Date(a.created_at).toLocaleDateString()}
-                    {a.viewed_at && ` · Viewed ${new Date(a.viewed_at).toLocaleDateString()}`}
-                    {a.quoted_at && ` · Quoted ${new Date(a.quoted_at).toLocaleDateString()}`}
+        {activeAssignments.length === 0 && (
+          <p className="text-sm text-muted-foreground mb-3">
+            No active assignments.
+          </p>
+        )}
+
+        <div className="space-y-2">
+          {activeAssignments.map((a) => {
+            const c = companies.find((x) => x.id === a.company_id);
+            return (
+              <div key={a.id} className="rounded-lg border border-border bg-background p-3 text-sm">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2 font-medium">
+                      <span className="truncate">{c?.name ?? "Unknown company"}</span>
+                      {a.is_exclusive && (
+                        <Badge variant="outline" className="border-indigo-300 bg-indigo-50 text-indigo-800 text-[10px]">
+                          <Lock className="mr-0.5 h-2.5 w-2.5" />Exclusive
+                        </Badge>
+                      )}
+                      {!a.is_exclusive && (
+                        <Badge variant="outline" className="border-amber-300 bg-amber-50 text-amber-900 text-[10px]">
+                          <Sparkles className="mr-0.5 h-2.5 w-2.5" />Open market
+                        </Badge>
+                      )}
+                    </div>
+                    <div className="mt-1 flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
+                      <span>Invited {new Date(a.invited_at ?? a.created_at).toLocaleString()}</span>
+                      {a.viewed_at && <span>· Viewed {new Date(a.viewed_at).toLocaleString()}</span>}
+                      {a.contacted_at && <span>· Contacted {new Date(a.contacted_at).toLocaleString()}</span>}
+                    </div>
                   </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => void withdraw(a)}
+                    disabled={busy === a.id}
+                    aria-label="Withdraw"
+                    title="Withdraw assignment"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
                 </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => void unassign(a)}
-                  disabled={busy === a.id}
-                  aria-label="Remove"
-                >
-                  <X className="h-4 w-4" />
-                </Button>
+                <div className="mt-2 flex flex-wrap items-center gap-2">
+                  <Badge
+                    variant="outline"
+                    className={`capitalize text-xs ${STATE_STYLES[a.state] ?? ""}`}
+                  >
+                    {a.state}
+                  </Badge>
+                  {a.is_exclusive && a.sla_due_at && (
+                    <SlaCountdown
+                      expiresAt={a.sla_due_at}
+                      pausedAt={quote?.exclusive_paused_at ?? null}
+                      compact
+                    />
+                  )}
+                </div>
               </div>
-              <div className="mt-2 flex flex-wrap items-center gap-2">
-                <Select value={a.status} onValueChange={(v) => void updateStage(a, v as AssignStage)}>
-                  <SelectTrigger className={`h-7 w-[140px] text-xs capitalize border ${ASSIGN_STAGE_STYLES[a.status] ?? ""}`}>
-                    <SelectValue />
-                  </SelectTrigger>
+            );
+          })}
+        </div>
+
+        {/* Invite / reassign */}
+        {!isClosed && available.length > 0 && (
+          <div className="mt-4 border-t border-border pt-3">
+            <div className="mb-2 flex items-center gap-2 text-xs text-muted-foreground">
+              <span>{isExclusive ? "Reassign to:" : "Assign exclusively to:"}</span>
+              <div className="ml-auto flex items-center gap-1">
+                <span>SLA</span>
+                <Select value={String(slaHours)} onValueChange={(v) => setSlaHours(Number(v))}>
+                  <SelectTrigger className="h-7 w-[80px] text-xs"><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    {ASSIGN_STAGES.map((s) => (
-                      <SelectItem key={s} value={s} className="capitalize text-xs">{s}</SelectItem>
+                    {[6, 12, 24, 48].map((h) => (
+                      <SelectItem key={h} value={String(h)} className="text-xs">{h}h</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
-                <div className="inline-flex items-center gap-1">
-                  <span className="text-xs text-muted-foreground">Quoted $</span>
-                  <Input
-                    type="number"
-                    className="h-7 w-24 text-xs"
-                    placeholder="0"
-                    defaultValue={a.quoted_amount ?? ""}
-                    onBlur={(e) => {
-                      const v = e.target.value.trim() === "" ? null : Number(e.target.value);
-                      if (v !== a.quoted_amount) void updateQuoted(a, v);
-                    }}
-                  />
-                </div>
-                {a.status === "won" && (
-                  <Badge className="bg-emerald-600 text-white">WON</Badge>
-                )}
               </div>
             </div>
-          );
-        })}
+            <div className="flex flex-wrap gap-2">
+              {available.map((c) => (
+                <Button
+                  key={c.id}
+                  size="sm"
+                  variant="outline"
+                  onClick={() => void assign(c.id)}
+                  disabled={busy === c.id}
+                >
+                  + {c.name}
+                  {c.approved === false && (
+                    <span className="ml-1 text-[10px] text-amber-700">(unapproved)</span>
+                  )}
+                  {c.service_states && c.service_states.length > 0 && (
+                    <span className="ml-1.5 text-xs text-muted-foreground">
+                      ({c.service_states.join(",")})
+                    </span>
+                  )}
+                </Button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {isOpenMarket && (
+          <p className="mt-3 text-xs text-muted-foreground">
+            Lead is in the open market. Approved companies can discover and claim it.
+          </p>
+        )}
+
+        {companies.length === 0 && (
+          <p className="text-sm text-muted-foreground">
+            No companies yet.{" "}
+            <a href="/admin/companies" className="text-primary hover:underline">
+              Create one →
+            </a>
+          </p>
+        )}
       </div>
 
-      {available.length > 0 && (
-        <div className="mt-3">
-          <div className="text-xs text-muted-foreground mb-1.5">Invite companies:</div>
-          <div className="flex flex-wrap gap-2">
-            {available.map((c) => (
-              <Button
-                key={c.id}
-                size="sm"
-                variant="outline"
-                onClick={() => void assign(c.id)}
-                disabled={busy === c.id}
-              >
-                + {c.name}
-                {c.service_states.length > 0 && (
-                  <span className="ml-1.5 text-xs text-muted-foreground">
-                    ({c.service_states.join(",")})
+      {/* History */}
+      {historical.length > 0 && (
+        <details className="rounded-xl border border-border bg-card/30 p-4 text-sm">
+          <summary className="cursor-pointer text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            History ({historical.length})
+          </summary>
+          <div className="mt-2 space-y-1.5">
+            {historical.map((a) => {
+              const c = companies.find((x) => x.id === a.company_id);
+              return (
+                <div key={a.id} className="flex flex-wrap items-center gap-2 text-xs">
+                  <span className="font-medium">{c?.name ?? "—"}</span>
+                  <Badge variant="outline" className={`capitalize ${STATE_STYLES[a.state] ?? ""}`}>{a.state}</Badge>
+                  <span className="text-muted-foreground">
+                    {new Date(a.closed_at ?? a.created_at).toLocaleString()}
                   </span>
-                )}
-              </Button>
-            ))}
+                  {a.decline_reason && <span className="text-muted-foreground">· {a.decline_reason}</span>}
+                </div>
+              );
+            })}
           </div>
-        </div>
-      )}
-
-      {companies.length === 0 && (
-        <p className="text-sm text-muted-foreground">
-          No companies yet.{" "}
-          <a href="/admin/companies" className="text-primary hover:underline">
-            Create one →
-          </a>
-        </p>
+        </details>
       )}
     </div>
   );

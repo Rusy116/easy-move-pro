@@ -11,11 +11,16 @@ import { Textarea } from "@/components/ui/textarea";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
-import { Phone, Mail, StickyNote, Clock, ExternalLink, Building2, User, Package, MapPin } from "lucide-react";
+import { Phone, Mail, StickyNote, Clock, ExternalLink, Building2, User, Package, MapPin, EyeOff, PauseCircle, PlayCircle, XCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { AssignCompanies } from "./AssignCompanies";
 import { BrokerSelect, assignBroker } from "./BrokerSelect";
+import { SlaCountdown } from "./SlaCountdown";
+import { LeadPhaseBadge } from "./LeadPhaseBadge";
+import { LeadEventsTimeline } from "./LeadEventsTimeline";
+import { pauseSla, resumeSla, extendSla, closeLead } from "@/lib/leads.functions";
 
 export const LEAD_STATUSES = ["new", "contacted", "scheduled", "won", "lost", "cancelled"] as const;
 
@@ -69,6 +74,12 @@ type Quote = {
   details: Record<string, unknown> | null;
   inventory: Array<{ id: string; quantity: number }>;
   breakdown: Array<{ label: string; amount: number }>;
+  lead_phase: string | null;
+  exclusive_expires_at: string | null;
+  exclusive_paused_at: string | null;
+  exclusive_pause_reason: string | null;
+  visibility_mask: Record<string, boolean> | null;
+  closed_reason: string | null;
 };
 
 function getCustomerName(q: Quote): string {
@@ -147,6 +158,20 @@ export function LeadDetailPanel({
     await assignBroker(quote.id, v);
   }
 
+  const doPause = useServerFn(pauseSla);
+  const doResume = useServerFn(resumeSla);
+  const doExtend = useServerFn(extendSla);
+  const doClose = useServerFn(closeLead);
+
+  async function runEngine(fn: () => Promise<unknown>, ok: string) {
+    try {
+      await fn();
+      toast.success(ok);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Failed");
+    }
+  }
+
   return (
     <Sheet open={!!quote} onOpenChange={(o) => !o && onClose()}>
       <SheetContent side="right" className="w-full sm:max-w-2xl overflow-y-auto p-0">
@@ -201,6 +226,72 @@ export function LeadDetailPanel({
               label="Estimate"
               value={`$${Number(quote.estimated_low).toLocaleString()}–$${Number(quote.estimated_high).toLocaleString()}`}
             />
+          </div>
+
+          {/* Lead phase / SLA / visibility */}
+          <div className="mt-3 flex flex-wrap items-center gap-2 rounded-lg border border-border bg-background/60 px-3 py-2">
+            <LeadPhaseBadge phase={quote.lead_phase} />
+            {quote.lead_phase === "exclusive" && (
+              <SlaCountdown
+                expiresAt={quote.exclusive_expires_at}
+                pausedAt={quote.exclusive_paused_at}
+              />
+            )}
+            <span className="inline-flex items-center gap-1 rounded-full border border-border bg-card px-2 py-0.5 text-[11px] text-muted-foreground" title="Mover PII visibility">
+              <EyeOff className="h-3 w-3" />
+              {(() => {
+                const m = quote.visibility_mask ?? {};
+                const hidden = Object.values(m).filter(Boolean).length;
+                return hidden > 0 ? `${hidden} PII field${hidden > 1 ? "s" : ""} hidden` : "Full visibility";
+              })()}
+            </span>
+            {quote.closed_reason && (
+              <Badge variant="outline" className="text-[11px] capitalize">Closed · {quote.closed_reason}</Badge>
+            )}
+
+            {/* Engine quick actions */}
+            <div className="ml-auto flex flex-wrap items-center gap-1.5">
+              {quote.lead_phase === "exclusive" && !quote.exclusive_paused_at && (
+                <Button size="sm" variant="ghost" className="h-7 px-2 text-xs"
+                  onClick={() => void runEngine(
+                    () => doPause({ data: { quoteId: quote.id, reason: "manual" } }),
+                    "SLA paused")}>
+                  <PauseCircle className="mr-1 h-3.5 w-3.5" />Pause
+                </Button>
+              )}
+              {quote.lead_phase === "exclusive" && quote.exclusive_paused_at && (
+                <Button size="sm" variant="ghost" className="h-7 px-2 text-xs"
+                  onClick={() => void runEngine(
+                    () => doResume({ data: { quoteId: quote.id } }),
+                    "SLA resumed")}>
+                  <PlayCircle className="mr-1 h-3.5 w-3.5" />Resume
+                </Button>
+              )}
+              {quote.lead_phase === "exclusive" && (
+                <Button size="sm" variant="ghost" className="h-7 px-2 text-xs"
+                  onClick={() => void runEngine(
+                    () => doExtend({ data: { quoteId: quote.id, minutes: 60 } }),
+                    "SLA extended +1h")}>
+                  <Clock className="mr-1 h-3.5 w-3.5" />+1h
+                </Button>
+              )}
+              {quote.lead_phase !== "closed" && (
+                <Button size="sm" variant="ghost" className="h-7 px-2 text-xs text-rose-700 hover:text-rose-800"
+                  onClick={() => {
+                    const reason = window.prompt("Close reason (won/lost/cancelled/duplicate/invalid)", "lost");
+                    if (!reason) return;
+                    if (!["won", "lost", "cancelled", "duplicate", "invalid"].includes(reason)) {
+                      toast.error("Invalid reason"); return;
+                    }
+                    void runEngine(
+                      () => doClose({ data: { quoteId: quote.id, reason: reason as "won" | "lost" | "cancelled" | "duplicate" | "invalid" } }),
+                      "Lead closed",
+                    );
+                  }}>
+                  <XCircle className="mr-1 h-3.5 w-3.5" />Close
+                </Button>
+              )}
+            </div>
           </div>
         </div>
 
@@ -311,23 +402,31 @@ export function LeadDetailPanel({
             </div>
           </TabsContent>
 
-          <TabsContent value="timeline" className="px-6 py-4">
-            <ol className="relative border-l border-border ml-2 space-y-3">
-              {history.map((h) => (
-                <li key={h.id} className="ml-4 relative">
-                  <div className="absolute -left-[1.35rem] mt-1.5 h-3 w-3 rounded-full bg-primary border border-background" />
-                  <div className="text-sm">
-                    <span className="capitalize font-medium">{h.to_status}</span>
-                    {h.from_status && <span className="text-muted-foreground"> ← {h.from_status}</span>}
-                  </div>
-                  <div className="text-xs text-muted-foreground">
-                    {new Date(h.created_at).toLocaleString()}
-                    {h.changed_by_email && ` · ${h.changed_by_email}`}
-                  </div>
-                </li>
-              ))}
-              {history.length === 0 && <li className="ml-4 text-sm text-muted-foreground">No changes yet.</li>}
-            </ol>
+          <TabsContent value="timeline" className="px-6 py-4 space-y-6">
+            <div>
+              <div className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Lead events</div>
+              <LeadEventsTimeline quoteId={quote.id} />
+            </div>
+            {history.length > 0 && (
+              <div>
+                <div className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Status changes</div>
+                <ol className="relative border-l border-border ml-2 space-y-3">
+                  {history.map((h) => (
+                    <li key={h.id} className="ml-4 relative">
+                      <div className="absolute -left-[1.35rem] mt-1.5 h-3 w-3 rounded-full bg-primary border border-background" />
+                      <div className="text-sm">
+                        <span className="capitalize font-medium">{h.to_status}</span>
+                        {h.from_status && <span className="text-muted-foreground"> ← {h.from_status}</span>}
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {new Date(h.created_at).toLocaleString()}
+                        {h.changed_by_email && ` · ${h.changed_by_email}`}
+                      </div>
+                    </li>
+                  ))}
+                </ol>
+              </div>
+            )}
           </TabsContent>
         </Tabs>
       </SheetContent>

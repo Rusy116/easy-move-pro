@@ -182,7 +182,7 @@ export function LeadDetailPanel({
   }
 
   return (
-    <Sheet open={!!q} onOpenChange={(o) => !o && onClose()}>
+    <Sheet open={!!quote} onOpenChange={(o) => !o && onClose()}>
       <SheetContent side="right" className="w-full sm:max-w-2xl overflow-y-auto p-0">
         <div className="sticky top-0 z-10 border-b border-border bg-card px-6 py-4">
           <SheetHeader>

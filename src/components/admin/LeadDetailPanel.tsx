@@ -149,7 +149,7 @@ export function LeadDetailPanel({
 
   async function addNote() {
     if (!q || !newNote.trim()) return;
-    const q = q;
+    const currentQ = q;
     setSavingNote(true);
     const { data: userData } = await supabase.auth.getUser();
     const { error } = await supabase.from("quote_notes").insert({

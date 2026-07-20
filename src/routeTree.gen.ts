@@ -28,6 +28,13 @@ import { Route as AuthenticatedCompanyRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedCompanyIndexRouteImport } from './routes/_authenticated/company.index'
 import { Route as ApiPublicSlaTickRouteImport } from './routes/api/public/sla-tick'
+import { Route as AuthenticatedCompanySettingsRouteImport } from './routes/_authenticated/company.settings'
+import { Route as AuthenticatedCompanyProfileRouteImport } from './routes/_authenticated/company.profile'
+import { Route as AuthenticatedCompanyMarketplaceRouteImport } from './routes/_authenticated/company.marketplace'
+import { Route as AuthenticatedCompanyLeadsRouteImport } from './routes/_authenticated/company.leads'
+import { Route as AuthenticatedCompanyExclusiveRouteImport } from './routes/_authenticated/company.exclusive'
+import { Route as AuthenticatedCompanyEstimatesRouteImport } from './routes/_authenticated/company.estimates'
+import { Route as AuthenticatedCompanyDashboardRouteImport } from './routes/_authenticated/company.dashboard'
 import { Route as AuthenticatedAdminDashboardRouteImport } from './routes/_authenticated/admin.dashboard'
 import { Route as AuthenticatedAdminCompaniesRouteImport } from './routes/_authenticated/admin.companies'
 
@@ -126,6 +133,48 @@ const ApiPublicSlaTickRoute = ApiPublicSlaTickRouteImport.update({
   path: '/api/public/sla-tick',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedCompanySettingsRoute =
+  AuthenticatedCompanySettingsRouteImport.update({
+    id: '/settings',
+    path: '/settings',
+    getParentRoute: () => AuthenticatedCompanyRoute,
+  } as any)
+const AuthenticatedCompanyProfileRoute =
+  AuthenticatedCompanyProfileRouteImport.update({
+    id: '/profile',
+    path: '/profile',
+    getParentRoute: () => AuthenticatedCompanyRoute,
+  } as any)
+const AuthenticatedCompanyMarketplaceRoute =
+  AuthenticatedCompanyMarketplaceRouteImport.update({
+    id: '/marketplace',
+    path: '/marketplace',
+    getParentRoute: () => AuthenticatedCompanyRoute,
+  } as any)
+const AuthenticatedCompanyLeadsRoute =
+  AuthenticatedCompanyLeadsRouteImport.update({
+    id: '/leads',
+    path: '/leads',
+    getParentRoute: () => AuthenticatedCompanyRoute,
+  } as any)
+const AuthenticatedCompanyExclusiveRoute =
+  AuthenticatedCompanyExclusiveRouteImport.update({
+    id: '/exclusive',
+    path: '/exclusive',
+    getParentRoute: () => AuthenticatedCompanyRoute,
+  } as any)
+const AuthenticatedCompanyEstimatesRoute =
+  AuthenticatedCompanyEstimatesRouteImport.update({
+    id: '/estimates',
+    path: '/estimates',
+    getParentRoute: () => AuthenticatedCompanyRoute,
+  } as any)
+const AuthenticatedCompanyDashboardRoute =
+  AuthenticatedCompanyDashboardRouteImport.update({
+    id: '/dashboard',
+    path: '/dashboard',
+    getParentRoute: () => AuthenticatedCompanyRoute,
+  } as any)
 const AuthenticatedAdminDashboardRoute =
   AuthenticatedAdminDashboardRouteImport.update({
     id: '/dashboard',
@@ -158,6 +207,13 @@ export interface FileRoutesByFullPath {
   '/cities/': typeof CitiesIndexRoute
   '/admin/companies': typeof AuthenticatedAdminCompaniesRoute
   '/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
+  '/company/dashboard': typeof AuthenticatedCompanyDashboardRoute
+  '/company/estimates': typeof AuthenticatedCompanyEstimatesRoute
+  '/company/exclusive': typeof AuthenticatedCompanyExclusiveRoute
+  '/company/leads': typeof AuthenticatedCompanyLeadsRoute
+  '/company/marketplace': typeof AuthenticatedCompanyMarketplaceRoute
+  '/company/profile': typeof AuthenticatedCompanyProfileRoute
+  '/company/settings': typeof AuthenticatedCompanySettingsRoute
   '/api/public/sla-tick': typeof ApiPublicSlaTickRoute
   '/company/': typeof AuthenticatedCompanyIndexRoute
 }
@@ -179,6 +235,13 @@ export interface FileRoutesByTo {
   '/cities': typeof CitiesIndexRoute
   '/admin/companies': typeof AuthenticatedAdminCompaniesRoute
   '/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
+  '/company/dashboard': typeof AuthenticatedCompanyDashboardRoute
+  '/company/estimates': typeof AuthenticatedCompanyEstimatesRoute
+  '/company/exclusive': typeof AuthenticatedCompanyExclusiveRoute
+  '/company/leads': typeof AuthenticatedCompanyLeadsRoute
+  '/company/marketplace': typeof AuthenticatedCompanyMarketplaceRoute
+  '/company/profile': typeof AuthenticatedCompanyProfileRoute
+  '/company/settings': typeof AuthenticatedCompanySettingsRoute
   '/api/public/sla-tick': typeof ApiPublicSlaTickRoute
   '/company': typeof AuthenticatedCompanyIndexRoute
 }
@@ -203,6 +266,13 @@ export interface FileRoutesById {
   '/cities/': typeof CitiesIndexRoute
   '/_authenticated/admin/companies': typeof AuthenticatedAdminCompaniesRoute
   '/_authenticated/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
+  '/_authenticated/company/dashboard': typeof AuthenticatedCompanyDashboardRoute
+  '/_authenticated/company/estimates': typeof AuthenticatedCompanyEstimatesRoute
+  '/_authenticated/company/exclusive': typeof AuthenticatedCompanyExclusiveRoute
+  '/_authenticated/company/leads': typeof AuthenticatedCompanyLeadsRoute
+  '/_authenticated/company/marketplace': typeof AuthenticatedCompanyMarketplaceRoute
+  '/_authenticated/company/profile': typeof AuthenticatedCompanyProfileRoute
+  '/_authenticated/company/settings': typeof AuthenticatedCompanySettingsRoute
   '/api/public/sla-tick': typeof ApiPublicSlaTickRoute
   '/_authenticated/company/': typeof AuthenticatedCompanyIndexRoute
 }
@@ -227,6 +297,13 @@ export interface FileRouteTypes {
     | '/cities/'
     | '/admin/companies'
     | '/admin/dashboard'
+    | '/company/dashboard'
+    | '/company/estimates'
+    | '/company/exclusive'
+    | '/company/leads'
+    | '/company/marketplace'
+    | '/company/profile'
+    | '/company/settings'
     | '/api/public/sla-tick'
     | '/company/'
   fileRoutesByTo: FileRoutesByTo
@@ -248,6 +325,13 @@ export interface FileRouteTypes {
     | '/cities'
     | '/admin/companies'
     | '/admin/dashboard'
+    | '/company/dashboard'
+    | '/company/estimates'
+    | '/company/exclusive'
+    | '/company/leads'
+    | '/company/marketplace'
+    | '/company/profile'
+    | '/company/settings'
     | '/api/public/sla-tick'
     | '/company'
   id:
@@ -271,6 +355,13 @@ export interface FileRouteTypes {
     | '/cities/'
     | '/_authenticated/admin/companies'
     | '/_authenticated/admin/dashboard'
+    | '/_authenticated/company/dashboard'
+    | '/_authenticated/company/estimates'
+    | '/_authenticated/company/exclusive'
+    | '/_authenticated/company/leads'
+    | '/_authenticated/company/marketplace'
+    | '/_authenticated/company/profile'
+    | '/_authenticated/company/settings'
     | '/api/public/sla-tick'
     | '/_authenticated/company/'
   fileRoutesById: FileRoutesById
@@ -428,6 +519,55 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicSlaTickRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/company/settings': {
+      id: '/_authenticated/company/settings'
+      path: '/settings'
+      fullPath: '/company/settings'
+      preLoaderRoute: typeof AuthenticatedCompanySettingsRouteImport
+      parentRoute: typeof AuthenticatedCompanyRoute
+    }
+    '/_authenticated/company/profile': {
+      id: '/_authenticated/company/profile'
+      path: '/profile'
+      fullPath: '/company/profile'
+      preLoaderRoute: typeof AuthenticatedCompanyProfileRouteImport
+      parentRoute: typeof AuthenticatedCompanyRoute
+    }
+    '/_authenticated/company/marketplace': {
+      id: '/_authenticated/company/marketplace'
+      path: '/marketplace'
+      fullPath: '/company/marketplace'
+      preLoaderRoute: typeof AuthenticatedCompanyMarketplaceRouteImport
+      parentRoute: typeof AuthenticatedCompanyRoute
+    }
+    '/_authenticated/company/leads': {
+      id: '/_authenticated/company/leads'
+      path: '/leads'
+      fullPath: '/company/leads'
+      preLoaderRoute: typeof AuthenticatedCompanyLeadsRouteImport
+      parentRoute: typeof AuthenticatedCompanyRoute
+    }
+    '/_authenticated/company/exclusive': {
+      id: '/_authenticated/company/exclusive'
+      path: '/exclusive'
+      fullPath: '/company/exclusive'
+      preLoaderRoute: typeof AuthenticatedCompanyExclusiveRouteImport
+      parentRoute: typeof AuthenticatedCompanyRoute
+    }
+    '/_authenticated/company/estimates': {
+      id: '/_authenticated/company/estimates'
+      path: '/estimates'
+      fullPath: '/company/estimates'
+      preLoaderRoute: typeof AuthenticatedCompanyEstimatesRouteImport
+      parentRoute: typeof AuthenticatedCompanyRoute
+    }
+    '/_authenticated/company/dashboard': {
+      id: '/_authenticated/company/dashboard'
+      path: '/dashboard'
+      fullPath: '/company/dashboard'
+      preLoaderRoute: typeof AuthenticatedCompanyDashboardRouteImport
+      parentRoute: typeof AuthenticatedCompanyRoute
+    }
     '/_authenticated/admin/dashboard': {
       id: '/_authenticated/admin/dashboard'
       path: '/dashboard'
@@ -459,10 +599,24 @@ const AuthenticatedAdminRouteWithChildren =
   AuthenticatedAdminRoute._addFileChildren(AuthenticatedAdminRouteChildren)
 
 interface AuthenticatedCompanyRouteChildren {
+  AuthenticatedCompanyDashboardRoute: typeof AuthenticatedCompanyDashboardRoute
+  AuthenticatedCompanyEstimatesRoute: typeof AuthenticatedCompanyEstimatesRoute
+  AuthenticatedCompanyExclusiveRoute: typeof AuthenticatedCompanyExclusiveRoute
+  AuthenticatedCompanyLeadsRoute: typeof AuthenticatedCompanyLeadsRoute
+  AuthenticatedCompanyMarketplaceRoute: typeof AuthenticatedCompanyMarketplaceRoute
+  AuthenticatedCompanyProfileRoute: typeof AuthenticatedCompanyProfileRoute
+  AuthenticatedCompanySettingsRoute: typeof AuthenticatedCompanySettingsRoute
   AuthenticatedCompanyIndexRoute: typeof AuthenticatedCompanyIndexRoute
 }
 
 const AuthenticatedCompanyRouteChildren: AuthenticatedCompanyRouteChildren = {
+  AuthenticatedCompanyDashboardRoute: AuthenticatedCompanyDashboardRoute,
+  AuthenticatedCompanyEstimatesRoute: AuthenticatedCompanyEstimatesRoute,
+  AuthenticatedCompanyExclusiveRoute: AuthenticatedCompanyExclusiveRoute,
+  AuthenticatedCompanyLeadsRoute: AuthenticatedCompanyLeadsRoute,
+  AuthenticatedCompanyMarketplaceRoute: AuthenticatedCompanyMarketplaceRoute,
+  AuthenticatedCompanyProfileRoute: AuthenticatedCompanyProfileRoute,
+  AuthenticatedCompanySettingsRoute: AuthenticatedCompanySettingsRoute,
   AuthenticatedCompanyIndexRoute: AuthenticatedCompanyIndexRoute,
 }
 

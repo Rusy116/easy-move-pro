@@ -47,7 +47,7 @@ function EstimatesPage() {
     return { total, active, value };
   }, [rows]);
 
-  if (loading && !company) return <SkeletonRows rows={4} />;
+  if (loading && !company) return <SkeletonRows n={4} />;
   if (!company) return <NoCompanyScreen />;
 
   return (
@@ -62,7 +62,7 @@ function EstimatesPage() {
             {stats.total} total · {stats.active} current · ${stats.value.toLocaleString()} pipeline
           </span>
         </div>
-        {busy && <SkeletonRows rows={3} />}
+        {busy && <SkeletonRows n={3} />}
         {!busy && rows.length === 0 && (
           <div className="rounded-xl border border-dashed border-border p-10 text-center text-muted-foreground">
             No estimates submitted yet.

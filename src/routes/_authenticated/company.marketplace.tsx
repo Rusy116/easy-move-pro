@@ -17,7 +17,7 @@ function MarketplacePage() {
   const [selected, setSelected] = useState<MergedLead | null>(null);
   const rows = useMemo(() => merged.filter((r) => r.bucket === "open_market" && !r.assignment), [merged]);
 
-  if (loading && !company) return <SkeletonRows rows={4} />;
+  if (loading && !company) return <SkeletonRows n={4} />;
   if (!company) return <NoCompanyScreen />;
 
   return (

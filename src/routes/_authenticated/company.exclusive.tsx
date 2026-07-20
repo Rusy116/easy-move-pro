@@ -18,7 +18,7 @@ function ExclusivePage() {
   const [estimateFor, setEstimateFor] = useState<MergedLead | null>(null);
   const rows = useMemo(() => merged.filter((r) => r.bucket === "exclusive"), [merged]);
 
-  if (loading && !company) return <SkeletonRows rows={4} />;
+  if (loading && !company) return <SkeletonRows n={4} />;
   if (!company) return <NoCompanyScreen />;
 
   return (

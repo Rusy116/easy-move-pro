@@ -55,7 +55,7 @@ function ProfilePage() {
     else { toast.success("Profile updated"); reload(); }
   }
 
-  if (loading && !company) return <SkeletonRows rows={4} />;
+  if (loading && !company) return <SkeletonRows n={4} />;
   if (!company) return <NoCompanyScreen />;
 
   return (
@@ -95,7 +95,7 @@ function ProfilePage() {
           </div>
           <div className="space-y-1.5 sm:col-span-2">
             <Label htmlFor="states">Service states (comma-separated codes)</Label>
-            <Textarea id="states" rows={2} value={states} onChange={(e) => setStates(e.target.value)} placeholder="NY, NJ, CT" />
+            <Textarea id="states" n={2} value={states} onChange={(e) => setStates(e.target.value)} placeholder="NY, NJ, CT" />
           </div>
         </div>
 

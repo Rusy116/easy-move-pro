@@ -53,7 +53,7 @@ function SettingsPage() {
     if (error) toast.error(error.message); else { toast.success("Settings saved"); reload(); }
   }
 
-  if (loading && !company) return <SkeletonRows rows={4} />;
+  if (loading && !company) return <SkeletonRows n={4} />;
   if (!company) return <NoCompanyScreen />;
 
   return (

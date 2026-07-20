@@ -43,7 +43,7 @@ function DashboardPage() {
     return { total, exclusive, openMarket, active, won, lost, scheduled, acceptance, avgResponse, revenue };
   }, [merged]);
 
-  if (loading && !company) return <SkeletonRows rows={5} />;
+  if (loading && !company) return <SkeletonRows n={5} />;
   if (!company) return <NoCompanyScreen />;
 
   return (

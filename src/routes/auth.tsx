@@ -19,6 +19,13 @@ export const Route = createFileRoute("/auth")({
   component: AuthPage,
 });
 
+function getPreviewSessionOriginUrl() {
+  const previewMatch = window.location.host.match(/^id-preview--(.+)\.lovable\.app$/);
+  if (!previewMatch) return null;
+
+  return `https://${previewMatch[1]}.lovableproject.com${window.location.pathname}${window.location.search}${window.location.hash}`;
+}
+
 function AuthPage() {
   const navigate = useNavigate();
   const [busy, setBusy] = useState(false);
@@ -27,6 +34,12 @@ function AuthPage() {
   const [fullName, setFullName] = useState("");
 
   useEffect(() => {
+    const previewSessionOrigin = getPreviewSessionOriginUrl();
+    if (previewSessionOrigin) {
+      window.location.replace(previewSessionOrigin);
+      return;
+    }
+
     supabase.auth.getSession().then(({ data }) => {
       if (data.session) navigate({ to: "/dashboard" });
     });

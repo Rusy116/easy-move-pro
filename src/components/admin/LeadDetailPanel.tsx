@@ -402,23 +402,31 @@ export function LeadDetailPanel({
             </div>
           </TabsContent>
 
-          <TabsContent value="timeline" className="px-6 py-4">
-            <ol className="relative border-l border-border ml-2 space-y-3">
-              {history.map((h) => (
-                <li key={h.id} className="ml-4 relative">
-                  <div className="absolute -left-[1.35rem] mt-1.5 h-3 w-3 rounded-full bg-primary border border-background" />
-                  <div className="text-sm">
-                    <span className="capitalize font-medium">{h.to_status}</span>
-                    {h.from_status && <span className="text-muted-foreground"> ← {h.from_status}</span>}
-                  </div>
-                  <div className="text-xs text-muted-foreground">
-                    {new Date(h.created_at).toLocaleString()}
-                    {h.changed_by_email && ` · ${h.changed_by_email}`}
-                  </div>
-                </li>
-              ))}
-              {history.length === 0 && <li className="ml-4 text-sm text-muted-foreground">No changes yet.</li>}
-            </ol>
+          <TabsContent value="timeline" className="px-6 py-4 space-y-6">
+            <div>
+              <div className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Lead events</div>
+              <LeadEventsTimeline quoteId={quote.id} />
+            </div>
+            {history.length > 0 && (
+              <div>
+                <div className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Status changes</div>
+                <ol className="relative border-l border-border ml-2 space-y-3">
+                  {history.map((h) => (
+                    <li key={h.id} className="ml-4 relative">
+                      <div className="absolute -left-[1.35rem] mt-1.5 h-3 w-3 rounded-full bg-primary border border-background" />
+                      <div className="text-sm">
+                        <span className="capitalize font-medium">{h.to_status}</span>
+                        {h.from_status && <span className="text-muted-foreground"> ← {h.from_status}</span>}
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {new Date(h.created_at).toLocaleString()}
+                        {h.changed_by_email && ` · ${h.changed_by_email}`}
+                      </div>
+                    </li>
+                  ))}
+                </ol>
+              </div>
+            )}
           </TabsContent>
         </Tabs>
       </SheetContent>

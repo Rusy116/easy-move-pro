@@ -100,7 +100,7 @@ function SettingsPage() {
   async function addArea() {
     if (!company || !newArea.value.trim()) return;
     const { error } = await supabase.from("company_service_areas").insert({
-      company_id: company.id, kind: newArea.kind, value: newArea.value.trim(),
+      company_id: company.id, kind: newArea.kind as "city", value: newArea.value.trim(),
       radius_miles: newArea.radius ? Number(newArea.radius) : null,
     });
     if (error) toast.error(error.message); else { setNewArea({ kind: "city", value: "", radius: "" }); void loadOps(); }

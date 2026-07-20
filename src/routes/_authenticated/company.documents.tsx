@@ -186,7 +186,7 @@ function UploadDialog({
     const nextVersion = parent ? await getNextVersion(parent.id) : 1;
     const { data: u } = await supabase.auth.getUser();
     const { error } = await supabase.from("company_documents").insert({
-      company_id: companyId, kind, name: name.trim() || file.name,
+      company_id: companyId, kind: kind as "attachment", name: name.trim() || file.name,
       storage_path: path, mime: file.type, size_bytes: file.size,
       version: nextVersion, parent_id: parent?.id ?? null,
       uploaded_by: u.user?.id ?? null,

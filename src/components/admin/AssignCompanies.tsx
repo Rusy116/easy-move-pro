@@ -70,9 +70,9 @@ export function AssignCompanies({ quoteId }: { quoteId: string }) {
   const [quote, setQuote] = useState<QuotePhaseRow | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
   const [slaHours, setSlaHours] = useState<number>(12);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
 
-  const doAssignExclusive = useServerFn(assignExclusive);
-  const doReassignExclusive = useServerFn(reassignExclusive);
+  const doAssignCompanies = useServerFn(assignCompanies);
   const doWithdraw = useServerFn(withdrawAssignment);
   const doForceOpen = useServerFn(forceOpenMarket);
 

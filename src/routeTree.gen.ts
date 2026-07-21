@@ -39,8 +39,8 @@ import { Route as CitiesCityRouteImport } from './routes/cities.$city'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedCompanyRouteImport } from './routes/_authenticated/company'
-import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedCompanyIndexRouteImport } from './routes/_authenticated/company.index'
+import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as ApiPublicSlaTickRouteImport } from './routes/api/public/sla-tick'
 import { Route as AuthenticatedCompanySettingsRouteImport } from './routes/_authenticated/company.settings'
 import { Route as AuthenticatedCompanyScheduleRouteImport } from './routes/_authenticated/company.schedule'
@@ -208,17 +208,17 @@ const AuthenticatedCompanyRoute = AuthenticatedCompanyRouteImport.update({
   path: '/company',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
-  id: '/admin',
-  path: '/admin',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
 const AuthenticatedCompanyIndexRoute =
   AuthenticatedCompanyIndexRouteImport.update({
     id: '/',
     path: '/',
     getParentRoute: () => AuthenticatedCompanyRoute,
   } as any)
+const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
+  id: '/admin/',
+  path: '/admin/',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const ApiPublicSlaTickRoute = ApiPublicSlaTickRouteImport.update({
   id: '/api/public/sla-tick',
   path: '/api/public/sla-tick',
@@ -310,15 +310,15 @@ const AuthenticatedCompanyAnalyticsRoute =
   } as any)
 const AuthenticatedAdminDashboardRoute =
   AuthenticatedAdminDashboardRouteImport.update({
-    id: '/dashboard',
-    path: '/dashboard',
-    getParentRoute: () => AuthenticatedAdminRoute,
+    id: '/admin/dashboard',
+    path: '/admin/dashboard',
+    getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedAdminCompaniesRoute =
   AuthenticatedAdminCompaniesRouteImport.update({
-    id: '/companies',
-    path: '/companies',
-    getParentRoute: () => AuthenticatedAdminRoute,
+    id: '/admin/companies',
+    path: '/admin/companies',
+    getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
@@ -340,7 +340,6 @@ export interface FileRoutesByFullPath {
   '/services': typeof ServicesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/store': typeof StoreRoute
-  '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/company': typeof AuthenticatedCompanyRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/blog/$slug': typeof BlogSlugRoute
@@ -369,6 +368,7 @@ export interface FileRoutesByFullPath {
   '/company/schedule': typeof AuthenticatedCompanyScheduleRoute
   '/company/settings': typeof AuthenticatedCompanySettingsRoute
   '/api/public/sla-tick': typeof ApiPublicSlaTickRoute
+  '/admin/': typeof AuthenticatedAdminIndexRoute
   '/company/': typeof AuthenticatedCompanyIndexRoute
 }
 export interface FileRoutesByTo {
@@ -390,7 +390,6 @@ export interface FileRoutesByTo {
   '/services': typeof ServicesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/store': typeof StoreRoute
-  '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/cities/$city': typeof CitiesCityRoute
@@ -418,6 +417,7 @@ export interface FileRoutesByTo {
   '/company/schedule': typeof AuthenticatedCompanyScheduleRoute
   '/company/settings': typeof AuthenticatedCompanySettingsRoute
   '/api/public/sla-tick': typeof ApiPublicSlaTickRoute
+  '/admin': typeof AuthenticatedAdminIndexRoute
   '/company': typeof AuthenticatedCompanyIndexRoute
 }
 export interface FileRoutesById {
@@ -441,7 +441,6 @@ export interface FileRoutesById {
   '/services': typeof ServicesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/store': typeof StoreRoute
-  '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/_authenticated/company': typeof AuthenticatedCompanyRouteWithChildren
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/blog/$slug': typeof BlogSlugRoute
@@ -470,6 +469,7 @@ export interface FileRoutesById {
   '/_authenticated/company/schedule': typeof AuthenticatedCompanyScheduleRoute
   '/_authenticated/company/settings': typeof AuthenticatedCompanySettingsRoute
   '/api/public/sla-tick': typeof ApiPublicSlaTickRoute
+  '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/company/': typeof AuthenticatedCompanyIndexRoute
 }
 export interface FileRouteTypes {
@@ -493,7 +493,6 @@ export interface FileRouteTypes {
     | '/services'
     | '/sitemap.xml'
     | '/store'
-    | '/admin'
     | '/company'
     | '/dashboard'
     | '/blog/$slug'
@@ -522,6 +521,7 @@ export interface FileRouteTypes {
     | '/company/schedule'
     | '/company/settings'
     | '/api/public/sla-tick'
+    | '/admin/'
     | '/company/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -543,7 +543,6 @@ export interface FileRouteTypes {
     | '/services'
     | '/sitemap.xml'
     | '/store'
-    | '/admin'
     | '/dashboard'
     | '/blog/$slug'
     | '/cities/$city'
@@ -571,6 +570,7 @@ export interface FileRouteTypes {
     | '/company/schedule'
     | '/company/settings'
     | '/api/public/sla-tick'
+    | '/admin'
     | '/company'
   id:
     | '__root__'
@@ -593,7 +593,6 @@ export interface FileRouteTypes {
     | '/services'
     | '/sitemap.xml'
     | '/store'
-    | '/_authenticated/admin'
     | '/_authenticated/company'
     | '/_authenticated/dashboard'
     | '/blog/$slug'
@@ -622,6 +621,7 @@ export interface FileRouteTypes {
     | '/_authenticated/company/schedule'
     | '/_authenticated/company/settings'
     | '/api/public/sla-tick'
+    | '/_authenticated/admin/'
     | '/_authenticated/company/'
   fileRoutesById: FileRoutesById
 }
@@ -869,19 +869,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCompanyRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/admin': {
-      id: '/_authenticated/admin'
-      path: '/admin'
-      fullPath: '/admin'
-      preLoaderRoute: typeof AuthenticatedAdminRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
     '/_authenticated/company/': {
       id: '/_authenticated/company/'
       path: '/'
       fullPath: '/company/'
       preLoaderRoute: typeof AuthenticatedCompanyIndexRouteImport
       parentRoute: typeof AuthenticatedCompanyRoute
+    }
+    '/_authenticated/admin/': {
+      id: '/_authenticated/admin/'
+      path: '/admin'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/api/public/sla-tick': {
       id: '/api/public/sla-tick'
@@ -990,33 +990,20 @@ declare module '@tanstack/react-router' {
     }
     '/_authenticated/admin/dashboard': {
       id: '/_authenticated/admin/dashboard'
-      path: '/dashboard'
+      path: '/admin/dashboard'
       fullPath: '/admin/dashboard'
       preLoaderRoute: typeof AuthenticatedAdminDashboardRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/admin/companies': {
       id: '/_authenticated/admin/companies'
-      path: '/companies'
+      path: '/admin/companies'
       fullPath: '/admin/companies'
       preLoaderRoute: typeof AuthenticatedAdminCompaniesRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
+      parentRoute: typeof AuthenticatedRouteRoute
     }
   }
 }
-
-interface AuthenticatedAdminRouteChildren {
-  AuthenticatedAdminCompaniesRoute: typeof AuthenticatedAdminCompaniesRoute
-  AuthenticatedAdminDashboardRoute: typeof AuthenticatedAdminDashboardRoute
-}
-
-const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
-  AuthenticatedAdminCompaniesRoute: AuthenticatedAdminCompaniesRoute,
-  AuthenticatedAdminDashboardRoute: AuthenticatedAdminDashboardRoute,
-}
-
-const AuthenticatedAdminRouteWithChildren =
-  AuthenticatedAdminRoute._addFileChildren(AuthenticatedAdminRouteChildren)
 
 interface AuthenticatedCompanyRouteChildren {
   AuthenticatedCompanyAnalyticsRoute: typeof AuthenticatedCompanyAnalyticsRoute
@@ -1059,15 +1046,19 @@ const AuthenticatedCompanyRouteWithChildren =
   AuthenticatedCompanyRoute._addFileChildren(AuthenticatedCompanyRouteChildren)
 
 interface AuthenticatedRouteRouteChildren {
-  AuthenticatedAdminRoute: typeof AuthenticatedAdminRouteWithChildren
   AuthenticatedCompanyRoute: typeof AuthenticatedCompanyRouteWithChildren
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedAdminCompaniesRoute: typeof AuthenticatedAdminCompaniesRoute
+  AuthenticatedAdminDashboardRoute: typeof AuthenticatedAdminDashboardRoute
+  AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
-  AuthenticatedAdminRoute: AuthenticatedAdminRouteWithChildren,
   AuthenticatedCompanyRoute: AuthenticatedCompanyRouteWithChildren,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedAdminCompaniesRoute: AuthenticatedAdminCompaniesRoute,
+  AuthenticatedAdminDashboardRoute: AuthenticatedAdminDashboardRoute,
+  AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =

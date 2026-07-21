@@ -26,7 +26,7 @@ import { BrokerSelect, assignBroker, useBrokers } from "@/components/admin/Broke
 import { LeadPhaseBadge } from "@/components/admin/LeadPhaseBadge";
 import { SlaCountdown } from "@/components/admin/SlaCountdown";
 
-export const Route = createFileRoute("/_authenticated/admin")({
+export const Route = createFileRoute("/_authenticated/admin/")({
   head: () => ({ meta: [{ title: "Admin — Easy Moving" }] }),
   component: AdminPage,
 });

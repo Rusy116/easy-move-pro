@@ -27,6 +27,17 @@ export const assignExclusive = createServerFn({ method: "POST" })
     }),
   );
 
+export const assignCompanies = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: { quoteId: string; companyIds: string[]; slaHours?: number }) => i)
+  .handler(async ({ data, context }) =>
+    callRpc(context, "fn_assign_multi", {
+      _quote_id: data.quoteId,
+      _company_ids: data.companyIds,
+      _sla_hours: data.slaHours ?? null,
+    }),
+  );
+
 export const reassignExclusive = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((i: { quoteId: string; newCompanyId: string; slaHours?: number }) => i)

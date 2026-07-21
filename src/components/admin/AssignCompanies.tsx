@@ -7,9 +7,10 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Building2, X, Lock, Globe, Sparkles } from "lucide-react";
+import { Building2, X, Lock, Globe, Sparkles, Send } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
-  assignExclusive, reassignExclusive, withdrawAssignment, forceOpenMarket,
+  withdrawAssignment, forceOpenMarket, assignCompanies,
 } from "@/lib/leads.functions";
 import { SlaCountdown } from "./SlaCountdown";
 import { LeadPhaseBadge } from "./LeadPhaseBadge";
@@ -69,9 +70,9 @@ export function AssignCompanies({ quoteId }: { quoteId: string }) {
   const [quote, setQuote] = useState<QuotePhaseRow | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
   const [slaHours, setSlaHours] = useState<number>(12);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
 
-  const doAssignExclusive = useServerFn(assignExclusive);
-  const doReassignExclusive = useServerFn(reassignExclusive);
+  const doAssignCompanies = useServerFn(assignCompanies);
   const doWithdraw = useServerFn(withdrawAssignment);
   const doForceOpen = useServerFn(forceOpenMarket);
 
@@ -117,19 +118,30 @@ export function AssignCompanies({ quoteId }: { quoteId: string }) {
   const isOpenMarket = phase === "open_market";
   const isClosed = phase === "closed";
 
-  async function assign(companyId: string) {
-    setBusy(companyId);
+  function toggle(companyId: string) {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(companyId)) next.delete(companyId);
+      else next.add(companyId);
+      return next;
+    });
+  }
+
+  async function assignSelected() {
+    const ids = Array.from(selected);
+    if (ids.length === 0) return;
+    setBusy("assign");
     try {
-      if (isExclusive) {
-        await doReassignExclusive({ data: { quoteId, newCompanyId: companyId, slaHours } });
-        toast.success("Reassigned exclusively");
-      } else {
-        await doAssignExclusive({ data: { quoteId, companyId, slaHours } });
-        toast.success(`Assigned · ${slaHours}h exclusive`);
-      }
+      await doAssignCompanies({ data: { quoteId, companyIds: ids, slaHours } });
+      toast.success(
+        ids.length === 1
+          ? `Assigned · ${slaHours}h exclusive`
+          : `Sent to ${ids.length} companies · open market`,
+      );
+      setSelected(new Set());
       await reload();
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Failed");
+      toast.error(e instanceof Error ? e.message : "Failed to assign");
     } finally {
       setBusy(null);
     }
@@ -264,13 +276,13 @@ export function AssignCompanies({ quoteId }: { quoteId: string }) {
           })}
         </div>
 
-        {/* Invite / reassign */}
+        {/* Assign panel */}
         {!isClosed && available.length > 0 && (
           <div className="mt-4 border-t border-border pt-3">
-            <div className="mb-2 flex items-center gap-2 text-xs text-muted-foreground">
-              <span>{isExclusive ? "Reassign to:" : "Assign exclusively to:"}</span>
-              <div className="ml-auto flex items-center gap-1">
-                <span>SLA</span>
+            <div className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              <span>{isExclusive ? "Reassign lead" : "Assign lead"}</span>
+              <div className="ml-auto flex items-center gap-1 normal-case tracking-normal">
+                <span className="text-muted-foreground">SLA</span>
                 <Select value={String(slaHours)} onValueChange={(v) => setSlaHours(Number(v))}>
                   <SelectTrigger className="h-7 w-[80px] text-xs"><SelectValue /></SelectTrigger>
                   <SelectContent>
@@ -281,26 +293,60 @@ export function AssignCompanies({ quoteId }: { quoteId: string }) {
                 </Select>
               </div>
             </div>
-            <div className="flex flex-wrap gap-2">
-              {available.map((c) => (
-                <Button
-                  key={c.id}
-                  size="sm"
-                  variant="outline"
-                  onClick={() => void assign(c.id)}
-                  disabled={busy === c.id}
-                >
-                  + {c.name}
-                  {c.approved === false && (
-                    <span className="ml-1 text-[10px] text-amber-700">(unapproved)</span>
-                  )}
-                  {c.service_states && c.service_states.length > 0 && (
-                    <span className="ml-1.5 text-xs text-muted-foreground">
-                      ({c.service_states.join(",")})
-                    </span>
-                  )}
-                </Button>
-              ))}
+
+            <p className="mb-2 text-xs text-muted-foreground">
+              Select one company for an exclusive {slaHours}h SLA, or multiple to invite them all in open market.
+            </p>
+
+            <div className="space-y-1.5">
+              {available.map((c) => {
+                const checked = selected.has(c.id);
+                return (
+                  <label
+                    key={c.id}
+                    className={`flex cursor-pointer items-center gap-3 rounded-lg border px-3 py-2 text-sm transition-colors ${
+                      checked ? "border-primary bg-primary/5" : "border-border bg-background hover:bg-muted/40"
+                    }`}
+                  >
+                    <Checkbox
+                      checked={checked}
+                      onCheckedChange={() => toggle(c.id)}
+                      aria-label={`Select ${c.name}`}
+                    />
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2 font-medium">
+                        <span className="truncate">{c.name}</span>
+                        {c.approved === false && (
+                          <span className="text-[10px] text-amber-700">Unapproved</span>
+                        )}
+                      </div>
+                      {c.service_states && c.service_states.length > 0 && (
+                        <div className="text-[11px] text-muted-foreground">
+                          Serves {c.service_states.join(", ")}
+                        </div>
+                      )}
+                    </div>
+                  </label>
+                );
+              })}
+            </div>
+
+            <div className="mt-3 flex items-center justify-between gap-2">
+              <span className="text-xs text-muted-foreground">
+                {selected.size === 0
+                  ? "No companies selected"
+                  : selected.size === 1
+                  ? "1 company · exclusive assignment"
+                  : `${selected.size} companies · open market`}
+              </span>
+              <Button
+                size="sm"
+                onClick={() => void assignSelected()}
+                disabled={selected.size === 0 || busy === "assign"}
+              >
+                <Send className="mr-1.5 h-3.5 w-3.5" />
+                {busy === "assign" ? "Assigning…" : "Assign Lead"}
+              </Button>
             </div>
           </div>
         )}

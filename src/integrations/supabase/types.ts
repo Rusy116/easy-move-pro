@@ -1788,6 +1788,40 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      fn_assign_multi: {
+        Args: { _company_ids: string[]; _quote_id: string; _sla_hours?: number }
+        Returns: {
+          accepted_at: string | null
+          assigned_by: string | null
+          closed_at: string | null
+          company_id: string
+          contacted_at: string | null
+          created_at: string
+          decline_reason: string | null
+          declined_at: string | null
+          id: string
+          invited_at: string
+          is_exclusive: boolean
+          lost_at: string | null
+          notes: string | null
+          override_mask: Json
+          quote_id: string
+          quoted_amount: number | null
+          quoted_at: string | null
+          sla_due_at: string | null
+          state: Database["public"]["Enums"]["assignment_state_enum"]
+          status: string
+          updated_at: string
+          viewed_at: string | null
+          won_at: string | null
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "quote_assignments"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       fn_close_lead: {
         Args: { _quote_id: string; _reason: string }
         Returns: undefined

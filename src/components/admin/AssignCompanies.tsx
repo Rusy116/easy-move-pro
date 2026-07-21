@@ -7,9 +7,10 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Building2, X, Lock, Globe, Sparkles } from "lucide-react";
+import { Building2, X, Lock, Globe, Sparkles, Send } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
-  assignExclusive, reassignExclusive, withdrawAssignment, forceOpenMarket,
+  assignExclusive, reassignExclusive, withdrawAssignment, forceOpenMarket, assignCompanies,
 } from "@/lib/leads.functions";
 import { SlaCountdown } from "./SlaCountdown";
 import { LeadPhaseBadge } from "./LeadPhaseBadge";

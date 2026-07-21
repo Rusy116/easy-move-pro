@@ -118,19 +118,30 @@ export function AssignCompanies({ quoteId }: { quoteId: string }) {
   const isOpenMarket = phase === "open_market";
   const isClosed = phase === "closed";
 
-  async function assign(companyId: string) {
-    setBusy(companyId);
+  function toggle(companyId: string) {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(companyId)) next.delete(companyId);
+      else next.add(companyId);
+      return next;
+    });
+  }
+
+  async function assignSelected() {
+    const ids = Array.from(selected);
+    if (ids.length === 0) return;
+    setBusy("assign");
     try {
-      if (isExclusive) {
-        await doReassignExclusive({ data: { quoteId, newCompanyId: companyId, slaHours } });
-        toast.success("Reassigned exclusively");
-      } else {
-        await doAssignExclusive({ data: { quoteId, companyId, slaHours } });
-        toast.success(`Assigned · ${slaHours}h exclusive`);
-      }
+      await doAssignCompanies({ data: { quoteId, companyIds: ids, slaHours } });
+      toast.success(
+        ids.length === 1
+          ? `Assigned · ${slaHours}h exclusive`
+          : `Sent to ${ids.length} companies · open market`,
+      );
+      setSelected(new Set());
       await reload();
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Failed");
+      toast.error(e instanceof Error ? e.message : "Failed to assign");
     } finally {
       setBusy(null);
     }

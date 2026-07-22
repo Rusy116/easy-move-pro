@@ -567,6 +567,7 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
         onEdit={() => {
           resetCalculatorForm();
           setSavedQuote(null);
+          setSummarySnapshot(null);
           setSubmitError(null);
           setSaving(false);
           setStage("form");
@@ -575,9 +576,28 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
     );
   }
 
+  if (stage === "summary" && summarySnapshot) {
+    return (
+      <EstimateSummaryScreen
+        snapshot={summarySnapshot}
+        quoteNumber={savedQuote?.quoteNumber ?? null}
+        onContinue={() => setStage("done")}
+      />
+    );
+  }
+
+  const selectedServices = collectSelectedServices(form);
+
   return (
     <div className="overflow-hidden rounded-3xl bg-card shadow-[0_30px_80px_-40px_rgba(20,40,25,0.35)] ring-1 ring-black/5">
-      <PriceHeader quote={quote} distance={distance} propertyType={form.propertyType} />
+      <div className="sticky top-0 z-30">
+        <PriceHeader
+          quote={quote}
+          distance={distance}
+          propertyType={form.propertyType}
+          selectedServices={selectedServices}
+        />
+      </div>
 
       {stage === "form" && (
       <div className="grid gap-6 p-5 sm:p-8 md:grid-cols-2">

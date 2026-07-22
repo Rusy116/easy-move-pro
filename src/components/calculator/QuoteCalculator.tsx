@@ -514,6 +514,28 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
         },
       };
       setSavedQuote(snapshot);
+      // Capture summary BEFORE we reset the form so the Estimate Summary
+      // screen can display the customer's numbers.
+      const services: string[] = [];
+      if (form.packing) services.push("Packing");
+      if (form.unpacking) services.push("Unpacking");
+      if (form.assembly) services.push("Furniture assembly");
+      if (form.storage) services.push("30-day storage");
+      if (form.junkRemoval) services.push("Junk removal");
+      if (form.appliances) services.push("Appliance disconnect/reconnect");
+      if (form.piano) services.push("Piano");
+      if (form.safe) services.push("Safe");
+      if (form.gymEquipment) services.push("Gym equipment");
+      if (form.fragileItems) services.push("Fragile items");
+      setSummarySnapshot({
+        quote: quote!,
+        distance: distance!,
+        propertyLabel:
+          PROPERTY_TYPES.find((p) => p.value === form.propertyType)?.label ?? "",
+        services,
+        moveDate: form.moveDate,
+        fullName: form.fullName,
+      });
       resetCalculatorForm();
       toast.success("Your moving quote request was submitted.");
     } catch (e) {
@@ -532,7 +554,7 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
       await new Promise((resolve) => setTimeout(resolve, remaining));
     }
     setSaving(false);
-    setStage("done");
+    setStage("summary");
   }
 
 

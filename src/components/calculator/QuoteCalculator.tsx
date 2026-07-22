@@ -1428,11 +1428,13 @@ function ToggleCard({
   desc,
   active,
   onClick,
+  price,
 }: {
   label: string;
   desc: string;
   active: boolean;
   onClick: () => void;
+  price?: string;
 }) {
   return (
     <button
@@ -1451,8 +1453,20 @@ function ToggleCard({
       >
         <Package className="h-4 w-4" />
       </div>
-      <div className="min-w-0">
-        <div className="text-sm font-medium">{label}</div>
+      <div className="min-w-0 flex-1">
+        <div className="flex items-center justify-between gap-2">
+          <div className="text-sm font-medium">{label}</div>
+          {price && (
+            <span
+              className={cn(
+                "shrink-0 rounded-full px-1.5 py-0.5 text-[10px] font-semibold tabular-nums",
+                active ? "bg-primary/15 text-primary" : "bg-muted text-muted-foreground"
+              )}
+            >
+              {price}
+            </span>
+          )}
+        </div>
         <div className="truncate text-[11px] text-muted-foreground">{desc}</div>
       </div>
     </button>

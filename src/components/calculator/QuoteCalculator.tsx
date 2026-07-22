@@ -209,9 +209,17 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
   const [distance, setDistance] = useState<{ miles: number; type: MoveType } | null>(null);
   const [saving, setSaving] = useState(false);
   const [insuranceModal, setInsuranceModal] = useState<InsuranceTier | null>(null);
-  const [stage, setStage] = useState<"form" | "submitting" | "done">("form");
+  const [stage, setStage] = useState<"form" | "submitting" | "summary" | "done">("form");
   const [savedQuote, setSavedQuote] = useState<SavedQuoteSnapshot | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [summarySnapshot, setSummarySnapshot] = useState<{
+    quote: QuoteResult;
+    distance: { miles: number; type: MoveType };
+    propertyLabel: string;
+    services: string[];
+    moveDate: string;
+    fullName: string;
+  } | null>(null);
 
   const set = <K extends keyof FormState>(k: K, v: FormState[K]) =>
     setForm((s) => ({ ...s, [k]: v }));

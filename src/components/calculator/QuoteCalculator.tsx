@@ -2132,3 +2132,99 @@ function ThankYouScreen({
     </div>
   );
 }
+
+function EstimateSummaryScreen({
+  snapshot,
+  quoteNumber,
+  onContinue,
+}: {
+  snapshot: {
+    quote: QuoteResult;
+    distance: { miles: number; type: MoveType };
+    propertyLabel: string;
+    services: string[];
+    moveDate: string;
+    fullName: string;
+  };
+  quoteNumber: string | null;
+  onContinue: () => void;
+}) {
+  const { quote, distance, propertyLabel, services, moveDate, fullName } = snapshot;
+  return (
+    <div className="border-t border-border bg-gradient-to-b from-primary/5 to-transparent px-4 py-10 sm:px-8 sm:py-14">
+      <div className="mx-auto max-w-2xl animate-fade-up">
+        <div className="text-center">
+          <div className="mx-auto mb-4 grid h-14 w-14 place-items-center rounded-full bg-emerald-500/15 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400">
+            <CheckCircle2 className="h-8 w-8" />
+          </div>
+          <h3 className="font-serif text-3xl font-medium tracking-tight sm:text-4xl">
+            Your estimate is ready{fullName ? `, ${fullName.split(" ")[0]}` : ""}
+          </h3>
+          <p className="mt-3 text-sm text-muted-foreground sm:text-base">
+            Your request has been successfully sent to our broker network.
+          </p>
+        </div>
+
+        <div className="relative mt-6 overflow-hidden rounded-3xl bg-primary p-6 text-primary-foreground shadow-[0_20px_60px_-30px_rgba(20,40,25,0.5)] sm:p-8">
+          <div className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-ochre/30 blur-3xl" aria-hidden />
+          <div className="relative">
+            <div className="text-[10px] font-semibold uppercase tracking-widest opacity-70">
+              Estimated price range
+            </div>
+            <div className="mt-2 font-serif text-4xl font-medium tabular-nums sm:text-5xl">
+              ${quote.low.toLocaleString()}
+              <span className="mx-2 opacity-40">–</span>${quote.high.toLocaleString()}
+            </div>
+            <div className="mt-1 text-sm opacity-80">
+              {distance.miles} mi {distance.type} · {quote.numMovers} movers · {quote.truckSize}
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-4 grid gap-2 rounded-2xl border border-border bg-card p-4 sm:p-5">
+          <SummaryRow label="Distance" value={`${distance.miles} mi (${distance.type})`} />
+          <SummaryRow label="Home size" value={propertyLabel} />
+          <SummaryRow
+            label="Estimated volume"
+            value={`${quote.cubicFeet.toLocaleString()} ft³ · ${quote.weightLbs.toLocaleString()} lb`}
+          />
+          <SummaryRow label="Moving date" value={moveDate || "Flexible"} />
+          <SummaryRow
+            label="Selected add-ons"
+            value={services.length > 0 ? services.join(", ") : "None"}
+          />
+          {quoteNumber && (
+            <SummaryRow
+              label="Quote number"
+              value={<span className="font-mono">{quoteNumber}</span>}
+            />
+          )}
+        </div>
+
+        <p className="mt-4 text-center text-xs text-muted-foreground">
+          Take a moment to review your estimate. A moving specialist will contact you within 5–15 minutes.
+        </p>
+
+        <div className="mt-6 flex justify-center">
+          <Button
+            onClick={onContinue}
+            size="lg"
+            className="rounded-full bg-primary px-8 text-primary-foreground shadow-lg hover:bg-primary/90"
+          >
+            Continue
+            <ArrowRight className="ml-2 h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function SummaryRow({ label, value }: { label: string; value: React.ReactNode }) {
+  return (
+    <div className="flex items-start justify-between gap-4 border-b border-border/60 py-2 last:border-b-0">
+      <span className="text-sm text-muted-foreground">{label}</span>
+      <span className="text-right text-sm font-medium text-foreground">{value}</span>
+    </div>
+  );
+}

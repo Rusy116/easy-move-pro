@@ -209,9 +209,17 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
   const [distance, setDistance] = useState<{ miles: number; type: MoveType } | null>(null);
   const [saving, setSaving] = useState(false);
   const [insuranceModal, setInsuranceModal] = useState<InsuranceTier | null>(null);
-  const [stage, setStage] = useState<"form" | "submitting" | "done">("form");
+  const [stage, setStage] = useState<"form" | "submitting" | "summary" | "done">("form");
   const [savedQuote, setSavedQuote] = useState<SavedQuoteSnapshot | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [summarySnapshot, setSummarySnapshot] = useState<{
+    quote: QuoteResult;
+    distance: { miles: number; type: MoveType };
+    propertyLabel: string;
+    services: string[];
+    moveDate: string;
+    fullName: string;
+  } | null>(null);
 
   const set = <K extends keyof FormState>(k: K, v: FormState[K]) =>
     setForm((s) => ({ ...s, [k]: v }));
@@ -506,6 +514,28 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
         },
       };
       setSavedQuote(snapshot);
+      // Capture summary BEFORE we reset the form so the Estimate Summary
+      // screen can display the customer's numbers.
+      const services: string[] = [];
+      if (form.packing) services.push("Packing");
+      if (form.unpacking) services.push("Unpacking");
+      if (form.assembly) services.push("Furniture assembly");
+      if (form.storage) services.push("30-day storage");
+      if (form.junkRemoval) services.push("Junk removal");
+      if (form.appliances) services.push("Appliance disconnect/reconnect");
+      if (form.piano) services.push("Piano");
+      if (form.safe) services.push("Safe");
+      if (form.gymEquipment) services.push("Gym equipment");
+      if (form.fragileItems) services.push("Fragile items");
+      setSummarySnapshot({
+        quote: quote!,
+        distance: distance!,
+        propertyLabel:
+          PROPERTY_TYPES.find((p) => p.value === form.propertyType)?.label ?? "",
+        services,
+        moveDate: form.moveDate,
+        fullName: form.fullName,
+      });
       resetCalculatorForm();
       toast.success("Your moving quote request was submitted.");
     } catch (e) {
@@ -524,7 +554,7 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
       await new Promise((resolve) => setTimeout(resolve, remaining));
     }
     setSaving(false);
-    setStage("done");
+    setStage("summary");
   }
 
 
@@ -537,6 +567,7 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
         onEdit={() => {
           resetCalculatorForm();
           setSavedQuote(null);
+          setSummarySnapshot(null);
           setSubmitError(null);
           setSaving(false);
           setStage("form");
@@ -545,9 +576,28 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
     );
   }
 
+  if (stage === "summary" && summarySnapshot) {
+    return (
+      <EstimateSummaryScreen
+        snapshot={summarySnapshot}
+        quoteNumber={savedQuote?.quoteNumber ?? null}
+        onContinue={() => setStage("done")}
+      />
+    );
+  }
+
+  const selectedServices = collectSelectedServices(form);
+
   return (
-    <div className="overflow-hidden rounded-3xl bg-card shadow-[0_30px_80px_-40px_rgba(20,40,25,0.35)] ring-1 ring-black/5">
-      <PriceHeader quote={quote} distance={distance} propertyType={form.propertyType} />
+    <div className="rounded-3xl bg-card shadow-[0_30px_80px_-40px_rgba(20,40,25,0.35)] ring-1 ring-black/5">
+      <div className="sticky top-0 z-30 overflow-hidden rounded-t-3xl">
+        <PriceHeader
+          quote={quote}
+          distance={distance}
+          propertyType={form.propertyType}
+          selectedServices={selectedServices}
+        />
+      </div>
 
       {stage === "form" && (
       <div className="grid gap-6 p-5 sm:p-8 md:grid-cols-2">
@@ -625,22 +675,25 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
         {/* Services --------------------------------------------------------- */}
         <SectionCard step="06" label="Services & add-ons" className="md:col-span-2">
           <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-            <ToggleCard label="Packing" desc="Full-service packing" active={form.packing} onClick={() => set("packing", !form.packing)} />
-            <ToggleCard label="Unpacking" desc="Unpack at destination" active={form.unpacking} onClick={() => set("unpacking", !form.unpacking)} />
-            <ToggleCard label="Furniture assembly" desc="Disassemble & reassemble" active={form.assembly} onClick={() => set("assembly", !form.assembly)} />
-            <ToggleCard label="Storage" desc="30-day secure storage" active={form.storage} onClick={() => set("storage", !form.storage)} />
-            <ToggleCard label="Junk removal" desc="Haul away unwanted items" active={form.junkRemoval} onClick={() => set("junkRemoval", !form.junkRemoval)} />
-            <ToggleCard label="Appliances" desc="Disconnect & reconnect" active={form.appliances} onClick={() => set("appliances", !form.appliances)} />
+            <ToggleCard label="Packing" desc="Full-service packing" price="+$350–$900" active={form.packing} onClick={() => set("packing", !form.packing)} />
+            <ToggleCard label="Unpacking" desc="Unpack at destination" price="+$200–$600" active={form.unpacking} onClick={() => set("unpacking", !form.unpacking)} />
+            <ToggleCard label="Furniture assembly" desc="Disassemble & reassemble" price="+$100–$400" active={form.assembly} onClick={() => set("assembly", !form.assembly)} />
+            <ToggleCard label="Storage" desc="30-day secure storage" price="from $150/mo" active={form.storage} onClick={() => set("storage", !form.storage)} />
+            <ToggleCard label="Junk removal" desc="Haul away unwanted items" price="from $100" active={form.junkRemoval} onClick={() => set("junkRemoval", !form.junkRemoval)} />
+            <ToggleCard label="Appliances" desc="Disconnect & reconnect" price="+$75–$250" active={form.appliances} onClick={() => set("appliances", !form.appliances)} />
           </div>
+          <p className="mt-2 text-[11px] leading-relaxed text-muted-foreground/80">
+            Estimated additional cost. Final pricing depends on inventory, distance, and service requirements.
+          </p>
         </SectionCard>
 
         {/* Specialty items -------------------------------------------------- */}
         <SectionCard step="07" label="Specialty items" className="md:col-span-2">
           <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
-            <ToggleCard label="Piano" desc="Upright or grand" active={form.piano} onClick={() => set("piano", !form.piano)} />
-            <ToggleCard label="Safe" desc="Gun safe or vault" active={form.safe} onClick={() => set("safe", !form.safe)} />
-            <ToggleCard label="Gym equipment" desc="Treadmill, rack, etc." active={form.gymEquipment} onClick={() => set("gymEquipment", !form.gymEquipment)} />
-            <ToggleCard label="Fragile items" desc="Art, antiques, glass" active={form.fragileItems} onClick={() => set("fragileItems", !form.fragileItems)} />
+            <ToggleCard label="Piano" desc="Upright or grand" price="+$350–$900" active={form.piano} onClick={() => set("piano", !form.piano)} />
+            <ToggleCard label="Safe" desc="Gun safe or vault" price="+$250–$800" active={form.safe} onClick={() => set("safe", !form.safe)} />
+            <ToggleCard label="Gym equipment" desc="Treadmill, rack, etc." price="+$150–$500" active={form.gymEquipment} onClick={() => set("gymEquipment", !form.gymEquipment)} />
+            <ToggleCard label="Fragile items" desc="Art, antiques, glass" price="+$100–$400" active={form.fragileItems} onClick={() => set("fragileItems", !form.fragileItems)} />
           </div>
         </SectionCard>
 
@@ -996,19 +1049,36 @@ type FromMaybeNull = ZipLocation | null;
 
 // ---------- Sub-components ---------------------------------------------------
 
+function collectSelectedServices(form: FormState): string[] {
+  const s: string[] = [];
+  if (form.packing) s.push("Packing");
+  if (form.unpacking) s.push("Unpacking");
+  if (form.assembly) s.push("Assembly");
+  if (form.storage) s.push("Storage");
+  if (form.junkRemoval) s.push("Junk removal");
+  if (form.appliances) s.push("Appliances");
+  if (form.piano) s.push("Piano");
+  if (form.safe) s.push("Safe");
+  if (form.gymEquipment) s.push("Gym equipment");
+  if (form.fragileItems) s.push("Fragile items");
+  return s;
+}
+
 function PriceHeader({
   quote,
   distance,
   propertyType,
+  selectedServices,
 }: {
   quote: QuoteResult | null;
   distance: { miles: number; type: MoveType } | null;
   propertyType: PropertyType;
+  selectedServices: string[];
 }) {
   const propertyLabel =
     PROPERTY_TYPES.find((p) => p.value === propertyType)?.label ?? "";
   return (
-    <div className="relative overflow-hidden bg-primary px-6 py-6 text-primary-foreground sm:px-8 sm:py-8">
+    <div className="relative overflow-hidden bg-primary px-6 py-5 text-primary-foreground shadow-lg sm:px-8 sm:py-6">
       <div className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-ochre/30 blur-3xl" aria-hidden />
       <div className="pointer-events-none absolute -bottom-20 -left-20 h-56 w-56 rounded-full bg-ochre/10 blur-3xl" aria-hidden />
       <div className="relative grid grid-cols-[minmax(0,1fr)_auto] items-end gap-4">
@@ -1016,7 +1086,7 @@ function PriceHeader({
           <span className="inline-flex items-center gap-1.5 rounded-full bg-primary-foreground/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-widest">
             <Sparkles className="h-3 w-3 text-ochre" /> Live estimate
           </span>
-          <h3 className="mt-3 font-serif text-xl font-medium sm:text-2xl">Instant Moving Quote</h3>
+          <h3 className="mt-2 font-serif text-lg font-medium sm:text-2xl">Instant Moving Quote</h3>
           <p className="mt-1 text-xs opacity-70 sm:text-sm">
             {distance
               ? `${distance.miles} mi ${distance.type} · ${propertyLabel}${quote ? ` · ${quote.numMovers} movers · ${quote.truckSize}` : ""}`
@@ -1038,8 +1108,26 @@ function PriceHeader({
               <span className="opacity-40">$— – $—</span>
             )}
           </div>
+          {quote && (
+            <div className="text-[10px] uppercase tracking-widest opacity-60">
+              Running total ~ ${quote.total.toLocaleString()}
+            </div>
+          )}
         </div>
       </div>
+      {selectedServices.length > 0 && (
+        <div className="relative mt-3 flex flex-wrap gap-1">
+          {selectedServices.map((s) => (
+            <span
+              key={s}
+              className="inline-flex items-center gap-1 rounded-full bg-primary-foreground/10 px-2 py-0.5 text-[10px] font-medium"
+            >
+              <Check className="h-2.5 w-2.5 text-ochre" />
+              {s}
+            </span>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -1378,11 +1466,13 @@ function ToggleCard({
   desc,
   active,
   onClick,
+  price,
 }: {
   label: string;
   desc: string;
   active: boolean;
   onClick: () => void;
+  price?: string;
 }) {
   return (
     <button
@@ -1401,8 +1491,20 @@ function ToggleCard({
       >
         <Package className="h-4 w-4" />
       </div>
-      <div className="min-w-0">
-        <div className="text-sm font-medium">{label}</div>
+      <div className="min-w-0 flex-1">
+        <div className="flex items-center justify-between gap-2">
+          <div className="text-sm font-medium">{label}</div>
+          {price && (
+            <span
+              className={cn(
+                "shrink-0 rounded-full px-1.5 py-0.5 text-[10px] font-semibold tabular-nums",
+                active ? "bg-primary/15 text-primary" : "bg-muted text-muted-foreground"
+              )}
+            >
+              {price}
+            </span>
+          )}
+        </div>
         <div className="truncate text-[11px] text-muted-foreground">{desc}</div>
       </div>
     </button>
@@ -2027,6 +2129,102 @@ function ThankYouScreen({
           ))}
         </div>
       </div>
+    </div>
+  );
+}
+
+function EstimateSummaryScreen({
+  snapshot,
+  quoteNumber,
+  onContinue,
+}: {
+  snapshot: {
+    quote: QuoteResult;
+    distance: { miles: number; type: MoveType };
+    propertyLabel: string;
+    services: string[];
+    moveDate: string;
+    fullName: string;
+  };
+  quoteNumber: string | null;
+  onContinue: () => void;
+}) {
+  const { quote, distance, propertyLabel, services, moveDate, fullName } = snapshot;
+  return (
+    <div className="border-t border-border bg-gradient-to-b from-primary/5 to-transparent px-4 py-10 sm:px-8 sm:py-14">
+      <div className="mx-auto max-w-2xl animate-fade-up">
+        <div className="text-center">
+          <div className="mx-auto mb-4 grid h-14 w-14 place-items-center rounded-full bg-emerald-500/15 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400">
+            <CheckCircle2 className="h-8 w-8" />
+          </div>
+          <h3 className="font-serif text-3xl font-medium tracking-tight sm:text-4xl">
+            Your estimate is ready{fullName ? `, ${fullName.split(" ")[0]}` : ""}
+          </h3>
+          <p className="mt-3 text-sm text-muted-foreground sm:text-base">
+            Your request has been successfully sent to our broker network.
+          </p>
+        </div>
+
+        <div className="relative mt-6 overflow-hidden rounded-3xl bg-primary p-6 text-primary-foreground shadow-[0_20px_60px_-30px_rgba(20,40,25,0.5)] sm:p-8">
+          <div className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-ochre/30 blur-3xl" aria-hidden />
+          <div className="relative">
+            <div className="text-[10px] font-semibold uppercase tracking-widest opacity-70">
+              Estimated price range
+            </div>
+            <div className="mt-2 font-serif text-4xl font-medium tabular-nums sm:text-5xl">
+              ${quote.low.toLocaleString()}
+              <span className="mx-2 opacity-40">–</span>${quote.high.toLocaleString()}
+            </div>
+            <div className="mt-1 text-sm opacity-80">
+              {distance.miles} mi {distance.type} · {quote.numMovers} movers · {quote.truckSize}
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-4 grid gap-2 rounded-2xl border border-border bg-card p-4 sm:p-5">
+          <SummaryRow label="Distance" value={`${distance.miles} mi (${distance.type})`} />
+          <SummaryRow label="Home size" value={propertyLabel} />
+          <SummaryRow
+            label="Estimated volume"
+            value={`${quote.cubicFeet.toLocaleString()} ft³ · ${quote.weightLbs.toLocaleString()} lb`}
+          />
+          <SummaryRow label="Moving date" value={moveDate || "Flexible"} />
+          <SummaryRow
+            label="Selected add-ons"
+            value={services.length > 0 ? services.join(", ") : "None"}
+          />
+          {quoteNumber && (
+            <SummaryRow
+              label="Quote number"
+              value={<span className="font-mono">{quoteNumber}</span>}
+            />
+          )}
+        </div>
+
+        <p className="mt-4 text-center text-xs text-muted-foreground">
+          Take a moment to review your estimate. A moving specialist will contact you within 5–15 minutes.
+        </p>
+
+        <div className="mt-6 flex justify-center">
+          <Button
+            onClick={onContinue}
+            size="lg"
+            className="rounded-full bg-primary px-8 text-primary-foreground shadow-lg hover:bg-primary/90"
+          >
+            Continue
+            <ArrowRight className="ml-2 h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function SummaryRow({ label, value }: { label: string; value: React.ReactNode }) {
+  return (
+    <div className="flex items-start justify-between gap-4 border-b border-border/60 py-2 last:border-b-0">
+      <span className="text-sm text-muted-foreground">{label}</span>
+      <span className="text-right text-sm font-medium text-foreground">{value}</span>
     </div>
   );
 }

@@ -1049,19 +1049,36 @@ type FromMaybeNull = ZipLocation | null;
 
 // ---------- Sub-components ---------------------------------------------------
 
+function collectSelectedServices(form: FormState): string[] {
+  const s: string[] = [];
+  if (form.packing) s.push("Packing");
+  if (form.unpacking) s.push("Unpacking");
+  if (form.assembly) s.push("Assembly");
+  if (form.storage) s.push("Storage");
+  if (form.junkRemoval) s.push("Junk removal");
+  if (form.appliances) s.push("Appliances");
+  if (form.piano) s.push("Piano");
+  if (form.safe) s.push("Safe");
+  if (form.gymEquipment) s.push("Gym equipment");
+  if (form.fragileItems) s.push("Fragile items");
+  return s;
+}
+
 function PriceHeader({
   quote,
   distance,
   propertyType,
+  selectedServices,
 }: {
   quote: QuoteResult | null;
   distance: { miles: number; type: MoveType } | null;
   propertyType: PropertyType;
+  selectedServices: string[];
 }) {
   const propertyLabel =
     PROPERTY_TYPES.find((p) => p.value === propertyType)?.label ?? "";
   return (
-    <div className="relative overflow-hidden bg-primary px-6 py-6 text-primary-foreground sm:px-8 sm:py-8">
+    <div className="relative overflow-hidden bg-primary px-6 py-5 text-primary-foreground shadow-lg sm:px-8 sm:py-6">
       <div className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-ochre/30 blur-3xl" aria-hidden />
       <div className="pointer-events-none absolute -bottom-20 -left-20 h-56 w-56 rounded-full bg-ochre/10 blur-3xl" aria-hidden />
       <div className="relative grid grid-cols-[minmax(0,1fr)_auto] items-end gap-4">
@@ -1069,7 +1086,7 @@ function PriceHeader({
           <span className="inline-flex items-center gap-1.5 rounded-full bg-primary-foreground/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-widest">
             <Sparkles className="h-3 w-3 text-ochre" /> Live estimate
           </span>
-          <h3 className="mt-3 font-serif text-xl font-medium sm:text-2xl">Instant Moving Quote</h3>
+          <h3 className="mt-2 font-serif text-lg font-medium sm:text-2xl">Instant Moving Quote</h3>
           <p className="mt-1 text-xs opacity-70 sm:text-sm">
             {distance
               ? `${distance.miles} mi ${distance.type} · ${propertyLabel}${quote ? ` · ${quote.numMovers} movers · ${quote.truckSize}` : ""}`
@@ -1091,8 +1108,26 @@ function PriceHeader({
               <span className="opacity-40">$— – $—</span>
             )}
           </div>
+          {quote && (
+            <div className="text-[10px] uppercase tracking-widest opacity-60">
+              Running total ~ ${quote.total.toLocaleString()}
+            </div>
+          )}
         </div>
       </div>
+      {selectedServices.length > 0 && (
+        <div className="relative mt-3 flex flex-wrap gap-1">
+          {selectedServices.map((s) => (
+            <span
+              key={s}
+              className="inline-flex items-center gap-1 rounded-full bg-primary-foreground/10 px-2 py-0.5 text-[10px] font-medium"
+            >
+              <Check className="h-2.5 w-2.5 text-ochre" />
+              {s}
+            </span>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

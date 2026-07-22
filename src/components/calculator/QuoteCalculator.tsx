@@ -675,22 +675,25 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
         {/* Services --------------------------------------------------------- */}
         <SectionCard step="06" label="Services & add-ons" className="md:col-span-2">
           <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-            <ToggleCard label="Packing" desc="Full-service packing" active={form.packing} onClick={() => set("packing", !form.packing)} />
-            <ToggleCard label="Unpacking" desc="Unpack at destination" active={form.unpacking} onClick={() => set("unpacking", !form.unpacking)} />
-            <ToggleCard label="Furniture assembly" desc="Disassemble & reassemble" active={form.assembly} onClick={() => set("assembly", !form.assembly)} />
-            <ToggleCard label="Storage" desc="30-day secure storage" active={form.storage} onClick={() => set("storage", !form.storage)} />
-            <ToggleCard label="Junk removal" desc="Haul away unwanted items" active={form.junkRemoval} onClick={() => set("junkRemoval", !form.junkRemoval)} />
-            <ToggleCard label="Appliances" desc="Disconnect & reconnect" active={form.appliances} onClick={() => set("appliances", !form.appliances)} />
+            <ToggleCard label="Packing" desc="Full-service packing" price="+$350–$900" active={form.packing} onClick={() => set("packing", !form.packing)} />
+            <ToggleCard label="Unpacking" desc="Unpack at destination" price="+$200–$600" active={form.unpacking} onClick={() => set("unpacking", !form.unpacking)} />
+            <ToggleCard label="Furniture assembly" desc="Disassemble & reassemble" price="+$100–$400" active={form.assembly} onClick={() => set("assembly", !form.assembly)} />
+            <ToggleCard label="Storage" desc="30-day secure storage" price="from $150/mo" active={form.storage} onClick={() => set("storage", !form.storage)} />
+            <ToggleCard label="Junk removal" desc="Haul away unwanted items" price="from $100" active={form.junkRemoval} onClick={() => set("junkRemoval", !form.junkRemoval)} />
+            <ToggleCard label="Appliances" desc="Disconnect & reconnect" price="+$75–$250" active={form.appliances} onClick={() => set("appliances", !form.appliances)} />
           </div>
+          <p className="mt-2 text-[11px] leading-relaxed text-muted-foreground/80">
+            Estimated additional cost. Final pricing depends on inventory, distance, and service requirements.
+          </p>
         </SectionCard>
 
         {/* Specialty items -------------------------------------------------- */}
         <SectionCard step="07" label="Specialty items" className="md:col-span-2">
           <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
-            <ToggleCard label="Piano" desc="Upright or grand" active={form.piano} onClick={() => set("piano", !form.piano)} />
-            <ToggleCard label="Safe" desc="Gun safe or vault" active={form.safe} onClick={() => set("safe", !form.safe)} />
-            <ToggleCard label="Gym equipment" desc="Treadmill, rack, etc." active={form.gymEquipment} onClick={() => set("gymEquipment", !form.gymEquipment)} />
-            <ToggleCard label="Fragile items" desc="Art, antiques, glass" active={form.fragileItems} onClick={() => set("fragileItems", !form.fragileItems)} />
+            <ToggleCard label="Piano" desc="Upright or grand" price="+$350–$900" active={form.piano} onClick={() => set("piano", !form.piano)} />
+            <ToggleCard label="Safe" desc="Gun safe or vault" price="+$250–$800" active={form.safe} onClick={() => set("safe", !form.safe)} />
+            <ToggleCard label="Gym equipment" desc="Treadmill, rack, etc." price="+$150–$500" active={form.gymEquipment} onClick={() => set("gymEquipment", !form.gymEquipment)} />
+            <ToggleCard label="Fragile items" desc="Art, antiques, glass" price="+$100–$400" active={form.fragileItems} onClick={() => set("fragileItems", !form.fragileItems)} />
           </div>
         </SectionCard>
 

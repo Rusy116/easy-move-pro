@@ -1078,26 +1078,26 @@ function PriceHeader({
   const propertyLabel =
     PROPERTY_TYPES.find((p) => p.value === propertyType)?.label ?? "";
   return (
-    <div className="relative overflow-hidden bg-primary px-6 py-5 text-primary-foreground shadow-lg sm:px-8 sm:py-6">
+    <div className="relative overflow-hidden bg-primary px-4 py-4 text-primary-foreground shadow-lg sm:px-8 sm:py-6">
       <div className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-ochre/30 blur-3xl" aria-hidden />
       <div className="pointer-events-none absolute -bottom-20 -left-20 h-56 w-56 rounded-full bg-ochre/10 blur-3xl" aria-hidden />
-      <div className="relative grid grid-cols-[minmax(0,1fr)_auto] items-end gap-4">
+      <div className="relative grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 sm:items-end sm:gap-4">
         <div className="min-w-0">
           <span className="inline-flex items-center gap-1.5 rounded-full bg-primary-foreground/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-widest">
             <Sparkles className="h-3 w-3 text-ochre" /> Live estimate
           </span>
-          <h3 className="mt-2 font-serif text-lg font-medium sm:text-2xl">Instant Moving Quote</h3>
-          <p className="mt-1 text-xs opacity-70 sm:text-sm">
+          <h3 className="mt-2 font-serif text-base font-medium leading-tight sm:text-2xl">Instant Moving Quote</h3>
+          <p className="mt-1 text-[11px] leading-snug opacity-70 sm:text-sm">
             {distance
               ? `${distance.miles} mi ${distance.type} · ${propertyLabel}${quote ? ` · ${quote.numMovers} movers · ${quote.truckSize}` : ""}`
               : "Enter ZIPs to see your live price"}
           </p>
         </div>
-        <div className="text-right">
+        <div className="min-w-0 text-right">
           <div className="text-[10px] uppercase tracking-widest opacity-60">Estimated range</div>
           <div
             key={quote ? `${quote.low}-${quote.high}` : "empty"}
-            className="font-serif text-2xl font-medium tabular-nums animate-fade-up sm:text-4xl"
+            className="font-serif text-xl font-medium tabular-nums animate-fade-up whitespace-nowrap sm:text-4xl"
           >
             {quote ? (
               <>
@@ -1110,11 +1110,12 @@ function PriceHeader({
           </div>
           {quote && (
             <div className="text-[10px] uppercase tracking-widest opacity-60">
-              Running total ~ ${quote.total.toLocaleString()}
+              Total ~ ${quote.total.toLocaleString()}
             </div>
           )}
         </div>
       </div>
+
       {selectedServices.length > 0 && (
         <div className="relative mt-3 flex flex-wrap gap-1">
           {selectedServices.map((s) => (

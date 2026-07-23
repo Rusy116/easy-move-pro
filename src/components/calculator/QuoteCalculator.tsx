@@ -1106,20 +1106,18 @@ function PriceHeader({
                 <span className="mx-1 opacity-40">–</span>${quote.high.toLocaleString()}
               </>
             ) : (
-              <span className="opacity-40">$— – $—</span>
+              <span className="opacity-40">$—— – $——</span>
             )}
           </div>
-          {quote && (
-            <div className="text-[10px] uppercase tracking-widest opacity-60">
-              Total ~ ${quote.total.toLocaleString()}
-            </div>
-          )}
+          <div className="min-h-[14px] text-[10px] uppercase tracking-widest opacity-60">
+            {quote ? <>Total ~ ${quote.total.toLocaleString()}</> : <>&nbsp;</>}
+          </div>
         </div>
       </div>
 
-      {selectedServices.length > 0 && (
-        <div className="relative mt-3 flex flex-wrap gap-1">
-          {selectedServices.map((s) => (
+      <div className="relative mt-3 flex min-h-[22px] flex-wrap gap-1">
+        {selectedServices.length > 0 ? (
+          selectedServices.map((s) => (
             <span
               key={s}
               className="inline-flex items-center gap-1 rounded-full bg-primary-foreground/10 px-2 py-0.5 text-[10px] font-medium"
@@ -1127,9 +1125,14 @@ function PriceHeader({
               <Check className="h-2.5 w-2.5 text-ochre" />
               {s}
             </span>
-          ))}
-        </div>
-      )}
+          ))
+        ) : (
+          <span className="text-[10px] uppercase tracking-widest opacity-50">
+            Add services to see them here
+          </span>
+        )}
+      </div>
+
     </div>
   );
 }

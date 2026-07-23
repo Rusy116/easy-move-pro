@@ -892,11 +892,12 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
                       type="button"
                       onClick={() => set("contactMethod", v)}
                       className={cn(
-                        "rounded-xl border px-3 py-2.5 text-sm font-medium transition-all",
+                        "whitespace-nowrap rounded-xl border px-2 py-2.5 text-xs font-medium transition-all sm:px-3 sm:text-sm",
                         active
                           ? "border-primary bg-primary/5 text-primary ring-2 ring-primary/20"
                           : "border-border bg-card text-muted-foreground hover:border-primary/40"
                       )}
+
                     >
                       {l}
                     </button>

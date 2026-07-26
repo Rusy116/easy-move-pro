@@ -1084,36 +1084,36 @@ function PriceHeader({
       <div className="pointer-events-none absolute -bottom-20 -left-20 h-56 w-56 rounded-full bg-ochre/10 blur-3xl" aria-hidden />
       <div className="relative grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 sm:items-end sm:gap-4">
         <div className="min-w-0">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-primary-foreground/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-widest">
-            <Sparkles className="h-3 w-3 text-ochre" /> Live estimate
+          <span className="inline-flex max-w-full items-center gap-1.5 truncate rounded-full bg-primary-foreground/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-widest">
+            <Sparkles className="h-3 w-3 shrink-0 text-ochre" /> Live estimate
           </span>
-          <h3 className="mt-2 font-serif text-base font-medium leading-tight sm:text-2xl">Instant Moving Quote</h3>
-          <p className="mt-1 text-[11px] leading-snug opacity-70 sm:text-sm">
+          <h3 className="mt-2 truncate font-serif text-base font-medium leading-tight sm:text-2xl">Instant Moving Quote</h3>
+          <p className="mt-1 truncate text-[11px] leading-snug opacity-70 sm:text-sm">
             {distance
               ? `${distance.miles} mi ${distance.type} · ${propertyLabel}${quote ? ` · ${quote.numMovers} movers · ${quote.truckSize}` : ""}`
               : "Enter ZIPs to see your live price"}
           </p>
         </div>
-        <div className="min-w-0 text-right">
-          <div className="text-[10px] uppercase tracking-widest opacity-60">Estimated range</div>
+        <div className="w-[136px] shrink-0 text-right sm:w-auto sm:min-w-[210px]">
+          <div className="text-[10px] uppercase tracking-widest opacity-60">Total</div>
           <div
-            key={quote ? `${quote.low}-${quote.high}` : "empty"}
-            className="font-serif text-xl font-medium tabular-nums animate-fade-up whitespace-nowrap sm:text-4xl"
+            key={quote ? `total-${quote.total}` : "total-empty"}
+            className="font-serif text-[32px] font-semibold leading-none tabular-nums animate-fade-up whitespace-nowrap sm:text-5xl"
           >
+            {quote ? <>${quote.total.toLocaleString()}</> : <span className="opacity-40">$——</span>}
+          </div>
+          <div className="mt-1.5 min-h-[14px] whitespace-nowrap text-[10px] uppercase tracking-widest tabular-nums opacity-60">
             {quote ? (
               <>
-                ${quote.low.toLocaleString()}
-                <span className="mx-1 opacity-40">–</span>${quote.high.toLocaleString()}
+                ${quote.low.toLocaleString()} – ${quote.high.toLocaleString()}
               </>
             ) : (
-              <span className="opacity-40">$—— – $——</span>
+              <>$—— – $——</>
             )}
-          </div>
-          <div className="min-h-[14px] text-[10px] uppercase tracking-widest opacity-60">
-            {quote ? <>Total ~ ${quote.total.toLocaleString()}</> : <>&nbsp;</>}
           </div>
         </div>
       </div>
+
 
       <div className="relative mt-3 flex min-h-[22px] flex-wrap gap-1">
         {selectedServices.length > 0 ? (

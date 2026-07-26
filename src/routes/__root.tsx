@@ -12,6 +12,8 @@ import { Toaster } from "sonner";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { ROBOTS_META } from "../lib/seo-config";
+
 
 function NotFoundComponent() {
   return (

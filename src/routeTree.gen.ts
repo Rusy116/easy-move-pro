@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as StoreRouteImport } from './routes/store'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as ServicesRouteImport } from './routes/services'
+import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
 import { Route as OpenMarketplaceRouteImport } from './routes/open-marketplace'
 import { Route as MovingScheduleSoftwareRouteImport } from './routes/moving-schedule-software'
 import { Route as MovingLeadsRouteImport } from './routes/moving-leads'
@@ -72,6 +73,11 @@ const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
 const ServicesRoute = ServicesRouteImport.update({
   id: '/services',
   path: '/services',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RobotsDottxtRoute = RobotsDottxtRouteImport.update({
+  id: '/robots.txt',
+  path: '/robots.txt',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OpenMarketplaceRoute = OpenMarketplaceRouteImport.update({
@@ -337,6 +343,7 @@ export interface FileRoutesByFullPath {
   '/moving-leads': typeof MovingLeadsRoute
   '/moving-schedule-software': typeof MovingScheduleSoftwareRoute
   '/open-marketplace': typeof OpenMarketplaceRoute
+  '/robots.txt': typeof RobotsDottxtRoute
   '/services': typeof ServicesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/store': typeof StoreRoute
@@ -387,6 +394,7 @@ export interface FileRoutesByTo {
   '/moving-leads': typeof MovingLeadsRoute
   '/moving-schedule-software': typeof MovingScheduleSoftwareRoute
   '/open-marketplace': typeof OpenMarketplaceRoute
+  '/robots.txt': typeof RobotsDottxtRoute
   '/services': typeof ServicesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/store': typeof StoreRoute
@@ -438,6 +446,7 @@ export interface FileRoutesById {
   '/moving-leads': typeof MovingLeadsRoute
   '/moving-schedule-software': typeof MovingScheduleSoftwareRoute
   '/open-marketplace': typeof OpenMarketplaceRoute
+  '/robots.txt': typeof RobotsDottxtRoute
   '/services': typeof ServicesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/store': typeof StoreRoute
@@ -490,6 +499,7 @@ export interface FileRouteTypes {
     | '/moving-leads'
     | '/moving-schedule-software'
     | '/open-marketplace'
+    | '/robots.txt'
     | '/services'
     | '/sitemap.xml'
     | '/store'
@@ -540,6 +550,7 @@ export interface FileRouteTypes {
     | '/moving-leads'
     | '/moving-schedule-software'
     | '/open-marketplace'
+    | '/robots.txt'
     | '/services'
     | '/sitemap.xml'
     | '/store'
@@ -590,6 +601,7 @@ export interface FileRouteTypes {
     | '/moving-leads'
     | '/moving-schedule-software'
     | '/open-marketplace'
+    | '/robots.txt'
     | '/services'
     | '/sitemap.xml'
     | '/store'
@@ -642,6 +654,7 @@ export interface RootRouteChildren {
   MovingLeadsRoute: typeof MovingLeadsRoute
   MovingScheduleSoftwareRoute: typeof MovingScheduleSoftwareRoute
   OpenMarketplaceRoute: typeof OpenMarketplaceRoute
+  RobotsDottxtRoute: typeof RobotsDottxtRoute
   ServicesRoute: typeof ServicesRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   StoreRoute: typeof StoreRoute
@@ -678,6 +691,13 @@ declare module '@tanstack/react-router' {
       path: '/services'
       fullPath: '/services'
       preLoaderRoute: typeof ServicesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/robots.txt': {
+      id: '/robots.txt'
+      path: '/robots.txt'
+      fullPath: '/robots.txt'
+      preLoaderRoute: typeof RobotsDottxtRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/open-marketplace': {
@@ -1081,6 +1101,7 @@ const rootRouteChildren: RootRouteChildren = {
   MovingLeadsRoute: MovingLeadsRoute,
   MovingScheduleSoftwareRoute: MovingScheduleSoftwareRoute,
   OpenMarketplaceRoute: OpenMarketplaceRoute,
+  RobotsDottxtRoute: RobotsDottxtRoute,
   ServicesRoute: ServicesRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   StoreRoute: StoreRoute,

@@ -12,6 +12,8 @@ import { Toaster } from "sonner";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { ROBOTS_META } from "../lib/seo-config";
+
 
 function NotFoundComponent() {
   return (
@@ -78,6 +80,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
+      ...ROBOTS_META,
+
       { title: "Easy Moving — Moving Made Simple" },
       {
         name: "description",

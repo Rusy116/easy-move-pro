@@ -42,6 +42,8 @@ import type { ParkingDifficulty } from "@/lib/pricing-engine";
 import { computeDistance } from "@/lib/distance";
 import { isValidZip, resolveZip, type ZipLocation } from "@/lib/zip-database";
 import { lookupZipCities } from "@/lib/zip-cities";
+import { zipToState } from "@/lib/us-states";
+import { StateSelect } from "./StateSelect";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -1216,7 +1218,8 @@ function LocationBlock({
   const [zipCenter, setZipCenter] = useState<{ lat: number; lng: number } | null>(null);
   const [loadingCities, setLoadingCities] = useState(false);
 
-  // Look up cities + state from ZIP via Google Geocoder.
+  // Look up cities + state from ZIP. State is resolved offline first so it is
+  // always populated, then refined by the Google geocode result when available.
   useEffect(() => {
     let cancelled = false;
     const zipAtLookupStart = side.zip;
@@ -1225,31 +1228,34 @@ function LocationBlock({
       setZipCenter(null);
       return;
     }
+
+    // 1) Instant offline state fill (never leaves State empty).
+    const offlineState = zipToState(zipAtLookupStart);
+    const initialPatch: Partial<SideState> = {};
+    const bestState = fallbackLoc?.state || offlineState;
+    if (bestState && side.state !== bestState) initialPatch.state = bestState;
+    if (fallbackLoc && !side.city) initialPatch.city = fallbackLoc.city;
+    if (Object.keys(initialPatch).length) onChange(initialPatch, zipAtLookupStart);
     if (fallbackLoc) {
       setCities([fallbackLoc.city]);
       setZipCenter({ lat: fallbackLoc.lat, lng: fallbackLoc.lng });
-      const patch: Partial<SideState> = {};
-      if (side.state !== fallbackLoc.state) patch.state = fallbackLoc.state;
-      if (!side.city) patch.city = fallbackLoc.city;
-      if (Object.keys(patch).length) onChange(patch, zipAtLookupStart);
     }
+
+    // 2) Refine with Google geocode.
     setLoadingCities(true);
     lookupZipCities(zipAtLookupStart)
       .then((r) => {
         if (cancelled) return;
         if (!r) {
-          // Fallback to local DB
           setCities(fallbackLoc ? [fallbackLoc.city] : []);
           setZipCenter(fallbackLoc ? { lat: fallbackLoc.lat, lng: fallbackLoc.lng } : null);
-          if (fallbackLoc && !side.state) {
-            onChange({ state: fallbackLoc.state, city: side.city || fallbackLoc.city }, zipAtLookupStart);
-          }
           return;
         }
         setCities(r.cities);
         setZipCenter({ lat: r.lat, lng: r.lng });
         const patch: Partial<SideState> = {};
-        if (r.state && side.state !== r.state) patch.state = r.state;
+        const resolvedState = r.state || offlineState;
+        if (resolvedState && side.state !== resolvedState) patch.state = resolvedState;
         // Auto-select when only one city
         if (r.cities.length === 1 && side.city !== r.cities[0]) patch.city = r.cities[0];
         // If current city isn't in the list, clear it
@@ -1263,7 +1269,8 @@ function LocationBlock({
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [side.zip]);
+  }, [side.zip, fallbackLoc?.state, fallbackLoc?.city]);
+
 
   const invalidZip = side.zip.length === 5 && !isValidZip(side.zip);
 
@@ -1372,7 +1379,7 @@ function LocationBlock({
           <Label className="mb-1 block text-[11px] font-medium text-muted-foreground">
             State
           </Label>
-          <Input readOnly value={side.state} placeholder="—" className="bg-muted/40" />
+          <StateSelect value={side.state} onChange={(v) => onChange({ state: v })} />
         </div>
       </div>
 

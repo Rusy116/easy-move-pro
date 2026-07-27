@@ -1234,34 +1234,32 @@ function LocationBlock({
     const initialPatch: Partial<SideState> = {};
     const bestState = fallbackLoc?.state || offlineState;
     if (bestState && side.state !== bestState) initialPatch.state = bestState;
-    if (fallbackLoc && !side.city) initialPatch.city = fallbackLoc.city;
+    if (fallbackLoc?.city && !side.city) initialPatch.city = fallbackLoc.city;
     if (Object.keys(initialPatch).length) onChange(initialPatch, zipAtLookupStart);
-    if (fallbackLoc) {
+    if (fallbackLoc?.city) {
       setCities([fallbackLoc.city]);
       setZipCenter({ lat: fallbackLoc.lat, lng: fallbackLoc.lng });
     }
 
-    // 2) Refine with Google geocode.
+    // 2) Refine with the authoritative ZIP lookup.
     setLoadingCities(true);
     lookupZipCities(zipAtLookupStart)
       .then((r) => {
         if (cancelled) return;
         if (!r) {
-          setCities(fallbackLoc ? [fallbackLoc.city] : []);
+          setCities(fallbackLoc?.city ? [fallbackLoc.city] : []);
           setZipCenter(fallbackLoc ? { lat: fallbackLoc.lat, lng: fallbackLoc.lng } : null);
           return;
         }
         setCities(r.cities);
-        setZipCenter({ lat: r.lat, lng: r.lng });
+        if (r.lat || r.lng) setZipCenter({ lat: r.lat, lng: r.lng });
         const patch: Partial<SideState> = {};
         const resolvedState = r.state || offlineState;
         if (resolvedState && side.state !== resolvedState) patch.state = resolvedState;
-        // Auto-select when only one city
-        if (r.cities.length === 1 && side.city !== r.cities[0]) patch.city = r.cities[0];
-        // If current city isn't in the list, clear it
-        if (side.city && r.cities.length > 0 && !r.cities.includes(side.city)) {
-          patch.city = r.cities.length === 1 ? r.cities[0] : "";
-        }
+        // The ZIP is the source of truth: if the current city isn't valid for
+        // this ZIP (or is empty), snap to the ZIP's primary city.
+        const cityIsValid = side.city && r.cities.includes(side.city);
+        if (!cityIsValid && r.primary && side.city !== r.primary) patch.city = r.primary;
         if (Object.keys(patch).length) onChange(patch, zipAtLookupStart);
       })
       .finally(() => !cancelled && setLoadingCities(false));
@@ -1273,11 +1271,16 @@ function LocationBlock({
 
 
   const invalidZip = side.zip.length === 5 && !isValidZip(side.zip);
+  const cityMismatch =
+    !loadingCities &&
+    !!side.city &&
+    cities.length > 0 &&
+    !cities.includes(side.city);
 
   return (
-    <div className="grid gap-2.5">
+    <div className="grid min-w-0 gap-2.5">
       {/* ZIP */}
-      <div>
+      <div className="min-w-0">
         <Label className="mb-1 block text-[11px] font-medium text-muted-foreground">
           ZIP code
         </Label>
@@ -1288,16 +1291,36 @@ function LocationBlock({
             inputMode="numeric"
             maxLength={5}
             value={side.zip}
-            onChange={(e) =>
-              onChange({ zip: e.target.value.replace(/\D/g, "").slice(0, 5) })
-            }
-            className={cn("pl-9 font-mono tracking-wider", invalidZip && "border-destructive")}
+            onChange={(e) => {
+              const zip = e.target.value.replace(/\D/g, "").slice(0, 5);
+              if (zip === side.zip) return;
+              // Changing the ZIP invalidates everything derived from it.
+              setCities([]);
+              setZipCenter(null);
+              onChange({
+                zip,
+                city: "",
+                street: "",
+                houseNumber: "",
+                fullAddress: undefined,
+                lat: undefined,
+                lng: undefined,
+                placeId: undefined,
+              });
+            }}
+            className={cn(
+              "w-full pl-9 font-mono tracking-wider",
+              invalidZip && "border-destructive"
+            )}
           />
         </div>
+        {invalidZip && (
+          <p className="mt-1 text-[11px] text-destructive">Enter a valid 5-digit US ZIP</p>
+        )}
       </div>
 
       {/* City */}
-      <div>
+      <div className="min-w-0">
         <Label className="mb-1 block text-[11px] font-medium text-muted-foreground">
           City
         </Label>
@@ -1305,7 +1328,7 @@ function LocationBlock({
           <select
             value={side.city}
             onChange={(e) => onChange({ city: e.target.value })}
-            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+            className="flex h-10 w-full min-w-0 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
           >
             <option value="">Select a city…</option>
             {cities.map((c) => (
@@ -1327,9 +1350,18 @@ function LocationBlock({
             }
             value={side.city}
             onChange={(e) => onChange({ city: e.target.value })}
+            className={cn("w-full min-w-0", cityMismatch && "border-destructive")}
           />
         )}
+        {cityMismatch && (
+          <p className="mt-1 text-[11px] text-destructive">
+            {side.city} doesn't match ZIP {side.zip} — expected{" "}
+            {cities.slice(0, 3).join(", ")}
+            {cities.length > 3 ? "…" : ""}.
+          </p>
+        )}
       </div>
+
 
       {/* Street (Google Places) — enabled only after city is selected */}
       <div>

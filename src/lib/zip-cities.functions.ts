@@ -4,10 +4,13 @@ import { z } from "zod";
 export interface ZipCitiesResult {
   zip: string;
   state: string;
+  /** Primary (preferred) city for this ZIP — always one of `cities` when present. */
+  primary: string;
   cities: string[];
   lat: number;
   lng: number;
 }
+
 
 interface GeocodeComponent {
   long_name: string;

@@ -18,9 +18,12 @@ export function loadGoogleMaps(): Promise<typeof google> {
   if (window.google?.maps?.places) return Promise.resolve(window.google);
   if (loaderPromise) return loaderPromise;
 
-  const key = import.meta.env.VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_BROWSER_KEY as
-    | string
-    | undefined;
+  // Prefer an operator-supplied key (works on any domain you own), otherwise the
+  // Lovable-managed connector key (referrer-restricted to *.lovable.app /
+  // *.lovableproject.com — it 403s on production domains).
+  const key = (import.meta.env.VITE_GOOGLE_MAPS_BROWSER_KEY ||
+    import.meta.env.VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_BROWSER_KEY) as
+
   const channel = import.meta.env.VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_TRACKING_ID as
     | string
     | undefined;

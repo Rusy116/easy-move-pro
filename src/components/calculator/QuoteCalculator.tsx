@@ -1694,18 +1694,19 @@ function InventoryBuilder({
                 </span>
               </AccordionTrigger>
               <AccordionContent className="px-3 pb-3">
-                <div className="grid gap-1.5">
+                <div className="grid min-w-0 grid-cols-[minmax(0,1fr)] gap-1.5">
                   {items.map((item) => {
                     const qty = counts[item.id] ?? 0;
                     return (
-                      <div key={item.id} className="flex items-center justify-between rounded-md bg-muted/40 px-3 py-1.5">
-                        <div className="min-w-0">
+                      <div key={item.id} className="flex min-w-0 items-center justify-between gap-2 rounded-md bg-muted/40 px-3 py-1.5">
+                        <div className="min-w-0 flex-1">
                           <div className="truncate text-sm font-medium">{item.label}</div>
-                          <div className="text-[10px] text-muted-foreground">
+                          <div className="truncate text-[10px] text-muted-foreground">
                             {item.cubicFeet} ft³ · {item.weightLbs} lb
                           </div>
                         </div>
-                        <div className="flex items-center gap-1">
+                        <div className="flex shrink-0 items-center gap-1">
+
                           <button
                             type="button"
                             onClick={() => setQty(item.id, qty - 1)}

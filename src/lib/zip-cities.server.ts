@@ -25,22 +25,15 @@ interface GeocodeResult {
 }
 
 async function viaGoogle(zip: string): Promise<ZipCitiesResult | null> {
-  const lovableKey = process.env.LOVABLE_API_KEY;
-  const connKey = process.env.GOOGLE_MAPS_API_KEY;
-  if (!lovableKey || !connKey) return null;
-  const url =
-    `https://connector-gateway.lovable.dev/google_maps/maps/api/geocode/json` +
-    `?components=${encodeURIComponent(`country:US|postal_code:${zip}`)}`;
-  const resp = await fetch(url, {
-    headers: {
-      Authorization: `Bearer ${lovableKey}`,
-      "X-Connection-Api-Key": connKey,
-    },
-  });
+  if (mapsTransportMode() === "unavailable") return null;
+  const resp = await mapsFetch(
+    `maps/api/geocode/json?components=${encodeURIComponent(`country:US|postal_code:${zip}`)}`
+  );
   if (!resp.ok) {
     console.error("zip geocode failed", resp.status, await resp.text());
     return null;
   }
+
   const body = (await resp.json()) as { status: string; results: GeocodeResult[] };
   if (body.status !== "OK" || !body.results?.length) return null;
   const r = body.results[0];

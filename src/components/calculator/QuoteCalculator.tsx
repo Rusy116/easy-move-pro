@@ -602,7 +602,7 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
       </div>
 
       {stage === "form" && (
-      <div className="grid gap-6 p-5 sm:p-8 md:grid-cols-2">
+      <div className="grid grid-cols-[minmax(0,1fr)] gap-6 p-5 sm:p-8 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
         {/* Origin ----------------------------------------------------------- */}
         <SectionCard step="01" label="Origin">
           <LocationBlock

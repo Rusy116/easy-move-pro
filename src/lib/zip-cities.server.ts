@@ -1,6 +1,9 @@
 // Server-side ZIP → city/state resolution.
-// Primary source: Google Geocoding (through the Lovable Google Maps connector).
+// Primary source: Google Geocoding (connector gateway on Lovable, direct key elsewhere).
 // Fallback: Zippopotam (keyless, public) so the ZIP is always the source of truth.
+
+import { mapsFetch, mapsTransportMode } from "./google-maps-transport.server";
+
 
 export interface ZipCitiesResult {
   zip: string;

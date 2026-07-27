@@ -2,6 +2,9 @@
 // Real deployments will proxy to a ZIP/geocoding API (Google Maps, USPS, Zippopotam).
 // The `resolveZip` function is async so the future API swap is a drop-in replacement.
 
+import { zipToState } from "./us-states";
+
+
 export interface ZipLocation {
   zip: string;
   city: string;

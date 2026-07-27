@@ -1,6 +1,7 @@
 // Lazy loader for the Google Maps JavaScript API (Places library).
-// Uses the referrer-restricted browser key from the Google Maps connector.
 // Loaded asynchronously via `loading=async` + a global callback.
+
+import { isEasyMoveProductionHost, isLovableMapsHost } from "./google-maps-public-config";
 
 let loaderPromise: Promise<typeof google> | null = null;
 
@@ -18,19 +19,26 @@ export function loadGoogleMaps(): Promise<typeof google> {
   if (window.google?.maps?.places) return Promise.resolve(window.google);
   if (loaderPromise) return loaderPromise;
 
-  // Prefer an operator-supplied key (works on any domain you own), otherwise the
-  // Lovable-managed connector key (referrer-restricted to *.lovable.app /
-  // *.lovableproject.com — it 403s on production domains).
-  const key = (import.meta.env.VITE_GOOGLE_MAPS_BROWSER_KEY ||
-    import.meta.env.VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_BROWSER_KEY) as string | undefined;
+  const host = window.location.hostname.toLowerCase();
+  const productionBrowserKey = import.meta.env.VITE_GOOGLE_MAPS_BROWSER_KEY as string | undefined;
+  const previewBrowserKey = import.meta.env.VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_BROWSER_KEY as
+    | string
+    | undefined;
 
-
+  // Production domains must use the customer-owned key whose HTTP referrers include:
+  // https://easymove.pro/* and https://www.easymove.pro/*.
+  // Never fall back to the Lovable-managed key on production/custom domains: that key
+  // is intentionally restricted to Lovable preview/published hosts and causes 403s.
+  const key = productionBrowserKey || (isLovableMapsHost(host) ? previewBrowserKey : undefined);
 
   const channel = import.meta.env.VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_TRACKING_ID as
     | string
     | undefined;
   if (!key) {
-    return Promise.reject(new Error("google-maps: browser key missing"));
+    const suffix = isEasyMoveProductionHost(host)
+      ? " for easymove.pro; set VITE_GOOGLE_MAPS_BROWSER_KEY in Production"
+      : "";
+    return Promise.reject(new Error(`google-maps: browser key missing${suffix}`));
   }
 
   loaderPromise = new Promise<typeof google>((resolve, reject) => {

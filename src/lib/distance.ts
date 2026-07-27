@@ -1,8 +1,8 @@
-// Distance API abstraction. Today: haversine over ZIP centroids + a road-distance
-// multiplier. Tomorrow: swap in Google Maps Distance Matrix via the Google Maps
-// connector without touching the calculator UI.
+// Distance API abstraction. Uses Google Routes server-side when configured and
+// falls back to deterministic ZIP-centroid road estimates when unavailable.
 
 import { haversineMiles, resolveZip, type ZipLocation } from "./zip-database";
+import { computeDistanceFn } from "./distance.functions";
 
 export interface DistanceResult {
   miles: number;
@@ -26,6 +26,20 @@ export async function computeDistance(
   originCoords?: { lat: number; lng: number } | null,
   destinationCoords?: { lat: number; lng: number } | null
 ): Promise<DistanceResult | null> {
+  try {
+    const precise = await computeDistanceFn({
+      data: {
+        originZip,
+        destinationZip,
+        originCoords: originCoords ?? null,
+        destinationCoords: destinationCoords ?? null,
+      },
+    });
+    if (precise) return precise;
+  } catch (error) {
+    console.error("server distance failed", error);
+  }
+
   const [originZipLoc, destinationZipLoc] = await Promise.all([
     resolveZip(originZip),
     resolveZip(destinationZip),

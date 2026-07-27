@@ -16,19 +16,21 @@ export interface AutocompleteResponse {
   error?: "not_configured" | "request_failed";
 }
 
-const autocompleteInput = z.object({
-  input: z.string().min(2).max(200),
-  lat: z.number().optional(),
-  lng: z.number().optional(),
-  radius: z.number().optional(),
-});
-
 export const placesAutocomplete = createServerFn({ method: "POST" })
-  .inputValidator((data: unknown) => autocompleteInput.parse(data))
+  .inputValidator((data: unknown) =>
+    z
+      .object({
+        input: z.string().min(2).max(200),
+        lat: z.number().optional(),
+        lng: z.number().optional(),
+        radius: z.number().optional(),
+      })
+      .parse(data)
+  )
   .handler(async ({ data }): Promise<AutocompleteResponse> => {
     if (!placesConfigured()) {
       console.error(
-        "[places] no server-side Google Maps credential — set GOOGLE_MAPS_SERVER_KEY in this environment"
+        "[places] no server-side Google Maps credential available in this environment"
       );
       return { suggestions: [], error: "not_configured" };
     }

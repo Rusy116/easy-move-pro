@@ -208,7 +208,11 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
   const [form, setForm] = useState<FormState>(() => createInitialForm());
   const [originLoc, setOriginLoc] = useState<ZipLocation | null>(null);
   const [destLoc, setDestLoc] = useState<FromMaybeNull>(null);
-  const [distance, setDistance] = useState<{ miles: number; type: MoveType } | null>(null);
+  const [distance, setDistance] = useState<{
+    miles: number;
+    type: MoveType;
+    provider: "haversine" | "google-maps";
+  } | null>(null);
   const [saving, setSaving] = useState(false);
   const [insuranceModal, setInsuranceModal] = useState<InsuranceTier | null>(null);
   const [stage, setStage] = useState<"form" | "submitting" | "summary" | "done">("form");
@@ -285,7 +289,7 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
       computeDistance(form.origin.zip, form.destination.zip, oCoords, dCoords).then((r) => {
         if (cancelled || !r) return;
         const sameState = r.origin.state === r.destination.state;
-        setDistance({ miles: r.miles, type: sameState ? "local" : "interstate" });
+        setDistance({ miles: r.miles, type: sameState ? "local" : "interstate", provider: r.provider });
       });
     } else {
       setDistance(null);
@@ -429,7 +433,7 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
         contact_phone: form.phone || null,
         details: {
           preferredTime: form.preferredTime,
-          provider: "haversine-v1",
+          provider: distance.provider,
           clientQuoteId,
           originHouseNumber: o.houseNumber,
           originStreet: o.street,

@@ -1188,10 +1188,10 @@ function ZipInput({
           className={cn("pl-9 font-mono tracking-wider", invalid && "border-destructive")}
         />
       </div>
-      <p className="mt-1 min-h-4 text-xs text-muted-foreground">
-        {loc ? (
+      <p className="mt-1 min-h-4 truncate text-xs text-muted-foreground">
+        {loc?.city ? (
           <span className="inline-flex items-center gap-1 text-sage">
-            <Check className="h-3 w-3" /> {loc.city}, {loc.state}
+            <Check className="h-3 w-3 shrink-0" /> {loc.city}, {loc.state}
           </span>
         ) : invalid ? (
           <span className="text-destructive">Enter a valid 5-digit US ZIP</span>
@@ -1201,6 +1201,7 @@ function ZipInput({
           ""
         )}
       </p>
+
     </div>
   );
 }

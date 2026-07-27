@@ -28,7 +28,7 @@ export const placesAutocomplete = createServerFn({ method: "POST" })
   .handler(async ({ data }): Promise<AutocompleteResponse> => {
     if (!placesConfigured()) {
       console.error(
-        "[places] no server-side Google Maps credential — set GOOGLE_MAPS_SERVER_KEY in this environment"
+        "[places] no server-side Google Maps credential available in this environment"
       );
       return { suggestions: [], error: "not_configured" };
     }

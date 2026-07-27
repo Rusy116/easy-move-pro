@@ -1,6 +1,6 @@
-// ZIP → city list via server-side Google Geocoding (through the Lovable
-// Google Maps connector gateway). The browser key is not authorized for
-// Geocoding, so this call must happen server-side.
+// ZIP → city list via server-side Google Geocoding. Browser keys are not used
+// for Geocoding; Preview uses the connector gateway, Production uses its own
+// GOOGLE_MAPS_SERVER_KEY.
 
 import { lookupZipCitiesFn, type ZipCitiesResult } from "./zip-cities.functions";
 

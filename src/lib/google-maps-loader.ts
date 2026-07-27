@@ -22,7 +22,9 @@ export function loadGoogleMaps(): Promise<typeof google> {
   // Lovable-managed connector key (referrer-restricted to *.lovable.app /
   // *.lovableproject.com — it 403s on production domains).
   const key = (import.meta.env.VITE_GOOGLE_MAPS_BROWSER_KEY ||
-    import.meta.env.VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_BROWSER_KEY) as
+    import.meta.env.VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_BROWSER_KEY) as string | undefined;
+
+
 
   const channel = import.meta.env.VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_TRACKING_ID as
     | string

@@ -115,7 +115,14 @@ export function AddressAutocomplete({
         radius: bias.radiusMeters ?? 15000,
       } as google.maps.CircleLiteral;
     }
-    const { suggestions } = await AutocompleteSuggestion.fetchAutocompleteSuggestions(request);
+    // A blocked key can leave this promise pending forever, so bound the wait.
+    const { suggestions } = await Promise.race([
+      AutocompleteSuggestion.fetchAutocompleteSuggestions(request),
+      new Promise<never>((_, rej) =>
+        window.setTimeout(() => rej(new Error("places-js-timeout")), 3500)
+      ),
+    ]);
+
     return suggestions
       .map((s) => s.placePrediction)
       .filter((p): p is google.maps.places.PlacePrediction => !!p)

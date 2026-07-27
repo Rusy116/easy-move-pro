@@ -135,18 +135,21 @@ export function AddressAutocomplete({
       }));
   }
 
-  async function fetchViaServer(q: string): Promise<Row[]> {
+  async function fetchViaServer(q: string): Promise<{ rows: Row[]; error?: string }> {
     const res = await placesAutocomplete({
       data: {
         input: q,
         ...(bias ? { lat: bias.lat, lng: bias.lng, radius: bias.radiusMeters ?? 15000 } : {}),
       },
     });
-    return res.map((s) => ({
-      placeId: s.placeId,
-      main: s.mainText || s.text,
-      secondary: s.secondaryText,
-    }));
+    return {
+      rows: res.suggestions.map((s) => ({
+        placeId: s.placeId,
+        main: s.mainText || s.text,
+        secondary: s.secondaryText,
+      })),
+      error: res.error,
+    };
   }
 
   // Debounced fetch of suggestions
@@ -163,7 +166,7 @@ export function AddressAutocomplete({
     const reqId = ++reqIdRef.current;
     debounceRef.current = window.setTimeout(async () => {
       let next: Row[] = [];
-      let failed = false;
+      let message: string | null = null;
       let tryServer = useServerRef.current;
       if (!useServerRef.current) {
         try {
@@ -182,15 +185,21 @@ export function AddressAutocomplete({
       if (tryServer) {
         try {
           const fromServer = await fetchViaServer(q);
-          if (fromServer.length > 0 || useServerRef.current) next = fromServer;
+          if (fromServer.rows.length > 0 || useServerRef.current) next = fromServer.rows;
+          if (next.length === 0 && fromServer.error) {
+            message =
+              fromServer.error === "not_configured"
+                ? "Address lookup isn't configured on this site (missing Google Maps server key)."
+                : "Address suggestions are temporarily unavailable";
+          }
         } catch {
-          failed = next.length === 0;
+          if (next.length === 0) message = "Address suggestions are temporarily unavailable";
         }
       }
 
       if (reqId !== reqIdRef.current) return;
       setRows(next);
-      setError(failed ? "Address suggestions are temporarily unavailable" : null);
+      setError(message);
       setOpen(next.length > 0);
       setActiveIdx(0);
       setLoading(false);
@@ -200,6 +209,7 @@ export function AddressAutocomplete({
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value, jsReady, jsFailed, bias?.lat, bias?.lng, bias?.radiusMeters]);
+
 
   async function pick(row: Row) {
     if (!row) return;

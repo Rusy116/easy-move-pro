@@ -1,8 +1,9 @@
-// Server-side Places API (New) access through the Lovable Google Maps connector
-// gateway. Used as a fallback when the browser-side Maps JS Places request is
-// blocked (e.g. the managed browser key is referrer-restricted on this origin).
+// Server-side Places API (New) access.
+//
+// Works both on Lovable (Google Maps connector gateway) and on any other host
+// (direct Google call using GOOGLE_MAPS_SERVER_KEY) — see google-maps-transport.
 
-const GATEWAY = "https://connector-gateway.lovable.dev/google_maps";
+import { mapsFetch, mapsTransportMode } from "./google-maps-transport.server";
 
 export interface PlaceSuggestion {
   placeId: string;
@@ -22,21 +23,8 @@ export interface PlaceDetailsResult {
   placeId: string;
 }
 
-function keys() {
-  const lovableKey = process.env.LOVABLE_API_KEY;
-  const connKey = process.env.GOOGLE_MAPS_API_KEY;
-  if (!lovableKey || !connKey) return null;
-  return { lovableKey, connKey };
-}
-
-function gatewayHeaders(extra: Record<string, string> = {}) {
-  const k = keys()!;
-  return {
-    Authorization: `Bearer ${k.lovableKey}`,
-    "X-Connection-Api-Key": k.connKey,
-    "Content-Type": "application/json",
-    ...extra,
-  };
+export function placesConfigured(): boolean {
+  return mapsTransportMode() !== "unavailable";
 }
 
 async function guard(resp: Response, label: string) {
@@ -50,7 +38,6 @@ export async function autocompleteAddresses(
   input: string,
   bias?: { lat: number; lng: number; radius?: number } | null
 ): Promise<PlaceSuggestion[]> {
-  if (!keys()) return [];
   const body: Record<string, unknown> = {
     input,
     includedRegionCodes: ["us"],
@@ -63,12 +50,13 @@ export async function autocompleteAddresses(
       },
     };
   }
-  const resp = await fetch(`${GATEWAY}/places/v1/places:autocomplete`, {
+  const resp = await mapsFetch("places/v1/places:autocomplete", {
     method: "POST",
-    headers: gatewayHeaders(),
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
   });
   await guard(resp, "autocomplete");
+
   const json = (await resp.json()) as {
     suggestions?: Array<{
       placePrediction?: {
@@ -94,12 +82,13 @@ export async function autocompleteAddresses(
 }
 
 export async function placeDetailsById(placeId: string): Promise<PlaceDetailsResult | null> {
-  if (!keys()) return null;
-  const resp = await fetch(`${GATEWAY}/places/v1/places/${encodeURIComponent(placeId)}`, {
-    headers: gatewayHeaders({
+  const resp = await mapsFetch(`places/v1/places/${encodeURIComponent(placeId)}`, {
+    headers: {
+      "Content-Type": "application/json",
       "X-Goog-FieldMask": "id,formattedAddress,addressComponents,location",
-    }),
+    },
   });
+
   await guard(resp, "details");
   const p = (await resp.json()) as {
     id?: string;

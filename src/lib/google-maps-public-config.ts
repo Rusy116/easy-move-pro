@@ -7,7 +7,5 @@ export function isLovableMapsHost(hostname: string): boolean {
 }
 
 export function isEasyMoveProductionHost(hostname: string): boolean {
-  return PRODUCTION_GOOGLE_MAPS_HOSTS.includes(
-    hostname.toLowerCase() as (typeof PRODUCTION_GOOGLE_MAPS_HOSTS)[number]
-  );
+  return (PRODUCTION_GOOGLE_MAPS_HOSTS as readonly string[]).includes(hostname.toLowerCase());
 }

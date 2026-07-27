@@ -16,15 +16,17 @@ export interface AutocompleteResponse {
   error?: "not_configured" | "request_failed";
 }
 
-const autocompleteInput = z.object({
-  input: z.string().min(2).max(200),
-  lat: z.number().optional(),
-  lng: z.number().optional(),
-  radius: z.number().optional(),
-});
-
 export const placesAutocomplete = createServerFn({ method: "POST" })
-  .inputValidator((data: unknown) => autocompleteInput.parse(data))
+  .inputValidator((data: unknown) =>
+    z
+      .object({
+        input: z.string().min(2).max(200),
+        lat: z.number().optional(),
+        lng: z.number().optional(),
+        radius: z.number().optional(),
+      })
+      .parse(data)
+  )
   .handler(async ({ data }): Promise<AutocompleteResponse> => {
     if (!placesConfigured()) {
       console.error(

@@ -42,6 +42,8 @@ import type { ParkingDifficulty } from "@/lib/pricing-engine";
 import { computeDistance } from "@/lib/distance";
 import { isValidZip, resolveZip, type ZipLocation } from "@/lib/zip-database";
 import { lookupZipCities } from "@/lib/zip-cities";
+import { zipToState } from "@/lib/us-states";
+import { StateSelect } from "./StateSelect";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -1377,7 +1379,7 @@ function LocationBlock({
           <Label className="mb-1 block text-[11px] font-medium text-muted-foreground">
             State
           </Label>
-          <Input readOnly value={side.state} placeholder="—" className="bg-muted/40" />
+          <StateSelect value={side.state} onChange={(v) => onChange({ state: v })} />
         </div>
       </div>
 

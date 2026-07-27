@@ -1,7 +1,8 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Loader2, MapPin, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { loadGoogleMaps } from "@/lib/google-maps-loader";
+import { placeDetails, placesAutocomplete } from "@/lib/places.functions";
 import { cn } from "@/lib/utils";
 
 export interface PlaceSelection {
@@ -27,12 +28,24 @@ interface Props {
   className?: string;
 }
 
-type Suggestion = google.maps.places.AutocompleteSuggestion;
+/** Normalized suggestion — works for both the browser JS API and the server fallback. */
+interface Row {
+  placeId: string;
+  main: string;
+  secondary: string;
+  /** Present only for browser-JS suggestions; enables session-token details. */
+  prediction?: google.maps.places.PlacePrediction;
+}
 
 /**
- * Places API (New) address autocomplete. Uses AutocompleteSuggestion (not the
- * legacy `Autocomplete` widget) and Place.fetchFields for details.
- * Emits a fully geocoded `PlaceSelection` (address + city + state + ZIP + lat/lng).
+ * Places API (New) address autocomplete.
+ *
+ * Primary path: Maps JS `AutocompleteSuggestion` in the browser.
+ * Fallback path: server function through the Google Maps connector gateway.
+ * The fallback keeps suggestions working when the referrer-restricted browser
+ * key is rejected (403) on the current origin, or when the Maps JS script can't
+ * load at all — previously those failures were swallowed and the dropdown
+ * silently stayed empty.
  */
 export function AddressAutocomplete({
   placeholder,
@@ -43,18 +56,22 @@ export function AddressAutocomplete({
   disabled: disabledProp,
   className,
 }: Props) {
-  const [ready, setReady] = useState(false);
+  const [jsReady, setJsReady] = useState(false);
+  const [jsFailed, setJsFailed] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
+  const [rows, setRows] = useState<Row[]>([]);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [activeIdx, setActiveIdx] = useState(0);
 
+  // Once the browser path errors we stop retrying it for the rest of the session.
+  const useServerRef = useRef(false);
   const sessionTokenRef = useRef<google.maps.places.AutocompleteSessionToken | null>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
   const debounceRef = useRef<number | null>(null);
+  const reqIdRef = useRef(0);
 
-  // Load Maps JS API + Places library
+  // Load Maps JS API + Places library (best effort — failure falls back to server)
   useEffect(() => {
     let cancelled = false;
     loadGoogleMaps()
@@ -62,9 +79,13 @@ export function AddressAutocomplete({
         await g.maps.importLibrary("places");
         if (cancelled) return;
         sessionTokenRef.current = new g.maps.places.AutocompleteSessionToken();
-        setReady(true);
+        setJsReady(true);
       })
-      .catch((e: Error) => !cancelled && setError(e.message));
+      .catch(() => {
+        if (cancelled) return;
+        useServerRef.current = true;
+        setJsFailed(true);
+      });
     return () => {
       cancelled = true;
     };
@@ -79,110 +100,169 @@ export function AddressAutocomplete({
     return () => document.removeEventListener("mousedown", onDoc);
   }, []);
 
+  async function fetchViaBrowser(q: string): Promise<Row[]> {
+    const { AutocompleteSuggestion } = (await window.google.maps.importLibrary(
+      "places"
+    )) as google.maps.PlacesLibrary;
+    const request: google.maps.places.AutocompleteRequest = {
+      input: q,
+      sessionToken: sessionTokenRef.current ?? undefined,
+      includedRegionCodes: ["us"],
+    };
+    if (bias) {
+      request.locationBias = {
+        center: { lat: bias.lat, lng: bias.lng },
+        radius: bias.radiusMeters ?? 15000,
+      } as google.maps.CircleLiteral;
+    }
+    // A blocked key can leave this promise pending forever, so bound the wait.
+    const { suggestions } = await Promise.race([
+      AutocompleteSuggestion.fetchAutocompleteSuggestions(request),
+      new Promise<never>((_, rej) =>
+        window.setTimeout(() => rej(new Error("places-js-timeout")), 3500)
+      ),
+    ]);
+
+    return suggestions
+      .map((s) => s.placePrediction)
+      .filter((p): p is google.maps.places.PlacePrediction => !!p)
+      .slice(0, 6)
+      .map((p) => ({
+        placeId: p.placeId ?? "",
+        main: p.mainText?.text ?? p.text.text,
+        secondary: p.secondaryText?.text ?? "",
+        prediction: p,
+      }));
+  }
+
+  async function fetchViaServer(q: string): Promise<Row[]> {
+    const res = await placesAutocomplete({
+      data: {
+        input: q,
+        ...(bias ? { lat: bias.lat, lng: bias.lng, radius: bias.radiusMeters ?? 15000 } : {}),
+      },
+    });
+    return res.map((s) => ({
+      placeId: s.placeId,
+      main: s.mainText || s.text,
+      secondary: s.secondaryText,
+    }));
+  }
+
   // Debounced fetch of suggestions
   useEffect(() => {
-    if (!ready) return;
+    if (!jsReady && !jsFailed) return;
     if (debounceRef.current) window.clearTimeout(debounceRef.current);
     const q = value.trim();
     if (q.length < 2) {
-      setSuggestions([]);
+      setRows([]);
       setLoading(false);
       return;
     }
     setLoading(true);
+    const reqId = ++reqIdRef.current;
     debounceRef.current = window.setTimeout(async () => {
-      try {
-        const { AutocompleteSuggestion } = (await window.google.maps.importLibrary(
-          "places"
-        )) as google.maps.PlacesLibrary;
-        const request: google.maps.places.AutocompleteRequest = {
-          input: q,
-          sessionToken: sessionTokenRef.current ?? undefined,
-          includedRegionCodes: ["us"],
-        };
-        if (bias) {
-          request.locationBias = {
-            center: { lat: bias.lat, lng: bias.lng },
-            radius: bias.radiusMeters ?? 15000,
-          } as google.maps.CircleLiteral;
+      let next: Row[] = [];
+      let failed = false;
+      let tryServer = useServerRef.current;
+      if (!useServerRef.current) {
+        try {
+          next = await fetchViaBrowser(q);
+          // A referrer-blocked key can resolve with zero suggestions instead of
+          // rejecting, so an empty result also falls through to the server.
+          if (next.length === 0) tryServer = true;
+        } catch {
+          // Browser key rejected (referrer restriction) or transient API error —
+          // switch to the server gateway for the rest of the session.
+          useServerRef.current = true;
+          tryServer = true;
         }
-        const { suggestions } =
-          await AutocompleteSuggestion.fetchAutocompleteSuggestions(request);
-        setSuggestions(suggestions.slice(0, 6));
-        setOpen(true);
-        setActiveIdx(0);
-      } catch {
-        setSuggestions([]);
-      } finally {
-        setLoading(false);
       }
+
+      if (tryServer) {
+        try {
+          const fromServer = await fetchViaServer(q);
+          if (fromServer.length > 0 || useServerRef.current) next = fromServer;
+        } catch {
+          failed = next.length === 0;
+        }
+      }
+
+      if (reqId !== reqIdRef.current) return;
+      setRows(next);
+      setError(failed ? "Address suggestions are temporarily unavailable" : null);
+      setOpen(next.length > 0);
+      setActiveIdx(0);
+      setLoading(false);
     }, 220);
     return () => {
       if (debounceRef.current) window.clearTimeout(debounceRef.current);
     };
-  }, [value, ready, bias?.lat, bias?.lng, bias?.radiusMeters]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value, jsReady, jsFailed, bias?.lat, bias?.lng, bias?.radiusMeters]);
 
-  async function pick(s: Suggestion) {
-    const pred = s.placePrediction;
-    if (!pred) return;
+  async function pick(row: Row) {
+    if (!row) return;
     setOpen(false);
     setLoading(true);
     try {
-      const place = pred.toPlace();
-      await place.fetchFields({
-        fields: ["formattedAddress", "addressComponents", "location", "id"],
-      });
-      const comps = place.addressComponents ?? [];
-      const get = (type: string) =>
-        comps.find((c) => c.types.includes(type))?.shortText ?? "";
-      const longGet = (type: string) =>
-        comps.find((c) => c.types.includes(type))?.longText ?? "";
+      let selection: PlaceSelection | null = null;
 
-      const streetNumber = get("street_number");
-      const route = longGet("route");
-      const streetAddress = [streetNumber, route].filter(Boolean).join(" ");
-      const city =
-        longGet("locality") ||
-        longGet("sublocality") ||
-        longGet("postal_town") ||
-        longGet("administrative_area_level_2");
-      const state = get("administrative_area_level_1");
-      const zip = get("postal_code");
-      const lat = place.location?.lat() ?? 0;
-      const lng = place.location?.lng() ?? 0;
-      const formatted = place.formattedAddress ?? pred.text.text;
+      if (row.prediction && !useServerRef.current) {
+        try {
+          const place = row.prediction.toPlace();
+          await place.fetchFields({
+            fields: ["formattedAddress", "addressComponents", "location", "id"],
+          });
+          const comps = place.addressComponents ?? [];
+          const short = (type: string) =>
+            comps.find((c) => c.types.includes(type))?.shortText ?? "";
+          const long = (type: string) =>
+            comps.find((c) => c.types.includes(type))?.longText ?? "";
+          const streetAddress = [short("street_number"), long("route")]
+            .filter(Boolean)
+            .join(" ");
+          const formatted = place.formattedAddress ?? row.prediction.text.text;
+          selection = {
+            formattedAddress: formatted,
+            streetAddress: streetAddress || formatted,
+            city:
+              long("locality") ||
+              long("sublocality") ||
+              long("postal_town") ||
+              long("administrative_area_level_2"),
+            state: short("administrative_area_level_1"),
+            zip: short("postal_code"),
+            lat: place.location?.lat() ?? 0,
+            lng: place.location?.lng() ?? 0,
+            placeId: place.id ?? row.placeId,
+          };
+          // Session token is consumed on details; mint a new one for the next query
+          sessionTokenRef.current = new window.google.maps.places.AutocompleteSessionToken();
+        } catch {
+          useServerRef.current = true;
+        }
+      }
 
-      onChangeText(formatted);
-      onSelect({
-        formattedAddress: formatted,
-        streetAddress: streetAddress || formatted,
-        city,
-        state,
-        zip,
-        lat,
-        lng,
-        placeId: place.id ?? "",
-      });
+      if (!selection && row.placeId) {
+        const d = await placeDetails({ data: { placeId: row.placeId } });
+        if (d) selection = d;
+      }
 
-      // Session token is consumed on details; mint a new one for the next query
-      sessionTokenRef.current = new window.google.maps.places.AutocompleteSessionToken();
-    } catch {
-      /* swallow */
+      if (!selection) {
+        setError("Couldn't load that address — try another suggestion");
+        return;
+      }
+
+      onChangeText(selection.formattedAddress || row.main);
+      onSelect(selection);
+      setError(null);
     } finally {
       setLoading(false);
     }
   }
 
-  const disabled = disabledProp || (!ready && !error);
-
-  const primaryText = useMemo(
-    () => (s: Suggestion) => s.placePrediction?.mainText?.text ?? s.placePrediction?.text.text ?? "",
-    []
-  );
-  const secondaryText = useMemo(
-    () => (s: Suggestion) => s.placePrediction?.secondaryText?.text ?? "",
-    []
-  );
+  const disabled = disabledProp || (!jsReady && !jsFailed);
 
   return (
     <div ref={wrapRef} className={cn("relative", className)}>
@@ -193,18 +273,18 @@ export function AddressAutocomplete({
           value={value}
           disabled={disabled}
           onChange={(e) => onChangeText(e.target.value.slice(0, 200))}
-          onFocus={() => suggestions.length > 0 && setOpen(true)}
+          onFocus={() => rows.length > 0 && setOpen(true)}
           onKeyDown={(e) => {
-            if (!open || suggestions.length === 0) return;
+            if (!open || rows.length === 0) return;
             if (e.key === "ArrowDown") {
               e.preventDefault();
-              setActiveIdx((i) => Math.min(i + 1, suggestions.length - 1));
+              setActiveIdx((i) => Math.min(i + 1, rows.length - 1));
             } else if (e.key === "ArrowUp") {
               e.preventDefault();
               setActiveIdx((i) => Math.max(i - 1, 0));
             } else if (e.key === "Enter") {
               e.preventDefault();
-              pick(suggestions[activeIdx]);
+              pick(rows[activeIdx]);
             } else if (e.key === "Escape") {
               setOpen(false);
             }
@@ -217,15 +297,15 @@ export function AddressAutocomplete({
         )}
       </div>
 
-      {open && suggestions.length > 0 && (
+      {open && rows.length > 0 && (
         <div className="absolute z-50 mt-1 w-full overflow-hidden rounded-xl border border-border bg-popover shadow-lg">
-          {suggestions.map((s, i) => (
+          {rows.map((r, i) => (
             <button
-              key={s.placePrediction?.placeId ?? i}
+              key={r.placeId || i}
               type="button"
               onMouseEnter={() => setActiveIdx(i)}
               onMouseDown={(e) => e.preventDefault()}
-              onClick={() => pick(s)}
+              onClick={() => pick(r)}
               className={cn(
                 "flex w-full items-start gap-2 px-3 py-2 text-left text-sm transition-colors",
                 i === activeIdx ? "bg-muted" : "hover:bg-muted/60"
@@ -233,9 +313,9 @@ export function AddressAutocomplete({
             >
               <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-sage" />
               <div className="min-w-0">
-                <div className="truncate font-medium text-foreground">{primaryText(s)}</div>
-                {secondaryText(s) && (
-                  <div className="truncate text-xs text-muted-foreground">{secondaryText(s)}</div>
+                <div className="truncate font-medium text-foreground">{r.main}</div>
+                {r.secondary && (
+                  <div className="truncate text-xs text-muted-foreground">{r.secondary}</div>
                 )}
               </div>
             </button>
@@ -243,9 +323,7 @@ export function AddressAutocomplete({
         </div>
       )}
 
-      {error && (
-        <div className="mt-1 text-xs text-destructive">Address autocomplete unavailable</div>
-      )}
+      {error && <div className="mt-1 text-xs text-destructive">{error}</div>}
     </div>
   );
 }

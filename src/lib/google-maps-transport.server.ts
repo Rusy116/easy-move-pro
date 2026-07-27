@@ -25,9 +25,13 @@ const SUB_API_HOSTS: Record<string, string> = {
 
 export type MapsTransportMode = "gateway" | "direct" | "unavailable";
 
+function directServerKey(): string | undefined {
+  return process.env.GOOGLE_MAPS_SERVER_KEY || process.env.GOOGLE_MAPS_API_KEY;
+}
+
 export function mapsTransportMode(): MapsTransportMode {
   if (process.env.LOVABLE_API_KEY && process.env.GOOGLE_MAPS_API_KEY) return "gateway";
-  if (process.env.GOOGLE_MAPS_SERVER_KEY) return "direct";
+  if (directServerKey()) return "direct";
   return "unavailable";
 }
 
@@ -36,7 +40,8 @@ export class MapsNotConfiguredError extends Error {
   constructor() {
     super(
       "Google Maps is not configured on this server. Set GOOGLE_MAPS_SERVER_KEY " +
-        "(an unrestricted or IP-restricted Google Maps API key) in the deployment environment."
+        "or GOOGLE_MAPS_API_KEY (an unrestricted or IP-restricted Google Maps API key) " +
+        "in the deployment environment."
     );
     this.name = "MapsNotConfiguredError";
   }
@@ -58,7 +63,8 @@ export async function mapsFetch(path: string, init: RequestInit = {}): Promise<R
     return fetch(`${GATEWAY_ORIGIN}/${path}`, { ...init, headers });
   }
 
-  const key = process.env.GOOGLE_MAPS_SERVER_KEY!;
+  const key = directServerKey();
+  if (!key) throw new MapsNotConfiguredError();
   const prefix = path.split("/")[0];
   const host = SUB_API_HOSTS[prefix] ?? "https://maps.googleapis.com";
   const rest = SUB_API_HOSTS[prefix] ? path.slice(prefix.length + 1) : path;

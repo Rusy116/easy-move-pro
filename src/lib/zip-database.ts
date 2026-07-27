@@ -2,6 +2,9 @@
 // Real deployments will proxy to a ZIP/geocoding API (Google Maps, USPS, Zippopotam).
 // The `resolveZip` function is async so the future API swap is a drop-in replacement.
 
+import { zipToState } from "./us-states";
+
+
 export interface ZipLocation {
   zip: string;
   city: string;
@@ -71,8 +74,10 @@ export function isValidZip(zip: string): boolean {
 }
 
 /**
- * Async so this can be swapped for a Google Maps / USPS call later
- * without touching the calculator UI.
+ * Resolve a ZIP to an approximate location. The exact table wins; otherwise we
+ * return regional coordinates only — never a guessed city name, because a wrong
+ * city is worse than an empty one (the ZIP is the source of truth and the real
+ * city is filled in by the geocode lookup).
  */
 export async function resolveZip(zip: string): Promise<ZipLocation | null> {
   if (!isValidZip(zip)) return null;
@@ -80,8 +85,9 @@ export async function resolveZip(zip: string): Promise<ZipLocation | null> {
   if (exact) return exact;
   const region = REGION[zip[0]];
   if (!region) return null;
-  return { zip, city: region.city, state: region.state, lat: region.lat, lng: region.lng };
+  return { zip, city: "", state: zipToState(zip), lat: region.lat, lng: region.lng };
 }
+
 
 export function haversineMiles(
   a: { lat: number; lng: number },

@@ -82,12 +82,13 @@ export async function autocompleteAddresses(
 }
 
 export async function placeDetailsById(placeId: string): Promise<PlaceDetailsResult | null> {
-  if (!keys()) return null;
-  const resp = await fetch(`${GATEWAY}/places/v1/places/${encodeURIComponent(placeId)}`, {
-    headers: gatewayHeaders({
+  const resp = await mapsFetch(`places/v1/places/${encodeURIComponent(placeId)}`, {
+    headers: {
+      "Content-Type": "application/json",
       "X-Goog-FieldMask": "id,formattedAddress,addressComponents,location",
-    }),
+    },
   });
+
   await guard(resp, "details");
   const p = (await resp.json()) as {
     id?: string;

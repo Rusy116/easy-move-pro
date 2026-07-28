@@ -36,6 +36,7 @@ type Status = (typeof STATUSES)[number];
 
 const STATUS_STYLES: Record<Status, string> = {
   new: "bg-blue-100 text-blue-800 border-blue-300",
+  accepted: "bg-teal-100 text-teal-800 border-teal-300",
   contacted: "bg-amber-100 text-amber-800 border-amber-300",
   scheduled: "bg-purple-100 text-purple-800 border-purple-300",
   won: "bg-emerald-100 text-emerald-800 border-emerald-300",

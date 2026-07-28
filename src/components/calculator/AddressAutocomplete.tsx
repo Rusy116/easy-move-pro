@@ -52,6 +52,7 @@ export function AddressAutocomplete({
   value,
   onChangeText,
   onSelect,
+  biasZip,
   bias,
   disabled: disabledProp,
   className,
@@ -104,12 +105,14 @@ export function AddressAutocomplete({
     return () => document.removeEventListener("mousedown", onDoc);
   }, []);
 
+  const normalizedBiasZip = biasZip && /^\d{5}$/.test(biasZip) ? biasZip : undefined;
+
   async function fetchViaBrowser(q: string): Promise<Row[]> {
     const { AutocompleteSuggestion } = (await window.google.maps.importLibrary(
       "places"
     )) as google.maps.PlacesLibrary;
     const request: google.maps.places.AutocompleteRequest = {
-      input: q,
+      input: normalizedBiasZip ? `${q} ${normalizedBiasZip}` : q,
       sessionToken: sessionTokenRef.current ?? undefined,
       includedRegionCodes: ["us"],
     };
@@ -143,6 +146,7 @@ export function AddressAutocomplete({
     const res = await placesAutocomplete({
       data: {
         input: q,
+        ...(normalizedBiasZip ? { zip: normalizedBiasZip } : {}),
         ...(bias ? { lat: bias.lat, lng: bias.lng, radius: bias.radiusMeters ?? 15000 } : {}),
       },
     });
@@ -173,8 +177,9 @@ export function AddressAutocomplete({
     debounceRef.current = window.setTimeout(async () => {
       let next: Row[] = [];
       let message: string | null = null;
-      let tryServer = useServerRef.current || !jsReady;
-      if (!useServerRef.current && jsReady) {
+      const preferServer = Boolean(normalizedBiasZip);
+      let tryServer = preferServer || useServerRef.current || !jsReady;
+      if (!preferServer && !useServerRef.current && jsReady) {
         try {
           next = await fetchViaBrowser(q);
           // A referrer-blocked key can resolve with zero suggestions instead of
@@ -202,6 +207,14 @@ export function AddressAutocomplete({
         }
       }
 
+      if (next.length === 0 && preferServer && !useServerRef.current && jsReady) {
+        try {
+          next = await fetchViaBrowser(q);
+        } catch {
+          useServerRef.current = true;
+        }
+      }
+
       if (reqId !== reqIdRef.current) return;
       setRows(next);
       setError(message);
@@ -213,7 +226,7 @@ export function AddressAutocomplete({
       if (debounceRef.current) window.clearTimeout(debounceRef.current);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [value, jsReady, jsFailed, bias?.lat, bias?.lng, bias?.radiusMeters]);
+  }, [value, jsReady, jsFailed, bias?.lat, bias?.lng, bias?.radiusMeters, normalizedBiasZip]);
 
 
   async function pick(row: Row) {

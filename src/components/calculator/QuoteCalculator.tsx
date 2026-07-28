@@ -1340,10 +1340,10 @@ function LocationBlock({
                 city: "",
                 street: "",
                 houseNumber: "",
-                fullAddress: undefined,
-                lat: undefined,
-                lng: undefined,
-                placeId: undefined,
+                fullAddress: "",
+                lat: null,
+                lng: null,
+                placeId: "",
               });
             }}
             className={cn(
@@ -1410,6 +1410,7 @@ function LocationBlock({
           placeholder="Start typing your street address"
           value={side.street}
           onChangeText={(v) => onChange({ street: v })}
+          biasZip={side.zip}
           bias={zipCenter}
           onSelect={(p: PlaceSelection) => {
             const parts = p.streetAddress.trim().split(/\s+/);

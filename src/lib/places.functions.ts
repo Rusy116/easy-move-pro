@@ -21,6 +21,7 @@ export const placesAutocomplete = createServerFn({ method: "POST" })
     z
       .object({
         input: z.string().min(2).max(200),
+        zip: z.string().regex(/^\d{5}$/).optional(),
         lat: z.number().optional(),
         lng: z.number().optional(),
         radius: z.number().optional(),
@@ -39,7 +40,7 @@ export const placesAutocomplete = createServerFn({ method: "POST" })
         ? { lat: data.lat, lng: data.lng, radius: data.radius }
         : null;
     try {
-      return { suggestions: await autocompleteAddresses(data.input, bias) };
+      return { suggestions: await autocompleteAddresses(data.input, bias, data.zip) };
     } catch (e) {
       console.error("[places] autocomplete failed", e);
       return { suggestions: [], error: "request_failed" };

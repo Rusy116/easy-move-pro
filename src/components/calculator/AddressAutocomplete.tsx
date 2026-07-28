@@ -157,7 +157,9 @@ export function AddressAutocomplete({
 
   // Debounced fetch of suggestions
   useEffect(() => {
-    if (!jsReady && !jsFailed) return;
+    // No early return while Maps JS is still loading — the server path below
+    // handles those keystrokes, and the effect re-runs once JS becomes ready.
+
     if (debounceRef.current) window.clearTimeout(debounceRef.current);
     const q = value.trim();
     if (q.length < 2) {

@@ -82,7 +82,9 @@ type Quote = {
   exclusive_pause_reason: string | null;
   visibility_mask: Record<string, boolean> | null;
   closed_reason: string | null;
+  job_status?: string | null;
 };
+
 
 function getCustomerName(q: Quote): string {
   const d = q.details as { fullName?: string } | null;
@@ -230,6 +232,18 @@ export function LeadDetailPanel({
                 </Link>
               </Button>
             )}
+            <Button
+              size="sm"
+              className="bg-emerald-600 text-white hover:bg-emerald-700"
+              disabled={qualifying || !["new", "qualified", "expired", "cancelled"].includes(q.job_status ?? "new")}
+              onClick={() => void qualifyLead(q.id)}
+            >
+              <CheckCircle2 className="mr-2 h-4 w-4" />
+              {["new", "qualified", "expired", "cancelled"].includes(q.job_status ?? "new")
+                ? "Qualified Lead"
+                : "Published to movers"}
+            </Button>
+
             <div className="ml-auto flex items-center gap-2">
               <Select value={q.status} onValueChange={(v) => void onStatusChange(q.id, v)}>
                 <SelectTrigger className="h-8 w-[140px] capitalize"><SelectValue /></SelectTrigger>

@@ -1056,25 +1056,34 @@ export type Database = {
         Row: {
           avatar_url: string | null
           created_at: string
+          first_name: string | null
           full_name: string | null
           id: string
+          last_name: string | null
           phone: string | null
+          status: string
           updated_at: string
         }
         Insert: {
           avatar_url?: string | null
           created_at?: string
+          first_name?: string | null
           full_name?: string | null
           id: string
+          last_name?: string | null
           phone?: string | null
+          status?: string
           updated_at?: string
         }
         Update: {
           avatar_url?: string | null
           created_at?: string
+          first_name?: string | null
           full_name?: string | null
           id?: string
+          last_name?: string | null
           phone?: string | null
+          status?: string
           updated_at?: string
         }
         Relationships: []
@@ -1881,6 +1890,8 @@ export type Database = {
         Args: { _assignment_id: string }
         Returns: undefined
       }
+      fn_my_account_status: { Args: never; Returns: string }
+      fn_my_primary_role: { Args: never; Returns: string }
       fn_pause_sla: {
         Args: { _quote_id: string; _reason: string }
         Returns: undefined
@@ -1950,6 +1961,8 @@ export type Database = {
         Returns: boolean
       }
       is_admin: { Args: never; Returns: boolean }
+      is_broker: { Args: never; Returns: boolean }
+      is_staff: { Args: never; Returns: boolean }
       log_lead_event: {
         Args: {
           _actor_role: string

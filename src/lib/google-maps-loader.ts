@@ -8,6 +8,13 @@ let loaderPromise: Promise<typeof google> | null = null;
 declare const __EASY_MOVE_GOOGLE_MAPS_BROWSER_KEY__: string | undefined;
 declare const __EASY_MOVE_GOOGLE_MAPS_TRACKING_ID__: string | undefined;
 
+export function hasPublicBrowserPlacesKey(): boolean {
+  return Boolean(
+    (import.meta.env.VITE_GOOGLE_MAPS_BROWSER_KEY as string | undefined) ||
+      (import.meta.env.VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_BROWSER_KEY as string | undefined)
+  );
+}
+
 declare global {
   interface Window {
     __easyMoveGmapsInit?: () => void;

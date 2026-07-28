@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Loader2, MapPin, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { loadGoogleMaps } from "@/lib/google-maps-loader";
+import { hasPublicBrowserPlacesKey, loadGoogleMaps } from "@/lib/google-maps-loader";
 import { placeDetails, placesAutocomplete } from "@/lib/places.functions";
 import { cn } from "@/lib/utils";
 
@@ -65,7 +65,7 @@ export function AddressAutocomplete({
   const [activeIdx, setActiveIdx] = useState(0);
 
   // Once the browser path errors we stop retrying it for the rest of the session.
-  const useServerRef = useRef(false);
+  const useServerRef = useRef(!hasPublicBrowserPlacesKey());
   const sessionTokenRef = useRef<google.maps.places.AutocompleteSessionToken | null>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
   const debounceRef = useRef<number | null>(null);
@@ -73,6 +73,7 @@ export function AddressAutocomplete({
 
   // Load Maps JS API + Places library (best effort — failure falls back to server)
   useEffect(() => {
+    if (useServerRef.current) return;
     let cancelled = false;
     loadGoogleMaps()
       .then(async (g) => {

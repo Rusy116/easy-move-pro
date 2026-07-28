@@ -911,63 +911,117 @@ export type Database = {
       moving_companies: {
         Row: {
           active: boolean
+          address_city: string | null
+          address_line1: string | null
+          address_state: string | null
+          address_zip: string | null
           approved: boolean
           created_at: string
           dot_number: string | null
           email: string | null
+          fleet_size: number | null
           id: string
+          insurance_carrier: string | null
+          insurance_expires: string | null
+          insurance_policy: string | null
           license_status: string
           logo_url: string | null
           mc_number: string | null
+          movers_count: number | null
           name: string
           notes: string | null
+          owner_first_name: string | null
+          owner_last_name: string | null
           phone: string | null
           rating: number | null
+          rejection_reason: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          service_cities: string[]
           service_states: string[]
+          services_offered: string[]
           settings: Json
           slug: string | null
+          status: string
           suspended: boolean
           updated_at: string
+          website: string | null
         }
         Insert: {
           active?: boolean
+          address_city?: string | null
+          address_line1?: string | null
+          address_state?: string | null
+          address_zip?: string | null
           approved?: boolean
           created_at?: string
           dot_number?: string | null
           email?: string | null
+          fleet_size?: number | null
           id?: string
+          insurance_carrier?: string | null
+          insurance_expires?: string | null
+          insurance_policy?: string | null
           license_status?: string
           logo_url?: string | null
           mc_number?: string | null
+          movers_count?: number | null
           name: string
           notes?: string | null
+          owner_first_name?: string | null
+          owner_last_name?: string | null
           phone?: string | null
           rating?: number | null
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          service_cities?: string[]
           service_states?: string[]
+          services_offered?: string[]
           settings?: Json
           slug?: string | null
+          status?: string
           suspended?: boolean
           updated_at?: string
+          website?: string | null
         }
         Update: {
           active?: boolean
+          address_city?: string | null
+          address_line1?: string | null
+          address_state?: string | null
+          address_zip?: string | null
           approved?: boolean
           created_at?: string
           dot_number?: string | null
           email?: string | null
+          fleet_size?: number | null
           id?: string
+          insurance_carrier?: string | null
+          insurance_expires?: string | null
+          insurance_policy?: string | null
           license_status?: string
           logo_url?: string | null
           mc_number?: string | null
+          movers_count?: number | null
           name?: string
           notes?: string | null
+          owner_first_name?: string | null
+          owner_last_name?: string | null
           phone?: string | null
           rating?: number | null
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          service_cities?: string[]
           service_states?: string[]
+          services_offered?: string[]
           settings?: Json
           slug?: string | null
+          status?: string
           suspended?: boolean
           updated_at?: string
+          website?: string | null
         }
         Relationships: []
       }

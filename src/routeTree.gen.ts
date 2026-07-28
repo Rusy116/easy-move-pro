@@ -34,6 +34,7 @@ import { Route as PartnersIndexRouteImport } from './routes/partners.index'
 import { Route as CitiesIndexRouteImport } from './routes/cities.index'
 import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as PortalQuoteNumberRouteImport } from './routes/portal.$quoteNumber'
+import { Route as PartnersApplyRouteImport } from './routes/partners.apply'
 import { Route as PartnersLocationRouteImport } from './routes/partners.$location'
 import { Route as LearnTopicRouteImport } from './routes/learn.$topic'
 import { Route as CompareSlugRouteImport } from './routes/compare.$slug'
@@ -46,6 +47,7 @@ import { Route as AuthenticatedCompanyIndexRouteImport } from './routes/_authent
 import { Route as AuthenticatedBrokerIndexRouteImport } from './routes/_authenticated/broker.index'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as ApiPublicSlaTickRouteImport } from './routes/api/public/sla-tick'
+import { Route as AuthenticatedCompanySupportRouteImport } from './routes/_authenticated/company.support'
 import { Route as AuthenticatedCompanySettingsRouteImport } from './routes/_authenticated/company.settings'
 import { Route as AuthenticatedCompanyScheduleRouteImport } from './routes/_authenticated/company.schedule'
 import { Route as AuthenticatedCompanyProfileRouteImport } from './routes/_authenticated/company.profile'
@@ -189,6 +191,11 @@ const PortalQuoteNumberRoute = PortalQuoteNumberRouteImport.update({
   path: '/portal/$quoteNumber',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PartnersApplyRoute = PartnersApplyRouteImport.update({
+  id: '/partners/apply',
+  path: '/partners/apply',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PartnersLocationRoute = PartnersLocationRouteImport.update({
   id: '/partners/$location',
   path: '/partners/$location',
@@ -251,6 +258,12 @@ const ApiPublicSlaTickRoute = ApiPublicSlaTickRouteImport.update({
   path: '/api/public/sla-tick',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedCompanySupportRoute =
+  AuthenticatedCompanySupportRouteImport.update({
+    id: '/support',
+    path: '/support',
+    getParentRoute: () => AuthenticatedCompanyRoute,
+  } as any)
 const AuthenticatedCompanySettingsRoute =
   AuthenticatedCompanySettingsRouteImport.update({
     id: '/settings',
@@ -388,6 +401,7 @@ export interface FileRoutesByFullPath {
   '/compare/$slug': typeof CompareSlugRoute
   '/learn/$topic': typeof LearnTopicRoute
   '/partners/$location': typeof PartnersLocationRoute
+  '/partners/apply': typeof PartnersApplyRoute
   '/portal/$quoteNumber': typeof PortalQuoteNumberRoute
   '/blog/': typeof BlogIndexRoute
   '/cities/': typeof CitiesIndexRoute
@@ -410,6 +424,7 @@ export interface FileRoutesByFullPath {
   '/company/profile': typeof AuthenticatedCompanyProfileRoute
   '/company/schedule': typeof AuthenticatedCompanyScheduleRoute
   '/company/settings': typeof AuthenticatedCompanySettingsRoute
+  '/company/support': typeof AuthenticatedCompanySupportRoute
   '/api/public/sla-tick': typeof ApiPublicSlaTickRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/broker/': typeof AuthenticatedBrokerIndexRoute
@@ -443,6 +458,7 @@ export interface FileRoutesByTo {
   '/compare/$slug': typeof CompareSlugRoute
   '/learn/$topic': typeof LearnTopicRoute
   '/partners/$location': typeof PartnersLocationRoute
+  '/partners/apply': typeof PartnersApplyRoute
   '/portal/$quoteNumber': typeof PortalQuoteNumberRoute
   '/blog': typeof BlogIndexRoute
   '/cities': typeof CitiesIndexRoute
@@ -465,6 +481,7 @@ export interface FileRoutesByTo {
   '/company/profile': typeof AuthenticatedCompanyProfileRoute
   '/company/schedule': typeof AuthenticatedCompanyScheduleRoute
   '/company/settings': typeof AuthenticatedCompanySettingsRoute
+  '/company/support': typeof AuthenticatedCompanySupportRoute
   '/api/public/sla-tick': typeof ApiPublicSlaTickRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/broker': typeof AuthenticatedBrokerIndexRoute
@@ -501,6 +518,7 @@ export interface FileRoutesById {
   '/compare/$slug': typeof CompareSlugRoute
   '/learn/$topic': typeof LearnTopicRoute
   '/partners/$location': typeof PartnersLocationRoute
+  '/partners/apply': typeof PartnersApplyRoute
   '/portal/$quoteNumber': typeof PortalQuoteNumberRoute
   '/blog/': typeof BlogIndexRoute
   '/cities/': typeof CitiesIndexRoute
@@ -523,6 +541,7 @@ export interface FileRoutesById {
   '/_authenticated/company/profile': typeof AuthenticatedCompanyProfileRoute
   '/_authenticated/company/schedule': typeof AuthenticatedCompanyScheduleRoute
   '/_authenticated/company/settings': typeof AuthenticatedCompanySettingsRoute
+  '/_authenticated/company/support': typeof AuthenticatedCompanySupportRoute
   '/api/public/sla-tick': typeof ApiPublicSlaTickRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/broker/': typeof AuthenticatedBrokerIndexRoute
@@ -559,6 +578,7 @@ export interface FileRouteTypes {
     | '/compare/$slug'
     | '/learn/$topic'
     | '/partners/$location'
+    | '/partners/apply'
     | '/portal/$quoteNumber'
     | '/blog/'
     | '/cities/'
@@ -581,6 +601,7 @@ export interface FileRouteTypes {
     | '/company/profile'
     | '/company/schedule'
     | '/company/settings'
+    | '/company/support'
     | '/api/public/sla-tick'
     | '/admin/'
     | '/broker/'
@@ -614,6 +635,7 @@ export interface FileRouteTypes {
     | '/compare/$slug'
     | '/learn/$topic'
     | '/partners/$location'
+    | '/partners/apply'
     | '/portal/$quoteNumber'
     | '/blog'
     | '/cities'
@@ -636,6 +658,7 @@ export interface FileRouteTypes {
     | '/company/profile'
     | '/company/schedule'
     | '/company/settings'
+    | '/company/support'
     | '/api/public/sla-tick'
     | '/admin'
     | '/broker'
@@ -671,6 +694,7 @@ export interface FileRouteTypes {
     | '/compare/$slug'
     | '/learn/$topic'
     | '/partners/$location'
+    | '/partners/apply'
     | '/portal/$quoteNumber'
     | '/blog/'
     | '/cities/'
@@ -693,6 +717,7 @@ export interface FileRouteTypes {
     | '/_authenticated/company/profile'
     | '/_authenticated/company/schedule'
     | '/_authenticated/company/settings'
+    | '/_authenticated/company/support'
     | '/api/public/sla-tick'
     | '/_authenticated/admin/'
     | '/_authenticated/broker/'
@@ -726,6 +751,7 @@ export interface RootRouteChildren {
   CompareSlugRoute: typeof CompareSlugRoute
   LearnTopicRoute: typeof LearnTopicRoute
   PartnersLocationRoute: typeof PartnersLocationRoute
+  PartnersApplyRoute: typeof PartnersApplyRoute
   PortalQuoteNumberRoute: typeof PortalQuoteNumberRoute
   BlogIndexRoute: typeof BlogIndexRoute
   CitiesIndexRoute: typeof CitiesIndexRoute
@@ -910,6 +936,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PortalQuoteNumberRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/partners/apply': {
+      id: '/partners/apply'
+      path: '/partners/apply'
+      fullPath: '/partners/apply'
+      preLoaderRoute: typeof PartnersApplyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/partners/$location': {
       id: '/partners/$location'
       path: '/partners/$location'
@@ -993,6 +1026,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/public/sla-tick'
       preLoaderRoute: typeof ApiPublicSlaTickRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/company/support': {
+      id: '/_authenticated/company/support'
+      path: '/support'
+      fullPath: '/company/support'
+      preLoaderRoute: typeof AuthenticatedCompanySupportRouteImport
+      parentRoute: typeof AuthenticatedCompanyRoute
     }
     '/_authenticated/company/settings': {
       id: '/_authenticated/company/settings'
@@ -1138,6 +1178,7 @@ interface AuthenticatedCompanyRouteChildren {
   AuthenticatedCompanyProfileRoute: typeof AuthenticatedCompanyProfileRoute
   AuthenticatedCompanyScheduleRoute: typeof AuthenticatedCompanyScheduleRoute
   AuthenticatedCompanySettingsRoute: typeof AuthenticatedCompanySettingsRoute
+  AuthenticatedCompanySupportRoute: typeof AuthenticatedCompanySupportRoute
   AuthenticatedCompanyIndexRoute: typeof AuthenticatedCompanyIndexRoute
 }
 
@@ -1157,6 +1198,7 @@ const AuthenticatedCompanyRouteChildren: AuthenticatedCompanyRouteChildren = {
   AuthenticatedCompanyProfileRoute: AuthenticatedCompanyProfileRoute,
   AuthenticatedCompanyScheduleRoute: AuthenticatedCompanyScheduleRoute,
   AuthenticatedCompanySettingsRoute: AuthenticatedCompanySettingsRoute,
+  AuthenticatedCompanySupportRoute: AuthenticatedCompanySupportRoute,
   AuthenticatedCompanyIndexRoute: AuthenticatedCompanyIndexRoute,
 }
 
@@ -1217,6 +1259,7 @@ const rootRouteChildren: RootRouteChildren = {
   CompareSlugRoute: CompareSlugRoute,
   LearnTopicRoute: LearnTopicRoute,
   PartnersLocationRoute: PartnersLocationRoute,
+  PartnersApplyRoute: PartnersApplyRoute,
   PortalQuoteNumberRoute: PortalQuoteNumberRoute,
   BlogIndexRoute: BlogIndexRoute,
   CitiesIndexRoute: CitiesIndexRoute,

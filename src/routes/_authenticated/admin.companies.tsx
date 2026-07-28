@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { AdminShell } from "@/components/admin/AdminShell";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -24,7 +24,11 @@ import {
 import { toast } from "sonner";
 import { useServerFn } from "@tanstack/react-start";
 import { attachMemberByEmail } from "@/lib/companies.functions";
-import { Plus, UserPlus, Building2, Trash2 } from "lucide-react";
+import { adminSetCompanyStatus, type CompanyStatus } from "@/lib/partners.functions";
+import {
+  Plus, UserPlus, Building2, Trash2, FileCheck2, CheckCircle2, XCircle,
+  PauseCircle, RotateCcw, Download,
+} from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/admin/companies")({
   head: () => ({ meta: [{ title: "Moving Companies — Admin" }] }),
@@ -43,9 +47,41 @@ type Company = {
   rating: number | null;
   license_status: string;
   active: boolean;
+  status: CompanyStatus;
+  rejection_reason: string | null;
+  owner_first_name: string | null;
+  owner_last_name: string | null;
+  website: string | null;
+  address_line1: string | null;
+  address_city: string | null;
+  address_state: string | null;
+  address_zip: string | null;
+  insurance_carrier: string | null;
+  insurance_policy: string | null;
+  insurance_expires: string | null;
+  fleet_size: number | null;
+  movers_count: number | null;
+  service_cities: string[] | null;
+  services_offered: string[] | null;
+  created_at: string;
 };
 
 const LICENSE_STATUSES = ["active", "pending", "suspended", "expired"] as const;
+
+const STATUS_TABS = [
+  { key: "pending", label: "Pending approval" },
+  { key: "approved", label: "Approved" },
+  { key: "suspended", label: "Suspended" },
+  { key: "rejected", label: "Rejected" },
+  { key: "all", label: "All" },
+] as const;
+
+const STATUS_STYLE: Record<CompanyStatus, string> = {
+  pending: "bg-amber-50 text-amber-800 border-amber-300",
+  approved: "bg-emerald-50 text-emerald-800 border-emerald-300",
+  suspended: "bg-orange-50 text-orange-800 border-orange-300",
+  rejected: "bg-rose-50 text-rose-800 border-rose-300",
+};
 
 function CompaniesAdmin() {
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
@@ -53,7 +89,11 @@ function CompaniesAdmin() {
   const [loading, setLoading] = useState(false);
   const [editing, setEditing] = useState<Company | null>(null);
   const [addingMemberFor, setAddingMemberFor] = useState<Company | null>(null);
+  const [reviewing, setReviewing] = useState<Company | null>(null);
+  const [rejecting, setRejecting] = useState<Company | null>(null);
+  const [tab, setTab] = useState<(typeof STATUS_TABS)[number]["key"]>("pending");
   const [createOpen, setCreateOpen] = useState(false);
+  const setStatus = useServerFn(adminSetCompanyStatus);
 
   useEffect(() => {
     (async () => {
@@ -84,6 +124,25 @@ function CompaniesAdmin() {
   useEffect(() => {
     if (isAdmin) void load();
   }, [isAdmin, load]);
+
+  const visible = useMemo(
+    () => (tab === "all" ? companies : companies.filter((c) => c.status === tab)),
+    [companies, tab],
+  );
+
+  const changeStatus = useCallback(
+    async (c: Company, status: CompanyStatus, reason?: string) => {
+      try {
+        await setStatus({ data: { companyId: c.id, status, reason } });
+        toast.success(`${c.name} — status set to ${status}`);
+        void load();
+      } catch (e) {
+        toast.error(e instanceof Error ? e.message : "Could not update status");
+      }
+    },
+    [setStatus, load],
+  );
+
 
   if (isAdmin === null) {
     return (
@@ -120,6 +179,7 @@ function CompaniesAdmin() {
               Moving Companies
             </h1>
             <p className="mt-1 text-sm text-muted-foreground">
+              {companies.filter((c) => c.status === "pending").length} awaiting approval ·{" "}
               {companies.length} partner companies
             </p>
           </div>
@@ -144,18 +204,41 @@ function CompaniesAdmin() {
           </div>
         </div>
 
+        <div className="mt-6 flex flex-wrap gap-2">
+          {STATUS_TABS.map((t) => {
+            const count =
+              t.key === "all"
+                ? companies.length
+                : companies.filter((c) => c.status === t.key).length;
+            return (
+              <button
+                key={t.key}
+                onClick={() => setTab(t.key)}
+                className={`rounded-full border px-3.5 py-1.5 text-sm transition ${
+                  tab === t.key
+                    ? "border-primary bg-primary/10 text-primary"
+                    : "border-border text-muted-foreground hover:border-primary/40"
+                }`}
+              >
+                {t.label}
+                <span className="ml-1.5 text-xs opacity-70">{count}</span>
+              </button>
+            );
+          })}
+        </div>
+
         <div className="mt-6 grid gap-4 md:grid-cols-2">
           {loading && companies.length === 0 && (
             <div className="col-span-full text-center text-muted-foreground py-12">
               Loading…
             </div>
           )}
-          {!loading && companies.length === 0 && (
+          {!loading && visible.length === 0 && (
             <div className="col-span-full rounded-2xl border border-dashed border-border bg-card p-10 text-center text-sm text-muted-foreground">
-              No companies yet. Create the first partner to start assigning leads.
+              No companies in this view.
             </div>
           )}
-          {companies.map((c) => (
+          {visible.map((c) => (
             <div key={c.id} className="rounded-2xl border border-border bg-card p-5">
               <div className="flex items-start gap-3">
                 {c.logo_url ? (
@@ -172,6 +255,9 @@ function CompaniesAdmin() {
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
                     <h3 className="font-serif text-lg font-medium">{c.name}</h3>
+                    <Badge variant="outline" className={STATUS_STYLE[c.status] ?? ""}>
+                      {c.status === "pending" ? "pending approval" : c.status}
+                    </Badge>
                     <Badge
                       variant="outline"
                       className={
@@ -180,27 +266,100 @@ function CompaniesAdmin() {
                           : "bg-amber-50 text-amber-800 border-amber-300"
                       }
                     >
-                      {c.license_status}
+                      license: {c.license_status}
                     </Badge>
-                    {!c.active && (
-                      <Badge variant="outline" className="bg-neutral-100 text-neutral-700">
-                        inactive
-                      </Badge>
-                    )}
                   </div>
                   <div className="mt-1 text-xs text-muted-foreground space-y-0.5">
+                    {(c.owner_first_name || c.owner_last_name) && (
+                      <div>
+                        Owner: {[c.owner_first_name, c.owner_last_name].filter(Boolean).join(" ")}
+                      </div>
+                    )}
                     {c.dot_number && <div>DOT #{c.dot_number}</div>}
                     {c.mc_number && <div>MC #{c.mc_number}</div>}
                     {c.email && <div>{c.email}</div>}
                     {c.phone && <div>{c.phone}</div>}
+                    {c.website && <div>{c.website}</div>}
+                    {(c.address_city || c.address_state) && (
+                      <div>
+                        {[c.address_line1, c.address_city, c.address_state, c.address_zip]
+                          .filter(Boolean)
+                          .join(", ")}
+                      </div>
+                    )}
+                    {c.insurance_carrier && (
+                      <div>
+                        Insurance: {c.insurance_carrier}
+                        {c.insurance_policy ? ` · ${c.insurance_policy}` : ""}
+                        {c.insurance_expires ? ` · expires ${c.insurance_expires}` : ""}
+                      </div>
+                    )}
+                    {(c.fleet_size || c.movers_count) && (
+                      <div>
+                        Fleet: {c.fleet_size ?? "—"} trucks · {c.movers_count ?? "—"} movers
+                      </div>
+                    )}
                     {c.service_states.length > 0 && (
                       <div>Serves: {c.service_states.join(", ")}</div>
                     )}
+                    {(c.service_cities?.length ?? 0) > 0 && (
+                      <div>Cities: {c.service_cities!.slice(0, 8).join(", ")}</div>
+                    )}
+                    {(c.services_offered?.length ?? 0) > 0 && (
+                      <div>Services: {c.services_offered!.join(", ")}</div>
+                    )}
                     {c.rating !== null && <div>★ {Number(c.rating).toFixed(1)}</div>}
+                    {c.status === "rejected" && c.rejection_reason && (
+                      <div className="text-rose-700">Rejected: {c.rejection_reason}</div>
+                    )}
                   </div>
                 </div>
               </div>
+
               <div className="mt-4 flex flex-wrap gap-2">
+                <Button size="sm" variant="outline" onClick={() => setReviewing(c)}>
+                  <FileCheck2 className="mr-1.5 h-4 w-4" />
+                  Review documents
+                </Button>
+                {c.status !== "approved" && (
+                  <Button
+                    size="sm"
+                    className="bg-emerald-600 hover:bg-emerald-700"
+                    onClick={() => void changeStatus(c, "approved")}
+                  >
+                    <CheckCircle2 className="mr-1.5 h-4 w-4" />
+                    {c.status === "suspended" || c.status === "rejected" ? "Restore" : "Approve"}
+                  </Button>
+                )}
+                {c.status !== "rejected" && (
+                  <Button size="sm" variant="outline" onClick={() => setRejecting(c)}>
+                    <XCircle className="mr-1.5 h-4 w-4" />
+                    Reject
+                  </Button>
+                )}
+                {c.status === "approved" && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => void changeStatus(c, "suspended")}
+                  >
+                    <PauseCircle className="mr-1.5 h-4 w-4" />
+                    Suspend
+                  </Button>
+                )}
+                {c.status === "suspended" && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => void changeStatus(c, "pending")}
+                  >
+                    <RotateCcw className="mr-1.5 h-4 w-4" />
+                    Back to pending
+                  </Button>
+                )}
+              </div>
+
+              <div className="mt-2 flex flex-wrap gap-2">
                 <Button size="sm" variant="outline" onClick={() => setEditing(c)}>
                   Edit
                 </Button>
@@ -231,6 +390,25 @@ function CompaniesAdmin() {
           ))}
         </div>
       </section>
+
+      {reviewing && (
+        <Dialog open onOpenChange={(o) => !o && setReviewing(null)}>
+          <CompanyDocumentsDialog company={reviewing} />
+        </Dialog>
+      )}
+
+      {rejecting && (
+        <Dialog open onOpenChange={(o) => !o && setRejecting(null)}>
+          <RejectDialog
+            company={rejecting}
+            onReject={async (reason) => {
+              await changeStatus(rejecting, "rejected", reason);
+              setRejecting(null);
+            }}
+          />
+        </Dialog>
+      )}
+
 
       {editing && (
         <Dialog open onOpenChange={(o) => !o && setEditing(null)}>
@@ -465,5 +643,125 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
       </Label>
       <div className="mt-1">{children}</div>
     </div>
+  );
+}
+
+type CompanyDoc = {
+  id: string;
+  kind: string;
+  name: string;
+  storage_path: string | null;
+  external_url: string | null;
+  size_bytes: number | null;
+  created_at: string;
+};
+
+function CompanyDocumentsDialog({ company }: { company: Company }) {
+  const [docs, setDocs] = useState<CompanyDoc[] | null>(null);
+
+  useEffect(() => {
+    (async () => {
+      const { data, error } = await supabase
+        .from("company_documents")
+        .select("id, kind, name, storage_path, external_url, size_bytes, created_at")
+        .eq("company_id", company.id)
+        .order("created_at", { ascending: false });
+      if (error) toast.error(error.message);
+      setDocs((data ?? []) as CompanyDoc[]);
+    })();
+  }, [company.id]);
+
+  async function open(d: CompanyDoc) {
+    if (d.external_url) {
+      window.open(d.external_url, "_blank");
+      return;
+    }
+    if (!d.storage_path) return;
+    const { data, error } = await supabase.storage
+      .from("company-documents")
+      .createSignedUrl(d.storage_path, 300);
+    if (error || !data) {
+      toast.error(error?.message ?? "Could not open the document");
+      return;
+    }
+    window.open(data.signedUrl, "_blank");
+  }
+
+  return (
+    <DialogContent className="max-w-lg">
+      <DialogHeader>
+        <DialogTitle>Documents — {company.name}</DialogTitle>
+      </DialogHeader>
+      {docs === null && <p className="text-sm text-muted-foreground">Loading…</p>}
+      {docs?.length === 0 && (
+        <p className="text-sm text-muted-foreground">
+          This company has not uploaded any documents yet.
+        </p>
+      )}
+      <div className="grid gap-2">
+        {(docs ?? []).map((d) => (
+          <button
+            key={d.id}
+            onClick={() => void open(d)}
+            className="flex items-center justify-between gap-3 rounded-xl border border-border px-4 py-3 text-left text-sm hover:border-primary/50"
+          >
+            <span className="min-w-0">
+              <span className="block truncate font-medium">{d.name}</span>
+              <span className="text-xs text-muted-foreground">
+                {d.kind} · {new Date(d.created_at).toLocaleDateString()}
+              </span>
+            </span>
+            <Download className="h-4 w-4 shrink-0 text-muted-foreground" />
+          </button>
+        ))}
+      </div>
+    </DialogContent>
+  );
+}
+
+function RejectDialog({
+  company,
+  onReject,
+}: {
+  company: Company;
+  onReject: (reason: string) => Promise<void>;
+}) {
+  const [reason, setReason] = useState(company.rejection_reason ?? "");
+  const [busy, setBusy] = useState(false);
+
+  return (
+    <DialogContent className="max-w-md">
+      <DialogHeader>
+        <DialogTitle>Reject {company.name}</DialogTitle>
+      </DialogHeader>
+      <p className="text-sm text-muted-foreground">
+        The company keeps portal access and can correct its information and documents, then request
+        a new review.
+      </p>
+      <div className="grid gap-2">
+        <Label>Rejection reason</Label>
+        <Textarea
+          rows={4}
+          value={reason}
+          onChange={(e) => setReason(e.target.value)}
+          placeholder="e.g. Insurance certificate expired — please upload a current COI."
+        />
+      </div>
+      <div className="flex justify-end">
+        <Button
+          disabled={busy || reason.trim().length < 5}
+          onClick={async () => {
+            setBusy(true);
+            try {
+              await onReject(reason.trim());
+            } finally {
+              setBusy(false);
+            }
+          }}
+        >
+          {busy ? "Rejecting…" : "Reject application"}
+        </Button>
+      </div>
+    </DialogContent>
   );
 }

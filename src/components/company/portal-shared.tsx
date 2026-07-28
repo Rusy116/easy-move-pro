@@ -37,6 +37,8 @@ export type Company = {
   rating: number | null;
   license_status: string;
   approved: boolean | null;
+  status: "pending" | "approved" | "rejected" | "suspended" | null;
+  rejection_reason: string | null;
   suspended: boolean | null;
   settings: Record<string, unknown> | null;
 };

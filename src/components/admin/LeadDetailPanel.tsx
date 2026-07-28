@@ -15,6 +15,7 @@ import { Phone, Mail, StickyNote, Clock, ExternalLink, Building2, User, Package,
 import { supabase } from "@/integrations/supabase/client";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
+import { Link } from "@tanstack/react-router";
 import { AssignCompanies } from "./AssignCompanies";
 import { BrokerSelect, assignBroker } from "./BrokerSelect";
 import { SlaCountdown } from "./SlaCountdown";

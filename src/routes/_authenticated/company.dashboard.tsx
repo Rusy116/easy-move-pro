@@ -14,6 +14,18 @@ export const Route = createFileRoute("/_authenticated/company/dashboard")({
 
 function DashboardPage() {
   const { loading, company, merged, reload } = useMoverPortal();
+  const { available, myJobs } = useCompanyJobs(company?.id ?? null);
+
+  const jobStats = useMemo(() => {
+    const closed: JobStatus[] = ["completed", "cancelled", "rejected", "expired"];
+    return {
+      available: available.length,
+      active: myJobs.filter((j) => !closed.includes(j.job_status as JobStatus)).length,
+      awaitingResponse: myJobs.filter((j) => j.job_status === "claimed").length,
+      booked: myJobs.filter((j) => j.job_status === "booked").length,
+    };
+  }, [available, myJobs]);
+
 
   const stats = useMemo(() => {
     const total = merged.length;

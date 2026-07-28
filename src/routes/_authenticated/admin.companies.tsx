@@ -645,3 +645,123 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
     </div>
   );
 }
+
+type CompanyDoc = {
+  id: string;
+  kind: string;
+  name: string;
+  storage_path: string | null;
+  external_url: string | null;
+  size_bytes: number | null;
+  created_at: string;
+};
+
+function CompanyDocumentsDialog({ company }: { company: Company }) {
+  const [docs, setDocs] = useState<CompanyDoc[] | null>(null);
+
+  useEffect(() => {
+    (async () => {
+      const { data, error } = await supabase
+        .from("company_documents")
+        .select("id, kind, name, storage_path, external_url, size_bytes, created_at")
+        .eq("company_id", company.id)
+        .order("created_at", { ascending: false });
+      if (error) toast.error(error.message);
+      setDocs((data ?? []) as CompanyDoc[]);
+    })();
+  }, [company.id]);
+
+  async function open(d: CompanyDoc) {
+    if (d.external_url) {
+      window.open(d.external_url, "_blank");
+      return;
+    }
+    if (!d.storage_path) return;
+    const { data, error } = await supabase.storage
+      .from("company-documents")
+      .createSignedUrl(d.storage_path, 300);
+    if (error || !data) {
+      toast.error(error?.message ?? "Could not open the document");
+      return;
+    }
+    window.open(data.signedUrl, "_blank");
+  }
+
+  return (
+    <DialogContent className="max-w-lg">
+      <DialogHeader>
+        <DialogTitle>Documents — {company.name}</DialogTitle>
+      </DialogHeader>
+      {docs === null && <p className="text-sm text-muted-foreground">Loading…</p>}
+      {docs?.length === 0 && (
+        <p className="text-sm text-muted-foreground">
+          This company has not uploaded any documents yet.
+        </p>
+      )}
+      <div className="grid gap-2">
+        {(docs ?? []).map((d) => (
+          <button
+            key={d.id}
+            onClick={() => void open(d)}
+            className="flex items-center justify-between gap-3 rounded-xl border border-border px-4 py-3 text-left text-sm hover:border-primary/50"
+          >
+            <span className="min-w-0">
+              <span className="block truncate font-medium">{d.name}</span>
+              <span className="text-xs text-muted-foreground">
+                {d.kind} · {new Date(d.created_at).toLocaleDateString()}
+              </span>
+            </span>
+            <Download className="h-4 w-4 shrink-0 text-muted-foreground" />
+          </button>
+        ))}
+      </div>
+    </DialogContent>
+  );
+}
+
+function RejectDialog({
+  company,
+  onReject,
+}: {
+  company: Company;
+  onReject: (reason: string) => Promise<void>;
+}) {
+  const [reason, setReason] = useState(company.rejection_reason ?? "");
+  const [busy, setBusy] = useState(false);
+
+  return (
+    <DialogContent className="max-w-md">
+      <DialogHeader>
+        <DialogTitle>Reject {company.name}</DialogTitle>
+      </DialogHeader>
+      <p className="text-sm text-muted-foreground">
+        The company keeps portal access and can correct its information and documents, then request
+        a new review.
+      </p>
+      <div className="grid gap-2">
+        <Label>Rejection reason</Label>
+        <Textarea
+          rows={4}
+          value={reason}
+          onChange={(e) => setReason(e.target.value)}
+          placeholder="e.g. Insurance certificate expired — please upload a current COI."
+        />
+      </div>
+      <div className="flex justify-end">
+        <Button
+          disabled={busy || reason.trim().length < 5}
+          onClick={async () => {
+            setBusy(true);
+            try {
+              await onReject(reason.trim());
+            } finally {
+              setBusy(false);
+            }
+          }}
+        >
+          {busy ? "Rejecting…" : "Reject application"}
+        </Button>
+      </div>
+    </DialogContent>
+  );
+}

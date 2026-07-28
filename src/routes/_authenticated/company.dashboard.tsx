@@ -1,8 +1,11 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo } from "react";
 import { CompanyHeader, NoCompanyScreen, StatusBanner, useMoverPortal } from "@/components/company/portal-shared";
 import { StatCard, SkeletonRows } from "@/components/shell/Chrome";
-import { Inbox, Lock, Globe, CheckCircle2, XCircle, Clock, Send, TrendingUp } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useCompanyJobs, type JobStatus } from "@/lib/company-jobs";
+import { Inbox, Lock, Globe, CheckCircle2, XCircle, Clock, Send, TrendingUp, Truck } from "lucide-react";
+
 
 export const Route = createFileRoute("/_authenticated/company/dashboard")({
   head: () => ({ meta: [{ title: "Dashboard — Company Portal" }] }),
@@ -11,6 +14,18 @@ export const Route = createFileRoute("/_authenticated/company/dashboard")({
 
 function DashboardPage() {
   const { loading, company, merged, reload } = useMoverPortal();
+  const { available, myJobs } = useCompanyJobs(company?.id ?? null);
+
+  const jobStats = useMemo(() => {
+    const closed: JobStatus[] = ["completed", "cancelled", "rejected", "expired"];
+    return {
+      available: available.length,
+      active: myJobs.filter((j) => !closed.includes(j.job_status as JobStatus)).length,
+      awaitingResponse: myJobs.filter((j) => j.job_status === "claimed").length,
+      booked: myJobs.filter((j) => j.job_status === "booked").length,
+    };
+  }, [available, myJobs]);
+
 
   const stats = useMemo(() => {
     const total = merged.length;
@@ -50,6 +65,22 @@ function DashboardPage() {
     <div className="space-y-6">
       <CompanyHeader company={company} onRefresh={reload} />
       <StatusBanner company={company} />
+
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <StatCard label="Available jobs"   value={jobStats.available} icon={<Globe className="h-4 w-4" />} />
+        <StatCard label="My active jobs"   value={jobStats.active} icon={<Truck className="h-4 w-4" />} />
+        <StatCard label="Awaiting contact" value={jobStats.awaitingResponse} icon={<Clock className="h-4 w-4" />} />
+        <StatCard label="Booked"           value={jobStats.booked} icon={<CheckCircle2 className="h-4 w-4" />} />
+      </div>
+      <div className="flex flex-wrap gap-2">
+        <Button asChild size="sm" className="rounded-full">
+          <Link to="/company/jobs">Browse available jobs</Link>
+        </Button>
+        <Button asChild size="sm" variant="outline" className="rounded-full">
+          <Link to="/company/myjobs">My jobs</Link>
+        </Button>
+      </div>
+
 
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
         <StatCard label="Total leads"     value={stats.total}      icon={<Inbox className="h-4 w-4" />} />

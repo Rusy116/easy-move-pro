@@ -66,7 +66,17 @@ type QuoteRow = {
   inventory: { id: string; quantity: number }[] | null;
   breakdown: { label: string; amount: number }[] | null;
   details: Record<string, unknown> | null;
+  job_status: string | null;
+  final_price: number | null;
+  final_move_date: string | null;
+  arrival_window: string | null;
+  crew_size: number | null;
+  final_truck_size: string | null;
+  company_notes: string | null;
+  final_quote_sent_at: string | null;
+  customer_response_at: string | null;
 };
+
 
 function money(n: number | null | undefined) {
   return typeof n === "number" ? `$${Math.round(n).toLocaleString("en-US")}` : "—";
@@ -81,6 +91,8 @@ function PortalPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [accepting, setAccepting] = useState(false);
+  const [responding, setResponding] = useState(false);
+
 
   useEffect(() => {
     let cancelled = false;
@@ -93,7 +105,7 @@ function PortalPage() {
       const { data, error } = await supabase
         .from("quotes")
         .select(
-          "id, quote_number, portal_token, status, accepted_at, created_at, contact_email, contact_phone, origin_address, origin_city, origin_state, origin_zip, destination_address, destination_city, destination_state, destination_zip, move_date, distance_miles, num_movers, labor_hours, truck_size, estimated_cubic_feet, estimated_weight_lbs, estimated_low, estimated_high, insurance_tier, inventory, breakdown, details",
+          "id, quote_number, portal_token, status, accepted_at, created_at, contact_email, contact_phone, origin_address, origin_city, origin_state, origin_zip, destination_address, destination_city, destination_state, destination_zip, move_date, distance_miles, num_movers, labor_hours, truck_size, estimated_cubic_feet, estimated_weight_lbs, estimated_low, estimated_high, insurance_tier, inventory, breakdown, details, job_status, final_price, final_move_date, arrival_window, crew_size, final_truck_size, company_notes, final_quote_sent_at, customer_response_at",
         )
         .eq("quote_number", quoteNumber)
         .eq("portal_token", token)
@@ -113,6 +125,48 @@ function PortalPage() {
       cancelled = true;
     };
   }, [quoteNumber, token]);
+
+  // Live updates: the assigned moving company can send a final quote at any time.
+  useEffect(() => {
+    if (!quote?.id) return;
+    const channel = supabase
+      .channel(`portal-quote-${quote.id}`)
+      .on(
+        "postgres_changes",
+        { event: "UPDATE", schema: "public", table: "quotes", filter: `id=eq.${quote.id}` },
+        (payload) => {
+          const row = payload.new as Partial<QuoteRow>;
+          setQuote((prev) => (prev ? { ...prev, ...row } : prev));
+        },
+      )
+      .subscribe();
+    return () => {
+      void supabase.removeChannel(channel);
+    };
+  }, [quote?.id]);
+
+  async function handleFinalResponse(accept: boolean) {
+    if (!quote || !token) return;
+    setResponding(true);
+    const { error } = await supabase.rpc("fn_customer_respond_final_quote", {
+      _quote_number: quote.quote_number,
+      _token: token,
+      _accept: accept,
+    });
+    setResponding(false);
+    if (error) {
+      toast.error(error.message || "Could not submit your response.");
+      return;
+    }
+    setQuote({
+      ...quote,
+      job_status: accept ? "accepted" : "rejected",
+      customer_response_at: new Date().toISOString(),
+      accepted_at: accept ? new Date().toISOString() : quote.accepted_at,
+    });
+    toast.success(accept ? "Final quote accepted." : "Final quote rejected.");
+  }
+
 
   async function handleAccept() {
     if (!quote || !token) return;
@@ -242,7 +296,79 @@ function PortalPage() {
           </div>
         </div>
 
+        {/* Final quote from the assigned moving company */}
+        {quote.final_quote_sent_at && (
+          <section className="mt-8 rounded-3xl border-2 border-emerald-600/30 bg-emerald-500/5 p-6 sm:p-8">
+            <div className="text-[11px] font-semibold uppercase tracking-widest text-emerald-700">
+              Final quote from your moving company
+            </div>
+            <div className="mt-2 font-serif text-4xl font-medium tracking-tight sm:text-5xl">
+              {money(quote.final_price)}
+            </div>
+            <div className="mt-4 grid gap-4 sm:grid-cols-3">
+              <InfoCard
+                title="Confirmed move date"
+                icon={<Calendar className="h-4 w-4" />}
+                lines={[quote.final_move_date || quote.move_date || "To be confirmed"]}
+              />
+              <InfoCard
+                title="Arrival window"
+                icon={<Truck className="h-4 w-4" />}
+                lines={[quote.arrival_window || "To be confirmed"]}
+              />
+              <InfoCard
+                title="Crew & truck"
+                icon={<Truck className="h-4 w-4" />}
+                lines={[
+                  quote.crew_size ? `${quote.crew_size} movers` : "—",
+                  quote.final_truck_size || "—",
+                ]}
+              />
+            </div>
+            {quote.company_notes && (
+              <div className="mt-4 rounded-2xl border border-border bg-card p-4 text-sm">
+                <div className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
+                  Company notes
+                </div>
+                <p className="mt-2 whitespace-pre-line">{quote.company_notes}</p>
+              </div>
+            )}
+
+            {quote.job_status === "final_quote_sent" ? (
+              <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+                <Button
+                  onClick={() => void handleFinalResponse(true)}
+                  disabled={responding}
+                  size="lg"
+                  className="rounded-full bg-emerald-600 text-white hover:bg-emerald-700"
+                >
+                  {responding ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <CheckCircle2 className="mr-2 h-4 w-4" />}
+                  Accept Final Quote
+                </Button>
+                <Button
+                  onClick={() => void handleFinalResponse(false)}
+                  disabled={responding}
+                  size="lg"
+                  variant="outline"
+                  className="rounded-full"
+                >
+                  Reject Quote
+                </Button>
+              </div>
+            ) : (
+              <div className="mt-6 inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-2 text-sm font-medium">
+                {quote.job_status === "rejected"
+                  ? "You rejected this final quote."
+                  : quote.job_status === "accepted"
+                    ? "You accepted this final quote."
+                    : `Status: ${quote.job_status ?? "—"}`}
+              </div>
+            )}
+          </section>
+        )}
+
         {/* Estimate card */}
+
         <div className="mt-8 overflow-hidden rounded-3xl border border-border bg-gradient-to-br from-primary/5 to-transparent p-6 sm:p-8">
           <div className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
             Estimated Total

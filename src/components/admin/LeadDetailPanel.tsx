@@ -11,7 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
-import { Phone, Mail, StickyNote, Clock, ExternalLink, Building2, User, Package, MapPin, EyeOff, PauseCircle, PlayCircle, XCircle, X } from "lucide-react";
+import { Phone, Mail, StickyNote, Clock, ExternalLink, Building2, User, Package, MapPin, EyeOff, PauseCircle, PlayCircle, XCircle, X, CheckCircle2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
@@ -82,7 +82,9 @@ type Quote = {
   exclusive_pause_reason: string | null;
   visibility_mask: Record<string, boolean> | null;
   closed_reason: string | null;
+  job_status?: string | null;
 };
+
 
 function getCustomerName(q: Quote): string {
   const d = q.details as { fullName?: string } | null;
@@ -108,6 +110,8 @@ export function LeadDetailPanel({
   const [history, setHistory] = useState<History[]>([]);
   const [newNote, setNewNote] = useState("");
   const [savingNote, setSavingNote] = useState(false);
+  const [qualifying, setQualifying] = useState(false);
+
   const [brokerId, setBrokerId] = useState<string | null>(q?.assigned_broker_id ?? null);
 
   useEffect(() => {
@@ -174,6 +178,14 @@ export function LeadDetailPanel({
 
 
 
+  async function qualifyLead(quoteId: string) {
+    setQualifying(true);
+    const { error } = await supabase.rpc("fn_broker_qualify_lead", { _quote_id: quoteId });
+    setQualifying(false);
+    if (error) return toast.error(error.message);
+    toast.success("Lead qualified — now visible to all approved moving companies.");
+  }
+
   async function runEngine(fn: () => Promise<unknown>, ok: string) {
     try {
       await fn();
@@ -182,6 +194,7 @@ export function LeadDetailPanel({
       toast.error(e instanceof Error ? e.message : "Failed");
     }
   }
+
 
   return (
     <Sheet open={!!quote} onOpenChange={(o) => !o && onClose()}>
@@ -230,6 +243,18 @@ export function LeadDetailPanel({
                 </Link>
               </Button>
             )}
+            <Button
+              size="sm"
+              className="bg-emerald-600 text-white hover:bg-emerald-700"
+              disabled={qualifying || !["new", "qualified", "expired", "cancelled"].includes(q.job_status ?? "new")}
+              onClick={() => void qualifyLead(q.id)}
+            >
+              <CheckCircle2 className="mr-2 h-4 w-4" />
+              {["new", "qualified", "expired", "cancelled"].includes(q.job_status ?? "new")
+                ? "Qualified Lead"
+                : "Published to movers"}
+            </Button>
+
             <div className="ml-auto flex items-center gap-2">
               <Select value={q.status} onValueChange={(v) => void onStatusChange(q.id, v)}>
                 <SelectTrigger className="h-8 w-[140px] capitalize"><SelectValue /></SelectTrigger>

@@ -73,7 +73,16 @@ const PROPERTY_TYPES: { value: PropertyType; label: string; Icon: typeof Home }[
 ];
 
 
+export type CarryDistance = "short" | "medium" | "long";
+
+const CARRY_OPTIONS: { value: CarryDistance; label: string }[] = [
+  { value: "short", label: "Under 50 ft" },
+  { value: "medium", label: "50-150 ft" },
+  { value: "long", label: "Over 150 ft" },
+];
+
 interface SideState {
+  propertyType: PropertyType;
   zip: string;
   city: string;
   state: string;
@@ -87,9 +96,12 @@ interface SideState {
   elevator: boolean;
   longCarry: boolean;
   parking: ParkingDifficulty;
+  carry: CarryDistance;
+  accessNotes: string;
 }
 
 const EMPTY_SIDE: SideState = {
+  propertyType: "apartment",
   zip: "",
   city: "",
   state: "",
@@ -103,12 +115,13 @@ const EMPTY_SIDE: SideState = {
   elevator: false,
   longCarry: false,
   parking: "easy",
+  carry: "short",
+  accessNotes: "",
 };
 
 interface FormState {
   origin: SideState;
   destination: SideState;
-  propertyType: PropertyType;
   inventory: InventoryCounts;
   // Services
   packing: boolean;
@@ -139,7 +152,6 @@ interface FormState {
 const DEFAULT: FormState = {
   origin: { ...EMPTY_SIDE },
   destination: { ...EMPTY_SIDE },
-  propertyType: "apartment",
   inventory: {},
   packing: false,
   unpacking: false,
@@ -392,8 +404,20 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
         destination_state: d.state || destLoc?.state || null,
         distance_miles: distance.miles,
         move_type: distance.type,
-        move_size: form.propertyType,
-        property_type: form.propertyType,
+        move_size: o.propertyType,
+        property_type: o.propertyType,
+        pickup_property_type: o.propertyType,
+        delivery_property_type: d.propertyType,
+        pickup_floor: o.floor,
+        delivery_floor: d.floor,
+        pickup_elevator: o.elevator,
+        delivery_elevator: d.elevator,
+        pickup_parking_distance: o.parking,
+        delivery_parking_distance: d.parking,
+        pickup_carry_distance: o.carry,
+        delivery_carry_distance: d.carry,
+        pickup_notes: o.accessNotes || null,
+        delivery_notes: d.accessNotes || null,
         bedrooms: 0,
         floor: Math.max(o.floor, d.floor) + 1,
         elevator: o.elevator || d.elevator,
@@ -537,7 +561,7 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
         quote: quote!,
         distance: distance!,
         propertyLabel:
-          PROPERTY_TYPES.find((p) => p.value === form.propertyType)?.label ?? "",
+          PROPERTY_TYPES.find((p) => p.value === form.origin.propertyType)?.label ?? "",
         services,
         moveDate: form.moveDate,
         fullName: form.fullName,
@@ -600,7 +624,7 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
         <PriceHeader
           quote={quote}
           distance={distance}
-          propertyType={form.propertyType}
+          propertyType={form.origin.propertyType}
           selectedServices={selectedServices}
         />
       </div>
@@ -611,6 +635,7 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
         <SectionCard step="01" label="Origin">
           <LocationBlock
             side={form.origin}
+            role="from"
             onChange={(patch, expectedZip) => setLocationSide("origin", patch, expectedZip)}
             fallbackLoc={originLoc}
           />
@@ -620,6 +645,7 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
         <SectionCard step="02" label="Destination">
           <LocationBlock
             side={form.destination}
+            role="to"
             onChange={(patch, expectedZip) => setLocationSide("destination", patch, expectedZip)}
             fallbackLoc={destLoc}
           />
@@ -633,38 +659,6 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
             <span className="capitalize">{distance.type} move</span>
           </div>
         )}
-
-        {/* Property type --------------------------------------------------- */}
-        <SectionCard step="03" label="Property type" className="md:col-span-2">
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-            {PROPERTY_TYPES.map(({ value, label, Icon }) => {
-              const active = form.propertyType === value;
-              return (
-                <button
-                  key={value}
-                  type="button"
-                  onClick={() => set("propertyType", value)}
-                  className={cn(
-                    "flex flex-col items-start gap-1.5 rounded-xl border p-2.5 text-left transition-all",
-                    active
-                      ? "border-primary bg-primary/5 ring-2 ring-primary/20"
-                      : "border-border bg-card hover:border-primary/40"
-                  )}
-                >
-                  <div
-                    className={cn(
-                      "grid h-7 w-7 place-items-center rounded-lg",
-                      active ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
-                    )}
-                  >
-                    <Icon className="h-3.5 w-3.5" />
-                  </div>
-                  <div className="text-xs font-medium">{label}</div>
-                </button>
-              );
-            })}
-          </div>
-        </SectionCard>
 
         {/* Inventory builder ----------------------------------------------- */}
         <SectionCard step="04" label="Inventory (optional but recommended)" className="md:col-span-2">
@@ -1214,7 +1208,9 @@ function LocationBlock({
   side,
   onChange,
   fallbackLoc,
+  role,
 }: {
+  role: "from" | "to";
   side: SideState;
   onChange: (patch: Partial<SideState>, expectedZip?: string) => void;
   fallbackLoc: ZipLocation | null;
@@ -1374,11 +1370,10 @@ function LocationBlock({
           Street
         </Label>
         <AddressAutocomplete
-          placeholder={side.city ? "Start typing street name" : "Select city first"}
+          placeholder="Start typing your street address"
           value={side.street}
           onChangeText={(v) => onChange({ street: v })}
           bias={zipCenter}
-          disabled={!side.city}
           onSelect={(p: PlaceSelection) => {
             const parts = p.streetAddress.trim().split(/\s+/);
             const first = parts[0] ?? "";
@@ -1885,7 +1880,7 @@ function ReviewScreen({
   saving: boolean;
 }) {
   const propertyLabel =
-    PROPERTY_TYPES.find((p) => p.value === form.propertyType)?.label ?? "";
+    PROPERTY_TYPES.find((p) => p.value === form.origin.propertyType)?.label ?? "";
 
   const inventorySummary = Object.entries(form.inventory)
     .filter(([, n]) => n > 0)

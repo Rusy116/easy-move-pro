@@ -169,13 +169,18 @@ export function MyJobCard({ job }: { job: MyJob }) {
             <Mail className="mr-1.5 h-3.5 w-3.5" /> Email
           </a>
         </Button>
-        {portalHref && (
+        {canPortal && (
           <Button asChild variant="outline" size="sm" className="rounded-full">
-            <Link to={portalHref}>
+            <Link
+              to="/portal/$quoteNumber"
+              params={{ quoteNumber: job.quote_number! }}
+              search={{ token: job.portal_token! }}
+            >
               <ExternalLink className="mr-1.5 h-3.5 w-3.5" /> Customer Portal
             </Link>
           </Button>
         )}
+
         <Button asChild size="sm" className="rounded-full">
           <Link to="/company/job/$jobId" params={{ jobId: job.id }}>
             Open job details

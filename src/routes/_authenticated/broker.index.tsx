@@ -39,7 +39,7 @@ type Lead = {
   estimated_high: number;
 };
 
-const STATUSES = ["all", "new", "contacted", "scheduled", "won", "lost", "cancelled"];
+const STATUSES = ["all", "new", "contacted", "scheduled", "accepted", "won", "lost", "cancelled"];
 
 function BrokerLeadsPage() {
   const [leads, setLeads] = useState<Lead[]>([]);

@@ -16,7 +16,7 @@ export type RoleShellProps = {
 
 const ACCENT: Record<RoleShellProps["accent"], string> = {
   admin: "from-slate-900 to-slate-700",
-  broker: "from-clay to-rose-700",
+  broker: "from-ochre to-sage",
   company: "from-sage to-emerald-700",
   customer: "from-ochre to-amber-600",
 };

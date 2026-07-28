@@ -39,7 +39,7 @@ type Lead = {
   estimated_high: number;
 };
 
-const STATUSES = ["all", "new", "contacted", "scheduled", "won", "lost", "cancelled"];
+const STATUSES = ["all", "new", "contacted", "scheduled", "accepted", "won", "lost", "cancelled"];
 
 function BrokerLeadsPage() {
   const [leads, setLeads] = useState<Lead[]>([]);
@@ -59,6 +59,38 @@ function BrokerLeadsPage() {
       setLoading(false);
     })();
   }, []);
+
+  // Keep the pipeline in sync with the database (e.g. customer accepts in portal)
+  useEffect(() => {
+    const channel = supabase
+      .channel("broker-quotes-sync")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "quotes" },
+        (payload) => {
+          const row = payload.new as Lead | null;
+          if (payload.eventType === "DELETE") {
+            const oldId = (payload.old as { id?: string })?.id;
+            if (!oldId) return;
+            setLeads((prev) => prev.filter((l) => l.id !== oldId));
+            setSelected((prev) => (prev && prev.id === oldId ? null : prev));
+            return;
+          }
+          if (!row?.id) return;
+          setLeads((prev) => {
+            const exists = prev.some((l) => l.id === row.id);
+            if (!exists) return [row, ...prev];
+            return prev.map((l) => (l.id === row.id ? { ...l, ...row } : l));
+          });
+          setSelected((prev) => (prev && prev.id === row.id ? { ...prev, ...row } : prev));
+        },
+      )
+      .subscribe();
+    return () => {
+      void supabase.removeChannel(channel);
+    };
+  }, []);
+
 
   const filtered = useMemo(() => {
     const needle = q.trim().toLowerCase();

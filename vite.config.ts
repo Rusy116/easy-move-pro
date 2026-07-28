@@ -7,6 +7,21 @@
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 
 export default defineConfig({
+  vite: {
+    define: {
+      __EASY_MOVE_GOOGLE_MAPS_BROWSER_KEY__: JSON.stringify(
+        process.env.VITE_GOOGLE_MAPS_BROWSER_KEY ||
+          process.env.VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_BROWSER_KEY ||
+          process.env.GOOGLE_MAPS_BROWSER_KEY ||
+          ""
+      ),
+      __EASY_MOVE_GOOGLE_MAPS_TRACKING_ID__: JSON.stringify(
+        process.env.VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_TRACKING_ID ||
+          process.env.GOOGLE_MAPS_TRACKING_ID ||
+          ""
+      ),
+    },
+  },
   tanstackStart: {
     // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
     // nitro/vite builds from this

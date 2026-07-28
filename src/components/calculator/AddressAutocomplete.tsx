@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Loader2, MapPin, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { loadGoogleMaps } from "@/lib/google-maps-loader";
+import { hasPublicBrowserPlacesKey, loadGoogleMaps } from "@/lib/google-maps-loader";
 import { placeDetails, placesAutocomplete } from "@/lib/places.functions";
 import { cn } from "@/lib/utils";
 
@@ -65,7 +65,7 @@ export function AddressAutocomplete({
   const [activeIdx, setActiveIdx] = useState(0);
 
   // Once the browser path errors we stop retrying it for the rest of the session.
-  const useServerRef = useRef(false);
+  const useServerRef = useRef(!hasPublicBrowserPlacesKey());
   const sessionTokenRef = useRef<google.maps.places.AutocompleteSessionToken | null>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
   const debounceRef = useRef<number | null>(null);
@@ -73,6 +73,7 @@ export function AddressAutocomplete({
 
   // Load Maps JS API + Places library (best effort — failure falls back to server)
   useEffect(() => {
+    if (useServerRef.current) return;
     let cancelled = false;
     loadGoogleMaps()
       .then(async (g) => {
@@ -192,21 +193,12 @@ export function AddressAutocomplete({
           const fromServer = await fetchViaServer(q);
           if (fromServer.rows.length > 0 || useServerRef.current) next = fromServer.rows;
           if (next.length === 0 && fromServer.error) {
-            if (fromServer.error === "not_configured") {
-              console.error(
-                "[places] server-side Google Maps credentials are missing in this deployment. " +
-                  "Set GOOGLE_MAPS_SERVER_KEY (server key, no HTTP-referrer restriction, Places API (New) + Geocoding API enabled) " +
-                  "and VITE_GOOGLE_MAPS_BROWSER_KEY (referrer-restricted to https://easymove.pro/* and https://*.easymove.pro/*, Maps JavaScript API + Places API (New) enabled) " +
-                  "in the production environment, then redeploy."
-              );
-              message = "Address lookup isn't available on this site yet. You can type the address manually.";
-            } else {
-              message = "Address suggestions are temporarily unavailable";
-            }
+            console.error(`[places] autocomplete unavailable: ${fromServer.error}`);
+            message = null;
           }
 
         } catch {
-          if (next.length === 0) message = "Address suggestions are temporarily unavailable";
+          if (next.length === 0) message = null;
         }
       }
 

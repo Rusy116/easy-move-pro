@@ -17,7 +17,7 @@ export interface AutocompleteResponse {
 }
 
 export const placesAutocomplete = createServerFn({ method: "POST" })
-  .inputValidator((data: unknown) =>
+  .validator((data: unknown) =>
     z
       .object({
         input: z.string().min(2).max(200),
@@ -47,7 +47,7 @@ export const placesAutocomplete = createServerFn({ method: "POST" })
   });
 
 export const placeDetails = createServerFn({ method: "POST" })
-  .inputValidator((data: unknown) => z.object({ placeId: z.string().min(1).max(400) }).parse(data))
+  .validator((data: unknown) => z.object({ placeId: z.string().min(1).max(400) }).parse(data))
   .handler(async ({ data }): Promise<PlaceDetailsResult | null> => {
     if (!placesConfigured()) return null;
     try {

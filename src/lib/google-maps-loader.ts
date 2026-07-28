@@ -1,8 +1,6 @@
 // Lazy loader for the Google Maps JavaScript API (Places library).
 // Loaded asynchronously via `loading=async` + a global callback.
 
-import { isEasyMoveProductionHost, isLovableMapsHost } from "./google-maps-public-config";
-
 let loaderPromise: Promise<typeof google> | null = null;
 
 declare const __EASY_MOVE_GOOGLE_MAPS_BROWSER_KEY__: string | undefined;
@@ -14,16 +12,19 @@ export function hasPublicBrowserPlacesKey(): boolean {
 }
 
 function resolveBrowserKey(host: string): string | undefined {
-  const productionBrowserKey =
+  const explicitBrowserKey =
     (import.meta.env.VITE_GOOGLE_MAPS_BROWSER_KEY as string | undefined) ||
     __EASY_MOVE_GOOGLE_MAPS_BROWSER_KEY__;
   const previewBrowserKey = import.meta.env.VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_BROWSER_KEY as
     | string
     | undefined;
 
-  if (isEasyMoveProductionHost(host)) return productionBrowserKey;
-  if (isLovableMapsHost(host)) return previewBrowserKey || productionBrowserKey;
-  return undefined;
+  // Prefer a customer-owned public browser key when configured, otherwise use
+  // the connector-provided browser key. Do not gate by hostname here: the key's
+  // Google Cloud referrer restrictions are the source of truth, and if Google
+  // rejects the browser load the address component falls back to the server
+  // connector gateway without changing the UI.
+  return explicitBrowserKey || previewBrowserKey || undefined;
 }
 
 declare global {
@@ -52,10 +53,7 @@ export function loadGoogleMaps(): Promise<typeof google> {
     (import.meta.env.VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_TRACKING_ID as string | undefined) ||
     __EASY_MOVE_GOOGLE_MAPS_TRACKING_ID__;
   if (!key) {
-    const suffix = isEasyMoveProductionHost(host)
-      ? " for easymove.pro; set VITE_GOOGLE_MAPS_BROWSER_KEY in Production"
-      : "";
-    return Promise.reject(new Error(`google-maps: browser key missing${suffix}`));
+    return Promise.reject(new Error(`google-maps: browser key missing for ${host}`));
   }
 
   loaderPromise = new Promise<typeof google>((resolve, reject) => {

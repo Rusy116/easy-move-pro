@@ -52,9 +52,11 @@ import { Route as AuthenticatedCompanySettingsRouteImport } from './routes/_auth
 import { Route as AuthenticatedCompanyScheduleRouteImport } from './routes/_authenticated/company.schedule'
 import { Route as AuthenticatedCompanyProfileRouteImport } from './routes/_authenticated/company.profile'
 import { Route as AuthenticatedCompanyNotificationsRouteImport } from './routes/_authenticated/company.notifications'
+import { Route as AuthenticatedCompanyMyjobsRouteImport } from './routes/_authenticated/company.myjobs'
 import { Route as AuthenticatedCompanyMessagesRouteImport } from './routes/_authenticated/company.messages'
 import { Route as AuthenticatedCompanyMarketplaceRouteImport } from './routes/_authenticated/company.marketplace'
 import { Route as AuthenticatedCompanyLeadsRouteImport } from './routes/_authenticated/company.leads'
+import { Route as AuthenticatedCompanyJobsRouteImport } from './routes/_authenticated/company.jobs'
 import { Route as AuthenticatedCompanyInvoicesRouteImport } from './routes/_authenticated/company.invoices'
 import { Route as AuthenticatedCompanyExclusiveRouteImport } from './routes/_authenticated/company.exclusive'
 import { Route as AuthenticatedCompanyEstimatesRouteImport } from './routes/_authenticated/company.estimates'
@@ -288,6 +290,12 @@ const AuthenticatedCompanyNotificationsRoute =
     path: '/notifications',
     getParentRoute: () => AuthenticatedCompanyRoute,
   } as any)
+const AuthenticatedCompanyMyjobsRoute =
+  AuthenticatedCompanyMyjobsRouteImport.update({
+    id: '/myjobs',
+    path: '/myjobs',
+    getParentRoute: () => AuthenticatedCompanyRoute,
+  } as any)
 const AuthenticatedCompanyMessagesRoute =
   AuthenticatedCompanyMessagesRouteImport.update({
     id: '/messages',
@@ -304,6 +312,12 @@ const AuthenticatedCompanyLeadsRoute =
   AuthenticatedCompanyLeadsRouteImport.update({
     id: '/leads',
     path: '/leads',
+    getParentRoute: () => AuthenticatedCompanyRoute,
+  } as any)
+const AuthenticatedCompanyJobsRoute =
+  AuthenticatedCompanyJobsRouteImport.update({
+    id: '/jobs',
+    path: '/jobs',
     getParentRoute: () => AuthenticatedCompanyRoute,
   } as any)
 const AuthenticatedCompanyInvoicesRoute =
@@ -417,9 +431,11 @@ export interface FileRoutesByFullPath {
   '/company/estimates': typeof AuthenticatedCompanyEstimatesRoute
   '/company/exclusive': typeof AuthenticatedCompanyExclusiveRoute
   '/company/invoices': typeof AuthenticatedCompanyInvoicesRoute
+  '/company/jobs': typeof AuthenticatedCompanyJobsRoute
   '/company/leads': typeof AuthenticatedCompanyLeadsRoute
   '/company/marketplace': typeof AuthenticatedCompanyMarketplaceRoute
   '/company/messages': typeof AuthenticatedCompanyMessagesRoute
+  '/company/myjobs': typeof AuthenticatedCompanyMyjobsRoute
   '/company/notifications': typeof AuthenticatedCompanyNotificationsRoute
   '/company/profile': typeof AuthenticatedCompanyProfileRoute
   '/company/schedule': typeof AuthenticatedCompanyScheduleRoute
@@ -474,9 +490,11 @@ export interface FileRoutesByTo {
   '/company/estimates': typeof AuthenticatedCompanyEstimatesRoute
   '/company/exclusive': typeof AuthenticatedCompanyExclusiveRoute
   '/company/invoices': typeof AuthenticatedCompanyInvoicesRoute
+  '/company/jobs': typeof AuthenticatedCompanyJobsRoute
   '/company/leads': typeof AuthenticatedCompanyLeadsRoute
   '/company/marketplace': typeof AuthenticatedCompanyMarketplaceRoute
   '/company/messages': typeof AuthenticatedCompanyMessagesRoute
+  '/company/myjobs': typeof AuthenticatedCompanyMyjobsRoute
   '/company/notifications': typeof AuthenticatedCompanyNotificationsRoute
   '/company/profile': typeof AuthenticatedCompanyProfileRoute
   '/company/schedule': typeof AuthenticatedCompanyScheduleRoute
@@ -534,9 +552,11 @@ export interface FileRoutesById {
   '/_authenticated/company/estimates': typeof AuthenticatedCompanyEstimatesRoute
   '/_authenticated/company/exclusive': typeof AuthenticatedCompanyExclusiveRoute
   '/_authenticated/company/invoices': typeof AuthenticatedCompanyInvoicesRoute
+  '/_authenticated/company/jobs': typeof AuthenticatedCompanyJobsRoute
   '/_authenticated/company/leads': typeof AuthenticatedCompanyLeadsRoute
   '/_authenticated/company/marketplace': typeof AuthenticatedCompanyMarketplaceRoute
   '/_authenticated/company/messages': typeof AuthenticatedCompanyMessagesRoute
+  '/_authenticated/company/myjobs': typeof AuthenticatedCompanyMyjobsRoute
   '/_authenticated/company/notifications': typeof AuthenticatedCompanyNotificationsRoute
   '/_authenticated/company/profile': typeof AuthenticatedCompanyProfileRoute
   '/_authenticated/company/schedule': typeof AuthenticatedCompanyScheduleRoute
@@ -594,9 +614,11 @@ export interface FileRouteTypes {
     | '/company/estimates'
     | '/company/exclusive'
     | '/company/invoices'
+    | '/company/jobs'
     | '/company/leads'
     | '/company/marketplace'
     | '/company/messages'
+    | '/company/myjobs'
     | '/company/notifications'
     | '/company/profile'
     | '/company/schedule'
@@ -651,9 +673,11 @@ export interface FileRouteTypes {
     | '/company/estimates'
     | '/company/exclusive'
     | '/company/invoices'
+    | '/company/jobs'
     | '/company/leads'
     | '/company/marketplace'
     | '/company/messages'
+    | '/company/myjobs'
     | '/company/notifications'
     | '/company/profile'
     | '/company/schedule'
@@ -710,9 +734,11 @@ export interface FileRouteTypes {
     | '/_authenticated/company/estimates'
     | '/_authenticated/company/exclusive'
     | '/_authenticated/company/invoices'
+    | '/_authenticated/company/jobs'
     | '/_authenticated/company/leads'
     | '/_authenticated/company/marketplace'
     | '/_authenticated/company/messages'
+    | '/_authenticated/company/myjobs'
     | '/_authenticated/company/notifications'
     | '/_authenticated/company/profile'
     | '/_authenticated/company/schedule'
@@ -1062,6 +1088,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCompanyNotificationsRouteImport
       parentRoute: typeof AuthenticatedCompanyRoute
     }
+    '/_authenticated/company/myjobs': {
+      id: '/_authenticated/company/myjobs'
+      path: '/myjobs'
+      fullPath: '/company/myjobs'
+      preLoaderRoute: typeof AuthenticatedCompanyMyjobsRouteImport
+      parentRoute: typeof AuthenticatedCompanyRoute
+    }
     '/_authenticated/company/messages': {
       id: '/_authenticated/company/messages'
       path: '/messages'
@@ -1081,6 +1114,13 @@ declare module '@tanstack/react-router' {
       path: '/leads'
       fullPath: '/company/leads'
       preLoaderRoute: typeof AuthenticatedCompanyLeadsRouteImport
+      parentRoute: typeof AuthenticatedCompanyRoute
+    }
+    '/_authenticated/company/jobs': {
+      id: '/_authenticated/company/jobs'
+      path: '/jobs'
+      fullPath: '/company/jobs'
+      preLoaderRoute: typeof AuthenticatedCompanyJobsRouteImport
       parentRoute: typeof AuthenticatedCompanyRoute
     }
     '/_authenticated/company/invoices': {
@@ -1171,9 +1211,11 @@ interface AuthenticatedCompanyRouteChildren {
   AuthenticatedCompanyEstimatesRoute: typeof AuthenticatedCompanyEstimatesRoute
   AuthenticatedCompanyExclusiveRoute: typeof AuthenticatedCompanyExclusiveRoute
   AuthenticatedCompanyInvoicesRoute: typeof AuthenticatedCompanyInvoicesRoute
+  AuthenticatedCompanyJobsRoute: typeof AuthenticatedCompanyJobsRoute
   AuthenticatedCompanyLeadsRoute: typeof AuthenticatedCompanyLeadsRoute
   AuthenticatedCompanyMarketplaceRoute: typeof AuthenticatedCompanyMarketplaceRoute
   AuthenticatedCompanyMessagesRoute: typeof AuthenticatedCompanyMessagesRoute
+  AuthenticatedCompanyMyjobsRoute: typeof AuthenticatedCompanyMyjobsRoute
   AuthenticatedCompanyNotificationsRoute: typeof AuthenticatedCompanyNotificationsRoute
   AuthenticatedCompanyProfileRoute: typeof AuthenticatedCompanyProfileRoute
   AuthenticatedCompanyScheduleRoute: typeof AuthenticatedCompanyScheduleRoute
@@ -1190,9 +1232,11 @@ const AuthenticatedCompanyRouteChildren: AuthenticatedCompanyRouteChildren = {
   AuthenticatedCompanyEstimatesRoute: AuthenticatedCompanyEstimatesRoute,
   AuthenticatedCompanyExclusiveRoute: AuthenticatedCompanyExclusiveRoute,
   AuthenticatedCompanyInvoicesRoute: AuthenticatedCompanyInvoicesRoute,
+  AuthenticatedCompanyJobsRoute: AuthenticatedCompanyJobsRoute,
   AuthenticatedCompanyLeadsRoute: AuthenticatedCompanyLeadsRoute,
   AuthenticatedCompanyMarketplaceRoute: AuthenticatedCompanyMarketplaceRoute,
   AuthenticatedCompanyMessagesRoute: AuthenticatedCompanyMessagesRoute,
+  AuthenticatedCompanyMyjobsRoute: AuthenticatedCompanyMyjobsRoute,
   AuthenticatedCompanyNotificationsRoute:
     AuthenticatedCompanyNotificationsRoute,
   AuthenticatedCompanyProfileRoute: AuthenticatedCompanyProfileRoute,

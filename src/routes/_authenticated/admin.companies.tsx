@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { AdminShell } from "@/components/admin/AdminShell";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -124,6 +124,25 @@ function CompaniesAdmin() {
   useEffect(() => {
     if (isAdmin) void load();
   }, [isAdmin, load]);
+
+  const visible = useMemo(
+    () => (tab === "all" ? companies : companies.filter((c) => c.status === tab)),
+    [companies, tab],
+  );
+
+  const changeStatus = useCallback(
+    async (c: Company, status: CompanyStatus, reason?: string) => {
+      try {
+        await setStatus({ data: { companyId: c.id, status, reason } });
+        toast.success(`${c.name} — status set to ${status}`);
+        void load();
+      } catch (e) {
+        toast.error(e instanceof Error ? e.message : "Could not update status");
+      }
+    },
+    [setStatus, load],
+  );
+
 
   if (isAdmin === null) {
     return (

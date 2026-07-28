@@ -43,6 +43,7 @@ import { Route as AuthenticatedDashboardRouteImport } from './routes/_authentica
 import { Route as AuthenticatedCustomerRouteImport } from './routes/_authenticated/customer'
 import { Route as AuthenticatedCompanyRouteImport } from './routes/_authenticated/company'
 import { Route as AuthenticatedCompanyIndexRouteImport } from './routes/_authenticated/company.index'
+import { Route as AuthenticatedBrokerIndexRouteImport } from './routes/_authenticated/broker.index'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as ApiPublicSlaTickRouteImport } from './routes/api/public/sla-tick'
 import { Route as AuthenticatedCompanySettingsRouteImport } from './routes/_authenticated/company.settings'
@@ -59,6 +60,7 @@ import { Route as AuthenticatedCompanyDocumentsRouteImport } from './routes/_aut
 import { Route as AuthenticatedCompanyDashboardRouteImport } from './routes/_authenticated/company.dashboard'
 import { Route as AuthenticatedCompanyCustomersRouteImport } from './routes/_authenticated/company.customers'
 import { Route as AuthenticatedCompanyAnalyticsRouteImport } from './routes/_authenticated/company.analytics'
+import { Route as AuthenticatedBrokerPerformanceRouteImport } from './routes/_authenticated/broker.performance'
 import { Route as AuthenticatedAdminDashboardRouteImport } from './routes/_authenticated/admin.dashboard'
 import { Route as AuthenticatedAdminCompaniesRouteImport } from './routes/_authenticated/admin.companies'
 
@@ -232,6 +234,12 @@ const AuthenticatedCompanyIndexRoute =
     path: '/',
     getParentRoute: () => AuthenticatedCompanyRoute,
   } as any)
+const AuthenticatedBrokerIndexRoute =
+  AuthenticatedBrokerIndexRouteImport.update({
+    id: '/broker/',
+    path: '/broker/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   id: '/admin/',
   path: '/admin/',
@@ -326,6 +334,12 @@ const AuthenticatedCompanyAnalyticsRoute =
     path: '/analytics',
     getParentRoute: () => AuthenticatedCompanyRoute,
   } as any)
+const AuthenticatedBrokerPerformanceRoute =
+  AuthenticatedBrokerPerformanceRouteImport.update({
+    id: '/broker/performance',
+    path: '/broker/performance',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAdminDashboardRoute =
   AuthenticatedAdminDashboardRouteImport.update({
     id: '/admin/dashboard',
@@ -374,6 +388,7 @@ export interface FileRoutesByFullPath {
   '/partners/': typeof PartnersIndexRoute
   '/admin/companies': typeof AuthenticatedAdminCompaniesRoute
   '/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
+  '/broker/performance': typeof AuthenticatedBrokerPerformanceRoute
   '/company/analytics': typeof AuthenticatedCompanyAnalyticsRoute
   '/company/customers': typeof AuthenticatedCompanyCustomersRoute
   '/company/dashboard': typeof AuthenticatedCompanyDashboardRoute
@@ -390,6 +405,7 @@ export interface FileRoutesByFullPath {
   '/company/settings': typeof AuthenticatedCompanySettingsRoute
   '/api/public/sla-tick': typeof ApiPublicSlaTickRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
+  '/broker/': typeof AuthenticatedBrokerIndexRoute
   '/company/': typeof AuthenticatedCompanyIndexRoute
 }
 export interface FileRoutesByTo {
@@ -426,6 +442,7 @@ export interface FileRoutesByTo {
   '/partners': typeof PartnersIndexRoute
   '/admin/companies': typeof AuthenticatedAdminCompaniesRoute
   '/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
+  '/broker/performance': typeof AuthenticatedBrokerPerformanceRoute
   '/company/analytics': typeof AuthenticatedCompanyAnalyticsRoute
   '/company/customers': typeof AuthenticatedCompanyCustomersRoute
   '/company/dashboard': typeof AuthenticatedCompanyDashboardRoute
@@ -442,6 +459,7 @@ export interface FileRoutesByTo {
   '/company/settings': typeof AuthenticatedCompanySettingsRoute
   '/api/public/sla-tick': typeof ApiPublicSlaTickRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
+  '/broker': typeof AuthenticatedBrokerIndexRoute
   '/company': typeof AuthenticatedCompanyIndexRoute
 }
 export interface FileRoutesById {
@@ -481,6 +499,7 @@ export interface FileRoutesById {
   '/partners/': typeof PartnersIndexRoute
   '/_authenticated/admin/companies': typeof AuthenticatedAdminCompaniesRoute
   '/_authenticated/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
+  '/_authenticated/broker/performance': typeof AuthenticatedBrokerPerformanceRoute
   '/_authenticated/company/analytics': typeof AuthenticatedCompanyAnalyticsRoute
   '/_authenticated/company/customers': typeof AuthenticatedCompanyCustomersRoute
   '/_authenticated/company/dashboard': typeof AuthenticatedCompanyDashboardRoute
@@ -497,6 +516,7 @@ export interface FileRoutesById {
   '/_authenticated/company/settings': typeof AuthenticatedCompanySettingsRoute
   '/api/public/sla-tick': typeof ApiPublicSlaTickRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
+  '/_authenticated/broker/': typeof AuthenticatedBrokerIndexRoute
   '/_authenticated/company/': typeof AuthenticatedCompanyIndexRoute
 }
 export interface FileRouteTypes {
@@ -536,6 +556,7 @@ export interface FileRouteTypes {
     | '/partners/'
     | '/admin/companies'
     | '/admin/dashboard'
+    | '/broker/performance'
     | '/company/analytics'
     | '/company/customers'
     | '/company/dashboard'
@@ -552,6 +573,7 @@ export interface FileRouteTypes {
     | '/company/settings'
     | '/api/public/sla-tick'
     | '/admin/'
+    | '/broker/'
     | '/company/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -588,6 +610,7 @@ export interface FileRouteTypes {
     | '/partners'
     | '/admin/companies'
     | '/admin/dashboard'
+    | '/broker/performance'
     | '/company/analytics'
     | '/company/customers'
     | '/company/dashboard'
@@ -604,6 +627,7 @@ export interface FileRouteTypes {
     | '/company/settings'
     | '/api/public/sla-tick'
     | '/admin'
+    | '/broker'
     | '/company'
   id:
     | '__root__'
@@ -642,6 +666,7 @@ export interface FileRouteTypes {
     | '/partners/'
     | '/_authenticated/admin/companies'
     | '/_authenticated/admin/dashboard'
+    | '/_authenticated/broker/performance'
     | '/_authenticated/company/analytics'
     | '/_authenticated/company/customers'
     | '/_authenticated/company/dashboard'
@@ -658,6 +683,7 @@ export interface FileRouteTypes {
     | '/_authenticated/company/settings'
     | '/api/public/sla-tick'
     | '/_authenticated/admin/'
+    | '/_authenticated/broker/'
     | '/_authenticated/company/'
   fileRoutesById: FileRoutesById
 }
@@ -935,6 +961,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCompanyIndexRouteImport
       parentRoute: typeof AuthenticatedCompanyRoute
     }
+    '/_authenticated/broker/': {
+      id: '/_authenticated/broker/'
+      path: '/broker'
+      fullPath: '/broker/'
+      preLoaderRoute: typeof AuthenticatedBrokerIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/admin/': {
       id: '/_authenticated/admin/'
       path: '/admin'
@@ -1047,6 +1080,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCompanyAnalyticsRouteImport
       parentRoute: typeof AuthenticatedCompanyRoute
     }
+    '/_authenticated/broker/performance': {
+      id: '/_authenticated/broker/performance'
+      path: '/broker/performance'
+      fullPath: '/broker/performance'
+      preLoaderRoute: typeof AuthenticatedBrokerPerformanceRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/admin/dashboard': {
       id: '/_authenticated/admin/dashboard'
       path: '/admin/dashboard'
@@ -1110,7 +1150,9 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedAdminCompaniesRoute: typeof AuthenticatedAdminCompaniesRoute
   AuthenticatedAdminDashboardRoute: typeof AuthenticatedAdminDashboardRoute
+  AuthenticatedBrokerPerformanceRoute: typeof AuthenticatedBrokerPerformanceRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
+  AuthenticatedBrokerIndexRoute: typeof AuthenticatedBrokerIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -1119,7 +1161,9 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedAdminCompaniesRoute: AuthenticatedAdminCompaniesRoute,
   AuthenticatedAdminDashboardRoute: AuthenticatedAdminDashboardRoute,
+  AuthenticatedBrokerPerformanceRoute: AuthenticatedBrokerPerformanceRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
+  AuthenticatedBrokerIndexRoute: AuthenticatedBrokerIndexRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =

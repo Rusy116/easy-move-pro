@@ -11,7 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
-import { Phone, Mail, StickyNote, Clock, ExternalLink, Building2, User, Package, MapPin, EyeOff, PauseCircle, PlayCircle, XCircle, X } from "lucide-react";
+import { Phone, Mail, StickyNote, Clock, ExternalLink, Building2, User, Package, MapPin, EyeOff, PauseCircle, PlayCircle, XCircle, X, CheckCircle2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
@@ -176,6 +176,14 @@ export function LeadDetailPanel({
 
 
 
+  async function qualifyLead(quoteId: string) {
+    setQualifying(true);
+    const { error } = await supabase.rpc("fn_broker_qualify_lead", { _quote_id: quoteId });
+    setQualifying(false);
+    if (error) return toast.error(error.message);
+    toast.success("Lead qualified — now visible to all approved moving companies.");
+  }
+
   async function runEngine(fn: () => Promise<unknown>, ok: string) {
     try {
       await fn();
@@ -184,6 +192,7 @@ export function LeadDetailPanel({
       toast.error(e instanceof Error ? e.message : "Failed");
     }
   }
+
 
   return (
     <Sheet open={!!quote} onOpenChange={(o) => !o && onClose()}>

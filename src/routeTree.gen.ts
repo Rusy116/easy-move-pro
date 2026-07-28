@@ -68,6 +68,7 @@ import { Route as AuthenticatedBrokerPerformanceRouteImport } from './routes/_au
 import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin.users'
 import { Route as AuthenticatedAdminDashboardRouteImport } from './routes/_authenticated/admin.dashboard'
 import { Route as AuthenticatedAdminCompaniesRouteImport } from './routes/_authenticated/admin.companies'
+import { Route as AuthenticatedCompanyJobJobIdRouteImport } from './routes/_authenticated/company.job.$jobId'
 
 const StoreRoute = StoreRouteImport.update({
   id: '/store',
@@ -385,6 +386,12 @@ const AuthenticatedAdminCompaniesRoute =
     path: '/admin/companies',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedCompanyJobJobIdRoute =
+  AuthenticatedCompanyJobJobIdRouteImport.update({
+    id: '/job/$jobId',
+    path: '/job/$jobId',
+    getParentRoute: () => AuthenticatedCompanyRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -445,6 +452,7 @@ export interface FileRoutesByFullPath {
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/broker/': typeof AuthenticatedBrokerIndexRoute
   '/company/': typeof AuthenticatedCompanyIndexRoute
+  '/company/job/$jobId': typeof AuthenticatedCompanyJobJobIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -504,6 +512,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/broker': typeof AuthenticatedBrokerIndexRoute
   '/company': typeof AuthenticatedCompanyIndexRoute
+  '/company/job/$jobId': typeof AuthenticatedCompanyJobJobIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -566,6 +575,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/broker/': typeof AuthenticatedBrokerIndexRoute
   '/_authenticated/company/': typeof AuthenticatedCompanyIndexRoute
+  '/_authenticated/company/job/$jobId': typeof AuthenticatedCompanyJobJobIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -628,6 +638,7 @@ export interface FileRouteTypes {
     | '/admin/'
     | '/broker/'
     | '/company/'
+    | '/company/job/$jobId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -687,6 +698,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/broker'
     | '/company'
+    | '/company/job/$jobId'
   id:
     | '__root__'
     | '/'
@@ -748,6 +760,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/'
     | '/_authenticated/broker/'
     | '/_authenticated/company/'
+    | '/_authenticated/company/job/$jobId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -1200,6 +1213,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminCompaniesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/company/job/$jobId': {
+      id: '/_authenticated/company/job/$jobId'
+      path: '/job/$jobId'
+      fullPath: '/company/job/$jobId'
+      preLoaderRoute: typeof AuthenticatedCompanyJobJobIdRouteImport
+      parentRoute: typeof AuthenticatedCompanyRoute
+    }
   }
 }
 
@@ -1222,6 +1242,7 @@ interface AuthenticatedCompanyRouteChildren {
   AuthenticatedCompanySettingsRoute: typeof AuthenticatedCompanySettingsRoute
   AuthenticatedCompanySupportRoute: typeof AuthenticatedCompanySupportRoute
   AuthenticatedCompanyIndexRoute: typeof AuthenticatedCompanyIndexRoute
+  AuthenticatedCompanyJobJobIdRoute: typeof AuthenticatedCompanyJobJobIdRoute
 }
 
 const AuthenticatedCompanyRouteChildren: AuthenticatedCompanyRouteChildren = {
@@ -1244,6 +1265,7 @@ const AuthenticatedCompanyRouteChildren: AuthenticatedCompanyRouteChildren = {
   AuthenticatedCompanySettingsRoute: AuthenticatedCompanySettingsRoute,
   AuthenticatedCompanySupportRoute: AuthenticatedCompanySupportRoute,
   AuthenticatedCompanyIndexRoute: AuthenticatedCompanyIndexRoute,
+  AuthenticatedCompanyJobJobIdRoute: AuthenticatedCompanyJobJobIdRoute,
 }
 
 const AuthenticatedCompanyRouteWithChildren =

@@ -34,6 +34,7 @@ import { Route as PartnersIndexRouteImport } from './routes/partners.index'
 import { Route as CitiesIndexRouteImport } from './routes/cities.index'
 import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as PortalQuoteNumberRouteImport } from './routes/portal.$quoteNumber'
+import { Route as PartnersApplyRouteImport } from './routes/partners.apply'
 import { Route as PartnersLocationRouteImport } from './routes/partners.$location'
 import { Route as LearnTopicRouteImport } from './routes/learn.$topic'
 import { Route as CompareSlugRouteImport } from './routes/compare.$slug'
@@ -187,6 +188,11 @@ const BlogIndexRoute = BlogIndexRouteImport.update({
 const PortalQuoteNumberRoute = PortalQuoteNumberRouteImport.update({
   id: '/portal/$quoteNumber',
   path: '/portal/$quoteNumber',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PartnersApplyRoute = PartnersApplyRouteImport.update({
+  id: '/partners/apply',
+  path: '/partners/apply',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PartnersLocationRoute = PartnersLocationRouteImport.update({
@@ -388,6 +394,7 @@ export interface FileRoutesByFullPath {
   '/compare/$slug': typeof CompareSlugRoute
   '/learn/$topic': typeof LearnTopicRoute
   '/partners/$location': typeof PartnersLocationRoute
+  '/partners/apply': typeof PartnersApplyRoute
   '/portal/$quoteNumber': typeof PortalQuoteNumberRoute
   '/blog/': typeof BlogIndexRoute
   '/cities/': typeof CitiesIndexRoute
@@ -443,6 +450,7 @@ export interface FileRoutesByTo {
   '/compare/$slug': typeof CompareSlugRoute
   '/learn/$topic': typeof LearnTopicRoute
   '/partners/$location': typeof PartnersLocationRoute
+  '/partners/apply': typeof PartnersApplyRoute
   '/portal/$quoteNumber': typeof PortalQuoteNumberRoute
   '/blog': typeof BlogIndexRoute
   '/cities': typeof CitiesIndexRoute
@@ -501,6 +509,7 @@ export interface FileRoutesById {
   '/compare/$slug': typeof CompareSlugRoute
   '/learn/$topic': typeof LearnTopicRoute
   '/partners/$location': typeof PartnersLocationRoute
+  '/partners/apply': typeof PartnersApplyRoute
   '/portal/$quoteNumber': typeof PortalQuoteNumberRoute
   '/blog/': typeof BlogIndexRoute
   '/cities/': typeof CitiesIndexRoute
@@ -559,6 +568,7 @@ export interface FileRouteTypes {
     | '/compare/$slug'
     | '/learn/$topic'
     | '/partners/$location'
+    | '/partners/apply'
     | '/portal/$quoteNumber'
     | '/blog/'
     | '/cities/'
@@ -614,6 +624,7 @@ export interface FileRouteTypes {
     | '/compare/$slug'
     | '/learn/$topic'
     | '/partners/$location'
+    | '/partners/apply'
     | '/portal/$quoteNumber'
     | '/blog'
     | '/cities'
@@ -671,6 +682,7 @@ export interface FileRouteTypes {
     | '/compare/$slug'
     | '/learn/$topic'
     | '/partners/$location'
+    | '/partners/apply'
     | '/portal/$quoteNumber'
     | '/blog/'
     | '/cities/'
@@ -726,6 +738,7 @@ export interface RootRouteChildren {
   CompareSlugRoute: typeof CompareSlugRoute
   LearnTopicRoute: typeof LearnTopicRoute
   PartnersLocationRoute: typeof PartnersLocationRoute
+  PartnersApplyRoute: typeof PartnersApplyRoute
   PortalQuoteNumberRoute: typeof PortalQuoteNumberRoute
   BlogIndexRoute: typeof BlogIndexRoute
   CitiesIndexRoute: typeof CitiesIndexRoute
@@ -908,6 +921,13 @@ declare module '@tanstack/react-router' {
       path: '/portal/$quoteNumber'
       fullPath: '/portal/$quoteNumber'
       preLoaderRoute: typeof PortalQuoteNumberRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/partners/apply': {
+      id: '/partners/apply'
+      path: '/partners/apply'
+      fullPath: '/partners/apply'
+      preLoaderRoute: typeof PartnersApplyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/partners/$location': {
@@ -1217,6 +1237,7 @@ const rootRouteChildren: RootRouteChildren = {
   CompareSlugRoute: CompareSlugRoute,
   LearnTopicRoute: LearnTopicRoute,
   PartnersLocationRoute: PartnersLocationRoute,
+  PartnersApplyRoute: PartnersApplyRoute,
   PortalQuoteNumberRoute: PortalQuoteNumberRoute,
   BlogIndexRoute: BlogIndexRoute,
   CitiesIndexRoute: CitiesIndexRoute,

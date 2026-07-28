@@ -66,7 +66,17 @@ type QuoteRow = {
   inventory: { id: string; quantity: number }[] | null;
   breakdown: { label: string; amount: number }[] | null;
   details: Record<string, unknown> | null;
+  job_status: string | null;
+  final_price: number | null;
+  final_move_date: string | null;
+  arrival_window: string | null;
+  crew_size: number | null;
+  final_truck_size: string | null;
+  company_notes: string | null;
+  final_quote_sent_at: string | null;
+  customer_response_at: string | null;
 };
+
 
 function money(n: number | null | undefined) {
   return typeof n === "number" ? `$${Math.round(n).toLocaleString("en-US")}` : "—";

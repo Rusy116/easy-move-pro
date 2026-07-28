@@ -81,8 +81,11 @@ export function AddressAutocomplete({
         sessionTokenRef.current = new g.maps.places.AutocompleteSessionToken();
         setJsReady(true);
       })
-      .catch(() => {
+      .catch((err) => {
         if (cancelled) return;
+        // Surface the exact reason (missing key / blocked script / timeout)
+        // instead of silently leaving an empty dropdown.
+        console.warn("[address-autocomplete] Maps JS unavailable, using server fallback:", err);
         useServerRef.current = true;
         setJsFailed(true);
       });

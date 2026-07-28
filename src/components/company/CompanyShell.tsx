@@ -5,6 +5,8 @@ import {
   Building2, Settings,
 } from "lucide-react";
 import { RoleShell } from "@/components/shell/RoleShell";
+import { RoleGuard } from "@/components/auth/RoleGuard";
+
 
 const NAV = [
   { to: "/company/dashboard",     label: "Dashboard",     icon: <LayoutDashboard className="h-4 w-4" /> },

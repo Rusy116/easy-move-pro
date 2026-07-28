@@ -110,6 +110,8 @@ export function LeadDetailPanel({
   const [history, setHistory] = useState<History[]>([]);
   const [newNote, setNewNote] = useState("");
   const [savingNote, setSavingNote] = useState(false);
+  const [qualifying, setQualifying] = useState(false);
+
   const [brokerId, setBrokerId] = useState<string | null>(q?.assigned_broker_id ?? null);
 
   useEffect(() => {

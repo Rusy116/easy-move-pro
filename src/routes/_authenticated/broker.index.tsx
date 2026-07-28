@@ -13,6 +13,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
+import { LeadDetailPanel } from "@/components/admin/LeadDetailPanel";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/broker/")({
   head: () => ({ meta: [{ title: "Broker leads — Easy Move Pro" }] }),
@@ -20,6 +22,7 @@ export const Route = createFileRoute("/_authenticated/broker/")({
 });
 
 type Lead = {
+  [key: string]: unknown;
   id: string;
   quote_number: string | null;
   created_at: string;
@@ -43,14 +46,13 @@ function BrokerLeadsPage() {
   const [loading, setLoading] = useState(true);
   const [q, setQ] = useState("");
   const [status, setStatus] = useState("all");
+  const [selected, setSelected] = useState<Lead | null>(null);
 
   useEffect(() => {
     (async () => {
       const { data } = await supabase
         .from("quotes")
-        .select(
-          "id, quote_number, created_at, status, lead_phase, origin_city, origin_zip, destination_city, destination_zip, move_date, contact_email, contact_phone, estimated_low, estimated_high",
-        )
+        .select("*")
         .order("created_at", { ascending: false })
         .limit(300);
       setLeads((data ?? []) as Lead[]);
@@ -134,7 +136,19 @@ function BrokerLeadsPage() {
             </div>
           ) : (
             filtered.map((l) => (
-              <article key={l.id} className="card-premium p-5">
+              <article
+                key={l.id}
+                role="button"
+                tabIndex={0}
+                onClick={() => setSelected(l)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    setSelected(l);
+                  }
+                }}
+                className="card-premium p-5 cursor-pointer"
+              >
                 <div className="flex flex-wrap items-start justify-between gap-4">
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
@@ -188,6 +202,18 @@ function BrokerLeadsPage() {
             ))
           )}
         </div>
+
+        <LeadDetailPanel
+          quote={selected as never}
+          onClose={() => setSelected(null)}
+          onStatusChange={async (id, next) => {
+            const { error } = await supabase.from("quotes").update({ status: next }).eq("id", id);
+            if (error) return toast.error(error.message);
+            setLeads((prev) => prev.map((l) => (l.id === id ? { ...l, status: next } : l)));
+            setSelected((prev) => (prev && prev.id === id ? { ...prev, status: next } : prev));
+            toast.success("Status updated");
+          }}
+        />
       </section>
     </BrokerShell>
   );

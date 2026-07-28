@@ -81,8 +81,11 @@ export function AddressAutocomplete({
         sessionTokenRef.current = new g.maps.places.AutocompleteSessionToken();
         setJsReady(true);
       })
-      .catch(() => {
+      .catch((err) => {
         if (cancelled) return;
+        // Surface the exact reason (missing key / blocked script / timeout)
+        // instead of silently leaving an empty dropdown.
+        console.warn("[address-autocomplete] Maps JS unavailable, using server fallback:", err);
         useServerRef.current = true;
         setJsFailed(true);
       });
@@ -154,7 +157,9 @@ export function AddressAutocomplete({
 
   // Debounced fetch of suggestions
   useEffect(() => {
-    if (!jsReady && !jsFailed) return;
+    // No early return while Maps JS is still loading — the server path below
+    // handles those keystrokes, and the effect re-runs once JS becomes ready.
+
     if (debounceRef.current) window.clearTimeout(debounceRef.current);
     const q = value.trim();
     if (q.length < 2) {
@@ -167,8 +172,8 @@ export function AddressAutocomplete({
     debounceRef.current = window.setTimeout(async () => {
       let next: Row[] = [];
       let message: string | null = null;
-      let tryServer = useServerRef.current;
-      if (!useServerRef.current) {
+      let tryServer = useServerRef.current || !jsReady;
+      if (!useServerRef.current && jsReady) {
         try {
           next = await fetchViaBrowser(q);
           // A referrer-blocked key can resolve with zero suggestions instead of
@@ -272,7 +277,9 @@ export function AddressAutocomplete({
     }
   }
 
-  const disabled = disabledProp || (!jsReady && !jsFailed);
+  // Never block typing on the Maps JS load: until it settles, queries go to the
+  // server gateway, so a slow/blocked script can't freeze the field.
+  const disabled = !!disabledProp;
 
   return (
     <div ref={wrapRef} className={cn("relative", className)}>

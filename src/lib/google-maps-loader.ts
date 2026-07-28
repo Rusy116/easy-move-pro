@@ -42,7 +42,16 @@ export function loadGoogleMaps(): Promise<typeof google> {
   }
 
   loaderPromise = new Promise<typeof google>((resolve, reject) => {
-    window.__easyMoveGmapsInit = () => resolve(window.google);
+    // Without this, a blocked/hanging script leaves the promise pending forever
+    // and every consumer stays in its "still loading" state indefinitely.
+    const timer = window.setTimeout(() => {
+      loaderPromise = null;
+      reject(new Error("google-maps: script load timed out"));
+    }, 8000);
+    window.__easyMoveGmapsInit = () => {
+      window.clearTimeout(timer);
+      resolve(window.google);
+    };
     const s = document.createElement("script");
     const params = new URLSearchParams({
       key,
@@ -56,6 +65,7 @@ export function loadGoogleMaps(): Promise<typeof google> {
     s.async = true;
     s.defer = true;
     s.onerror = () => {
+      window.clearTimeout(timer);
       loaderPromise = null;
       reject(new Error("google-maps: script failed to load"));
     };

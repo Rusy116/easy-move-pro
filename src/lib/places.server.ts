@@ -41,12 +41,8 @@ export async function autocompleteAddresses(
   zip?: string
 ): Promise<PlaceSuggestion[]> {
   const zipContext = zip ? await resolveZipCities(zip).catch(() => null) : null;
-  const queryParts = [input, zipContext?.state, zip].filter(
-    (part): part is string => Boolean(part)
-  );
-  const query = Array.from(new Set(queryParts)).join(" ");
   const body: Record<string, unknown> = {
-    input: query,
+    input,
     includedRegionCodes: ["us"],
   };
 

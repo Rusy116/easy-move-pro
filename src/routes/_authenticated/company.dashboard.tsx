@@ -1,8 +1,11 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo } from "react";
 import { CompanyHeader, NoCompanyScreen, StatusBanner, useMoverPortal } from "@/components/company/portal-shared";
 import { StatCard, SkeletonRows } from "@/components/shell/Chrome";
-import { Inbox, Lock, Globe, CheckCircle2, XCircle, Clock, Send, TrendingUp } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useCompanyJobs, type JobStatus } from "@/lib/company-jobs";
+import { Inbox, Lock, Globe, CheckCircle2, XCircle, Clock, Send, TrendingUp, Truck } from "lucide-react";
+
 
 export const Route = createFileRoute("/_authenticated/company/dashboard")({
   head: () => ({ meta: [{ title: "Dashboard — Company Portal" }] }),

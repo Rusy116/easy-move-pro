@@ -296,7 +296,79 @@ function PortalPage() {
           </div>
         </div>
 
+        {/* Final quote from the assigned moving company */}
+        {quote.final_quote_sent_at && (
+          <section className="mt-8 rounded-3xl border-2 border-emerald-600/30 bg-emerald-500/5 p-6 sm:p-8">
+            <div className="text-[11px] font-semibold uppercase tracking-widest text-emerald-700">
+              Final quote from your moving company
+            </div>
+            <div className="mt-2 font-serif text-4xl font-medium tracking-tight sm:text-5xl">
+              {money(quote.final_price)}
+            </div>
+            <div className="mt-4 grid gap-4 sm:grid-cols-3">
+              <InfoCard
+                title="Confirmed move date"
+                icon={<Calendar className="h-4 w-4" />}
+                lines={[quote.final_move_date || quote.move_date || "To be confirmed"]}
+              />
+              <InfoCard
+                title="Arrival window"
+                icon={<Truck className="h-4 w-4" />}
+                lines={[quote.arrival_window || "To be confirmed"]}
+              />
+              <InfoCard
+                title="Crew & truck"
+                icon={<Truck className="h-4 w-4" />}
+                lines={[
+                  quote.crew_size ? `${quote.crew_size} movers` : "—",
+                  quote.final_truck_size || "—",
+                ]}
+              />
+            </div>
+            {quote.company_notes && (
+              <div className="mt-4 rounded-2xl border border-border bg-card p-4 text-sm">
+                <div className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
+                  Company notes
+                </div>
+                <p className="mt-2 whitespace-pre-line">{quote.company_notes}</p>
+              </div>
+            )}
+
+            {quote.job_status === "final_quote_sent" ? (
+              <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+                <Button
+                  onClick={() => void handleFinalResponse(true)}
+                  disabled={responding}
+                  size="lg"
+                  className="rounded-full bg-emerald-600 text-white hover:bg-emerald-700"
+                >
+                  {responding ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <CheckCircle2 className="mr-2 h-4 w-4" />}
+                  Accept Final Quote
+                </Button>
+                <Button
+                  onClick={() => void handleFinalResponse(false)}
+                  disabled={responding}
+                  size="lg"
+                  variant="outline"
+                  className="rounded-full"
+                >
+                  Reject Quote
+                </Button>
+              </div>
+            ) : (
+              <div className="mt-6 inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-2 text-sm font-medium">
+                {quote.job_status === "rejected"
+                  ? "You rejected this final quote."
+                  : quote.job_status === "accepted"
+                    ? "You accepted this final quote."
+                    : `Status: ${quote.job_status ?? "—"}`}
+              </div>
+            )}
+          </section>
+        )}
+
         {/* Estimate card */}
+
         <div className="mt-8 overflow-hidden rounded-3xl border border-border bg-gradient-to-br from-primary/5 to-transparent p-6 sm:p-8">
           <div className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
             Estimated Total

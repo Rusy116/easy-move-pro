@@ -1964,7 +1964,7 @@ export type Database = {
       mover_can_see_quote: { Args: { _quote_id: string }; Returns: boolean }
     }
     Enums: {
-      app_role: "admin" | "mover" | "customer"
+      app_role: "admin" | "mover" | "customer" | "broker"
       assignment_state_enum:
         | "invited"
         | "active"
@@ -2136,7 +2136,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "mover", "customer"],
+      app_role: ["admin", "mover", "customer", "broker"],
       assignment_state_enum: [
         "invited",
         "active",

@@ -160,6 +160,7 @@ function CompaniesAdmin() {
               Moving Companies
             </h1>
             <p className="mt-1 text-sm text-muted-foreground">
+              {companies.filter((c) => c.status === "pending").length} awaiting approval ·{" "}
               {companies.length} partner companies
             </p>
           </div>

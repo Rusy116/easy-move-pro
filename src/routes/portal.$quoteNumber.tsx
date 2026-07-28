@@ -91,6 +91,8 @@ function PortalPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [accepting, setAccepting] = useState(false);
+  const [responding, setResponding] = useState(false);
+
 
   useEffect(() => {
     let cancelled = false;
@@ -123,6 +125,48 @@ function PortalPage() {
       cancelled = true;
     };
   }, [quoteNumber, token]);
+
+  // Live updates: the assigned moving company can send a final quote at any time.
+  useEffect(() => {
+    if (!quote?.id) return;
+    const channel = supabase
+      .channel(`portal-quote-${quote.id}`)
+      .on(
+        "postgres_changes",
+        { event: "UPDATE", schema: "public", table: "quotes", filter: `id=eq.${quote.id}` },
+        (payload) => {
+          const row = payload.new as Partial<QuoteRow>;
+          setQuote((prev) => (prev ? { ...prev, ...row } : prev));
+        },
+      )
+      .subscribe();
+    return () => {
+      void supabase.removeChannel(channel);
+    };
+  }, [quote?.id]);
+
+  async function handleFinalResponse(accept: boolean) {
+    if (!quote || !token) return;
+    setResponding(true);
+    const { error } = await supabase.rpc("fn_customer_respond_final_quote", {
+      _quote_number: quote.quote_number,
+      _token: token,
+      _accept: accept,
+    });
+    setResponding(false);
+    if (error) {
+      toast.error(error.message || "Could not submit your response.");
+      return;
+    }
+    setQuote({
+      ...quote,
+      job_status: accept ? "accepted" : "rejected",
+      customer_response_at: new Date().toISOString(),
+      accepted_at: accept ? new Date().toISOString() : quote.accepted_at,
+    });
+    toast.success(accept ? "Final quote accepted." : "Final quote rejected.");
+  }
+
 
   async function handleAccept() {
     if (!quote || !token) return;

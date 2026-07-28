@@ -1419,6 +1419,12 @@ export type Database = {
           contact_email: string | null
           contact_phone: string | null
           created_at: string
+          delivery_carry_distance: string | null
+          delivery_elevator: boolean
+          delivery_floor: number
+          delivery_notes: string | null
+          delivery_parking_distance: string | null
+          delivery_property_type: string | null
           destination_address: string | null
           destination_city: string | null
           destination_elevator: boolean
@@ -1473,6 +1479,12 @@ export type Database = {
           origin_zip: string
           packing: boolean
           piano: boolean
+          pickup_carry_distance: string | null
+          pickup_elevator: boolean
+          pickup_floor: number
+          pickup_notes: string | null
+          pickup_parking_distance: string | null
+          pickup_property_type: string | null
           portal_token: string | null
           preferred_time: string | null
           property_type: string
@@ -1502,6 +1514,12 @@ export type Database = {
           contact_email?: string | null
           contact_phone?: string | null
           created_at?: string
+          delivery_carry_distance?: string | null
+          delivery_elevator?: boolean
+          delivery_floor?: number
+          delivery_notes?: string | null
+          delivery_parking_distance?: string | null
+          delivery_property_type?: string | null
           destination_address?: string | null
           destination_city?: string | null
           destination_elevator?: boolean
@@ -1556,6 +1574,12 @@ export type Database = {
           origin_zip: string
           packing?: boolean
           piano?: boolean
+          pickup_carry_distance?: string | null
+          pickup_elevator?: boolean
+          pickup_floor?: number
+          pickup_notes?: string | null
+          pickup_parking_distance?: string | null
+          pickup_property_type?: string | null
           portal_token?: string | null
           preferred_time?: string | null
           property_type: string
@@ -1585,6 +1609,12 @@ export type Database = {
           contact_email?: string | null
           contact_phone?: string | null
           created_at?: string
+          delivery_carry_distance?: string | null
+          delivery_elevator?: boolean
+          delivery_floor?: number
+          delivery_notes?: string | null
+          delivery_parking_distance?: string | null
+          delivery_property_type?: string | null
           destination_address?: string | null
           destination_city?: string | null
           destination_elevator?: boolean
@@ -1639,6 +1669,12 @@ export type Database = {
           origin_zip?: string
           packing?: boolean
           piano?: boolean
+          pickup_carry_distance?: string | null
+          pickup_elevator?: boolean
+          pickup_floor?: number
+          pickup_notes?: string | null
+          pickup_parking_distance?: string | null
+          pickup_property_type?: string | null
           portal_token?: string | null
           preferred_time?: string | null
           property_type?: string

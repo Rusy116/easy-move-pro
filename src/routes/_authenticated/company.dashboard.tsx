@@ -66,6 +66,22 @@ function DashboardPage() {
       <CompanyHeader company={company} onRefresh={reload} />
       <StatusBanner company={company} />
 
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <StatCard label="Available jobs"   value={jobStats.available} icon={<Globe className="h-4 w-4" />} />
+        <StatCard label="My active jobs"   value={jobStats.active} icon={<Truck className="h-4 w-4" />} />
+        <StatCard label="Awaiting contact" value={jobStats.awaitingResponse} icon={<Clock className="h-4 w-4" />} />
+        <StatCard label="Booked"           value={jobStats.booked} icon={<CheckCircle2 className="h-4 w-4" />} />
+      </div>
+      <div className="flex flex-wrap gap-2">
+        <Button asChild size="sm" className="rounded-full">
+          <Link to="/company/jobs">Browse available jobs</Link>
+        </Button>
+        <Button asChild size="sm" variant="outline" className="rounded-full">
+          <Link to="/company/myjobs">My jobs</Link>
+        </Button>
+      </div>
+
+
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
         <StatCard label="Total leads"     value={stats.total}      icon={<Inbox className="h-4 w-4" />} />
         <StatCard label="Exclusive"       value={stats.exclusive}  icon={<Lock className="h-4 w-4" />} />

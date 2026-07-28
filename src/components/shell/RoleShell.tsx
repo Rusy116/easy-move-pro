@@ -9,13 +9,14 @@ export type ShellNavItem = { to: string; label: string; icon?: ReactNode };
 export type RoleShellProps = {
   brand: string;
   eyebrow: string;
-  accent: "admin" | "company" | "customer";
+  accent: "admin" | "broker" | "company" | "customer";
   nav: ShellNavItem[];
   children: ReactNode;
 };
 
 const ACCENT: Record<RoleShellProps["accent"], string> = {
   admin: "from-slate-900 to-slate-700",
+  broker: "from-clay to-rose-700",
   company: "from-sage to-emerald-700",
   customer: "from-ochre to-amber-600",
 };

@@ -66,6 +66,8 @@ import { Route as AuthenticatedCompanyCustomersRouteImport } from './routes/_aut
 import { Route as AuthenticatedCompanyAnalyticsRouteImport } from './routes/_authenticated/company.analytics'
 import { Route as AuthenticatedBrokerPerformanceRouteImport } from './routes/_authenticated/broker.performance'
 import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin.users'
+import { Route as AuthenticatedAdminSettingsRouteImport } from './routes/_authenticated/admin.settings'
+import { Route as AuthenticatedAdminLeadsRouteImport } from './routes/_authenticated/admin.leads'
 import { Route as AuthenticatedAdminDashboardRouteImport } from './routes/_authenticated/admin.dashboard'
 import { Route as AuthenticatedAdminCompaniesRouteImport } from './routes/_authenticated/admin.companies'
 import { Route as AuthenticatedCompanyJobJobIdRouteImport } from './routes/_authenticated/company.job.$jobId'
@@ -374,6 +376,17 @@ const AuthenticatedAdminUsersRoute = AuthenticatedAdminUsersRouteImport.update({
   path: '/admin/users',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAdminSettingsRoute =
+  AuthenticatedAdminSettingsRouteImport.update({
+    id: '/admin/settings',
+    path: '/admin/settings',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAdminLeadsRoute = AuthenticatedAdminLeadsRouteImport.update({
+  id: '/admin/leads',
+  path: '/admin/leads',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedAdminDashboardRoute =
   AuthenticatedAdminDashboardRouteImport.update({
     id: '/admin/dashboard',
@@ -429,6 +442,8 @@ export interface FileRoutesByFullPath {
   '/partners/': typeof PartnersIndexRoute
   '/admin/companies': typeof AuthenticatedAdminCompaniesRoute
   '/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
+  '/admin/leads': typeof AuthenticatedAdminLeadsRoute
+  '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/broker/performance': typeof AuthenticatedBrokerPerformanceRoute
   '/company/analytics': typeof AuthenticatedCompanyAnalyticsRoute
@@ -489,6 +504,8 @@ export interface FileRoutesByTo {
   '/partners': typeof PartnersIndexRoute
   '/admin/companies': typeof AuthenticatedAdminCompaniesRoute
   '/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
+  '/admin/leads': typeof AuthenticatedAdminLeadsRoute
+  '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/broker/performance': typeof AuthenticatedBrokerPerformanceRoute
   '/company/analytics': typeof AuthenticatedCompanyAnalyticsRoute
@@ -552,6 +569,8 @@ export interface FileRoutesById {
   '/partners/': typeof PartnersIndexRoute
   '/_authenticated/admin/companies': typeof AuthenticatedAdminCompaniesRoute
   '/_authenticated/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
+  '/_authenticated/admin/leads': typeof AuthenticatedAdminLeadsRoute
+  '/_authenticated/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
   '/_authenticated/broker/performance': typeof AuthenticatedBrokerPerformanceRoute
   '/_authenticated/company/analytics': typeof AuthenticatedCompanyAnalyticsRoute
@@ -615,6 +634,8 @@ export interface FileRouteTypes {
     | '/partners/'
     | '/admin/companies'
     | '/admin/dashboard'
+    | '/admin/leads'
+    | '/admin/settings'
     | '/admin/users'
     | '/broker/performance'
     | '/company/analytics'
@@ -675,6 +696,8 @@ export interface FileRouteTypes {
     | '/partners'
     | '/admin/companies'
     | '/admin/dashboard'
+    | '/admin/leads'
+    | '/admin/settings'
     | '/admin/users'
     | '/broker/performance'
     | '/company/analytics'
@@ -737,6 +760,8 @@ export interface FileRouteTypes {
     | '/partners/'
     | '/_authenticated/admin/companies'
     | '/_authenticated/admin/dashboard'
+    | '/_authenticated/admin/leads'
+    | '/_authenticated/admin/settings'
     | '/_authenticated/admin/users'
     | '/_authenticated/broker/performance'
     | '/_authenticated/company/analytics'
@@ -1199,6 +1224,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminUsersRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin/settings': {
+      id: '/_authenticated/admin/settings'
+      path: '/admin/settings'
+      fullPath: '/admin/settings'
+      preLoaderRoute: typeof AuthenticatedAdminSettingsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/leads': {
+      id: '/_authenticated/admin/leads'
+      path: '/admin/leads'
+      fullPath: '/admin/leads'
+      preLoaderRoute: typeof AuthenticatedAdminLeadsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/admin/dashboard': {
       id: '/_authenticated/admin/dashboard'
       path: '/admin/dashboard'
@@ -1277,6 +1316,8 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedAdminCompaniesRoute: typeof AuthenticatedAdminCompaniesRoute
   AuthenticatedAdminDashboardRoute: typeof AuthenticatedAdminDashboardRoute
+  AuthenticatedAdminLeadsRoute: typeof AuthenticatedAdminLeadsRoute
+  AuthenticatedAdminSettingsRoute: typeof AuthenticatedAdminSettingsRoute
   AuthenticatedAdminUsersRoute: typeof AuthenticatedAdminUsersRoute
   AuthenticatedBrokerPerformanceRoute: typeof AuthenticatedBrokerPerformanceRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
@@ -1289,6 +1330,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedAdminCompaniesRoute: AuthenticatedAdminCompaniesRoute,
   AuthenticatedAdminDashboardRoute: AuthenticatedAdminDashboardRoute,
+  AuthenticatedAdminLeadsRoute: AuthenticatedAdminLeadsRoute,
+  AuthenticatedAdminSettingsRoute: AuthenticatedAdminSettingsRoute,
   AuthenticatedAdminUsersRoute: AuthenticatedAdminUsersRoute,
   AuthenticatedBrokerPerformanceRoute: AuthenticatedBrokerPerformanceRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,

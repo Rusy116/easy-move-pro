@@ -131,10 +131,8 @@ export function AvailableJobCard({
 /* ----------------------------- my job card --------------------------- */
 
 export function MyJobCard({ job }: { job: MyJob }) {
-  const portalHref =
-    job.quote_number && job.portal_token
-      ? `/portal/${job.quote_number}?token=${job.portal_token}`
-      : null;
+  const canPortal = Boolean(job.quote_number && job.portal_token);
+
 
   return (
     <article className="rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5">

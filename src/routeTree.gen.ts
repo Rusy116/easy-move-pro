@@ -13,6 +13,7 @@ import { Route as StoreRouteImport } from './routes/store'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as ServicesRouteImport } from './routes/services'
 import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
+import { Route as RegisterCompanyRouteImport } from './routes/register-company'
 import { Route as OpenMarketplaceRouteImport } from './routes/open-marketplace'
 import { Route as MovingScheduleSoftwareRouteImport } from './routes/moving-schedule-software'
 import { Route as MovingLeadsRouteImport } from './routes/moving-leads'
@@ -79,6 +80,11 @@ const ServicesRoute = ServicesRouteImport.update({
 const RobotsDottxtRoute = RobotsDottxtRouteImport.update({
   id: '/robots.txt',
   path: '/robots.txt',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RegisterCompanyRoute = RegisterCompanyRouteImport.update({
+  id: '/register-company',
+  path: '/register-company',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OpenMarketplaceRoute = OpenMarketplaceRouteImport.update({
@@ -349,6 +355,7 @@ export interface FileRoutesByFullPath {
   '/moving-leads': typeof MovingLeadsRoute
   '/moving-schedule-software': typeof MovingScheduleSoftwareRoute
   '/open-marketplace': typeof OpenMarketplaceRoute
+  '/register-company': typeof RegisterCompanyRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/services': typeof ServicesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -401,6 +408,7 @@ export interface FileRoutesByTo {
   '/moving-leads': typeof MovingLeadsRoute
   '/moving-schedule-software': typeof MovingScheduleSoftwareRoute
   '/open-marketplace': typeof OpenMarketplaceRoute
+  '/register-company': typeof RegisterCompanyRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/services': typeof ServicesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -454,6 +462,7 @@ export interface FileRoutesById {
   '/moving-leads': typeof MovingLeadsRoute
   '/moving-schedule-software': typeof MovingScheduleSoftwareRoute
   '/open-marketplace': typeof OpenMarketplaceRoute
+  '/register-company': typeof RegisterCompanyRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/services': typeof ServicesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -508,6 +517,7 @@ export interface FileRouteTypes {
     | '/moving-leads'
     | '/moving-schedule-software'
     | '/open-marketplace'
+    | '/register-company'
     | '/robots.txt'
     | '/services'
     | '/sitemap.xml'
@@ -560,6 +570,7 @@ export interface FileRouteTypes {
     | '/moving-leads'
     | '/moving-schedule-software'
     | '/open-marketplace'
+    | '/register-company'
     | '/robots.txt'
     | '/services'
     | '/sitemap.xml'
@@ -612,6 +623,7 @@ export interface FileRouteTypes {
     | '/moving-leads'
     | '/moving-schedule-software'
     | '/open-marketplace'
+    | '/register-company'
     | '/robots.txt'
     | '/services'
     | '/sitemap.xml'
@@ -666,6 +678,7 @@ export interface RootRouteChildren {
   MovingLeadsRoute: typeof MovingLeadsRoute
   MovingScheduleSoftwareRoute: typeof MovingScheduleSoftwareRoute
   OpenMarketplaceRoute: typeof OpenMarketplaceRoute
+  RegisterCompanyRoute: typeof RegisterCompanyRoute
   RobotsDottxtRoute: typeof RobotsDottxtRoute
   ServicesRoute: typeof ServicesRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
@@ -710,6 +723,13 @@ declare module '@tanstack/react-router' {
       path: '/robots.txt'
       fullPath: '/robots.txt'
       preLoaderRoute: typeof RobotsDottxtRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/register-company': {
+      id: '/register-company'
+      path: '/register-company'
+      fullPath: '/register-company'
+      preLoaderRoute: typeof RegisterCompanyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/open-marketplace': {
@@ -1122,6 +1142,7 @@ const rootRouteChildren: RootRouteChildren = {
   MovingLeadsRoute: MovingLeadsRoute,
   MovingScheduleSoftwareRoute: MovingScheduleSoftwareRoute,
   OpenMarketplaceRoute: OpenMarketplaceRoute,
+  RegisterCompanyRoute: RegisterCompanyRoute,
   RobotsDottxtRoute: RobotsDottxtRoute,
   ServicesRoute: ServicesRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,

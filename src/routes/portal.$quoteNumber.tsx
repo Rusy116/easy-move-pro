@@ -103,7 +103,7 @@ function PortalPage() {
       const { data, error } = await supabase
         .from("quotes")
         .select(
-          "id, quote_number, portal_token, status, accepted_at, created_at, contact_email, contact_phone, origin_address, origin_city, origin_state, origin_zip, destination_address, destination_city, destination_state, destination_zip, move_date, distance_miles, num_movers, labor_hours, truck_size, estimated_cubic_feet, estimated_weight_lbs, estimated_low, estimated_high, insurance_tier, inventory, breakdown, details",
+          "id, quote_number, portal_token, status, accepted_at, created_at, contact_email, contact_phone, origin_address, origin_city, origin_state, origin_zip, destination_address, destination_city, destination_state, destination_zip, move_date, distance_miles, num_movers, labor_hours, truck_size, estimated_cubic_feet, estimated_weight_lbs, estimated_low, estimated_high, insurance_tier, inventory, breakdown, details, job_status, final_price, final_move_date, arrival_window, crew_size, final_truck_size, company_notes, final_quote_sent_at, customer_response_at",
         )
         .eq("quote_number", quoteNumber)
         .eq("portal_token", token)

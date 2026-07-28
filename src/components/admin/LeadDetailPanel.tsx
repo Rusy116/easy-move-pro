@@ -23,12 +23,13 @@ import { LeadPhaseBadge } from "./LeadPhaseBadge";
 import { LeadEventsTimeline } from "./LeadEventsTimeline";
 import { pauseSla, resumeSla, extendSla, closeLead } from "@/lib/leads.functions";
 
-export const LEAD_STATUSES = ["new", "contacted", "scheduled", "won", "lost", "cancelled"] as const;
+export const LEAD_STATUSES = ["new", "contacted", "scheduled", "accepted", "won", "lost", "cancelled"] as const;
 
 const STATUS_STYLES: Record<string, string> = {
   new: "bg-blue-100 text-blue-800 border-blue-300",
   contacted: "bg-amber-100 text-amber-800 border-amber-300",
   scheduled: "bg-purple-100 text-purple-800 border-purple-300",
+  accepted: "bg-teal-100 text-teal-800 border-teal-300",
   won: "bg-emerald-100 text-emerald-800 border-emerald-300",
   lost: "bg-rose-100 text-rose-800 border-rose-300",
   cancelled: "bg-neutral-200 text-neutral-700 border-neutral-300",

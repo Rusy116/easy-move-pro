@@ -9,7 +9,7 @@ import { RoleGuard } from "@/components/auth/RoleGuard";
 import { supabase } from "@/integrations/supabase/client";
 
 const FULL_NAV = [
-  { to: "/company/dashboard",     label: "Dashboard",      icon: <LayoutDashboard className="h-4 w-4" /> },
+  { to: "/company",               label: "Dashboard",      icon: <LayoutDashboard className="h-4 w-4" /> },
   { to: "/company/jobs",          label: "Available Jobs", icon: <Globe className="h-4 w-4" /> },
   { to: "/company/myjobs",        label: "My Jobs",        icon: <Truck className="h-4 w-4" /> },
   { to: "/company/leads",         label: "My Leads",      icon: <Inbox className="h-4 w-4" /> },

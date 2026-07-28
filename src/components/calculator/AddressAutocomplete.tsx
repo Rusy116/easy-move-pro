@@ -172,8 +172,8 @@ export function AddressAutocomplete({
     debounceRef.current = window.setTimeout(async () => {
       let next: Row[] = [];
       let message: string | null = null;
-      let tryServer = useServerRef.current;
-      if (!useServerRef.current) {
+      let tryServer = useServerRef.current || !jsReady;
+      if (!useServerRef.current && jsReady) {
         try {
           next = await fetchViaBrowser(q);
           // A referrer-blocked key can resolve with zero suggestions instead of

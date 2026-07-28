@@ -1280,6 +1280,43 @@ function LocationBlock({
 
   return (
     <div className="grid min-w-0 gap-2.5">
+      {/* Property type (independent per location) */}
+      <div className="min-w-0">
+        <Label className="mb-1 block text-[11px] font-medium text-muted-foreground">
+          {role === "from"
+            ? "What type of property are you moving FROM?"
+            : "What type of property are you moving TO?"}
+        </Label>
+        <div className="grid grid-cols-2 gap-2">
+          {PROPERTY_TYPES.map(({ value, label, Icon }) => {
+            const active = side.propertyType === value;
+            return (
+              <button
+                key={value}
+                type="button"
+                onClick={() => onChange({ propertyType: value })}
+                className={cn(
+                  "flex items-center gap-2 rounded-xl border p-2.5 text-left transition-all",
+                  active
+                    ? "border-primary bg-primary/5 ring-2 ring-primary/20"
+                    : "border-border bg-card hover:border-primary/40"
+                )}
+              >
+                <span
+                  className={cn(
+                    "grid h-7 w-7 shrink-0 place-items-center rounded-lg",
+                    active ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+                  )}
+                >
+                  <Icon className="h-3.5 w-3.5" />
+                </span>
+                <span className="truncate text-xs font-medium">{label}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
       {/* ZIP */}
       <div className="min-w-0">
         <Label className="mb-1 block text-[11px] font-medium text-muted-foreground">

@@ -47,6 +47,7 @@ import { Route as AuthenticatedCompanyIndexRouteImport } from './routes/_authent
 import { Route as AuthenticatedBrokerIndexRouteImport } from './routes/_authenticated/broker.index'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as ApiPublicSlaTickRouteImport } from './routes/api/public/sla-tick'
+import { Route as AuthenticatedCompanySupportRouteImport } from './routes/_authenticated/company.support'
 import { Route as AuthenticatedCompanySettingsRouteImport } from './routes/_authenticated/company.settings'
 import { Route as AuthenticatedCompanyScheduleRouteImport } from './routes/_authenticated/company.schedule'
 import { Route as AuthenticatedCompanyProfileRouteImport } from './routes/_authenticated/company.profile'
@@ -257,6 +258,12 @@ const ApiPublicSlaTickRoute = ApiPublicSlaTickRouteImport.update({
   path: '/api/public/sla-tick',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedCompanySupportRoute =
+  AuthenticatedCompanySupportRouteImport.update({
+    id: '/support',
+    path: '/support',
+    getParentRoute: () => AuthenticatedCompanyRoute,
+  } as any)
 const AuthenticatedCompanySettingsRoute =
   AuthenticatedCompanySettingsRouteImport.update({
     id: '/settings',
@@ -417,6 +424,7 @@ export interface FileRoutesByFullPath {
   '/company/profile': typeof AuthenticatedCompanyProfileRoute
   '/company/schedule': typeof AuthenticatedCompanyScheduleRoute
   '/company/settings': typeof AuthenticatedCompanySettingsRoute
+  '/company/support': typeof AuthenticatedCompanySupportRoute
   '/api/public/sla-tick': typeof ApiPublicSlaTickRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/broker/': typeof AuthenticatedBrokerIndexRoute
@@ -473,6 +481,7 @@ export interface FileRoutesByTo {
   '/company/profile': typeof AuthenticatedCompanyProfileRoute
   '/company/schedule': typeof AuthenticatedCompanyScheduleRoute
   '/company/settings': typeof AuthenticatedCompanySettingsRoute
+  '/company/support': typeof AuthenticatedCompanySupportRoute
   '/api/public/sla-tick': typeof ApiPublicSlaTickRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/broker': typeof AuthenticatedBrokerIndexRoute
@@ -532,6 +541,7 @@ export interface FileRoutesById {
   '/_authenticated/company/profile': typeof AuthenticatedCompanyProfileRoute
   '/_authenticated/company/schedule': typeof AuthenticatedCompanyScheduleRoute
   '/_authenticated/company/settings': typeof AuthenticatedCompanySettingsRoute
+  '/_authenticated/company/support': typeof AuthenticatedCompanySupportRoute
   '/api/public/sla-tick': typeof ApiPublicSlaTickRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/broker/': typeof AuthenticatedBrokerIndexRoute
@@ -591,6 +601,7 @@ export interface FileRouteTypes {
     | '/company/profile'
     | '/company/schedule'
     | '/company/settings'
+    | '/company/support'
     | '/api/public/sla-tick'
     | '/admin/'
     | '/broker/'
@@ -647,6 +658,7 @@ export interface FileRouteTypes {
     | '/company/profile'
     | '/company/schedule'
     | '/company/settings'
+    | '/company/support'
     | '/api/public/sla-tick'
     | '/admin'
     | '/broker'
@@ -705,6 +717,7 @@ export interface FileRouteTypes {
     | '/_authenticated/company/profile'
     | '/_authenticated/company/schedule'
     | '/_authenticated/company/settings'
+    | '/_authenticated/company/support'
     | '/api/public/sla-tick'
     | '/_authenticated/admin/'
     | '/_authenticated/broker/'
@@ -1014,6 +1027,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicSlaTickRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/company/support': {
+      id: '/_authenticated/company/support'
+      path: '/support'
+      fullPath: '/company/support'
+      preLoaderRoute: typeof AuthenticatedCompanySupportRouteImport
+      parentRoute: typeof AuthenticatedCompanyRoute
+    }
     '/_authenticated/company/settings': {
       id: '/_authenticated/company/settings'
       path: '/settings'
@@ -1158,6 +1178,7 @@ interface AuthenticatedCompanyRouteChildren {
   AuthenticatedCompanyProfileRoute: typeof AuthenticatedCompanyProfileRoute
   AuthenticatedCompanyScheduleRoute: typeof AuthenticatedCompanyScheduleRoute
   AuthenticatedCompanySettingsRoute: typeof AuthenticatedCompanySettingsRoute
+  AuthenticatedCompanySupportRoute: typeof AuthenticatedCompanySupportRoute
   AuthenticatedCompanyIndexRoute: typeof AuthenticatedCompanyIndexRoute
 }
 
@@ -1177,6 +1198,7 @@ const AuthenticatedCompanyRouteChildren: AuthenticatedCompanyRouteChildren = {
   AuthenticatedCompanyProfileRoute: AuthenticatedCompanyProfileRoute,
   AuthenticatedCompanyScheduleRoute: AuthenticatedCompanyScheduleRoute,
   AuthenticatedCompanySettingsRoute: AuthenticatedCompanySettingsRoute,
+  AuthenticatedCompanySupportRoute: AuthenticatedCompanySupportRoute,
   AuthenticatedCompanyIndexRoute: AuthenticatedCompanyIndexRoute,
 }
 

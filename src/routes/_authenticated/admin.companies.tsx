@@ -24,7 +24,11 @@ import {
 import { toast } from "sonner";
 import { useServerFn } from "@tanstack/react-start";
 import { attachMemberByEmail } from "@/lib/companies.functions";
-import { Plus, UserPlus, Building2, Trash2 } from "lucide-react";
+import { adminSetCompanyStatus, type CompanyStatus } from "@/lib/partners.functions";
+import {
+  Plus, UserPlus, Building2, Trash2, FileCheck2, CheckCircle2, XCircle,
+  PauseCircle, RotateCcw, Download,
+} from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/admin/companies")({
   head: () => ({ meta: [{ title: "Moving Companies — Admin" }] }),
@@ -43,9 +47,41 @@ type Company = {
   rating: number | null;
   license_status: string;
   active: boolean;
+  status: CompanyStatus;
+  rejection_reason: string | null;
+  owner_first_name: string | null;
+  owner_last_name: string | null;
+  website: string | null;
+  address_line1: string | null;
+  address_city: string | null;
+  address_state: string | null;
+  address_zip: string | null;
+  insurance_carrier: string | null;
+  insurance_policy: string | null;
+  insurance_expires: string | null;
+  fleet_size: number | null;
+  movers_count: number | null;
+  service_cities: string[] | null;
+  services_offered: string[] | null;
+  created_at: string;
 };
 
 const LICENSE_STATUSES = ["active", "pending", "suspended", "expired"] as const;
+
+const STATUS_TABS = [
+  { key: "pending", label: "Pending approval" },
+  { key: "approved", label: "Approved" },
+  { key: "suspended", label: "Suspended" },
+  { key: "rejected", label: "Rejected" },
+  { key: "all", label: "All" },
+] as const;
+
+const STATUS_STYLE: Record<CompanyStatus, string> = {
+  pending: "bg-amber-50 text-amber-800 border-amber-300",
+  approved: "bg-emerald-50 text-emerald-800 border-emerald-300",
+  suspended: "bg-orange-50 text-orange-800 border-orange-300",
+  rejected: "bg-rose-50 text-rose-800 border-rose-300",
+};
 
 function CompaniesAdmin() {
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
@@ -53,7 +89,11 @@ function CompaniesAdmin() {
   const [loading, setLoading] = useState(false);
   const [editing, setEditing] = useState<Company | null>(null);
   const [addingMemberFor, setAddingMemberFor] = useState<Company | null>(null);
+  const [reviewing, setReviewing] = useState<Company | null>(null);
+  const [rejecting, setRejecting] = useState<Company | null>(null);
+  const [tab, setTab] = useState<(typeof STATUS_TABS)[number]["key"]>("pending");
   const [createOpen, setCreateOpen] = useState(false);
+  const setStatus = useServerFn(adminSetCompanyStatus);
 
   useEffect(() => {
     (async () => {

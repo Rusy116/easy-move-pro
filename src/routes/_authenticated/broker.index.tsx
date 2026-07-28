@@ -208,7 +208,10 @@ function BrokerLeadsPage() {
           onClose={() => setSelected(null)}
           onStatusChange={async (id, next) => {
             const { error } = await supabase.from("quotes").update({ status: next }).eq("id", id);
-            if (error) return toast.error(error.message);
+            if (error) {
+              toast.error(error.message);
+              return;
+            }
             setLeads((prev) => prev.map((l) => (l.id === id ? { ...l, status: next } : l)));
             setSelected((prev) => (prev && prev.id === id ? { ...prev, status: next } : prev));
             toast.success("Status updated");

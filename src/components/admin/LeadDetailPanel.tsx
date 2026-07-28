@@ -15,6 +15,7 @@ import { Phone, Mail, StickyNote, Clock, ExternalLink, Building2, User, Package,
 import { supabase } from "@/integrations/supabase/client";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
+import { Link } from "@tanstack/react-router";
 import { AssignCompanies } from "./AssignCompanies";
 import { BrokerSelect, assignBroker } from "./BrokerSelect";
 import { SlaCountdown } from "./SlaCountdown";
@@ -219,9 +220,13 @@ export function LeadDetailPanel({
             </Button>
             {q.quote_number && q.portal_token && (
               <Button asChild size="sm" variant="outline">
-                <a href={`/portal/${q.quote_number}?token=${q.portal_token}`} target="_blank" rel="noreferrer">
+                <Link
+                  to="/portal/$quoteNumber"
+                  params={{ quoteNumber: q.quote_number }}
+                  search={{ token: q.portal_token }}
+                >
                   <ExternalLink className="mr-2 h-4 w-4" />Portal
-                </a>
+                </Link>
               </Button>
             )}
             <div className="ml-auto flex items-center gap-2">

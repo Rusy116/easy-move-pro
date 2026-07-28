@@ -185,18 +185,41 @@ function CompaniesAdmin() {
           </div>
         </div>
 
+        <div className="mt-6 flex flex-wrap gap-2">
+          {STATUS_TABS.map((t) => {
+            const count =
+              t.key === "all"
+                ? companies.length
+                : companies.filter((c) => c.status === t.key).length;
+            return (
+              <button
+                key={t.key}
+                onClick={() => setTab(t.key)}
+                className={`rounded-full border px-3.5 py-1.5 text-sm transition ${
+                  tab === t.key
+                    ? "border-primary bg-primary/10 text-primary"
+                    : "border-border text-muted-foreground hover:border-primary/40"
+                }`}
+              >
+                {t.label}
+                <span className="ml-1.5 text-xs opacity-70">{count}</span>
+              </button>
+            );
+          })}
+        </div>
+
         <div className="mt-6 grid gap-4 md:grid-cols-2">
           {loading && companies.length === 0 && (
             <div className="col-span-full text-center text-muted-foreground py-12">
               Loading…
             </div>
           )}
-          {!loading && companies.length === 0 && (
+          {!loading && visible.length === 0 && (
             <div className="col-span-full rounded-2xl border border-dashed border-border bg-card p-10 text-center text-sm text-muted-foreground">
-              No companies yet. Create the first partner to start assigning leads.
+              No companies in this view.
             </div>
           )}
-          {companies.map((c) => (
+          {visible.map((c) => (
             <div key={c.id} className="rounded-2xl border border-border bg-card p-5">
               <div className="flex items-start gap-3">
                 {c.logo_url ? (
@@ -213,6 +236,9 @@ function CompaniesAdmin() {
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
                     <h3 className="font-serif text-lg font-medium">{c.name}</h3>
+                    <Badge variant="outline" className={STATUS_STYLE[c.status] ?? ""}>
+                      {c.status === "pending" ? "pending approval" : c.status}
+                    </Badge>
                     <Badge
                       variant="outline"
                       className={
@@ -221,27 +247,100 @@ function CompaniesAdmin() {
                           : "bg-amber-50 text-amber-800 border-amber-300"
                       }
                     >
-                      {c.license_status}
+                      license: {c.license_status}
                     </Badge>
-                    {!c.active && (
-                      <Badge variant="outline" className="bg-neutral-100 text-neutral-700">
-                        inactive
-                      </Badge>
-                    )}
                   </div>
                   <div className="mt-1 text-xs text-muted-foreground space-y-0.5">
+                    {(c.owner_first_name || c.owner_last_name) && (
+                      <div>
+                        Owner: {[c.owner_first_name, c.owner_last_name].filter(Boolean).join(" ")}
+                      </div>
+                    )}
                     {c.dot_number && <div>DOT #{c.dot_number}</div>}
                     {c.mc_number && <div>MC #{c.mc_number}</div>}
                     {c.email && <div>{c.email}</div>}
                     {c.phone && <div>{c.phone}</div>}
+                    {c.website && <div>{c.website}</div>}
+                    {(c.address_city || c.address_state) && (
+                      <div>
+                        {[c.address_line1, c.address_city, c.address_state, c.address_zip]
+                          .filter(Boolean)
+                          .join(", ")}
+                      </div>
+                    )}
+                    {c.insurance_carrier && (
+                      <div>
+                        Insurance: {c.insurance_carrier}
+                        {c.insurance_policy ? ` · ${c.insurance_policy}` : ""}
+                        {c.insurance_expires ? ` · expires ${c.insurance_expires}` : ""}
+                      </div>
+                    )}
+                    {(c.fleet_size || c.movers_count) && (
+                      <div>
+                        Fleet: {c.fleet_size ?? "—"} trucks · {c.movers_count ?? "—"} movers
+                      </div>
+                    )}
                     {c.service_states.length > 0 && (
                       <div>Serves: {c.service_states.join(", ")}</div>
                     )}
+                    {(c.service_cities?.length ?? 0) > 0 && (
+                      <div>Cities: {c.service_cities!.slice(0, 8).join(", ")}</div>
+                    )}
+                    {(c.services_offered?.length ?? 0) > 0 && (
+                      <div>Services: {c.services_offered!.join(", ")}</div>
+                    )}
                     {c.rating !== null && <div>★ {Number(c.rating).toFixed(1)}</div>}
+                    {c.status === "rejected" && c.rejection_reason && (
+                      <div className="text-rose-700">Rejected: {c.rejection_reason}</div>
+                    )}
                   </div>
                 </div>
               </div>
+
               <div className="mt-4 flex flex-wrap gap-2">
+                <Button size="sm" variant="outline" onClick={() => setReviewing(c)}>
+                  <FileCheck2 className="mr-1.5 h-4 w-4" />
+                  Review documents
+                </Button>
+                {c.status !== "approved" && (
+                  <Button
+                    size="sm"
+                    className="bg-emerald-600 hover:bg-emerald-700"
+                    onClick={() => void changeStatus(c, "approved")}
+                  >
+                    <CheckCircle2 className="mr-1.5 h-4 w-4" />
+                    {c.status === "suspended" || c.status === "rejected" ? "Restore" : "Approve"}
+                  </Button>
+                )}
+                {c.status !== "rejected" && (
+                  <Button size="sm" variant="outline" onClick={() => setRejecting(c)}>
+                    <XCircle className="mr-1.5 h-4 w-4" />
+                    Reject
+                  </Button>
+                )}
+                {c.status === "approved" && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => void changeStatus(c, "suspended")}
+                  >
+                    <PauseCircle className="mr-1.5 h-4 w-4" />
+                    Suspend
+                  </Button>
+                )}
+                {c.status === "suspended" && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => void changeStatus(c, "pending")}
+                  >
+                    <RotateCcw className="mr-1.5 h-4 w-4" />
+                    Back to pending
+                  </Button>
+                )}
+              </div>
+
+              <div className="mt-2 flex flex-wrap gap-2">
                 <Button size="sm" variant="outline" onClick={() => setEditing(c)}>
                   Edit
                 </Button>
@@ -272,6 +371,25 @@ function CompaniesAdmin() {
           ))}
         </div>
       </section>
+
+      {reviewing && (
+        <Dialog open onOpenChange={(o) => !o && setReviewing(null)}>
+          <CompanyDocumentsDialog company={reviewing} />
+        </Dialog>
+      )}
+
+      {rejecting && (
+        <Dialog open onOpenChange={(o) => !o && setRejecting(null)}>
+          <RejectDialog
+            company={rejecting}
+            onReject={async (reason) => {
+              await changeStatus(rejecting, "rejected", reason);
+              setRejecting(null);
+            }}
+          />
+        </Dialog>
+      )}
+
 
       {editing && (
         <Dialog open onOpenChange={(o) => !o && setEditing(null)}>

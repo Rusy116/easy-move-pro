@@ -41,7 +41,7 @@ export async function autocompleteAddresses(
   zip?: string
 ): Promise<PlaceSuggestion[]> {
   const zipContext = zip ? await resolveZipCities(zip).catch(() => null) : null;
-  const queryParts = [input, zipContext?.primary, zipContext?.state, zip].filter(
+  const queryParts = [input, zipContext?.state, zip].filter(
     (part): part is string => Boolean(part)
   );
   const query = Array.from(new Set(queryParts)).join(" ");

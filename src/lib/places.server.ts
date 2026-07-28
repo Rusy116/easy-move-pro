@@ -4,6 +4,7 @@
 // (direct Google call using GOOGLE_MAPS_SERVER_KEY) — see google-maps-transport.
 
 import { mapsFetch, mapsTransportMode } from "./google-maps-transport.server";
+import { resolveZipCities } from "./zip-cities.server";
 
 export interface PlaceSuggestion {
   placeId: string;
@@ -36,13 +37,27 @@ async function guard(resp: Response, label: string) {
 
 export async function autocompleteAddresses(
   input: string,
-  bias?: { lat: number; lng: number; radius?: number } | null
+  bias?: { lat: number; lng: number; radius?: number } | null,
+  zip?: string
 ): Promise<PlaceSuggestion[]> {
+  const zipContext = zip ? await resolveZipCities(zip).catch(() => null) : null;
+  const queryParts = [input, zipContext?.primary, zipContext?.state, zip].filter(
+    (part): part is string => Boolean(part)
+  );
+  const query = Array.from(new Set(queryParts)).join(" ");
   const body: Record<string, unknown> = {
-    input,
+    input: query,
     includedRegionCodes: ["us"],
   };
-  if (bias) {
+
+  if (zipContext?.lat && zipContext.lng) {
+    body.locationRestriction = {
+      circle: {
+        center: { latitude: zipContext.lat, longitude: zipContext.lng },
+        radius: Math.max(8000, Math.min(bias?.radius ?? 15000, 25000)),
+      },
+    };
+  } else if (bias) {
     body.locationBias = {
       circle: {
         center: { latitude: bias.lat, longitude: bias.lng },
@@ -78,6 +93,16 @@ export async function autocompleteAddresses(
       mainText: p.structuredFormat?.mainText?.text ?? p.text?.text ?? "",
       secondaryText: p.structuredFormat?.secondaryText?.text ?? "",
     }))
+    .sort((a, b) => {
+      if (!zipContext) return 0;
+      const hayA = `${a.text} ${a.mainText} ${a.secondaryText}`.toLowerCase();
+      const hayB = `${b.text} ${b.mainText} ${b.secondaryText}`.toLowerCase();
+      const city = zipContext.primary.toLowerCase();
+      const state = zipContext.state.toLowerCase();
+      const score = (hay: string) =>
+        (hay.includes(city) ? 2 : 0) + (state && hay.includes(state) ? 1 : 0);
+      return score(hayB) - score(hayA);
+    })
     .slice(0, 6);
 }
 

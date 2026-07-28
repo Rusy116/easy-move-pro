@@ -5,6 +5,9 @@ import { isEasyMoveProductionHost, isLovableMapsHost } from "./google-maps-publi
 
 let loaderPromise: Promise<typeof google> | null = null;
 
+declare const __EASY_MOVE_GOOGLE_MAPS_BROWSER_KEY__: string | undefined;
+declare const __EASY_MOVE_GOOGLE_MAPS_TRACKING_ID__: string | undefined;
+
 declare global {
   interface Window {
     __easyMoveGmapsInit?: () => void;
@@ -20,20 +23,20 @@ export function loadGoogleMaps(): Promise<typeof google> {
   if (loaderPromise) return loaderPromise;
 
   const host = window.location.hostname.toLowerCase();
-  const productionBrowserKey = import.meta.env.VITE_GOOGLE_MAPS_BROWSER_KEY as string | undefined;
-  const previewBrowserKey = import.meta.env.VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_BROWSER_KEY as
-    | string
-    | undefined;
+  const configuredBrowserKey =
+    (import.meta.env.VITE_GOOGLE_MAPS_BROWSER_KEY as string | undefined) ||
+    (import.meta.env.VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_BROWSER_KEY as string | undefined) ||
+    __EASY_MOVE_GOOGLE_MAPS_BROWSER_KEY__;
 
   // Production domains must use the customer-owned key whose HTTP referrers include:
   // https://easymove.pro/* and https://www.easymove.pro/*.
   // Never fall back to the Lovable-managed key on production/custom domains: that key
   // is intentionally restricted to Lovable preview/published hosts and causes 403s.
-  const key = productionBrowserKey || (isLovableMapsHost(host) ? previewBrowserKey : undefined);
+  const key = configuredBrowserKey || (isLovableMapsHost(host) ? configuredBrowserKey : undefined);
 
-  const channel = import.meta.env.VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_TRACKING_ID as
-    | string
-    | undefined;
+  const channel =
+    (import.meta.env.VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_TRACKING_ID as string | undefined) ||
+    __EASY_MOVE_GOOGLE_MAPS_TRACKING_ID__;
   if (!key) {
     const suffix = isEasyMoveProductionHost(host)
       ? " for easymove.pro; set VITE_GOOGLE_MAPS_BROWSER_KEY in Production"

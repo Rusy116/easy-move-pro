@@ -1,4 +1,4 @@
-import { haversineMiles, resolveZip, type ZipLocation } from "./zip-database";
+import { haversineMiles, type ZipLocation } from "./zip-database";
 import { mapsFetch, mapsTransportMode } from "./google-maps-transport.server";
 import { resolveZipCities } from "./zip-cities.server";
 

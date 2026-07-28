@@ -13,6 +13,7 @@ import { Route as StoreRouteImport } from './routes/store'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as ServicesRouteImport } from './routes/services'
 import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
+import { Route as RegisterCompanyRouteImport } from './routes/register-company'
 import { Route as OpenMarketplaceRouteImport } from './routes/open-marketplace'
 import { Route as MovingScheduleSoftwareRouteImport } from './routes/moving-schedule-software'
 import { Route as MovingLeadsRouteImport } from './routes/moving-leads'
@@ -39,8 +40,10 @@ import { Route as CompareSlugRouteImport } from './routes/compare.$slug'
 import { Route as CitiesCityRouteImport } from './routes/cities.$city'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedCustomerRouteImport } from './routes/_authenticated/customer'
 import { Route as AuthenticatedCompanyRouteImport } from './routes/_authenticated/company'
 import { Route as AuthenticatedCompanyIndexRouteImport } from './routes/_authenticated/company.index'
+import { Route as AuthenticatedBrokerIndexRouteImport } from './routes/_authenticated/broker.index'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as ApiPublicSlaTickRouteImport } from './routes/api/public/sla-tick'
 import { Route as AuthenticatedCompanySettingsRouteImport } from './routes/_authenticated/company.settings'
@@ -57,6 +60,8 @@ import { Route as AuthenticatedCompanyDocumentsRouteImport } from './routes/_aut
 import { Route as AuthenticatedCompanyDashboardRouteImport } from './routes/_authenticated/company.dashboard'
 import { Route as AuthenticatedCompanyCustomersRouteImport } from './routes/_authenticated/company.customers'
 import { Route as AuthenticatedCompanyAnalyticsRouteImport } from './routes/_authenticated/company.analytics'
+import { Route as AuthenticatedBrokerPerformanceRouteImport } from './routes/_authenticated/broker.performance'
+import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin.users'
 import { Route as AuthenticatedAdminDashboardRouteImport } from './routes/_authenticated/admin.dashboard'
 import { Route as AuthenticatedAdminCompaniesRouteImport } from './routes/_authenticated/admin.companies'
 
@@ -78,6 +83,11 @@ const ServicesRoute = ServicesRouteImport.update({
 const RobotsDottxtRoute = RobotsDottxtRouteImport.update({
   id: '/robots.txt',
   path: '/robots.txt',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RegisterCompanyRoute = RegisterCompanyRouteImport.update({
+  id: '/register-company',
+  path: '/register-company',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OpenMarketplaceRoute = OpenMarketplaceRouteImport.update({
@@ -209,6 +219,11 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedCustomerRoute = AuthenticatedCustomerRouteImport.update({
+  id: '/customer',
+  path: '/customer',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedCompanyRoute = AuthenticatedCompanyRouteImport.update({
   id: '/company',
   path: '/company',
@@ -219,6 +234,12 @@ const AuthenticatedCompanyIndexRoute =
     id: '/',
     path: '/',
     getParentRoute: () => AuthenticatedCompanyRoute,
+  } as any)
+const AuthenticatedBrokerIndexRoute =
+  AuthenticatedBrokerIndexRouteImport.update({
+    id: '/broker/',
+    path: '/broker/',
+    getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   id: '/admin/',
@@ -314,6 +335,17 @@ const AuthenticatedCompanyAnalyticsRoute =
     path: '/analytics',
     getParentRoute: () => AuthenticatedCompanyRoute,
   } as any)
+const AuthenticatedBrokerPerformanceRoute =
+  AuthenticatedBrokerPerformanceRouteImport.update({
+    id: '/broker/performance',
+    path: '/broker/performance',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAdminUsersRoute = AuthenticatedAdminUsersRouteImport.update({
+  id: '/admin/users',
+  path: '/admin/users',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedAdminDashboardRoute =
   AuthenticatedAdminDashboardRouteImport.update({
     id: '/admin/dashboard',
@@ -343,11 +375,13 @@ export interface FileRoutesByFullPath {
   '/moving-leads': typeof MovingLeadsRoute
   '/moving-schedule-software': typeof MovingScheduleSoftwareRoute
   '/open-marketplace': typeof OpenMarketplaceRoute
+  '/register-company': typeof RegisterCompanyRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/services': typeof ServicesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/store': typeof StoreRoute
   '/company': typeof AuthenticatedCompanyRouteWithChildren
+  '/customer': typeof AuthenticatedCustomerRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/cities/$city': typeof CitiesCityRoute
@@ -360,6 +394,8 @@ export interface FileRoutesByFullPath {
   '/partners/': typeof PartnersIndexRoute
   '/admin/companies': typeof AuthenticatedAdminCompaniesRoute
   '/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
+  '/admin/users': typeof AuthenticatedAdminUsersRoute
+  '/broker/performance': typeof AuthenticatedBrokerPerformanceRoute
   '/company/analytics': typeof AuthenticatedCompanyAnalyticsRoute
   '/company/customers': typeof AuthenticatedCompanyCustomersRoute
   '/company/dashboard': typeof AuthenticatedCompanyDashboardRoute
@@ -376,6 +412,7 @@ export interface FileRoutesByFullPath {
   '/company/settings': typeof AuthenticatedCompanySettingsRoute
   '/api/public/sla-tick': typeof ApiPublicSlaTickRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
+  '/broker/': typeof AuthenticatedBrokerIndexRoute
   '/company/': typeof AuthenticatedCompanyIndexRoute
 }
 export interface FileRoutesByTo {
@@ -394,10 +431,12 @@ export interface FileRoutesByTo {
   '/moving-leads': typeof MovingLeadsRoute
   '/moving-schedule-software': typeof MovingScheduleSoftwareRoute
   '/open-marketplace': typeof OpenMarketplaceRoute
+  '/register-company': typeof RegisterCompanyRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/services': typeof ServicesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/store': typeof StoreRoute
+  '/customer': typeof AuthenticatedCustomerRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/cities/$city': typeof CitiesCityRoute
@@ -410,6 +449,8 @@ export interface FileRoutesByTo {
   '/partners': typeof PartnersIndexRoute
   '/admin/companies': typeof AuthenticatedAdminCompaniesRoute
   '/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
+  '/admin/users': typeof AuthenticatedAdminUsersRoute
+  '/broker/performance': typeof AuthenticatedBrokerPerformanceRoute
   '/company/analytics': typeof AuthenticatedCompanyAnalyticsRoute
   '/company/customers': typeof AuthenticatedCompanyCustomersRoute
   '/company/dashboard': typeof AuthenticatedCompanyDashboardRoute
@@ -426,6 +467,7 @@ export interface FileRoutesByTo {
   '/company/settings': typeof AuthenticatedCompanySettingsRoute
   '/api/public/sla-tick': typeof ApiPublicSlaTickRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
+  '/broker': typeof AuthenticatedBrokerIndexRoute
   '/company': typeof AuthenticatedCompanyIndexRoute
 }
 export interface FileRoutesById {
@@ -446,11 +488,13 @@ export interface FileRoutesById {
   '/moving-leads': typeof MovingLeadsRoute
   '/moving-schedule-software': typeof MovingScheduleSoftwareRoute
   '/open-marketplace': typeof OpenMarketplaceRoute
+  '/register-company': typeof RegisterCompanyRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/services': typeof ServicesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/store': typeof StoreRoute
   '/_authenticated/company': typeof AuthenticatedCompanyRouteWithChildren
+  '/_authenticated/customer': typeof AuthenticatedCustomerRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/cities/$city': typeof CitiesCityRoute
@@ -463,6 +507,8 @@ export interface FileRoutesById {
   '/partners/': typeof PartnersIndexRoute
   '/_authenticated/admin/companies': typeof AuthenticatedAdminCompaniesRoute
   '/_authenticated/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
+  '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
+  '/_authenticated/broker/performance': typeof AuthenticatedBrokerPerformanceRoute
   '/_authenticated/company/analytics': typeof AuthenticatedCompanyAnalyticsRoute
   '/_authenticated/company/customers': typeof AuthenticatedCompanyCustomersRoute
   '/_authenticated/company/dashboard': typeof AuthenticatedCompanyDashboardRoute
@@ -479,6 +525,7 @@ export interface FileRoutesById {
   '/_authenticated/company/settings': typeof AuthenticatedCompanySettingsRoute
   '/api/public/sla-tick': typeof ApiPublicSlaTickRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
+  '/_authenticated/broker/': typeof AuthenticatedBrokerIndexRoute
   '/_authenticated/company/': typeof AuthenticatedCompanyIndexRoute
 }
 export interface FileRouteTypes {
@@ -499,11 +546,13 @@ export interface FileRouteTypes {
     | '/moving-leads'
     | '/moving-schedule-software'
     | '/open-marketplace'
+    | '/register-company'
     | '/robots.txt'
     | '/services'
     | '/sitemap.xml'
     | '/store'
     | '/company'
+    | '/customer'
     | '/dashboard'
     | '/blog/$slug'
     | '/cities/$city'
@@ -516,6 +565,8 @@ export interface FileRouteTypes {
     | '/partners/'
     | '/admin/companies'
     | '/admin/dashboard'
+    | '/admin/users'
+    | '/broker/performance'
     | '/company/analytics'
     | '/company/customers'
     | '/company/dashboard'
@@ -532,6 +583,7 @@ export interface FileRouteTypes {
     | '/company/settings'
     | '/api/public/sla-tick'
     | '/admin/'
+    | '/broker/'
     | '/company/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -550,10 +602,12 @@ export interface FileRouteTypes {
     | '/moving-leads'
     | '/moving-schedule-software'
     | '/open-marketplace'
+    | '/register-company'
     | '/robots.txt'
     | '/services'
     | '/sitemap.xml'
     | '/store'
+    | '/customer'
     | '/dashboard'
     | '/blog/$slug'
     | '/cities/$city'
@@ -566,6 +620,8 @@ export interface FileRouteTypes {
     | '/partners'
     | '/admin/companies'
     | '/admin/dashboard'
+    | '/admin/users'
+    | '/broker/performance'
     | '/company/analytics'
     | '/company/customers'
     | '/company/dashboard'
@@ -582,6 +638,7 @@ export interface FileRouteTypes {
     | '/company/settings'
     | '/api/public/sla-tick'
     | '/admin'
+    | '/broker'
     | '/company'
   id:
     | '__root__'
@@ -601,11 +658,13 @@ export interface FileRouteTypes {
     | '/moving-leads'
     | '/moving-schedule-software'
     | '/open-marketplace'
+    | '/register-company'
     | '/robots.txt'
     | '/services'
     | '/sitemap.xml'
     | '/store'
     | '/_authenticated/company'
+    | '/_authenticated/customer'
     | '/_authenticated/dashboard'
     | '/blog/$slug'
     | '/cities/$city'
@@ -618,6 +677,8 @@ export interface FileRouteTypes {
     | '/partners/'
     | '/_authenticated/admin/companies'
     | '/_authenticated/admin/dashboard'
+    | '/_authenticated/admin/users'
+    | '/_authenticated/broker/performance'
     | '/_authenticated/company/analytics'
     | '/_authenticated/company/customers'
     | '/_authenticated/company/dashboard'
@@ -634,6 +695,7 @@ export interface FileRouteTypes {
     | '/_authenticated/company/settings'
     | '/api/public/sla-tick'
     | '/_authenticated/admin/'
+    | '/_authenticated/broker/'
     | '/_authenticated/company/'
   fileRoutesById: FileRoutesById
 }
@@ -654,6 +716,7 @@ export interface RootRouteChildren {
   MovingLeadsRoute: typeof MovingLeadsRoute
   MovingScheduleSoftwareRoute: typeof MovingScheduleSoftwareRoute
   OpenMarketplaceRoute: typeof OpenMarketplaceRoute
+  RegisterCompanyRoute: typeof RegisterCompanyRoute
   RobotsDottxtRoute: typeof RobotsDottxtRoute
   ServicesRoute: typeof ServicesRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
@@ -698,6 +761,13 @@ declare module '@tanstack/react-router' {
       path: '/robots.txt'
       fullPath: '/robots.txt'
       preLoaderRoute: typeof RobotsDottxtRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/register-company': {
+      id: '/register-company'
+      path: '/register-company'
+      fullPath: '/register-company'
+      preLoaderRoute: typeof RegisterCompanyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/open-marketplace': {
@@ -882,6 +952,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/customer': {
+      id: '/_authenticated/customer'
+      path: '/customer'
+      fullPath: '/customer'
+      preLoaderRoute: typeof AuthenticatedCustomerRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/company': {
       id: '/_authenticated/company'
       path: '/company'
@@ -895,6 +972,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/company/'
       preLoaderRoute: typeof AuthenticatedCompanyIndexRouteImport
       parentRoute: typeof AuthenticatedCompanyRoute
+    }
+    '/_authenticated/broker/': {
+      id: '/_authenticated/broker/'
+      path: '/broker'
+      fullPath: '/broker/'
+      preLoaderRoute: typeof AuthenticatedBrokerIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/admin/': {
       id: '/_authenticated/admin/'
@@ -1008,6 +1092,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCompanyAnalyticsRouteImport
       parentRoute: typeof AuthenticatedCompanyRoute
     }
+    '/_authenticated/broker/performance': {
+      id: '/_authenticated/broker/performance'
+      path: '/broker/performance'
+      fullPath: '/broker/performance'
+      preLoaderRoute: typeof AuthenticatedBrokerPerformanceRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/users': {
+      id: '/_authenticated/admin/users'
+      path: '/admin/users'
+      fullPath: '/admin/users'
+      preLoaderRoute: typeof AuthenticatedAdminUsersRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/admin/dashboard': {
       id: '/_authenticated/admin/dashboard'
       path: '/admin/dashboard'
@@ -1067,18 +1165,26 @@ const AuthenticatedCompanyRouteWithChildren =
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedCompanyRoute: typeof AuthenticatedCompanyRouteWithChildren
+  AuthenticatedCustomerRoute: typeof AuthenticatedCustomerRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedAdminCompaniesRoute: typeof AuthenticatedAdminCompaniesRoute
   AuthenticatedAdminDashboardRoute: typeof AuthenticatedAdminDashboardRoute
+  AuthenticatedAdminUsersRoute: typeof AuthenticatedAdminUsersRoute
+  AuthenticatedBrokerPerformanceRoute: typeof AuthenticatedBrokerPerformanceRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
+  AuthenticatedBrokerIndexRoute: typeof AuthenticatedBrokerIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedCompanyRoute: AuthenticatedCompanyRouteWithChildren,
+  AuthenticatedCustomerRoute: AuthenticatedCustomerRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedAdminCompaniesRoute: AuthenticatedAdminCompaniesRoute,
   AuthenticatedAdminDashboardRoute: AuthenticatedAdminDashboardRoute,
+  AuthenticatedAdminUsersRoute: AuthenticatedAdminUsersRoute,
+  AuthenticatedBrokerPerformanceRoute: AuthenticatedBrokerPerformanceRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
+  AuthenticatedBrokerIndexRoute: AuthenticatedBrokerIndexRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
@@ -1101,6 +1207,7 @@ const rootRouteChildren: RootRouteChildren = {
   MovingLeadsRoute: MovingLeadsRoute,
   MovingScheduleSoftwareRoute: MovingScheduleSoftwareRoute,
   OpenMarketplaceRoute: OpenMarketplaceRoute,
+  RegisterCompanyRoute: RegisterCompanyRoute,
   RobotsDottxtRoute: RobotsDottxtRoute,
   ServicesRoute: ServicesRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,

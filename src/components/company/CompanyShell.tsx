@@ -5,6 +5,8 @@ import {
   Building2, Settings,
 } from "lucide-react";
 import { RoleShell } from "@/components/shell/RoleShell";
+import { RoleGuard } from "@/components/auth/RoleGuard";
+
 
 const NAV = [
   { to: "/company/dashboard",     label: "Dashboard",     icon: <LayoutDashboard className="h-4 w-4" /> },
@@ -25,8 +27,11 @@ const NAV = [
 
 export function CompanyShell({ children }: { children: ReactNode }) {
   return (
-    <RoleShell brand="Easy Moving" eyebrow="Moving company" accent="company" nav={NAV}>
-      {children}
-    </RoleShell>
+    <RoleGuard allow={["mover"]}>
+      <RoleShell brand="Easy Moving" eyebrow="Moving company" accent="company" nav={NAV}>
+        {children}
+      </RoleShell>
+    </RoleGuard>
   );
 }
+

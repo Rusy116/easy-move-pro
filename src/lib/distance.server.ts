@@ -1,4 +1,4 @@
-import { haversineMiles, resolveZip, type ZipLocation } from "./zip-database";
+import { haversineMiles, type ZipLocation } from "./zip-database";
 import { mapsFetch, mapsTransportMode } from "./google-maps-transport.server";
 import { resolveZipCities } from "./zip-cities.server";
 
@@ -18,22 +18,16 @@ function estimateDuration(miles: number): number {
 }
 
 async function zipLocation(zip: string): Promise<ZipLocation | null> {
-  const [zipCities, fallback] = await Promise.all([
-    resolveZipCities(zip).catch(() => null),
-    resolveZip(zip),
-  ]);
+  const zipCities = await resolveZipCities(zip).catch(() => null);
+  if (!zipCities) return null;
 
-  if (zipCities) {
-    return {
-      zip: zipCities.zip,
-      city: zipCities.primary,
-      state: zipCities.state,
-      lat: zipCities.lat,
-      lng: zipCities.lng,
-    };
-  }
-
-  return fallback;
+  return {
+    zip: zipCities.zip,
+    city: zipCities.primary,
+    state: zipCities.state,
+    lat: zipCities.lat,
+    lng: zipCities.lng,
+  };
 }
 
 function approximateDistance(origin: ZipLocation, destination: ZipLocation): ServerDistanceResult {

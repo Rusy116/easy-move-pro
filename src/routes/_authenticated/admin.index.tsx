@@ -31,7 +31,7 @@ export const Route = createFileRoute("/_authenticated/admin/")({
   component: AdminPage,
 });
 
-const STATUSES = ["new", "contacted", "scheduled", "won", "lost", "cancelled"] as const;
+const STATUSES = ["new", "contacted", "scheduled", "accepted", "won", "lost", "cancelled"] as const;
 type Status = (typeof STATUSES)[number];
 
 const STATUS_STYLES: Record<Status, string> = {

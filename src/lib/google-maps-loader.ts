@@ -65,6 +65,7 @@ export function loadGoogleMaps(): Promise<typeof google> {
     s.async = true;
     s.defer = true;
     s.onerror = () => {
+      window.clearTimeout(timer);
       loaderPromise = null;
       reject(new Error("google-maps: script failed to load"));
     };

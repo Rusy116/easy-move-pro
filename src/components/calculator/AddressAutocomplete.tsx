@@ -275,7 +275,9 @@ export function AddressAutocomplete({
     }
   }
 
-  const disabled = disabledProp || (!jsReady && !jsFailed);
+  // Never block typing on the Maps JS load: until it settles, queries go to the
+  // server gateway, so a slow/blocked script can't freeze the field.
+  const disabled = !!disabledProp;
 
   return (
     <div ref={wrapRef} className={cn("relative", className)}>

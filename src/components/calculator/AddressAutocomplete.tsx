@@ -192,11 +192,19 @@ export function AddressAutocomplete({
           const fromServer = await fetchViaServer(q);
           if (fromServer.rows.length > 0 || useServerRef.current) next = fromServer.rows;
           if (next.length === 0 && fromServer.error) {
-            message =
-              fromServer.error === "not_configured"
-                ? "Address lookup isn't configured on this site (missing Google Maps server key)."
-                : "Address suggestions are temporarily unavailable";
+            if (fromServer.error === "not_configured") {
+              console.error(
+                "[places] server-side Google Maps credentials are missing in this deployment. " +
+                  "Set GOOGLE_MAPS_SERVER_KEY (server key, no HTTP-referrer restriction, Places API (New) + Geocoding API enabled) " +
+                  "and VITE_GOOGLE_MAPS_BROWSER_KEY (referrer-restricted to https://easymove.pro/* and https://*.easymove.pro/*, Maps JavaScript API + Places API (New) enabled) " +
+                  "in the production environment, then redeploy."
+              );
+              message = "Address lookup isn't available on this site yet. You can type the address manually.";
+            } else {
+              message = "Address suggestions are temporarily unavailable";
+            }
           }
+
         } catch {
           if (next.length === 0) message = "Address suggestions are temporarily unavailable";
         }

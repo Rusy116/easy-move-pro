@@ -67,6 +67,7 @@ import { Route as AuthenticatedCompanyLeadsRouteImport } from './routes/_authent
 import { Route as AuthenticatedCompanyJobsRouteImport } from './routes/_authenticated/company.jobs'
 import { Route as AuthenticatedCompanyInvoicesRouteImport } from './routes/_authenticated/company.invoices'
 import { Route as AuthenticatedCompanyHistoryRouteImport } from './routes/_authenticated/company.history'
+import { Route as AuthenticatedCompanyFinanceRouteImport } from './routes/_authenticated/company.finance'
 import { Route as AuthenticatedCompanyExpiredRouteImport } from './routes/_authenticated/company.expired'
 import { Route as AuthenticatedCompanyExclusiveRouteImport } from './routes/_authenticated/company.exclusive'
 import { Route as AuthenticatedCompanyEstimatesRouteImport } from './routes/_authenticated/company.estimates'
@@ -78,6 +79,7 @@ import { Route as AuthenticatedBrokerPerformanceRouteImport } from './routes/_au
 import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin.users'
 import { Route as AuthenticatedAdminSettingsRouteImport } from './routes/_authenticated/admin.settings'
 import { Route as AuthenticatedAdminLeadsRouteImport } from './routes/_authenticated/admin.leads'
+import { Route as AuthenticatedAdminFinanceRouteImport } from './routes/_authenticated/admin.finance'
 import { Route as AuthenticatedAdminDashboardRouteImport } from './routes/_authenticated/admin.dashboard'
 import { Route as AuthenticatedAdminCompaniesRouteImport } from './routes/_authenticated/admin.companies'
 import { Route as AuthenticatedCompanyJobJobIdRouteImport } from './routes/_authenticated/company.job.$jobId'
@@ -394,6 +396,12 @@ const AuthenticatedCompanyHistoryRoute =
     path: '/history',
     getParentRoute: () => AuthenticatedCompanyRoute,
   } as any)
+const AuthenticatedCompanyFinanceRoute =
+  AuthenticatedCompanyFinanceRouteImport.update({
+    id: '/finance',
+    path: '/finance',
+    getParentRoute: () => AuthenticatedCompanyRoute,
+  } as any)
 const AuthenticatedCompanyExpiredRoute =
   AuthenticatedCompanyExpiredRouteImport.update({
     id: '/expired',
@@ -458,6 +466,12 @@ const AuthenticatedAdminLeadsRoute = AuthenticatedAdminLeadsRouteImport.update({
   path: '/admin/leads',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAdminFinanceRoute =
+  AuthenticatedAdminFinanceRouteImport.update({
+    id: '/admin/finance',
+    path: '/admin/finance',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAdminDashboardRoute =
   AuthenticatedAdminDashboardRouteImport.update({
     id: '/admin/dashboard',
@@ -512,6 +526,7 @@ export interface FileRoutesByFullPath {
   '/partners/': typeof PartnersIndexRoute
   '/admin/companies': typeof AuthenticatedAdminCompaniesRoute
   '/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
+  '/admin/finance': typeof AuthenticatedAdminFinanceRoute
   '/admin/leads': typeof AuthenticatedAdminLeadsRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
@@ -523,6 +538,7 @@ export interface FileRoutesByFullPath {
   '/company/estimates': typeof AuthenticatedCompanyEstimatesRoute
   '/company/exclusive': typeof AuthenticatedCompanyExclusiveRoute
   '/company/expired': typeof AuthenticatedCompanyExpiredRoute
+  '/company/finance': typeof AuthenticatedCompanyFinanceRoute
   '/company/history': typeof AuthenticatedCompanyHistoryRoute
   '/company/invoices': typeof AuthenticatedCompanyInvoicesRoute
   '/company/jobs': typeof AuthenticatedCompanyJobsRoute
@@ -584,6 +600,7 @@ export interface FileRoutesByTo {
   '/partners': typeof PartnersIndexRoute
   '/admin/companies': typeof AuthenticatedAdminCompaniesRoute
   '/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
+  '/admin/finance': typeof AuthenticatedAdminFinanceRoute
   '/admin/leads': typeof AuthenticatedAdminLeadsRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
@@ -595,6 +612,7 @@ export interface FileRoutesByTo {
   '/company/estimates': typeof AuthenticatedCompanyEstimatesRoute
   '/company/exclusive': typeof AuthenticatedCompanyExclusiveRoute
   '/company/expired': typeof AuthenticatedCompanyExpiredRoute
+  '/company/finance': typeof AuthenticatedCompanyFinanceRoute
   '/company/history': typeof AuthenticatedCompanyHistoryRoute
   '/company/invoices': typeof AuthenticatedCompanyInvoicesRoute
   '/company/jobs': typeof AuthenticatedCompanyJobsRoute
@@ -659,6 +677,7 @@ export interface FileRoutesById {
   '/partners/': typeof PartnersIndexRoute
   '/_authenticated/admin/companies': typeof AuthenticatedAdminCompaniesRoute
   '/_authenticated/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
+  '/_authenticated/admin/finance': typeof AuthenticatedAdminFinanceRoute
   '/_authenticated/admin/leads': typeof AuthenticatedAdminLeadsRoute
   '/_authenticated/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
@@ -670,6 +689,7 @@ export interface FileRoutesById {
   '/_authenticated/company/estimates': typeof AuthenticatedCompanyEstimatesRoute
   '/_authenticated/company/exclusive': typeof AuthenticatedCompanyExclusiveRoute
   '/_authenticated/company/expired': typeof AuthenticatedCompanyExpiredRoute
+  '/_authenticated/company/finance': typeof AuthenticatedCompanyFinanceRoute
   '/_authenticated/company/history': typeof AuthenticatedCompanyHistoryRoute
   '/_authenticated/company/invoices': typeof AuthenticatedCompanyInvoicesRoute
   '/_authenticated/company/jobs': typeof AuthenticatedCompanyJobsRoute
@@ -734,6 +754,7 @@ export interface FileRouteTypes {
     | '/partners/'
     | '/admin/companies'
     | '/admin/dashboard'
+    | '/admin/finance'
     | '/admin/leads'
     | '/admin/settings'
     | '/admin/users'
@@ -745,6 +766,7 @@ export interface FileRouteTypes {
     | '/company/estimates'
     | '/company/exclusive'
     | '/company/expired'
+    | '/company/finance'
     | '/company/history'
     | '/company/invoices'
     | '/company/jobs'
@@ -806,6 +828,7 @@ export interface FileRouteTypes {
     | '/partners'
     | '/admin/companies'
     | '/admin/dashboard'
+    | '/admin/finance'
     | '/admin/leads'
     | '/admin/settings'
     | '/admin/users'
@@ -817,6 +840,7 @@ export interface FileRouteTypes {
     | '/company/estimates'
     | '/company/exclusive'
     | '/company/expired'
+    | '/company/finance'
     | '/company/history'
     | '/company/invoices'
     | '/company/jobs'
@@ -880,6 +904,7 @@ export interface FileRouteTypes {
     | '/partners/'
     | '/_authenticated/admin/companies'
     | '/_authenticated/admin/dashboard'
+    | '/_authenticated/admin/finance'
     | '/_authenticated/admin/leads'
     | '/_authenticated/admin/settings'
     | '/_authenticated/admin/users'
@@ -891,6 +916,7 @@ export interface FileRouteTypes {
     | '/_authenticated/company/estimates'
     | '/_authenticated/company/exclusive'
     | '/_authenticated/company/expired'
+    | '/_authenticated/company/finance'
     | '/_authenticated/company/history'
     | '/_authenticated/company/invoices'
     | '/_authenticated/company/jobs'
@@ -1362,6 +1388,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCompanyHistoryRouteImport
       parentRoute: typeof AuthenticatedCompanyRoute
     }
+    '/_authenticated/company/finance': {
+      id: '/_authenticated/company/finance'
+      path: '/finance'
+      fullPath: '/company/finance'
+      preLoaderRoute: typeof AuthenticatedCompanyFinanceRouteImport
+      parentRoute: typeof AuthenticatedCompanyRoute
+    }
     '/_authenticated/company/expired': {
       id: '/_authenticated/company/expired'
       path: '/expired'
@@ -1439,6 +1472,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminLeadsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin/finance': {
+      id: '/_authenticated/admin/finance'
+      path: '/admin/finance'
+      fullPath: '/admin/finance'
+      preLoaderRoute: typeof AuthenticatedAdminFinanceRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/admin/dashboard': {
       id: '/_authenticated/admin/dashboard'
       path: '/admin/dashboard'
@@ -1471,6 +1511,7 @@ interface AuthenticatedCompanyRouteChildren {
   AuthenticatedCompanyEstimatesRoute: typeof AuthenticatedCompanyEstimatesRoute
   AuthenticatedCompanyExclusiveRoute: typeof AuthenticatedCompanyExclusiveRoute
   AuthenticatedCompanyExpiredRoute: typeof AuthenticatedCompanyExpiredRoute
+  AuthenticatedCompanyFinanceRoute: typeof AuthenticatedCompanyFinanceRoute
   AuthenticatedCompanyHistoryRoute: typeof AuthenticatedCompanyHistoryRoute
   AuthenticatedCompanyInvoicesRoute: typeof AuthenticatedCompanyInvoicesRoute
   AuthenticatedCompanyJobsRoute: typeof AuthenticatedCompanyJobsRoute
@@ -1495,6 +1536,7 @@ const AuthenticatedCompanyRouteChildren: AuthenticatedCompanyRouteChildren = {
   AuthenticatedCompanyEstimatesRoute: AuthenticatedCompanyEstimatesRoute,
   AuthenticatedCompanyExclusiveRoute: AuthenticatedCompanyExclusiveRoute,
   AuthenticatedCompanyExpiredRoute: AuthenticatedCompanyExpiredRoute,
+  AuthenticatedCompanyFinanceRoute: AuthenticatedCompanyFinanceRoute,
   AuthenticatedCompanyHistoryRoute: AuthenticatedCompanyHistoryRoute,
   AuthenticatedCompanyInvoicesRoute: AuthenticatedCompanyInvoicesRoute,
   AuthenticatedCompanyJobsRoute: AuthenticatedCompanyJobsRoute,
@@ -1520,6 +1562,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedAdminCompaniesRoute: typeof AuthenticatedAdminCompaniesRoute
   AuthenticatedAdminDashboardRoute: typeof AuthenticatedAdminDashboardRoute
+  AuthenticatedAdminFinanceRoute: typeof AuthenticatedAdminFinanceRoute
   AuthenticatedAdminLeadsRoute: typeof AuthenticatedAdminLeadsRoute
   AuthenticatedAdminSettingsRoute: typeof AuthenticatedAdminSettingsRoute
   AuthenticatedAdminUsersRoute: typeof AuthenticatedAdminUsersRoute
@@ -1542,6 +1585,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedAdminCompaniesRoute: AuthenticatedAdminCompaniesRoute,
   AuthenticatedAdminDashboardRoute: AuthenticatedAdminDashboardRoute,
+  AuthenticatedAdminFinanceRoute: AuthenticatedAdminFinanceRoute,
   AuthenticatedAdminLeadsRoute: AuthenticatedAdminLeadsRoute,
   AuthenticatedAdminSettingsRoute: AuthenticatedAdminSettingsRoute,
   AuthenticatedAdminUsersRoute: AuthenticatedAdminUsersRoute,

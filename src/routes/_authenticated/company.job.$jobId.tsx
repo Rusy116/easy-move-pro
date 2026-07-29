@@ -10,8 +10,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { SkeletonRows } from "@/components/shell/Chrome";
 import { EmptyState, Fact, JobStatusBadge, ResponseCountdown } from "@/components/company/JobsUI";
 import {
-  ACTIVITY_LABEL, formatDate, money, place, timeAgo,
+  ACTIVITY_LABEL, formatDate, money, place, timeAgo, logJobView,
   useCompanyJobs, useJobActivity, useMyCompany, type MyJob,
+
 } from "@/lib/company-jobs";
 
 export const Route = createFileRoute("/_authenticated/company/job/$jobId")({
@@ -57,6 +58,12 @@ function JobDetailsPage() {
   useEffect(() => {
     if (job && !form) setForm(toForm(job));
   }, [job, form]);
+
+  // Audit log: record that this company opened the lead.
+  useEffect(() => {
+    if (company?.id && jobId) void logJobView(jobId, company.id);
+  }, [company?.id, jobId]);
+
 
   async function run(action: string, extra?: Partial<Record<string, unknown>>) {
     if (!job || !form) return;

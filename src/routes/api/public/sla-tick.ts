@@ -34,12 +34,24 @@ export const Route = createFileRoute("/api/public/sla-tick")({
             { status: 500, headers: { "Content-Type": "application/json" } },
           );
         }
+
+        // Marketplace engine: release 12-hour claims that made no progress.
+        const claims = await supabaseAdmin.rpc("fn_claim_expiry_tick" as never);
+        if (claims.error) {
+          return new Response(
+            JSON.stringify({ ok: false, error: claims.error.message }),
+            { status: 500, headers: { "Content-Type": "application/json" } },
+          );
+        }
+
         return Response.json({
           ok: true,
           expired: Array.isArray(data) ? data.length : 0,
+          claimsReturned: Array.isArray(claims.data) ? claims.data.length : 0,
           at: new Date().toISOString(),
         });
       },
     },
   },
 });
+

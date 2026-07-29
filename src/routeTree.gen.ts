@@ -48,6 +48,7 @@ import { Route as AuthenticatedBrokerIndexRouteImport } from './routes/_authenti
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as ApiPublicSlaTickRouteImport } from './routes/api/public/sla-tick'
 import { Route as AuthenticatedCustomerQuotesRouteImport } from './routes/_authenticated/customer.quotes'
+import { Route as AuthenticatedCustomerNotificationsRouteImport } from './routes/_authenticated/customer.notifications'
 import { Route as AuthenticatedCustomerMoveRouteImport } from './routes/_authenticated/customer.move'
 import { Route as AuthenticatedCustomerMessagesRouteImport } from './routes/_authenticated/customer.messages'
 import { Route as AuthenticatedCustomerDocumentsRouteImport } from './routes/_authenticated/customer.documents'
@@ -274,6 +275,12 @@ const AuthenticatedCustomerQuotesRoute =
   AuthenticatedCustomerQuotesRouteImport.update({
     id: '/customer/quotes',
     path: '/customer/quotes',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedCustomerNotificationsRoute =
+  AuthenticatedCustomerNotificationsRouteImport.update({
+    id: '/customer/notifications',
+    path: '/customer/notifications',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedCustomerMoveRoute =
@@ -510,6 +517,7 @@ export interface FileRoutesByFullPath {
   '/customer/documents': typeof AuthenticatedCustomerDocumentsRoute
   '/customer/messages': typeof AuthenticatedCustomerMessagesRoute
   '/customer/move': typeof AuthenticatedCustomerMoveRoute
+  '/customer/notifications': typeof AuthenticatedCustomerNotificationsRoute
   '/customer/quotes': typeof AuthenticatedCustomerQuotesRoute
   '/api/public/sla-tick': typeof ApiPublicSlaTickRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
@@ -578,6 +586,7 @@ export interface FileRoutesByTo {
   '/customer/documents': typeof AuthenticatedCustomerDocumentsRoute
   '/customer/messages': typeof AuthenticatedCustomerMessagesRoute
   '/customer/move': typeof AuthenticatedCustomerMoveRoute
+  '/customer/notifications': typeof AuthenticatedCustomerNotificationsRoute
   '/customer/quotes': typeof AuthenticatedCustomerQuotesRoute
   '/api/public/sla-tick': typeof ApiPublicSlaTickRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
@@ -649,6 +658,7 @@ export interface FileRoutesById {
   '/_authenticated/customer/documents': typeof AuthenticatedCustomerDocumentsRoute
   '/_authenticated/customer/messages': typeof AuthenticatedCustomerMessagesRoute
   '/_authenticated/customer/move': typeof AuthenticatedCustomerMoveRoute
+  '/_authenticated/customer/notifications': typeof AuthenticatedCustomerNotificationsRoute
   '/_authenticated/customer/quotes': typeof AuthenticatedCustomerQuotesRoute
   '/api/public/sla-tick': typeof ApiPublicSlaTickRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
@@ -720,6 +730,7 @@ export interface FileRouteTypes {
     | '/customer/documents'
     | '/customer/messages'
     | '/customer/move'
+    | '/customer/notifications'
     | '/customer/quotes'
     | '/api/public/sla-tick'
     | '/admin/'
@@ -788,6 +799,7 @@ export interface FileRouteTypes {
     | '/customer/documents'
     | '/customer/messages'
     | '/customer/move'
+    | '/customer/notifications'
     | '/customer/quotes'
     | '/api/public/sla-tick'
     | '/admin'
@@ -858,6 +870,7 @@ export interface FileRouteTypes {
     | '/_authenticated/customer/documents'
     | '/_authenticated/customer/messages'
     | '/_authenticated/customer/move'
+    | '/_authenticated/customer/notifications'
     | '/_authenticated/customer/quotes'
     | '/api/public/sla-tick'
     | '/_authenticated/admin/'
@@ -1177,6 +1190,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCustomerQuotesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/customer/notifications': {
+      id: '/_authenticated/customer/notifications'
+      path: '/customer/notifications'
+      fullPath: '/customer/notifications'
+      preLoaderRoute: typeof AuthenticatedCustomerNotificationsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/customer/move': {
       id: '/_authenticated/customer/move'
       path: '/customer/move'
@@ -1447,6 +1467,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedCustomerDocumentsRoute: typeof AuthenticatedCustomerDocumentsRoute
   AuthenticatedCustomerMessagesRoute: typeof AuthenticatedCustomerMessagesRoute
   AuthenticatedCustomerMoveRoute: typeof AuthenticatedCustomerMoveRoute
+  AuthenticatedCustomerNotificationsRoute: typeof AuthenticatedCustomerNotificationsRoute
   AuthenticatedCustomerQuotesRoute: typeof AuthenticatedCustomerQuotesRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
   AuthenticatedBrokerIndexRoute: typeof AuthenticatedBrokerIndexRoute
@@ -1465,6 +1486,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedCustomerDocumentsRoute: AuthenticatedCustomerDocumentsRoute,
   AuthenticatedCustomerMessagesRoute: AuthenticatedCustomerMessagesRoute,
   AuthenticatedCustomerMoveRoute: AuthenticatedCustomerMoveRoute,
+  AuthenticatedCustomerNotificationsRoute:
+    AuthenticatedCustomerNotificationsRoute,
   AuthenticatedCustomerQuotesRoute: AuthenticatedCustomerQuotesRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
   AuthenticatedBrokerIndexRoute: AuthenticatedBrokerIndexRoute,

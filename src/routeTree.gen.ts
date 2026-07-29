@@ -41,12 +41,20 @@ import { Route as CompareSlugRouteImport } from './routes/compare.$slug'
 import { Route as CitiesCityRouteImport } from './routes/cities.$city'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
-import { Route as AuthenticatedCustomerRouteImport } from './routes/_authenticated/customer'
 import { Route as AuthenticatedCompanyRouteImport } from './routes/_authenticated/company'
+import { Route as AuthenticatedCustomerIndexRouteImport } from './routes/_authenticated/customer.index'
 import { Route as AuthenticatedCompanyIndexRouteImport } from './routes/_authenticated/company.index'
 import { Route as AuthenticatedBrokerIndexRouteImport } from './routes/_authenticated/broker.index'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as ApiPublicSlaTickRouteImport } from './routes/api/public/sla-tick'
+import { Route as AuthenticatedCustomerSettingsRouteImport } from './routes/_authenticated/customer.settings'
+import { Route as AuthenticatedCustomerReviewsRouteImport } from './routes/_authenticated/customer.reviews'
+import { Route as AuthenticatedCustomerQuotesRouteImport } from './routes/_authenticated/customer.quotes'
+import { Route as AuthenticatedCustomerNotificationsRouteImport } from './routes/_authenticated/customer.notifications'
+import { Route as AuthenticatedCustomerMoveRouteImport } from './routes/_authenticated/customer.move'
+import { Route as AuthenticatedCustomerMessagesRouteImport } from './routes/_authenticated/customer.messages'
+import { Route as AuthenticatedCustomerLibraryRouteImport } from './routes/_authenticated/customer.library'
+import { Route as AuthenticatedCustomerDocumentsRouteImport } from './routes/_authenticated/customer.documents'
 import { Route as AuthenticatedCompanySupportRouteImport } from './routes/_authenticated/company.support'
 import { Route as AuthenticatedCompanySettingsRouteImport } from './routes/_authenticated/company.settings'
 import { Route as AuthenticatedCompanyScheduleRouteImport } from './routes/_authenticated/company.schedule'
@@ -233,16 +241,17 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedCustomerRoute = AuthenticatedCustomerRouteImport.update({
-  id: '/customer',
-  path: '/customer',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
 const AuthenticatedCompanyRoute = AuthenticatedCompanyRouteImport.update({
   id: '/company',
   path: '/company',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedCustomerIndexRoute =
+  AuthenticatedCustomerIndexRouteImport.update({
+    id: '/customer/',
+    path: '/customer/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedCompanyIndexRoute =
   AuthenticatedCompanyIndexRouteImport.update({
     id: '/',
@@ -265,6 +274,54 @@ const ApiPublicSlaTickRoute = ApiPublicSlaTickRouteImport.update({
   path: '/api/public/sla-tick',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedCustomerSettingsRoute =
+  AuthenticatedCustomerSettingsRouteImport.update({
+    id: '/customer/settings',
+    path: '/customer/settings',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedCustomerReviewsRoute =
+  AuthenticatedCustomerReviewsRouteImport.update({
+    id: '/customer/reviews',
+    path: '/customer/reviews',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedCustomerQuotesRoute =
+  AuthenticatedCustomerQuotesRouteImport.update({
+    id: '/customer/quotes',
+    path: '/customer/quotes',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedCustomerNotificationsRoute =
+  AuthenticatedCustomerNotificationsRouteImport.update({
+    id: '/customer/notifications',
+    path: '/customer/notifications',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedCustomerMoveRoute =
+  AuthenticatedCustomerMoveRouteImport.update({
+    id: '/customer/move',
+    path: '/customer/move',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedCustomerMessagesRoute =
+  AuthenticatedCustomerMessagesRouteImport.update({
+    id: '/customer/messages',
+    path: '/customer/messages',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedCustomerLibraryRoute =
+  AuthenticatedCustomerLibraryRouteImport.update({
+    id: '/customer/library',
+    path: '/customer/library',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedCustomerDocumentsRoute =
+  AuthenticatedCustomerDocumentsRouteImport.update({
+    id: '/customer/documents',
+    path: '/customer/documents',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedCompanySupportRoute =
   AuthenticatedCompanySupportRouteImport.update({
     id: '/support',
@@ -442,7 +499,6 @@ export interface FileRoutesByFullPath {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/store': typeof StoreRoute
   '/company': typeof AuthenticatedCompanyRouteWithChildren
-  '/customer': typeof AuthenticatedCustomerRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/cities/$city': typeof CitiesCityRoute
@@ -479,10 +535,19 @@ export interface FileRoutesByFullPath {
   '/company/schedule': typeof AuthenticatedCompanyScheduleRoute
   '/company/settings': typeof AuthenticatedCompanySettingsRoute
   '/company/support': typeof AuthenticatedCompanySupportRoute
+  '/customer/documents': typeof AuthenticatedCustomerDocumentsRoute
+  '/customer/library': typeof AuthenticatedCustomerLibraryRoute
+  '/customer/messages': typeof AuthenticatedCustomerMessagesRoute
+  '/customer/move': typeof AuthenticatedCustomerMoveRoute
+  '/customer/notifications': typeof AuthenticatedCustomerNotificationsRoute
+  '/customer/quotes': typeof AuthenticatedCustomerQuotesRoute
+  '/customer/reviews': typeof AuthenticatedCustomerReviewsRoute
+  '/customer/settings': typeof AuthenticatedCustomerSettingsRoute
   '/api/public/sla-tick': typeof ApiPublicSlaTickRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/broker/': typeof AuthenticatedBrokerIndexRoute
   '/company/': typeof AuthenticatedCompanyIndexRoute
+  '/customer/': typeof AuthenticatedCustomerIndexRoute
   '/company/job/$jobId': typeof AuthenticatedCompanyJobJobIdRoute
 }
 export interface FileRoutesByTo {
@@ -506,7 +571,6 @@ export interface FileRoutesByTo {
   '/services': typeof ServicesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/store': typeof StoreRoute
-  '/customer': typeof AuthenticatedCustomerRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/cities/$city': typeof CitiesCityRoute
@@ -543,10 +607,19 @@ export interface FileRoutesByTo {
   '/company/schedule': typeof AuthenticatedCompanyScheduleRoute
   '/company/settings': typeof AuthenticatedCompanySettingsRoute
   '/company/support': typeof AuthenticatedCompanySupportRoute
+  '/customer/documents': typeof AuthenticatedCustomerDocumentsRoute
+  '/customer/library': typeof AuthenticatedCustomerLibraryRoute
+  '/customer/messages': typeof AuthenticatedCustomerMessagesRoute
+  '/customer/move': typeof AuthenticatedCustomerMoveRoute
+  '/customer/notifications': typeof AuthenticatedCustomerNotificationsRoute
+  '/customer/quotes': typeof AuthenticatedCustomerQuotesRoute
+  '/customer/reviews': typeof AuthenticatedCustomerReviewsRoute
+  '/customer/settings': typeof AuthenticatedCustomerSettingsRoute
   '/api/public/sla-tick': typeof ApiPublicSlaTickRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/broker': typeof AuthenticatedBrokerIndexRoute
   '/company': typeof AuthenticatedCompanyIndexRoute
+  '/customer': typeof AuthenticatedCustomerIndexRoute
   '/company/job/$jobId': typeof AuthenticatedCompanyJobJobIdRoute
 }
 export interface FileRoutesById {
@@ -573,7 +646,6 @@ export interface FileRoutesById {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/store': typeof StoreRoute
   '/_authenticated/company': typeof AuthenticatedCompanyRouteWithChildren
-  '/_authenticated/customer': typeof AuthenticatedCustomerRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/cities/$city': typeof CitiesCityRoute
@@ -610,10 +682,19 @@ export interface FileRoutesById {
   '/_authenticated/company/schedule': typeof AuthenticatedCompanyScheduleRoute
   '/_authenticated/company/settings': typeof AuthenticatedCompanySettingsRoute
   '/_authenticated/company/support': typeof AuthenticatedCompanySupportRoute
+  '/_authenticated/customer/documents': typeof AuthenticatedCustomerDocumentsRoute
+  '/_authenticated/customer/library': typeof AuthenticatedCustomerLibraryRoute
+  '/_authenticated/customer/messages': typeof AuthenticatedCustomerMessagesRoute
+  '/_authenticated/customer/move': typeof AuthenticatedCustomerMoveRoute
+  '/_authenticated/customer/notifications': typeof AuthenticatedCustomerNotificationsRoute
+  '/_authenticated/customer/quotes': typeof AuthenticatedCustomerQuotesRoute
+  '/_authenticated/customer/reviews': typeof AuthenticatedCustomerReviewsRoute
+  '/_authenticated/customer/settings': typeof AuthenticatedCustomerSettingsRoute
   '/api/public/sla-tick': typeof ApiPublicSlaTickRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/broker/': typeof AuthenticatedBrokerIndexRoute
   '/_authenticated/company/': typeof AuthenticatedCompanyIndexRoute
+  '/_authenticated/customer/': typeof AuthenticatedCustomerIndexRoute
   '/_authenticated/company/job/$jobId': typeof AuthenticatedCompanyJobJobIdRoute
 }
 export interface FileRouteTypes {
@@ -640,7 +721,6 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/store'
     | '/company'
-    | '/customer'
     | '/dashboard'
     | '/blog/$slug'
     | '/cities/$city'
@@ -677,10 +757,19 @@ export interface FileRouteTypes {
     | '/company/schedule'
     | '/company/settings'
     | '/company/support'
+    | '/customer/documents'
+    | '/customer/library'
+    | '/customer/messages'
+    | '/customer/move'
+    | '/customer/notifications'
+    | '/customer/quotes'
+    | '/customer/reviews'
+    | '/customer/settings'
     | '/api/public/sla-tick'
     | '/admin/'
     | '/broker/'
     | '/company/'
+    | '/customer/'
     | '/company/job/$jobId'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -704,7 +793,6 @@ export interface FileRouteTypes {
     | '/services'
     | '/sitemap.xml'
     | '/store'
-    | '/customer'
     | '/dashboard'
     | '/blog/$slug'
     | '/cities/$city'
@@ -741,10 +829,19 @@ export interface FileRouteTypes {
     | '/company/schedule'
     | '/company/settings'
     | '/company/support'
+    | '/customer/documents'
+    | '/customer/library'
+    | '/customer/messages'
+    | '/customer/move'
+    | '/customer/notifications'
+    | '/customer/quotes'
+    | '/customer/reviews'
+    | '/customer/settings'
     | '/api/public/sla-tick'
     | '/admin'
     | '/broker'
     | '/company'
+    | '/customer'
     | '/company/job/$jobId'
   id:
     | '__root__'
@@ -770,7 +867,6 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/store'
     | '/_authenticated/company'
-    | '/_authenticated/customer'
     | '/_authenticated/dashboard'
     | '/blog/$slug'
     | '/cities/$city'
@@ -807,10 +903,19 @@ export interface FileRouteTypes {
     | '/_authenticated/company/schedule'
     | '/_authenticated/company/settings'
     | '/_authenticated/company/support'
+    | '/_authenticated/customer/documents'
+    | '/_authenticated/customer/library'
+    | '/_authenticated/customer/messages'
+    | '/_authenticated/customer/move'
+    | '/_authenticated/customer/notifications'
+    | '/_authenticated/customer/quotes'
+    | '/_authenticated/customer/reviews'
+    | '/_authenticated/customer/settings'
     | '/api/public/sla-tick'
     | '/_authenticated/admin/'
     | '/_authenticated/broker/'
     | '/_authenticated/company/'
+    | '/_authenticated/customer/'
     | '/_authenticated/company/job/$jobId'
   fileRoutesById: FileRoutesById
 }
@@ -1075,18 +1180,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/customer': {
-      id: '/_authenticated/customer'
-      path: '/customer'
-      fullPath: '/customer'
-      preLoaderRoute: typeof AuthenticatedCustomerRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
     '/_authenticated/company': {
       id: '/_authenticated/company'
       path: '/company'
       fullPath: '/company'
       preLoaderRoute: typeof AuthenticatedCompanyRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/customer/': {
+      id: '/_authenticated/customer/'
+      path: '/customer'
+      fullPath: '/customer/'
+      preLoaderRoute: typeof AuthenticatedCustomerIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/company/': {
@@ -1116,6 +1221,62 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/public/sla-tick'
       preLoaderRoute: typeof ApiPublicSlaTickRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/customer/settings': {
+      id: '/_authenticated/customer/settings'
+      path: '/customer/settings'
+      fullPath: '/customer/settings'
+      preLoaderRoute: typeof AuthenticatedCustomerSettingsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/customer/reviews': {
+      id: '/_authenticated/customer/reviews'
+      path: '/customer/reviews'
+      fullPath: '/customer/reviews'
+      preLoaderRoute: typeof AuthenticatedCustomerReviewsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/customer/quotes': {
+      id: '/_authenticated/customer/quotes'
+      path: '/customer/quotes'
+      fullPath: '/customer/quotes'
+      preLoaderRoute: typeof AuthenticatedCustomerQuotesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/customer/notifications': {
+      id: '/_authenticated/customer/notifications'
+      path: '/customer/notifications'
+      fullPath: '/customer/notifications'
+      preLoaderRoute: typeof AuthenticatedCustomerNotificationsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/customer/move': {
+      id: '/_authenticated/customer/move'
+      path: '/customer/move'
+      fullPath: '/customer/move'
+      preLoaderRoute: typeof AuthenticatedCustomerMoveRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/customer/messages': {
+      id: '/_authenticated/customer/messages'
+      path: '/customer/messages'
+      fullPath: '/customer/messages'
+      preLoaderRoute: typeof AuthenticatedCustomerMessagesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/customer/library': {
+      id: '/_authenticated/customer/library'
+      path: '/customer/library'
+      fullPath: '/customer/library'
+      preLoaderRoute: typeof AuthenticatedCustomerLibraryRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/customer/documents': {
+      id: '/_authenticated/customer/documents'
+      path: '/customer/documents'
+      fullPath: '/customer/documents'
+      preLoaderRoute: typeof AuthenticatedCustomerDocumentsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/company/support': {
       id: '/_authenticated/company/support'
@@ -1356,7 +1517,6 @@ const AuthenticatedCompanyRouteWithChildren =
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedCompanyRoute: typeof AuthenticatedCompanyRouteWithChildren
-  AuthenticatedCustomerRoute: typeof AuthenticatedCustomerRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedAdminCompaniesRoute: typeof AuthenticatedAdminCompaniesRoute
   AuthenticatedAdminDashboardRoute: typeof AuthenticatedAdminDashboardRoute
@@ -1364,13 +1524,21 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminSettingsRoute: typeof AuthenticatedAdminSettingsRoute
   AuthenticatedAdminUsersRoute: typeof AuthenticatedAdminUsersRoute
   AuthenticatedBrokerPerformanceRoute: typeof AuthenticatedBrokerPerformanceRoute
+  AuthenticatedCustomerDocumentsRoute: typeof AuthenticatedCustomerDocumentsRoute
+  AuthenticatedCustomerLibraryRoute: typeof AuthenticatedCustomerLibraryRoute
+  AuthenticatedCustomerMessagesRoute: typeof AuthenticatedCustomerMessagesRoute
+  AuthenticatedCustomerMoveRoute: typeof AuthenticatedCustomerMoveRoute
+  AuthenticatedCustomerNotificationsRoute: typeof AuthenticatedCustomerNotificationsRoute
+  AuthenticatedCustomerQuotesRoute: typeof AuthenticatedCustomerQuotesRoute
+  AuthenticatedCustomerReviewsRoute: typeof AuthenticatedCustomerReviewsRoute
+  AuthenticatedCustomerSettingsRoute: typeof AuthenticatedCustomerSettingsRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
   AuthenticatedBrokerIndexRoute: typeof AuthenticatedBrokerIndexRoute
+  AuthenticatedCustomerIndexRoute: typeof AuthenticatedCustomerIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedCompanyRoute: AuthenticatedCompanyRouteWithChildren,
-  AuthenticatedCustomerRoute: AuthenticatedCustomerRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedAdminCompaniesRoute: AuthenticatedAdminCompaniesRoute,
   AuthenticatedAdminDashboardRoute: AuthenticatedAdminDashboardRoute,
@@ -1378,8 +1546,18 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminSettingsRoute: AuthenticatedAdminSettingsRoute,
   AuthenticatedAdminUsersRoute: AuthenticatedAdminUsersRoute,
   AuthenticatedBrokerPerformanceRoute: AuthenticatedBrokerPerformanceRoute,
+  AuthenticatedCustomerDocumentsRoute: AuthenticatedCustomerDocumentsRoute,
+  AuthenticatedCustomerLibraryRoute: AuthenticatedCustomerLibraryRoute,
+  AuthenticatedCustomerMessagesRoute: AuthenticatedCustomerMessagesRoute,
+  AuthenticatedCustomerMoveRoute: AuthenticatedCustomerMoveRoute,
+  AuthenticatedCustomerNotificationsRoute:
+    AuthenticatedCustomerNotificationsRoute,
+  AuthenticatedCustomerQuotesRoute: AuthenticatedCustomerQuotesRoute,
+  AuthenticatedCustomerReviewsRoute: AuthenticatedCustomerReviewsRoute,
+  AuthenticatedCustomerSettingsRoute: AuthenticatedCustomerSettingsRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
   AuthenticatedBrokerIndexRoute: AuthenticatedBrokerIndexRoute,
+  AuthenticatedCustomerIndexRoute: AuthenticatedCustomerIndexRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =

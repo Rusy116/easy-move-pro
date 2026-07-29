@@ -271,6 +271,70 @@ export type Database = {
           },
         ]
       }
+      company_commissions: {
+        Row: {
+          amount: number
+          base_price: number
+          company_id: string
+          created_at: string
+          currency: string
+          id: string
+          notes: string | null
+          quote_id: string
+          rate: number
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          base_price: number
+          company_id: string
+          created_at?: string
+          currency?: string
+          id?: string
+          notes?: string | null
+          quote_id: string
+          rate?: number
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          base_price?: number
+          company_id?: string
+          created_at?: string
+          currency?: string
+          id?: string
+          notes?: string | null
+          quote_id?: string
+          rate?: number
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_commissions_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "moving_companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_commissions_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "mover_lead_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_commissions_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "quotes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       company_conversations: {
         Row: {
           company_id: string
@@ -803,6 +867,85 @@ export type Database = {
           },
           {
             foreignKeyName: "company_notifications_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "quotes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      company_price_revisions: {
+        Row: {
+          additional_charges: number
+          attachments: Json
+          company_id: string
+          created_at: string
+          deposit_amount: number | null
+          id: string
+          kind: string
+          new_price: number
+          notes: string | null
+          previous_price: number | null
+          quote_id: string
+          reason: string | null
+          requested_by: string | null
+          revision: number
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          additional_charges?: number
+          attachments?: Json
+          company_id: string
+          created_at?: string
+          deposit_amount?: number | null
+          id?: string
+          kind?: string
+          new_price: number
+          notes?: string | null
+          previous_price?: number | null
+          quote_id: string
+          reason?: string | null
+          requested_by?: string | null
+          revision?: number
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          additional_charges?: number
+          attachments?: Json
+          company_id?: string
+          created_at?: string
+          deposit_amount?: number | null
+          id?: string
+          kind?: string
+          new_price?: number
+          notes?: string | null
+          previous_price?: number | null
+          quote_id?: string
+          reason?: string | null
+          requested_by?: string | null
+          revision?: number
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_price_revisions_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "moving_companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_price_revisions_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "mover_lead_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_price_revisions_quote_id_fkey"
             columns: ["quote_id"]
             isOneToOne: false
             referencedRelation: "quotes"
@@ -2392,6 +2535,21 @@ export type Database = {
         Args: { _company_id: string; _quote_id: string }
         Returns: Json
       }
+      fn_company_complete_move: {
+        Args: { _company_id: string; _notes?: string; _quote_id: string }
+        Returns: Json
+      }
+      fn_company_confirm_final_price: {
+        Args: {
+          _additional?: number
+          _company_id: string
+          _deposit?: number
+          _final_price: number
+          _notes?: string
+          _quote_id: string
+        }
+        Returns: Json
+      }
       fn_company_expired_claims: {
         Args: { _company_id: string }
         Returns: {
@@ -2537,6 +2695,17 @@ export type Database = {
           isOneToOne: false
           isSetofReturn: true
         }
+      }
+      fn_company_request_price_revision: {
+        Args: {
+          _attachments?: Json
+          _company_id: string
+          _new_price: number
+          _notes?: string
+          _quote_id: string
+          _reason: string
+        }
+        Returns: Json
       }
       fn_company_update_job: {
         Args: { _action: string; _payload?: Json; _quote_id: string }

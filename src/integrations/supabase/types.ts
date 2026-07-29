@@ -1720,6 +1720,7 @@ export type Database = {
           gym_equipment: boolean
           heavy_items: boolean
           id: string
+          info_requested_at: string | null
           insurance_tier: string | null
           inventory: Json
           inventory_notes: string | null
@@ -1728,6 +1729,8 @@ export type Database = {
           labor_hours: number | null
           last_activity_at: string
           lead_phase: Database["public"]["Enums"]["lead_phase_enum"]
+          lead_status: Database["public"]["Enums"]["lead_status_enum"]
+          lead_status_updated_at: string
           long_carry: boolean
           move_date: string | null
           move_size: string | null
@@ -1760,6 +1763,7 @@ export type Database = {
           qualified_by: string | null
           quote_number: string | null
           redistribution_count: number
+          rejection_reason: string | null
           safe: boolean
           status: string
           storage: boolean
@@ -1830,6 +1834,7 @@ export type Database = {
           gym_equipment?: boolean
           heavy_items?: boolean
           id?: string
+          info_requested_at?: string | null
           insurance_tier?: string | null
           inventory?: Json
           inventory_notes?: string | null
@@ -1838,6 +1843,8 @@ export type Database = {
           labor_hours?: number | null
           last_activity_at?: string
           lead_phase?: Database["public"]["Enums"]["lead_phase_enum"]
+          lead_status?: Database["public"]["Enums"]["lead_status_enum"]
+          lead_status_updated_at?: string
           long_carry?: boolean
           move_date?: string | null
           move_size?: string | null
@@ -1870,6 +1877,7 @@ export type Database = {
           qualified_by?: string | null
           quote_number?: string | null
           redistribution_count?: number
+          rejection_reason?: string | null
           safe?: boolean
           status?: string
           storage?: boolean
@@ -1940,6 +1948,7 @@ export type Database = {
           gym_equipment?: boolean
           heavy_items?: boolean
           id?: string
+          info_requested_at?: string | null
           insurance_tier?: string | null
           inventory?: Json
           inventory_notes?: string | null
@@ -1948,6 +1957,8 @@ export type Database = {
           labor_hours?: number | null
           last_activity_at?: string
           lead_phase?: Database["public"]["Enums"]["lead_phase_enum"]
+          lead_status?: Database["public"]["Enums"]["lead_status_enum"]
+          lead_status_updated_at?: string
           long_carry?: boolean
           move_date?: string | null
           move_size?: string | null
@@ -1980,6 +1991,7 @@ export type Database = {
           qualified_by?: string | null
           quote_number?: string | null
           redistribution_count?: number
+          rejection_reason?: string | null
           safe?: boolean
           status?: string
           storage?: boolean
@@ -2442,6 +2454,7 @@ export type Database = {
           gym_equipment: boolean
           heavy_items: boolean
           id: string
+          info_requested_at: string | null
           insurance_tier: string | null
           inventory: Json
           inventory_notes: string | null
@@ -2450,6 +2463,8 @@ export type Database = {
           labor_hours: number | null
           last_activity_at: string
           lead_phase: Database["public"]["Enums"]["lead_phase_enum"]
+          lead_status: Database["public"]["Enums"]["lead_status_enum"]
+          lead_status_updated_at: string
           long_carry: boolean
           move_date: string | null
           move_size: string | null
@@ -2482,6 +2497,7 @@ export type Database = {
           qualified_by: string | null
           quote_number: string | null
           redistribution_count: number
+          rejection_reason: string | null
           safe: boolean
           status: string
           storage: boolean
@@ -2678,7 +2694,138 @@ export type Database = {
         Returns: undefined
       }
       fn_reopen_lead: { Args: { _quote_id: string }; Returns: undefined }
+      fn_request_lead_info: {
+        Args: { _message: string; _quote_id: string }
+        Returns: undefined
+      }
       fn_resume_sla: { Args: { _quote_id: string }; Returns: undefined }
+      fn_set_lead_status: {
+        Args: {
+          _note?: string
+          _quote_id: string
+          _status: Database["public"]["Enums"]["lead_status_enum"]
+        }
+        Returns: {
+          accepted_at: string | null
+          appliances: boolean
+          arrival_window: string | null
+          assembly: boolean
+          assigned_at: string | null
+          assigned_broker_id: string | null
+          assigned_company_id: string | null
+          bedrooms: number
+          breakdown: Json
+          claim_deadline_at: string | null
+          claimed_at: string | null
+          closed_at: string | null
+          closed_reason:
+            | Database["public"]["Enums"]["lead_closed_reason_enum"]
+            | null
+          company_notes: string | null
+          contact_email: string | null
+          contact_phone: string | null
+          contacted_at: string | null
+          created_at: string
+          crew_size: number | null
+          customer_response_at: string | null
+          delivery_carry_distance: string | null
+          delivery_elevator: boolean
+          delivery_floor: number
+          delivery_notes: string | null
+          delivery_parking_distance: string | null
+          delivery_property_type: string | null
+          destination_address: string | null
+          destination_city: string | null
+          destination_elevator: boolean
+          destination_lat: number | null
+          destination_lng: number | null
+          destination_long_carry: boolean
+          destination_place_id: string | null
+          destination_stairs: number
+          destination_state: string | null
+          destination_zip: string
+          details: Json
+          distance_miles: number | null
+          elevator: boolean
+          estimate_email_sent_at: string | null
+          estimated_cubic_feet: number | null
+          estimated_high: number
+          estimated_low: number
+          estimated_weight_lbs: number | null
+          exclusive_assignment_id: string | null
+          exclusive_expires_at: string | null
+          exclusive_pause_reason: string | null
+          exclusive_paused_at: string | null
+          exclusive_started_at: string | null
+          final_move_date: string | null
+          final_price: number | null
+          final_quote_sent_at: string | null
+          final_truck_size: string | null
+          flexible_date: boolean
+          floor: number
+          fragile_items: boolean
+          gym_equipment: boolean
+          heavy_items: boolean
+          id: string
+          info_requested_at: string | null
+          insurance_tier: string | null
+          inventory: Json
+          inventory_notes: string | null
+          job_status: string
+          junk_removal: boolean
+          labor_hours: number | null
+          last_activity_at: string
+          lead_phase: Database["public"]["Enums"]["lead_phase_enum"]
+          lead_status: Database["public"]["Enums"]["lead_status_enum"]
+          lead_status_updated_at: string
+          long_carry: boolean
+          move_date: string | null
+          move_size: string | null
+          move_type: string | null
+          num_movers: number | null
+          open_market_opened_at: string | null
+          origin_address: string | null
+          origin_city: string | null
+          origin_elevator: boolean
+          origin_lat: number | null
+          origin_lng: number | null
+          origin_long_carry: boolean
+          origin_place_id: string | null
+          origin_stairs: number
+          origin_state: string | null
+          origin_zip: string
+          packing: boolean
+          piano: boolean
+          pickup_carry_distance: string | null
+          pickup_elevator: boolean
+          pickup_floor: number
+          pickup_notes: string | null
+          pickup_parking_distance: string | null
+          pickup_property_type: string | null
+          portal_token: string | null
+          preferred_time: string | null
+          property_type: string
+          published_at: string | null
+          qualified_at: string | null
+          qualified_by: string | null
+          quote_number: string | null
+          redistribution_count: number
+          rejection_reason: string | null
+          safe: boolean
+          status: string
+          storage: boolean
+          truck_size: string | null
+          unpacking: boolean
+          user_id: string | null
+          visibility_mask: Json
+        }
+        SetofOptions: {
+          from: "*"
+          to: "quotes"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       fn_set_visibility_mask: {
         Args: { _mask: Json; _quote_id: string }
         Returns: undefined
@@ -2759,6 +2906,19 @@ export type Database = {
         | "invalid"
         | "expired"
       lead_phase_enum: "unassigned" | "exclusive" | "open_market" | "closed"
+      lead_status_enum:
+        | "draft"
+        | "submitted"
+        | "under_review"
+        | "qualified"
+        | "published"
+        | "claimed"
+        | "contacted"
+        | "price_confirmed"
+        | "customer_confirmed"
+        | "completed"
+        | "rejected"
+        | "cancelled"
       partner_application_status:
         | "draft"
         | "submitted"
@@ -2935,6 +3095,20 @@ export const Constants = {
         "expired",
       ],
       lead_phase_enum: ["unassigned", "exclusive", "open_market", "closed"],
+      lead_status_enum: [
+        "draft",
+        "submitted",
+        "under_review",
+        "qualified",
+        "published",
+        "claimed",
+        "contacted",
+        "price_confirmed",
+        "customer_confirmed",
+        "completed",
+        "rejected",
+        "cancelled",
+      ],
       partner_application_status: [
         "draft",
         "submitted",

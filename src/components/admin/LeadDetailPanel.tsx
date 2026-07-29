@@ -227,6 +227,15 @@ export function LeadDetailPanel({
             </SheetTitle>
           </SheetHeader>
 
+          <div className="mt-3 rounded-lg border border-border bg-muted/30 p-3">
+            <div className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+              Lead workflow
+            </div>
+            <LeadWorkflowActions quoteId={q.id} status={q.lead_status} />
+          </div>
+
+
+
           <div className="mt-3 flex flex-wrap items-center gap-2">
             <Button asChild size="sm" disabled={!phone}>
               <a href={phone ? `tel:${phone}` : undefined}><Phone className="mr-2 h-4 w-4" />Call</a>

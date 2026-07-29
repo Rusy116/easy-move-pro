@@ -12,7 +12,9 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as StoreRouteImport } from './routes/store'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as ServicesRouteImport } from './routes/services'
+import { Route as SearchRouteImport } from './routes/search'
 import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
+import { Route as ResourcesRouteImport } from './routes/resources'
 import { Route as RegisterCompanyRouteImport } from './routes/register-company'
 import { Route as OpenMarketplaceRouteImport } from './routes/open-marketplace'
 import { Route as MovingScheduleSoftwareRouteImport } from './routes/moving-schedule-software'
@@ -23,16 +25,22 @@ import { Route as MovingCompanySoftwareRouteImport } from './routes/moving-compa
 import { Route as MovingCompanyCrmRouteImport } from './routes/moving-company-crm'
 import { Route as LeadGenerationRouteImport } from './routes/lead-generation'
 import { Route as JoinRouteImport } from './routes/join'
+import { Route as ForMoversRouteImport } from './routes/for-movers'
 import { Route as ExclusiveMovingLeadsRouteImport } from './routes/exclusive-moving-leads'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as CalculatorRouteImport } from './routes/calculator'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AiToolsRouteImport } from './routes/ai-tools'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as StatesIndexRouteImport } from './routes/states.index'
+import { Route as RoutesIndexRouteImport } from './routes/routes.index'
 import { Route as PartnersIndexRouteImport } from './routes/partners.index'
 import { Route as CitiesIndexRouteImport } from './routes/cities.index'
 import { Route as BlogIndexRouteImport } from './routes/blog.index'
+import { Route as StatesStateRouteImport } from './routes/states.$state'
+import { Route as RoutesRouteRouteImport } from './routes/routes.$route'
 import { Route as PortalQuoteNumberRouteImport } from './routes/portal.$quoteNumber'
 import { Route as PartnersApplyRouteImport } from './routes/partners.apply'
 import { Route as PartnersLocationRouteImport } from './routes/partners.$location'
@@ -42,6 +50,7 @@ import { Route as CitiesCityRouteImport } from './routes/cities.$city'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedCompanyRouteImport } from './routes/_authenticated/company'
+import { Route as StateCityRouteImport } from './routes/$state.$city'
 import { Route as AuthenticatedCustomerIndexRouteImport } from './routes/_authenticated/customer.index'
 import { Route as AuthenticatedCompanyIndexRouteImport } from './routes/_authenticated/company.index'
 import { Route as AuthenticatedBrokerIndexRouteImport } from './routes/_authenticated/broker.index'
@@ -99,9 +108,19 @@ const ServicesRoute = ServicesRouteImport.update({
   path: '/services',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SearchRoute = SearchRouteImport.update({
+  id: '/search',
+  path: '/search',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RobotsDottxtRoute = RobotsDottxtRouteImport.update({
   id: '/robots.txt',
   path: '/robots.txt',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResourcesRoute = ResourcesRouteImport.update({
+  id: '/resources',
+  path: '/resources',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RegisterCompanyRoute = RegisterCompanyRouteImport.update({
@@ -154,6 +173,11 @@ const JoinRoute = JoinRouteImport.update({
   path: '/join',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ForMoversRoute = ForMoversRouteImport.update({
+  id: '/for-movers',
+  path: '/for-movers',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ExclusiveMovingLeadsRoute = ExclusiveMovingLeadsRouteImport.update({
   id: '/exclusive-moving-leads',
   path: '/exclusive-moving-leads',
@@ -174,6 +198,11 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AiToolsRoute = AiToolsRouteImport.update({
+  id: '/ai-tools',
+  path: '/ai-tools',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AboutRoute = AboutRouteImport.update({
   id: '/about',
   path: '/about',
@@ -186,6 +215,16 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StatesIndexRoute = StatesIndexRouteImport.update({
+  id: '/states/',
+  path: '/states/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RoutesIndexRoute = RoutesIndexRouteImport.update({
+  id: '/routes/',
+  path: '/routes/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PartnersIndexRoute = PartnersIndexRouteImport.update({
@@ -201,6 +240,16 @@ const CitiesIndexRoute = CitiesIndexRouteImport.update({
 const BlogIndexRoute = BlogIndexRouteImport.update({
   id: '/blog/',
   path: '/blog/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StatesStateRoute = StatesStateRouteImport.update({
+  id: '/states/$state',
+  path: '/states/$state',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RoutesRouteRoute = RoutesRouteRouteImport.update({
+  id: '/routes/$route',
+  path: '/routes/$route',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PortalQuoteNumberRoute = PortalQuoteNumberRouteImport.update({
@@ -247,6 +296,11 @@ const AuthenticatedCompanyRoute = AuthenticatedCompanyRouteImport.update({
   id: '/company',
   path: '/company',
   getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const StateCityRoute = StateCityRouteImport.update({
+  id: '/$state/$city',
+  path: '/$state/$city',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedCustomerIndexRoute =
   AuthenticatedCustomerIndexRouteImport.update({
@@ -494,10 +548,12 @@ const AuthenticatedCompanyJobJobIdRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/ai-tools': typeof AiToolsRoute
   '/auth': typeof AuthRoute
   '/calculator': typeof CalculatorRoute
   '/contact': typeof ContactRoute
   '/exclusive-moving-leads': typeof ExclusiveMovingLeadsRoute
+  '/for-movers': typeof ForMoversRoute
   '/join': typeof JoinRoute
   '/lead-generation': typeof LeadGenerationRoute
   '/moving-company-crm': typeof MovingCompanyCrmRoute
@@ -508,10 +564,13 @@ export interface FileRoutesByFullPath {
   '/moving-schedule-software': typeof MovingScheduleSoftwareRoute
   '/open-marketplace': typeof OpenMarketplaceRoute
   '/register-company': typeof RegisterCompanyRoute
+  '/resources': typeof ResourcesRoute
   '/robots.txt': typeof RobotsDottxtRoute
+  '/search': typeof SearchRoute
   '/services': typeof ServicesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/store': typeof StoreRoute
+  '/$state/$city': typeof StateCityRoute
   '/company': typeof AuthenticatedCompanyRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/blog/$slug': typeof BlogSlugRoute
@@ -521,9 +580,13 @@ export interface FileRoutesByFullPath {
   '/partners/$location': typeof PartnersLocationRoute
   '/partners/apply': typeof PartnersApplyRoute
   '/portal/$quoteNumber': typeof PortalQuoteNumberRoute
+  '/routes/$route': typeof RoutesRouteRoute
+  '/states/$state': typeof StatesStateRoute
   '/blog/': typeof BlogIndexRoute
   '/cities/': typeof CitiesIndexRoute
   '/partners/': typeof PartnersIndexRoute
+  '/routes/': typeof RoutesIndexRoute
+  '/states/': typeof StatesIndexRoute
   '/admin/companies': typeof AuthenticatedAdminCompaniesRoute
   '/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
   '/admin/finance': typeof AuthenticatedAdminFinanceRoute
@@ -569,10 +632,12 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/ai-tools': typeof AiToolsRoute
   '/auth': typeof AuthRoute
   '/calculator': typeof CalculatorRoute
   '/contact': typeof ContactRoute
   '/exclusive-moving-leads': typeof ExclusiveMovingLeadsRoute
+  '/for-movers': typeof ForMoversRoute
   '/join': typeof JoinRoute
   '/lead-generation': typeof LeadGenerationRoute
   '/moving-company-crm': typeof MovingCompanyCrmRoute
@@ -583,10 +648,13 @@ export interface FileRoutesByTo {
   '/moving-schedule-software': typeof MovingScheduleSoftwareRoute
   '/open-marketplace': typeof OpenMarketplaceRoute
   '/register-company': typeof RegisterCompanyRoute
+  '/resources': typeof ResourcesRoute
   '/robots.txt': typeof RobotsDottxtRoute
+  '/search': typeof SearchRoute
   '/services': typeof ServicesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/store': typeof StoreRoute
+  '/$state/$city': typeof StateCityRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/cities/$city': typeof CitiesCityRoute
@@ -595,9 +663,13 @@ export interface FileRoutesByTo {
   '/partners/$location': typeof PartnersLocationRoute
   '/partners/apply': typeof PartnersApplyRoute
   '/portal/$quoteNumber': typeof PortalQuoteNumberRoute
+  '/routes/$route': typeof RoutesRouteRoute
+  '/states/$state': typeof StatesStateRoute
   '/blog': typeof BlogIndexRoute
   '/cities': typeof CitiesIndexRoute
   '/partners': typeof PartnersIndexRoute
+  '/routes': typeof RoutesIndexRoute
+  '/states': typeof StatesIndexRoute
   '/admin/companies': typeof AuthenticatedAdminCompaniesRoute
   '/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
   '/admin/finance': typeof AuthenticatedAdminFinanceRoute
@@ -645,10 +717,12 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/about': typeof AboutRoute
+  '/ai-tools': typeof AiToolsRoute
   '/auth': typeof AuthRoute
   '/calculator': typeof CalculatorRoute
   '/contact': typeof ContactRoute
   '/exclusive-moving-leads': typeof ExclusiveMovingLeadsRoute
+  '/for-movers': typeof ForMoversRoute
   '/join': typeof JoinRoute
   '/lead-generation': typeof LeadGenerationRoute
   '/moving-company-crm': typeof MovingCompanyCrmRoute
@@ -659,10 +733,13 @@ export interface FileRoutesById {
   '/moving-schedule-software': typeof MovingScheduleSoftwareRoute
   '/open-marketplace': typeof OpenMarketplaceRoute
   '/register-company': typeof RegisterCompanyRoute
+  '/resources': typeof ResourcesRoute
   '/robots.txt': typeof RobotsDottxtRoute
+  '/search': typeof SearchRoute
   '/services': typeof ServicesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/store': typeof StoreRoute
+  '/$state/$city': typeof StateCityRoute
   '/_authenticated/company': typeof AuthenticatedCompanyRouteWithChildren
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/blog/$slug': typeof BlogSlugRoute
@@ -672,9 +749,13 @@ export interface FileRoutesById {
   '/partners/$location': typeof PartnersLocationRoute
   '/partners/apply': typeof PartnersApplyRoute
   '/portal/$quoteNumber': typeof PortalQuoteNumberRoute
+  '/routes/$route': typeof RoutesRouteRoute
+  '/states/$state': typeof StatesStateRoute
   '/blog/': typeof BlogIndexRoute
   '/cities/': typeof CitiesIndexRoute
   '/partners/': typeof PartnersIndexRoute
+  '/routes/': typeof RoutesIndexRoute
+  '/states/': typeof StatesIndexRoute
   '/_authenticated/admin/companies': typeof AuthenticatedAdminCompaniesRoute
   '/_authenticated/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
   '/_authenticated/admin/finance': typeof AuthenticatedAdminFinanceRoute
@@ -722,10 +803,12 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/about'
+    | '/ai-tools'
     | '/auth'
     | '/calculator'
     | '/contact'
     | '/exclusive-moving-leads'
+    | '/for-movers'
     | '/join'
     | '/lead-generation'
     | '/moving-company-crm'
@@ -736,10 +819,13 @@ export interface FileRouteTypes {
     | '/moving-schedule-software'
     | '/open-marketplace'
     | '/register-company'
+    | '/resources'
     | '/robots.txt'
+    | '/search'
     | '/services'
     | '/sitemap.xml'
     | '/store'
+    | '/$state/$city'
     | '/company'
     | '/dashboard'
     | '/blog/$slug'
@@ -749,9 +835,13 @@ export interface FileRouteTypes {
     | '/partners/$location'
     | '/partners/apply'
     | '/portal/$quoteNumber'
+    | '/routes/$route'
+    | '/states/$state'
     | '/blog/'
     | '/cities/'
     | '/partners/'
+    | '/routes/'
+    | '/states/'
     | '/admin/companies'
     | '/admin/dashboard'
     | '/admin/finance'
@@ -797,10 +887,12 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/about'
+    | '/ai-tools'
     | '/auth'
     | '/calculator'
     | '/contact'
     | '/exclusive-moving-leads'
+    | '/for-movers'
     | '/join'
     | '/lead-generation'
     | '/moving-company-crm'
@@ -811,10 +903,13 @@ export interface FileRouteTypes {
     | '/moving-schedule-software'
     | '/open-marketplace'
     | '/register-company'
+    | '/resources'
     | '/robots.txt'
+    | '/search'
     | '/services'
     | '/sitemap.xml'
     | '/store'
+    | '/$state/$city'
     | '/dashboard'
     | '/blog/$slug'
     | '/cities/$city'
@@ -823,9 +918,13 @@ export interface FileRouteTypes {
     | '/partners/$location'
     | '/partners/apply'
     | '/portal/$quoteNumber'
+    | '/routes/$route'
+    | '/states/$state'
     | '/blog'
     | '/cities'
     | '/partners'
+    | '/routes'
+    | '/states'
     | '/admin/companies'
     | '/admin/dashboard'
     | '/admin/finance'
@@ -872,10 +971,12 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/about'
+    | '/ai-tools'
     | '/auth'
     | '/calculator'
     | '/contact'
     | '/exclusive-moving-leads'
+    | '/for-movers'
     | '/join'
     | '/lead-generation'
     | '/moving-company-crm'
@@ -886,10 +987,13 @@ export interface FileRouteTypes {
     | '/moving-schedule-software'
     | '/open-marketplace'
     | '/register-company'
+    | '/resources'
     | '/robots.txt'
+    | '/search'
     | '/services'
     | '/sitemap.xml'
     | '/store'
+    | '/$state/$city'
     | '/_authenticated/company'
     | '/_authenticated/dashboard'
     | '/blog/$slug'
@@ -899,9 +1003,13 @@ export interface FileRouteTypes {
     | '/partners/$location'
     | '/partners/apply'
     | '/portal/$quoteNumber'
+    | '/routes/$route'
+    | '/states/$state'
     | '/blog/'
     | '/cities/'
     | '/partners/'
+    | '/routes/'
+    | '/states/'
     | '/_authenticated/admin/companies'
     | '/_authenticated/admin/dashboard'
     | '/_authenticated/admin/finance'
@@ -949,10 +1057,12 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AboutRoute: typeof AboutRoute
+  AiToolsRoute: typeof AiToolsRoute
   AuthRoute: typeof AuthRoute
   CalculatorRoute: typeof CalculatorRoute
   ContactRoute: typeof ContactRoute
   ExclusiveMovingLeadsRoute: typeof ExclusiveMovingLeadsRoute
+  ForMoversRoute: typeof ForMoversRoute
   JoinRoute: typeof JoinRoute
   LeadGenerationRoute: typeof LeadGenerationRoute
   MovingCompanyCrmRoute: typeof MovingCompanyCrmRoute
@@ -963,10 +1073,13 @@ export interface RootRouteChildren {
   MovingScheduleSoftwareRoute: typeof MovingScheduleSoftwareRoute
   OpenMarketplaceRoute: typeof OpenMarketplaceRoute
   RegisterCompanyRoute: typeof RegisterCompanyRoute
+  ResourcesRoute: typeof ResourcesRoute
   RobotsDottxtRoute: typeof RobotsDottxtRoute
+  SearchRoute: typeof SearchRoute
   ServicesRoute: typeof ServicesRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   StoreRoute: typeof StoreRoute
+  StateCityRoute: typeof StateCityRoute
   BlogSlugRoute: typeof BlogSlugRoute
   CitiesCityRoute: typeof CitiesCityRoute
   CompareSlugRoute: typeof CompareSlugRoute
@@ -974,9 +1087,13 @@ export interface RootRouteChildren {
   PartnersLocationRoute: typeof PartnersLocationRoute
   PartnersApplyRoute: typeof PartnersApplyRoute
   PortalQuoteNumberRoute: typeof PortalQuoteNumberRoute
+  RoutesRouteRoute: typeof RoutesRouteRoute
+  StatesStateRoute: typeof StatesStateRoute
   BlogIndexRoute: typeof BlogIndexRoute
   CitiesIndexRoute: typeof CitiesIndexRoute
   PartnersIndexRoute: typeof PartnersIndexRoute
+  RoutesIndexRoute: typeof RoutesIndexRoute
+  StatesIndexRoute: typeof StatesIndexRoute
   ApiPublicSlaTickRoute: typeof ApiPublicSlaTickRoute
 }
 
@@ -1003,11 +1120,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ServicesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/search': {
+      id: '/search'
+      path: '/search'
+      fullPath: '/search'
+      preLoaderRoute: typeof SearchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/robots.txt': {
       id: '/robots.txt'
       path: '/robots.txt'
       fullPath: '/robots.txt'
       preLoaderRoute: typeof RobotsDottxtRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/resources': {
+      id: '/resources'
+      path: '/resources'
+      fullPath: '/resources'
+      preLoaderRoute: typeof ResourcesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/register-company': {
@@ -1080,6 +1211,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof JoinRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/for-movers': {
+      id: '/for-movers'
+      path: '/for-movers'
+      fullPath: '/for-movers'
+      preLoaderRoute: typeof ForMoversRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/exclusive-moving-leads': {
       id: '/exclusive-moving-leads'
       path: '/exclusive-moving-leads'
@@ -1108,6 +1246,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/ai-tools': {
+      id: '/ai-tools'
+      path: '/ai-tools'
+      fullPath: '/ai-tools'
+      preLoaderRoute: typeof AiToolsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/about': {
       id: '/about'
       path: '/about'
@@ -1129,6 +1274,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/states/': {
+      id: '/states/'
+      path: '/states'
+      fullPath: '/states/'
+      preLoaderRoute: typeof StatesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/routes/': {
+      id: '/routes/'
+      path: '/routes'
+      fullPath: '/routes/'
+      preLoaderRoute: typeof RoutesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/partners/': {
       id: '/partners/'
       path: '/partners'
@@ -1148,6 +1307,20 @@ declare module '@tanstack/react-router' {
       path: '/blog'
       fullPath: '/blog/'
       preLoaderRoute: typeof BlogIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/states/$state': {
+      id: '/states/$state'
+      path: '/states/$state'
+      fullPath: '/states/$state'
+      preLoaderRoute: typeof StatesStateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/routes/$route': {
+      id: '/routes/$route'
+      path: '/routes/$route'
+      fullPath: '/routes/$route'
+      preLoaderRoute: typeof RoutesRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/portal/$quoteNumber': {
@@ -1212,6 +1385,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/company'
       preLoaderRoute: typeof AuthenticatedCompanyRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/$state/$city': {
+      id: '/$state/$city'
+      path: '/$state/$city'
+      fullPath: '/$state/$city'
+      preLoaderRoute: typeof StateCityRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_authenticated/customer/': {
       id: '/_authenticated/customer/'
@@ -1611,10 +1791,12 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AboutRoute: AboutRoute,
+  AiToolsRoute: AiToolsRoute,
   AuthRoute: AuthRoute,
   CalculatorRoute: CalculatorRoute,
   ContactRoute: ContactRoute,
   ExclusiveMovingLeadsRoute: ExclusiveMovingLeadsRoute,
+  ForMoversRoute: ForMoversRoute,
   JoinRoute: JoinRoute,
   LeadGenerationRoute: LeadGenerationRoute,
   MovingCompanyCrmRoute: MovingCompanyCrmRoute,
@@ -1625,10 +1807,13 @@ const rootRouteChildren: RootRouteChildren = {
   MovingScheduleSoftwareRoute: MovingScheduleSoftwareRoute,
   OpenMarketplaceRoute: OpenMarketplaceRoute,
   RegisterCompanyRoute: RegisterCompanyRoute,
+  ResourcesRoute: ResourcesRoute,
   RobotsDottxtRoute: RobotsDottxtRoute,
+  SearchRoute: SearchRoute,
   ServicesRoute: ServicesRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   StoreRoute: StoreRoute,
+  StateCityRoute: StateCityRoute,
   BlogSlugRoute: BlogSlugRoute,
   CitiesCityRoute: CitiesCityRoute,
   CompareSlugRoute: CompareSlugRoute,
@@ -1636,9 +1821,13 @@ const rootRouteChildren: RootRouteChildren = {
   PartnersLocationRoute: PartnersLocationRoute,
   PartnersApplyRoute: PartnersApplyRoute,
   PortalQuoteNumberRoute: PortalQuoteNumberRoute,
+  RoutesRouteRoute: RoutesRouteRoute,
+  StatesStateRoute: StatesStateRoute,
   BlogIndexRoute: BlogIndexRoute,
   CitiesIndexRoute: CitiesIndexRoute,
   PartnersIndexRoute: PartnersIndexRoute,
+  RoutesIndexRoute: RoutesIndexRoute,
+  StatesIndexRoute: StatesIndexRoute,
   ApiPublicSlaTickRoute: ApiPublicSlaTickRoute,
 }
 export const routeTree = rootRouteImport

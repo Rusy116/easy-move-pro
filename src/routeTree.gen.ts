@@ -51,6 +51,7 @@ import { Route as AuthenticatedCustomerQuotesRouteImport } from './routes/_authe
 import { Route as AuthenticatedCustomerNotificationsRouteImport } from './routes/_authenticated/customer.notifications'
 import { Route as AuthenticatedCustomerMoveRouteImport } from './routes/_authenticated/customer.move'
 import { Route as AuthenticatedCustomerMessagesRouteImport } from './routes/_authenticated/customer.messages'
+import { Route as AuthenticatedCustomerLibraryRouteImport } from './routes/_authenticated/customer.library'
 import { Route as AuthenticatedCustomerDocumentsRouteImport } from './routes/_authenticated/customer.documents'
 import { Route as AuthenticatedCompanySupportRouteImport } from './routes/_authenticated/company.support'
 import { Route as AuthenticatedCompanySettingsRouteImport } from './routes/_authenticated/company.settings'
@@ -295,6 +296,12 @@ const AuthenticatedCustomerMessagesRoute =
     path: '/customer/messages',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedCustomerLibraryRoute =
+  AuthenticatedCustomerLibraryRouteImport.update({
+    id: '/customer/library',
+    path: '/customer/library',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedCustomerDocumentsRoute =
   AuthenticatedCustomerDocumentsRouteImport.update({
     id: '/customer/documents',
@@ -515,6 +522,7 @@ export interface FileRoutesByFullPath {
   '/company/settings': typeof AuthenticatedCompanySettingsRoute
   '/company/support': typeof AuthenticatedCompanySupportRoute
   '/customer/documents': typeof AuthenticatedCustomerDocumentsRoute
+  '/customer/library': typeof AuthenticatedCustomerLibraryRoute
   '/customer/messages': typeof AuthenticatedCustomerMessagesRoute
   '/customer/move': typeof AuthenticatedCustomerMoveRoute
   '/customer/notifications': typeof AuthenticatedCustomerNotificationsRoute
@@ -584,6 +592,7 @@ export interface FileRoutesByTo {
   '/company/settings': typeof AuthenticatedCompanySettingsRoute
   '/company/support': typeof AuthenticatedCompanySupportRoute
   '/customer/documents': typeof AuthenticatedCustomerDocumentsRoute
+  '/customer/library': typeof AuthenticatedCustomerLibraryRoute
   '/customer/messages': typeof AuthenticatedCustomerMessagesRoute
   '/customer/move': typeof AuthenticatedCustomerMoveRoute
   '/customer/notifications': typeof AuthenticatedCustomerNotificationsRoute
@@ -656,6 +665,7 @@ export interface FileRoutesById {
   '/_authenticated/company/settings': typeof AuthenticatedCompanySettingsRoute
   '/_authenticated/company/support': typeof AuthenticatedCompanySupportRoute
   '/_authenticated/customer/documents': typeof AuthenticatedCustomerDocumentsRoute
+  '/_authenticated/customer/library': typeof AuthenticatedCustomerLibraryRoute
   '/_authenticated/customer/messages': typeof AuthenticatedCustomerMessagesRoute
   '/_authenticated/customer/move': typeof AuthenticatedCustomerMoveRoute
   '/_authenticated/customer/notifications': typeof AuthenticatedCustomerNotificationsRoute
@@ -728,6 +738,7 @@ export interface FileRouteTypes {
     | '/company/settings'
     | '/company/support'
     | '/customer/documents'
+    | '/customer/library'
     | '/customer/messages'
     | '/customer/move'
     | '/customer/notifications'
@@ -797,6 +808,7 @@ export interface FileRouteTypes {
     | '/company/settings'
     | '/company/support'
     | '/customer/documents'
+    | '/customer/library'
     | '/customer/messages'
     | '/customer/move'
     | '/customer/notifications'
@@ -868,6 +880,7 @@ export interface FileRouteTypes {
     | '/_authenticated/company/settings'
     | '/_authenticated/company/support'
     | '/_authenticated/customer/documents'
+    | '/_authenticated/customer/library'
     | '/_authenticated/customer/messages'
     | '/_authenticated/customer/move'
     | '/_authenticated/customer/notifications'
@@ -1211,6 +1224,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCustomerMessagesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/customer/library': {
+      id: '/_authenticated/customer/library'
+      path: '/customer/library'
+      fullPath: '/customer/library'
+      preLoaderRoute: typeof AuthenticatedCustomerLibraryRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/customer/documents': {
       id: '/_authenticated/customer/documents'
       path: '/customer/documents'
@@ -1465,6 +1485,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminUsersRoute: typeof AuthenticatedAdminUsersRoute
   AuthenticatedBrokerPerformanceRoute: typeof AuthenticatedBrokerPerformanceRoute
   AuthenticatedCustomerDocumentsRoute: typeof AuthenticatedCustomerDocumentsRoute
+  AuthenticatedCustomerLibraryRoute: typeof AuthenticatedCustomerLibraryRoute
   AuthenticatedCustomerMessagesRoute: typeof AuthenticatedCustomerMessagesRoute
   AuthenticatedCustomerMoveRoute: typeof AuthenticatedCustomerMoveRoute
   AuthenticatedCustomerNotificationsRoute: typeof AuthenticatedCustomerNotificationsRoute
@@ -1484,6 +1505,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminUsersRoute: AuthenticatedAdminUsersRoute,
   AuthenticatedBrokerPerformanceRoute: AuthenticatedBrokerPerformanceRoute,
   AuthenticatedCustomerDocumentsRoute: AuthenticatedCustomerDocumentsRoute,
+  AuthenticatedCustomerLibraryRoute: AuthenticatedCustomerLibraryRoute,
   AuthenticatedCustomerMessagesRoute: AuthenticatedCustomerMessagesRoute,
   AuthenticatedCustomerMoveRoute: AuthenticatedCustomerMoveRoute,
   AuthenticatedCustomerNotificationsRoute:

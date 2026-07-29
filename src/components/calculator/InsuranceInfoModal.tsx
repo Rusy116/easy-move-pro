@@ -204,8 +204,8 @@ function ModalBody({ d }: { d: InsuranceDetails }) {
           <div className="min-w-0">
             <div className="text-sm font-semibold">Need help choosing?</div>
             <p className="mt-0.5 text-xs text-muted-foreground">
-              Our moving specialist can explain the differences and recommend the best
-              protection for your move.
+              Our moving specialist can explain the differences and recommend the best protection
+              for your move.
             </p>
           </div>
         </div>
@@ -282,9 +282,7 @@ export function InsuranceInfoModal({ tier, open, onOpenChange, onSelect }: Props
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className={cn(
-          "flex max-h-[90vh] flex-col gap-0 overflow-hidden p-0 sm:max-w-xl"
-        )}
+        className={cn("flex max-h-[90vh] flex-col gap-0 overflow-hidden p-0 sm:max-w-xl")}
       >
         <DialogHeader className="border-b px-6 py-4 text-left">
           <DialogTitle className="font-serif text-2xl font-medium tracking-tight">

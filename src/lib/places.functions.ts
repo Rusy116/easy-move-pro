@@ -21,18 +21,19 @@ export const placesAutocomplete = createServerFn({ method: "POST" })
     z
       .object({
         input: z.string().min(2).max(200),
-        zip: z.string().regex(/^\d{5}$/).optional(),
+        zip: z
+          .string()
+          .regex(/^\d{5}$/)
+          .optional(),
         lat: z.number().optional(),
         lng: z.number().optional(),
         radius: z.number().optional(),
       })
-      .parse(data)
+      .parse(data),
   )
   .handler(async ({ data }): Promise<AutocompleteResponse> => {
     if (!placesConfigured()) {
-      console.error(
-        "[places] no server-side Google Maps credential available in this environment"
-      );
+      console.error("[places] no server-side Google Maps credential available in this environment");
       return { suggestions: [], error: "not_configured" };
     }
     const bias =

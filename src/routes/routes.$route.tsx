@@ -23,16 +23,20 @@ export const Route = createFileRoute("/routes/$route")({
       meta: seoMeta({ title, description, path }),
       links: [{ rel: "canonical", href: path }],
       scripts: [
-        jsonLd(serviceSchema({
-          name: `${r.from.name} to ${r.to.name} Moving Service`,
-          description,
-          areaServed: `${r.from.name}, ${r.from.stateCode} — ${r.to.name}, ${r.to.stateCode}`,
-        })),
-        jsonLd(breadcrumbSchema([
-          { name: "Home", url: "/" },
-          { name: "Moving routes", url: "/routes" },
-          { name: `${r.from.name} to ${r.to.name}`, url: path },
-        ])),
+        jsonLd(
+          serviceSchema({
+            name: `${r.from.name} to ${r.to.name} Moving Service`,
+            description,
+            areaServed: `${r.from.name}, ${r.from.stateCode} — ${r.to.name}, ${r.to.stateCode}`,
+          }),
+        ),
+        jsonLd(
+          breadcrumbSchema([
+            { name: "Home", url: "/" },
+            { name: "Moving routes", url: "/routes" },
+            { name: `${r.from.name} to ${r.to.name}`, url: path },
+          ]),
+        ),
         jsonLd(faqSchema(routeFaq(r))),
       ],
     };
@@ -42,7 +46,9 @@ export const Route = createFileRoute("/routes/$route")({
     <SiteLayout>
       <div className="mx-auto max-w-3xl px-4 py-24 text-center">
         <h1 className="font-serif text-4xl">Route not found</h1>
-        <Link to="/routes" className="mt-6 inline-block text-primary hover:underline">Browse all routes →</Link>
+        <Link to="/routes" className="mt-6 inline-block text-primary hover:underline">
+          Browse all routes →
+        </Link>
       </div>
     </SiteLayout>
   ),
@@ -85,7 +91,9 @@ function RoutePage() {
                   ["Typical cost", `$${r.low.toLocaleString()}+`],
                 ].map(([k, v]) => (
                   <div key={k} className="rounded-xl border border-border bg-card p-3">
-                    <dt className="text-[11px] uppercase tracking-widest text-muted-foreground">{k}</dt>
+                    <dt className="text-[11px] uppercase tracking-widest text-muted-foreground">
+                      {k}
+                    </dt>
                     <dd className="mt-1 text-sm font-medium">{v}</dd>
                   </div>
                 ))}
@@ -112,10 +120,11 @@ function RoutePage() {
             What the {r.from.name} to {r.to.name} move costs
           </h2>
           <p className="mt-4 leading-relaxed text-muted-foreground">
-            The lane covers about {r.miles.toLocaleString()} miles and roughly {r.driveHours} hours of
-            driving. Most households pay between ${r.low.toLocaleString()} and ${r.high.toLocaleString()},
-            with shipment weight, packing services, elevator or stair access, and how tight your
-            delivery window is doing most of the work on the final number.
+            The lane covers about {r.miles.toLocaleString()} miles and roughly {r.driveHours} hours
+            of driving. Most households pay between ${r.low.toLocaleString()} and $
+            {r.high.toLocaleString()}, with shipment weight, packing services, elevator or stair
+            access, and how tight your delivery window is doing most of the work on the final
+            number.
           </p>
 
           <h3 className="mt-10 font-serif text-2xl font-medium">Moving tips for this route</h3>
@@ -135,7 +144,10 @@ function RoutePage() {
       <InternalLinks
         title="Related routes and cities"
         links={[
-          ...related.map((x) => ({ label: `${x.from.name} → ${x.to.name}`, to: `/routes/${x.slug}` })),
+          ...related.map((x) => ({
+            label: `${x.from.name} → ${x.to.name}`,
+            to: `/routes/${x.slug}`,
+          })),
           { label: `${r.from.name} Movers`, to: cityPath(r.from) },
           { label: `${r.to.name} Movers`, to: cityPath(r.to) },
         ]}

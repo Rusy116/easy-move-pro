@@ -1,15 +1,26 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import {
-  CompanyHeader, EstimateBuilderDialog, LeadCard, LeadDetailDialog,
-  NoCompanyScreen, StatusBanner, statusTabOf, useMoverPortal,
-  type LeadStatusTab, type MergedLead,
+  CompanyHeader,
+  EstimateBuilderDialog,
+  LeadCard,
+  LeadDetailDialog,
+  NoCompanyScreen,
+  StatusBanner,
+  statusTabOf,
+  useMoverPortal,
+  type LeadStatusTab,
+  type MergedLead,
 } from "@/components/company/portal-shared";
 import { SkeletonRows } from "@/components/shell/Chrome";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
 import { Search, ChevronLeft, ChevronRight, Filter } from "lucide-react";
 
@@ -67,8 +78,10 @@ function LeadsPage() {
     const arr = [...list];
     arr.sort((a, b) => {
       if (sort === "value") {
-        return Number(b.assignment?.quoted_amount ?? b.lead.estimated_high) -
-          Number(a.assignment?.quoted_amount ?? a.lead.estimated_high);
+        return (
+          Number(b.assignment?.quoted_amount ?? b.lead.estimated_high) -
+          Number(a.assignment?.quoted_amount ?? a.lead.estimated_high)
+        );
       }
       if (sort === "move_date") {
         const av = a.lead.move_date ? new Date(a.lead.move_date).getTime() : Infinity;
@@ -76,8 +89,12 @@ function LeadsPage() {
         return av - bv;
       }
       if (sort === "sla") {
-        const av = a.lead.exclusive_expires_at ? new Date(a.lead.exclusive_expires_at).getTime() : Infinity;
-        const bv = b.lead.exclusive_expires_at ? new Date(b.lead.exclusive_expires_at).getTime() : Infinity;
+        const av = a.lead.exclusive_expires_at
+          ? new Date(a.lead.exclusive_expires_at).getTime()
+          : Infinity;
+        const bv = b.lead.exclusive_expires_at
+          ? new Date(b.lead.exclusive_expires_at).getTime()
+          : Infinity;
         return av - bv;
       }
       return new Date(b.lead.created_at).getTime() - new Date(a.lead.created_at).getTime();
@@ -91,9 +108,18 @@ function LeadsPage() {
 
   const counts = useMemo(() => {
     const c: Record<LeadStatusTab, number> = {
-      new: 0, contacted: 0, estimate_sent: 0, scheduled: 0, won: 0, lost: 0, completed: 0,
+      new: 0,
+      contacted: 0,
+      estimate_sent: 0,
+      scheduled: 0,
+      won: 0,
+      lost: 0,
+      completed: 0,
     };
-    for (const r of claimed) { const s = statusTabOf(r); if (s) c[s]++; }
+    for (const r of claimed) {
+      const s = statusTabOf(r);
+      if (s) c[s]++;
+    }
     return c;
   }, [claimed]);
 
@@ -110,9 +136,14 @@ function LeadsPage() {
           {TABS.map((t) => (
             <button
               key={t.id}
-              onClick={() => { setTab(t.id); setPage(0); }}
+              onClick={() => {
+                setTab(t.id);
+                setPage(0);
+              }}
               className={`px-3 py-1.5 text-sm font-medium rounded-full transition-colors ${
-                tab === t.id ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                tab === t.id
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted"
               }`}
             >
               {t.label} <span className="opacity-70">({counts[t.id]})</span>
@@ -123,15 +154,31 @@ function LeadsPage() {
         <div className="flex flex-wrap items-center gap-2">
           <div className="relative flex-1 min-w-[220px]">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input placeholder="Search name, city, phone, email, ID…" className="pl-9" value={q}
-              onChange={(e) => { setQ(e.target.value); setPage(0); }} />
+            <Input
+              placeholder="Search name, city, phone, email, ID…"
+              className="pl-9"
+              value={q}
+              onChange={(e) => {
+                setQ(e.target.value);
+                setPage(0);
+              }}
+            />
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <div className="flex items-center gap-1 text-xs text-muted-foreground">
-              <Filter className="h-3.5 w-3.5" />Filter
+              <Filter className="h-3.5 w-3.5" />
+              Filter
             </div>
-            <Select value={phase} onValueChange={(v) => { setPhase(v as PhaseKey); setPage(0); }}>
-              <SelectTrigger className="w-[140px] h-9"><SelectValue placeholder="Phase" /></SelectTrigger>
+            <Select
+              value={phase}
+              onValueChange={(v) => {
+                setPhase(v as PhaseKey);
+                setPage(0);
+              }}
+            >
+              <SelectTrigger className="w-[140px] h-9">
+                <SelectValue placeholder="Phase" />
+              </SelectTrigger>
               <SelectContent>
                 <SelectItem value="any">Any phase</SelectItem>
                 <SelectItem value="exclusive">Exclusive</SelectItem>
@@ -139,8 +186,16 @@ function LeadsPage() {
                 <SelectItem value="closed">Closed</SelectItem>
               </SelectContent>
             </Select>
-            <Select value={move} onValueChange={(v) => { setMove(v as MoveKey); setPage(0); }}>
-              <SelectTrigger className="w-[140px] h-9"><SelectValue placeholder="Move type" /></SelectTrigger>
+            <Select
+              value={move}
+              onValueChange={(v) => {
+                setMove(v as MoveKey);
+                setPage(0);
+              }}
+            >
+              <SelectTrigger className="w-[140px] h-9">
+                <SelectValue placeholder="Move type" />
+              </SelectTrigger>
               <SelectContent>
                 <SelectItem value="any">Any type</SelectItem>
                 <SelectItem value="local">Local</SelectItem>
@@ -149,7 +204,9 @@ function LeadsPage() {
               </SelectContent>
             </Select>
             <Select value={sort} onValueChange={(v) => setSort(v as SortKey)}>
-              <SelectTrigger className="w-[160px] h-9"><SelectValue placeholder="Sort" /></SelectTrigger>
+              <SelectTrigger className="w-[160px] h-9">
+                <SelectValue placeholder="Sort" />
+              </SelectTrigger>
               <SelectContent>
                 <SelectItem value="recent">Most recent</SelectItem>
                 <SelectItem value="move_date">Move date</SelectItem>
@@ -181,14 +238,27 @@ function LeadsPage() {
         {filtered.length > PAGE_SIZE && (
           <div className="flex items-center justify-between pt-2 border-t border-border">
             <div className="text-xs text-muted-foreground">
-              Showing {currentPage * PAGE_SIZE + 1}–{Math.min((currentPage + 1) * PAGE_SIZE, filtered.length)} of {filtered.length}
+              Showing {currentPage * PAGE_SIZE + 1}–
+              {Math.min((currentPage + 1) * PAGE_SIZE, filtered.length)} of {filtered.length}
             </div>
             <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm" onClick={() => setPage((p) => Math.max(0, p - 1))} disabled={currentPage === 0}>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPage((p) => Math.max(0, p - 1))}
+                disabled={currentPage === 0}
+              >
                 <ChevronLeft className="h-4 w-4" />
               </Button>
-              <span className="text-sm">Page {currentPage + 1} / {pageCount}</span>
-              <Button variant="outline" size="sm" onClick={() => setPage((p) => Math.min(pageCount - 1, p + 1))} disabled={currentPage >= pageCount - 1}>
+              <span className="text-sm">
+                Page {currentPage + 1} / {pageCount}
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPage((p) => Math.min(pageCount - 1, p + 1))}
+                disabled={currentPage >= pageCount - 1}
+              >
                 <ChevronRight className="h-4 w-4" />
               </Button>
             </div>
@@ -201,7 +271,10 @@ function LeadsPage() {
           merged={selected}
           onClose={() => setSelected(null)}
           onReload={reload}
-          onEstimate={() => { setEstimateFor(selected); setSelected(null); }}
+          onEstimate={() => {
+            setEstimateFor(selected);
+            setSelected(null);
+          }}
           canClaim={canClaim}
         />
       )}
@@ -210,7 +283,10 @@ function LeadsPage() {
           merged={estimateFor}
           companyId={company.id}
           onClose={() => setEstimateFor(null)}
-          onSubmitted={() => { setEstimateFor(null); reload(); }}
+          onSubmitted={() => {
+            setEstimateFor(null);
+            reload();
+          }}
         />
       )}
     </div>

@@ -13,10 +13,12 @@ export const Route = createFileRoute("/states/")({
     meta: seoMeta({ title: TITLE, description: DESC, path: "/states" }),
     links: [{ rel: "canonical", href: "/states" }],
     scripts: [
-      jsonLd(breadcrumbSchema([
-        { name: "Home", url: "/" },
-        { name: "Movers by state", url: "/states" },
-      ])),
+      jsonLd(
+        breadcrumbSchema([
+          { name: "Home", url: "/" },
+          { name: "Movers by state", url: "/states" },
+        ]),
+      ),
     ],
   }),
   component: StatesIndex,
@@ -27,7 +29,9 @@ function StatesIndex() {
     <SiteLayout>
       <Breadcrumbs items={[{ label: "Home", to: "/" }, { label: "Movers by state" }]} />
       <section className="mx-auto max-w-7xl px-4 sm:px-6 py-16 sm:py-24">
-        <span className="text-xs font-semibold uppercase tracking-widest text-ochre">Nationwide coverage</span>
+        <span className="text-xs font-semibold uppercase tracking-widest text-ochre">
+          Nationwide coverage
+        </span>
         <h1 className="mt-3 font-serif text-5xl font-medium">Movers by state.</h1>
         <p className="mt-4 max-w-2xl text-lg text-muted-foreground">
           Pick your state to see city-level moving costs, vetted local partners and instant quotes.
@@ -51,7 +55,10 @@ function StatesIndex() {
                 </div>
                 <p className="mt-3 text-sm text-muted-foreground">
                   {cities.length} {cities.length === 1 ? "city" : "cities"} ·{" "}
-                  {cities.slice(0, 3).map((c) => c.name).join(", ")}
+                  {cities
+                    .slice(0, 3)
+                    .map((c) => c.name)
+                    .join(", ")}
                   {cities.length > 3 ? "…" : ""}
                 </p>
               </Link>

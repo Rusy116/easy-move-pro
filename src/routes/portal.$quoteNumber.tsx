@@ -77,7 +77,6 @@ type QuoteRow = {
   customer_response_at: string | null;
 };
 
-
 function money(n: number | null | undefined) {
   return typeof n === "number" ? `$${Math.round(n).toLocaleString("en-US")}` : "—";
 }
@@ -92,7 +91,6 @@ function PortalPage() {
   const [error, setError] = useState<string | null>(null);
   const [accepting, setAccepting] = useState(false);
   const [responding, setResponding] = useState(false);
-
 
   useEffect(() => {
     let cancelled = false;
@@ -167,7 +165,6 @@ function PortalPage() {
     toast.success(accept ? "Final quote accepted." : "Final quote rejected.");
   }
 
-
   async function handleAccept() {
     if (!quote || !token) return;
     setAccepting(true);
@@ -197,8 +194,7 @@ function PortalPage() {
       quoteNumber: quote.quote_number,
       createdAtISO: quote.created_at,
       customer: {
-        fullName:
-          (quote.details && (quote.details as Record<string, string>).fullName) || "—",
+        fullName: (quote.details && (quote.details as Record<string, string>).fullName) || "—",
         email: quote.contact_email ?? "—",
         phone: quote.contact_phone ?? "—",
       },
@@ -281,7 +277,8 @@ function PortalPage() {
               {quote.quote_number}
             </h1>
             <p className="mt-2 text-sm text-muted-foreground">
-              Created {new Date(quote.created_at).toLocaleDateString("en-US", {
+              Created{" "}
+              {new Date(quote.created_at).toLocaleDateString("en-US", {
                 month: "long",
                 day: "numeric",
                 year: "numeric",
@@ -342,7 +339,11 @@ function PortalPage() {
                   size="lg"
                   className="rounded-full bg-emerald-600 text-white hover:bg-emerald-700"
                 >
-                  {responding ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <CheckCircle2 className="mr-2 h-4 w-4" />}
+                  {responding ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : (
+                    <CheckCircle2 className="mr-2 h-4 w-4" />
+                  )}
                   Accept Final Quote
                 </Button>
                 <Button
@@ -380,8 +381,13 @@ function PortalPage() {
             <span className="inline-flex items-center gap-1.5">
               <Truck className="h-4 w-4" /> {quote.truck_size ?? "—"}
             </span>
-            <span>{quote.num_movers ?? 0} movers · {quote.labor_hours?.toFixed(1) ?? "—"} hrs</span>
-            <span>{quote.estimated_cubic_feet ?? 0} cu ft · {quote.estimated_weight_lbs?.toLocaleString() ?? 0} lbs</span>
+            <span>
+              {quote.num_movers ?? 0} movers · {quote.labor_hours?.toFixed(1) ?? "—"} hrs
+            </span>
+            <span>
+              {quote.estimated_cubic_feet ?? 0} cu ft ·{" "}
+              {quote.estimated_weight_lbs?.toLocaleString() ?? 0} lbs
+            </span>
             <span>{quote.distance_miles ?? 0} mi</span>
           </div>
 
@@ -401,8 +407,8 @@ function PortalPage() {
                 Accept Estimate
               </Button>
               <p className="text-xs text-muted-foreground">
-                Accepting lets your moving specialist finalize scheduling. Non-binding — final
-                price confirmed after inspection.
+                Accepting lets your moving specialist finalize scheduling. Non-binding — final price
+                confirmed after inspection.
               </p>
             </div>
           ) : (
@@ -423,14 +429,16 @@ function PortalPage() {
             title="Origin"
             icon={<MapPin className="h-4 w-4" />}
             lines={[
-              quote.origin_address || `${quote.origin_city}, ${quote.origin_state} ${quote.origin_zip}`,
+              quote.origin_address ||
+                `${quote.origin_city}, ${quote.origin_state} ${quote.origin_zip}`,
             ]}
           />
           <InfoCard
             title="Destination"
             icon={<MapPin className="h-4 w-4" />}
             lines={[
-              quote.destination_address || `${quote.destination_city}, ${quote.destination_state} ${quote.destination_zip}`,
+              quote.destination_address ||
+                `${quote.destination_city}, ${quote.destination_state} ${quote.destination_zip}`,
             ]}
           />
           <InfoCard

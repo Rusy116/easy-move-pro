@@ -45,7 +45,7 @@ function approximateDistance(origin: ZipLocation, destination: ZipLocation): Ser
 
 async function googleDrivingDistance(
   origin: ZipLocation,
-  destination: ZipLocation
+  destination: ZipLocation,
 ): Promise<Pick<ServerDistanceResult, "miles" | "durationMinutes" | "provider"> | null> {
   if (mapsTransportMode() === "unavailable") return null;
 
@@ -83,7 +83,8 @@ async function googleDrivingDistance(
   const seconds = Number(route.duration?.replace("s", "")) || 0;
   return {
     miles: Math.max(1, Math.round(route.distanceMeters / 1609.344)),
-    durationMinutes: seconds > 0 ? Math.round(seconds / 60) : estimateDuration(route.distanceMeters / 1609.344),
+    durationMinutes:
+      seconds > 0 ? Math.round(seconds / 60) : estimateDuration(route.distanceMeters / 1609.344),
     provider: "google-maps",
   };
 }
@@ -92,7 +93,7 @@ export async function computeServerDistance(
   originZip: string,
   destinationZip: string,
   originCoords?: { lat: number; lng: number } | null,
-  destinationCoords?: { lat: number; lng: number } | null
+  destinationCoords?: { lat: number; lng: number } | null,
 ): Promise<ServerDistanceResult | null> {
   const [originZipLoc, destinationZipLoc] = await Promise.all([
     zipLocation(originZip),

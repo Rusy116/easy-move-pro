@@ -11,13 +11,17 @@ import { GEO_CITIES, GEO_ROUTES, cityPath } from "@/lib/seo/geo";
 import { RESOURCES } from "@/lib/seo/public-content";
 
 const TITLE = "Search — Cities, Guides, Resources & Products | Easy Moving";
-const DESC = "Search Easy Moving for city moving costs, routes, guides, free resources and digital planning products.";
+const DESC =
+  "Search Easy Moving for city moving costs, routes, guides, free resources and digital planning products.";
 
 type Hit = { group: string; label: string; sub?: string; to: string };
 
 export const Route = createFileRoute("/search")({
   head: () => ({
-    meta: [...seoMeta({ title: TITLE, description: DESC, path: "/search" }), { name: "robots", content: "noindex" }],
+    meta: [
+      ...seoMeta({ title: TITLE, description: DESC, path: "/search" }),
+      { name: "robots", content: "noindex" },
+    ],
     links: [{ rel: "canonical", href: "/search" }],
   }),
   component: SearchPage,
@@ -59,19 +63,41 @@ function SearchPage() {
     const out: Hit[] = [];
     GEO_CITIES.filter((c) => match(c.name, c.stateName, c.stateCode))
       .slice(0, 10)
-      .forEach((c) => out.push({ group: "Cities", label: `${c.name} Movers`, sub: c.stateName, to: cityPath(c) }));
+      .forEach((c) =>
+        out.push({ group: "Cities", label: `${c.name} Movers`, sub: c.stateName, to: cityPath(c) }),
+      );
     GEO_ROUTES.filter((r) => match(r.from.name, r.to.name))
       .slice(0, 8)
-      .forEach((r) => out.push({ group: "Routes", label: `${r.from.name} → ${r.to.name}`, sub: `${r.miles.toLocaleString()} mi`, to: `/routes/${r.slug}` }));
-    posts.filter((p) => match(p.title, p.excerpt))
+      .forEach((r) =>
+        out.push({
+          group: "Routes",
+          label: `${r.from.name} → ${r.to.name}`,
+          sub: `${r.miles.toLocaleString()} mi`,
+          to: `/routes/${r.slug}`,
+        }),
+      );
+    posts
+      .filter((p) => match(p.title, p.excerpt))
       .slice(0, 8)
-      .forEach((p) => out.push({ group: "Blog", label: p.title, sub: p.excerpt ?? undefined, to: `/blog/${p.slug}` }));
+      .forEach((p) =>
+        out.push({
+          group: "Blog",
+          label: p.title,
+          sub: p.excerpt ?? undefined,
+          to: `/blog/${p.slug}`,
+        }),
+      );
     RESOURCES.filter((r) => match(r.title, r.description))
       .slice(0, 8)
-      .forEach((r) => out.push({ group: "Resources", label: r.title, sub: r.description, to: "/resources" }));
-    products.filter((p) => match(p.title, p.description))
+      .forEach((r) =>
+        out.push({ group: "Resources", label: r.title, sub: r.description, to: "/resources" }),
+      );
+    products
+      .filter((p) => match(p.title, p.description))
       .slice(0, 8)
-      .forEach((p) => out.push({ group: "Store", label: p.title, sub: p.description ?? undefined, to: "/store" }));
+      .forEach((p) =>
+        out.push({ group: "Store", label: p.title, sub: p.description ?? undefined, to: "/store" }),
+      );
     return out;
   }, [term, posts, products]);
 
@@ -107,16 +133,27 @@ function SearchPage() {
         <div className="mt-10 space-y-10">
           {groups.map((g) => (
             <div key={g}>
-              <h2 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">{g}</h2>
+              <h2 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+                {g}
+              </h2>
               <ul className="mt-3 divide-y divide-border rounded-2xl border border-border bg-card">
-                {hits.filter((h) => h.group === g).map((h) => (
-                  <li key={`${h.group}-${h.to}-${h.label}`}>
-                    <Link to={h.to as "/"} className="block px-5 py-4 hover:bg-muted/40 transition-colors">
-                      <div className="font-medium">{h.label}</div>
-                      {h.sub && <div className="mt-0.5 line-clamp-1 text-sm text-muted-foreground">{h.sub}</div>}
-                    </Link>
-                  </li>
-                ))}
+                {hits
+                  .filter((h) => h.group === g)
+                  .map((h) => (
+                    <li key={`${h.group}-${h.to}-${h.label}`}>
+                      <Link
+                        to={h.to as "/"}
+                        className="block px-5 py-4 hover:bg-muted/40 transition-colors"
+                      >
+                        <div className="font-medium">{h.label}</div>
+                        {h.sub && (
+                          <div className="mt-0.5 line-clamp-1 text-sm text-muted-foreground">
+                            {h.sub}
+                          </div>
+                        )}
+                      </Link>
+                    </li>
+                  ))}
               </ul>
             </div>
           ))}

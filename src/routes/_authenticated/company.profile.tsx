@@ -40,19 +40,28 @@ function ProfilePage() {
   async function save() {
     if (!company) return;
     setSaving(true);
-    const service_states = states.split(",").map((s) => s.trim().toUpperCase()).filter(Boolean);
-    const { error } = await supabase.from("moving_companies").update({
-      name: name.trim(),
-      logo_url: logoUrl.trim() || null,
-      phone: phone.trim() || null,
-      email: email.trim() || null,
-      dot_number: dot.trim() || null,
-      mc_number: mc.trim() || null,
-      service_states,
-    }).eq("id", company.id);
+    const service_states = states
+      .split(",")
+      .map((s) => s.trim().toUpperCase())
+      .filter(Boolean);
+    const { error } = await supabase
+      .from("moving_companies")
+      .update({
+        name: name.trim(),
+        logo_url: logoUrl.trim() || null,
+        phone: phone.trim() || null,
+        email: email.trim() || null,
+        dot_number: dot.trim() || null,
+        mc_number: mc.trim() || null,
+        service_states,
+      })
+      .eq("id", company.id);
     setSaving(false);
     if (error) toast.error(error.message);
-    else { toast.success("Profile updated"); reload(); }
+    else {
+      toast.success("Profile updated");
+      reload();
+    }
   }
 
   if (loading && !company) return <SkeletonRows n={4} />;
@@ -71,11 +80,21 @@ function ProfilePage() {
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-1.5">
             <Label htmlFor="name">Company name</Label>
-            <Input id="name" value={name} onChange={(e) => setName(e.target.value)} maxLength={120} />
+            <Input
+              id="name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              maxLength={120}
+            />
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="logo">Logo URL</Label>
-            <Input id="logo" value={logoUrl} onChange={(e) => setLogoUrl(e.target.value)} placeholder="https://…" />
+            <Input
+              id="logo"
+              value={logoUrl}
+              onChange={(e) => setLogoUrl(e.target.value)}
+              placeholder="https://…"
+            />
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="phone">Phone</Label>
@@ -83,7 +102,12 @@ function ProfilePage() {
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="email">Email</Label>
-            <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+            <Input
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="dot">DOT number</Label>
@@ -95,12 +119,20 @@ function ProfilePage() {
           </div>
           <div className="space-y-1.5 sm:col-span-2">
             <Label htmlFor="states">Service states (comma-separated codes)</Label>
-            <Textarea id="states" rows={2} value={states} onChange={(e) => setStates(e.target.value)} placeholder="NY, NJ, CT" />
+            <Textarea
+              id="states"
+              rows={2}
+              value={states}
+              onChange={(e) => setStates(e.target.value)}
+              placeholder="NY, NJ, CT"
+            />
           </div>
         </div>
 
         <div className="flex items-center justify-between text-xs text-muted-foreground">
-          <span>License status: <b className="text-foreground">{company.license_status}</b></span>
+          <span>
+            License status: <b className="text-foreground">{company.license_status}</b>
+          </span>
           <span>
             {company.approved === false && "Pending approval · "}
             {company.suspended === true ? "Suspended" : "Active partner"}

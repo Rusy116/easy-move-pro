@@ -38,7 +38,9 @@ export const Route = createFileRoute("/blog/$slug")({
     <SiteLayout>
       <div className="mx-auto max-w-3xl px-4 py-24 text-center">
         <h1 className="font-serif text-4xl">Post not found</h1>
-        <Link to="/blog" className="mt-6 inline-block text-primary hover:underline">Back to blog →</Link>
+        <Link to="/blog" className="mt-6 inline-block text-primary hover:underline">
+          Back to blog →
+        </Link>
       </div>
     </SiteLayout>
   ),
@@ -50,11 +52,17 @@ function PostPage() {
   return (
     <SiteLayout>
       <article className="mx-auto max-w-3xl px-4 sm:px-6 py-16 sm:py-24">
-        <Link to="/blog" className="text-sm text-muted-foreground hover:text-foreground">← All guides</Link>
+        <Link to="/blog" className="text-sm text-muted-foreground hover:text-foreground">
+          ← All guides
+        </Link>
         <h1 className="mt-4 font-serif text-5xl font-medium leading-tight">{post.title}</h1>
         {post.published_at && (
           <div className="mt-3 text-sm text-muted-foreground">
-            {new Date(post.published_at).toLocaleDateString(undefined, { month: "long", day: "numeric", year: "numeric" })}
+            {new Date(post.published_at).toLocaleDateString(undefined, {
+              month: "long",
+              day: "numeric",
+              year: "numeric",
+            })}
           </div>
         )}
         <div className="prose prose-neutral mt-10 max-w-none text-lg leading-relaxed text-foreground whitespace-pre-wrap">

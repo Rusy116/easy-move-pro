@@ -31,10 +31,12 @@ export const Route = createFileRoute("/store")({
     meta: seoMeta({ title: TITLE, description: DESC, path: "/store" }),
     links: [{ rel: "canonical", href: "/store" }],
     scripts: [
-      jsonLd(breadcrumbSchema([
-        { name: "Home", url: "/" },
-        { name: "Digital store", url: "/store" },
-      ])),
+      jsonLd(
+        breadcrumbSchema([
+          { name: "Home", url: "/" },
+          { name: "Digital store", url: "/store" },
+        ]),
+      ),
     ],
   }),
   loader: ({ context }) => {
@@ -54,7 +56,9 @@ function StorePage() {
   const visible = cat === "all" ? tagged : tagged.filter((p) => p.category === cat);
   const counts = useMemo(() => {
     const m: Partial<Record<StoreCategory, number>> = {};
-    tagged.forEach((p) => { m[p.category] = (m[p.category] ?? 0) + 1; });
+    tagged.forEach((p) => {
+      m[p.category] = (m[p.category] ?? 0) + 1;
+    });
     return m;
   }, [tagged]);
 
@@ -62,7 +66,9 @@ function StorePage() {
     <SiteLayout>
       <Breadcrumbs items={[{ label: "Home", to: "/" }, { label: "Digital store" }]} />
       <section className="mx-auto max-w-7xl px-4 sm:px-6 py-16 sm:py-24">
-        <span className="text-xs font-semibold uppercase tracking-widest text-ochre">Digital store</span>
+        <span className="text-xs font-semibold uppercase tracking-widest text-ochre">
+          Digital store
+        </span>
         <h1 className="mt-3 font-serif text-5xl font-medium">Move like a pro.</h1>
         <p className="mt-4 max-w-2xl text-lg text-muted-foreground">
           Templates, trackers, and printable guides built by professional relocation coordinators.
@@ -99,7 +105,10 @@ function StorePage() {
               ) : (
                 <div
                   className="aspect-[4/3] rounded-xl"
-                  style={{ background: "linear-gradient(135deg, oklch(0.94 0.02 155), oklch(0.86 0.05 55))" }}
+                  style={{
+                    background:
+                      "linear-gradient(135deg, oklch(0.94 0.02 155), oklch(0.86 0.05 55))",
+                  }}
                 />
               )}
               <span className="mt-5 inline-flex w-fit rounded-full border border-border px-2.5 py-1 text-[11px] uppercase tracking-widest text-muted-foreground">
@@ -119,7 +128,9 @@ function StorePage() {
                   </Button>
                   <Button
                     className="rounded-full"
-                    onClick={() => toast.info("Checkout coming soon — enable payments to accept orders.")}
+                    onClick={() =>
+                      toast.info("Checkout coming soon — enable payments to accept orders.")
+                    }
                   >
                     Buy now
                   </Button>
@@ -154,8 +165,14 @@ function StorePage() {
 }
 
 function CatChip({
-  active, onClick, children,
-}: { active: boolean; onClick: () => void; children: React.ReactNode }) {
+  active,
+  onClick,
+  children,
+}: {
+  active: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
   return (
     <button
       type="button"

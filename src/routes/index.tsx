@@ -64,17 +64,20 @@ const FEATURES = [
 
 const TESTIMONIALS = [
   {
-    quote: "The instant quote was exactly what we paid. It felt more like booking a flight than moving a house.",
+    quote:
+      "The instant quote was exactly what we paid. It felt more like booking a flight than moving a house.",
     name: "Sarah Jenkins",
     detail: "NYC → LA · 2BR apartment",
   },
   {
-    quote: "Three vetted crews, real prices, no phone tag. We picked the one with the best reviews and were done.",
+    quote:
+      "Three vetted crews, real prices, no phone tag. We picked the one with the best reviews and were done.",
     name: "Marcus Chen",
     detail: "Austin → Seattle · 3BR house",
   },
   {
-    quote: "The AI packing checklist alone saved us a weekend. Everything landed labeled and unbroken.",
+    quote:
+      "The AI packing checklist alone saved us a weekend. Everything landed labeled and unbroken.",
     name: "Priya Patel",
     detail: "Chicago → Denver · Studio",
   },
@@ -108,8 +111,14 @@ function HomePage() {
       {/* Hero */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 grid-lines opacity-60" aria-hidden />
-        <div className="pointer-events-none absolute -top-40 -right-40 h-[520px] w-[520px] rounded-full bg-ochre/20 blur-3xl" aria-hidden />
-        <div className="pointer-events-none absolute -bottom-40 -left-40 h-[520px] w-[520px] rounded-full bg-sage/20 blur-3xl" aria-hidden />
+        <div
+          className="pointer-events-none absolute -top-40 -right-40 h-[520px] w-[520px] rounded-full bg-ochre/20 blur-3xl"
+          aria-hidden
+        />
+        <div
+          className="pointer-events-none absolute -bottom-40 -left-40 h-[520px] w-[520px] rounded-full bg-sage/20 blur-3xl"
+          aria-hidden
+        />
 
         <div className="relative mx-auto max-w-7xl px-4 pt-14 pb-16 sm:px-6 sm:pt-24 sm:pb-24">
           <div className="mx-auto max-w-3xl text-center animate-fade-up">
@@ -118,12 +127,11 @@ function HomePage() {
               AI-powered moving marketplace
             </span>
             <h1 className="mt-6 text-balance font-serif text-[2.75rem] font-medium leading-[1.02] tracking-tight sm:text-6xl md:text-[5rem]">
-              Moving,{" "}
-              <span className="text-gradient-brand italic">made simple.</span>
+              Moving, <span className="text-gradient-brand italic">made simple.</span>
             </h1>
             <p className="mx-auto mt-6 max-w-2xl text-pretty text-base leading-relaxed text-muted-foreground sm:text-lg">
-              Compare vetted moving companies, get an honest instant quote, and plan
-              your move with AI — nationwide, no sales calls, no surprises.
+              Compare vetted moving companies, get an honest instant quote, and plan your move with
+              AI — nationwide, no sales calls, no surprises.
             </p>
             <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:mt-10 sm:flex-row">
               <Link to="/calculator" className="w-full sm:w-auto">
@@ -138,19 +146,22 @@ function HomePage() {
               </Link>
             </div>
             <div className="mt-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs text-muted-foreground">
-              <span className="inline-flex items-center gap-1.5"><CheckCircle2 className="h-3.5 w-3.5 text-sage" /> No signup required</span>
-              <span className="inline-flex items-center gap-1.5"><CheckCircle2 className="h-3.5 w-3.5 text-sage" /> Licensed & insured</span>
-              <span className="inline-flex items-center gap-1.5"><CheckCircle2 className="h-3.5 w-3.5 text-sage" /> Locked-in rates</span>
+              <span className="inline-flex items-center gap-1.5">
+                <CheckCircle2 className="h-3.5 w-3.5 text-sage" /> No signup required
+              </span>
+              <span className="inline-flex items-center gap-1.5">
+                <CheckCircle2 className="h-3.5 w-3.5 text-sage" /> Licensed & insured
+              </span>
+              <span className="inline-flex items-center gap-1.5">
+                <CheckCircle2 className="h-3.5 w-3.5 text-sage" /> Locked-in rates
+              </span>
             </div>
           </div>
 
           <div className="mx-auto mt-12 max-w-5xl sm:mt-16">
             <QuoteCalculator compact />
             <div className="mt-4 text-center">
-              <Link
-                to="/calculator"
-                className="text-sm font-medium text-primary hover:underline"
-              >
+              <Link to="/calculator" className="text-sm font-medium text-primary hover:underline">
                 Open the full calculator →
               </Link>
             </div>
@@ -163,8 +174,12 @@ function HomePage() {
         <div className="mx-auto grid max-w-7xl grid-cols-2 gap-6 px-4 py-10 sm:grid-cols-4 sm:px-6">
           {STATS.map((s) => (
             <div key={s.label} className="text-center sm:text-left">
-              <div className="font-serif text-3xl font-medium text-foreground sm:text-4xl">{s.value}</div>
-              <div className="mt-1 text-xs uppercase tracking-widest text-muted-foreground">{s.label}</div>
+              <div className="font-serif text-3xl font-medium text-foreground sm:text-4xl">
+                {s.value}
+              </div>
+              <div className="mt-1 text-xs uppercase tracking-widest text-muted-foreground">
+                {s.label}
+              </div>
             </div>
           ))}
         </div>
@@ -183,7 +198,9 @@ function HomePage() {
           <div className="absolute inset-0 bg-gradient-to-tr from-black/70 via-black/20 to-transparent" />
           <div className="absolute inset-x-0 bottom-0 p-6 text-white sm:p-10">
             <div className="max-w-lg">
-              <span className="text-xs font-semibold uppercase tracking-widest opacity-80">Move-day precision</span>
+              <span className="text-xs font-semibold uppercase tracking-widest opacity-80">
+                Move-day precision
+              </span>
               <h2 className="mt-2 font-serif text-2xl font-medium sm:text-4xl">
                 Every box, tracked. Every rate, transparent.
               </h2>
@@ -195,17 +212,41 @@ function HomePage() {
       {/* Three steps */}
       <section className="mx-auto max-w-7xl px-4 pb-16 sm:px-6 sm:pb-24">
         <div className="max-w-2xl">
-          <span className="text-xs font-semibold uppercase tracking-widest text-ochre">How it works</span>
-          <h2 className="mt-3 font-serif text-3xl font-medium sm:text-4xl">A move, in three unhurried steps.</h2>
+          <span className="text-xs font-semibold uppercase tracking-widest text-ochre">
+            How it works
+          </span>
+          <h2 className="mt-3 font-serif text-3xl font-medium sm:text-4xl">
+            A move, in three unhurried steps.
+          </h2>
         </div>
         <div className="mt-10 grid gap-4 sm:mt-12 sm:gap-6 md:grid-cols-3">
           {[
-            { n: "01", icon: PackageCheck, title: "Tell us your move", copy: "ZIP to ZIP, bedrooms, dates. It takes 30 seconds." },
-            { n: "02", icon: Truck, title: "Compare vetted movers", copy: "We match you with 3 crews with real prices and reviews." },
-            { n: "03", icon: ShieldCheck, title: "Book with confidence", copy: "Locked-in rates, licensed & insured, AI-tracked timeline." },
+            {
+              n: "01",
+              icon: PackageCheck,
+              title: "Tell us your move",
+              copy: "ZIP to ZIP, bedrooms, dates. It takes 30 seconds.",
+            },
+            {
+              n: "02",
+              icon: Truck,
+              title: "Compare vetted movers",
+              copy: "We match you with 3 crews with real prices and reviews.",
+            },
+            {
+              n: "03",
+              icon: ShieldCheck,
+              title: "Book with confidence",
+              copy: "Locked-in rates, licensed & insured, AI-tracked timeline.",
+            },
           ].map(({ n, icon: Icon, title, copy }) => (
-            <div key={title} className="group relative rounded-2xl border border-border bg-card p-6 transition-all hover:-translate-y-1 hover:shadow-xl">
-              <div className="absolute right-5 top-5 font-serif text-xs text-muted-foreground/60">{n}</div>
+            <div
+              key={title}
+              className="group relative rounded-2xl border border-border bg-card p-6 transition-all hover:-translate-y-1 hover:shadow-xl"
+            >
+              <div className="absolute right-5 top-5 font-serif text-xs text-muted-foreground/60">
+                {n}
+              </div>
               <div className="grid h-11 w-11 place-items-center rounded-xl bg-accent text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
                 <Icon className="h-5 w-5" />
               </div>
@@ -221,15 +262,20 @@ function HomePage() {
         <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24">
           <div className="grid gap-10 md:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)] md:items-start md:gap-16">
             <div className="md:sticky md:top-24">
-              <span className="text-xs font-semibold uppercase tracking-widest text-ochre">Why Easy Move Pro</span>
+              <span className="text-xs font-semibold uppercase tracking-widest text-ochre">
+                Why Easy Move Pro
+              </span>
               <h2 className="mt-3 font-serif text-3xl font-medium sm:text-4xl">
                 Built for the way people actually move.
               </h2>
               <p className="mt-4 text-muted-foreground">
-                Old-school brokers hide behind sales calls. We show you the price, the
-                crew, and the reviews — before you talk to anyone.
+                Old-school brokers hide behind sales calls. We show you the price, the crew, and the
+                reviews — before you talk to anyone.
               </p>
-              <Link to="/about" className="mt-6 inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline">
+              <Link
+                to="/about"
+                className="mt-6 inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline"
+              >
                 Our story <ArrowRight className="h-3.5 w-3.5" />
               </Link>
             </div>
@@ -252,8 +298,12 @@ function HomePage() {
       <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24">
         <div className="mb-8 grid grid-cols-[minmax(0,1fr)_auto] items-end gap-4 sm:mb-10">
           <div className="min-w-0">
-            <span className="text-xs font-semibold uppercase tracking-widest text-ochre">Nationwide coverage</span>
-            <h2 className="mt-3 font-serif text-3xl font-medium sm:text-4xl">Every major US metro.</h2>
+            <span className="text-xs font-semibold uppercase tracking-widest text-ochre">
+              Nationwide coverage
+            </span>
+            <h2 className="mt-3 font-serif text-3xl font-medium sm:text-4xl">
+              Every major US metro.
+            </h2>
           </div>
           <Link to="/cities" className="shrink-0 text-sm font-medium text-primary hover:underline">
             View all →
@@ -285,7 +335,9 @@ function HomePage() {
       <section className="border-t border-border bg-primary text-primary-foreground">
         <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24">
           <div className="max-w-2xl">
-            <span className="text-xs font-semibold uppercase tracking-widest text-ochre">Real customers</span>
+            <span className="text-xs font-semibold uppercase tracking-widest text-ochre">
+              Real customers
+            </span>
             <h2 className="mt-3 font-serif text-3xl font-medium sm:text-4xl">
               People move once. They remember how it felt.
             </h2>
@@ -301,7 +353,9 @@ function HomePage() {
                     <Star key={i} className="h-3.5 w-3.5 fill-current" />
                   ))}
                 </div>
-                <blockquote className="mt-4 font-serif text-lg leading-snug">"{t.quote}"</blockquote>
+                <blockquote className="mt-4 font-serif text-lg leading-snug">
+                  "{t.quote}"
+                </blockquote>
                 <figcaption className="mt-6 border-t border-primary-foreground/10 pt-4 text-sm">
                   <div className="font-medium">{t.name}</div>
                   <div className="text-xs opacity-70">{t.detail}</div>
@@ -315,11 +369,16 @@ function HomePage() {
       {/* CTA */}
       <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24">
         <div className="relative overflow-hidden rounded-3xl border border-border bg-card p-8 text-center sm:p-16">
-          <div className="pointer-events-none absolute -top-24 left-1/2 h-64 w-[600px] -translate-x-1/2 rounded-full bg-ochre/15 blur-3xl" aria-hidden />
+          <div
+            className="pointer-events-none absolute -top-24 left-1/2 h-64 w-[600px] -translate-x-1/2 rounded-full bg-ochre/15 blur-3xl"
+            aria-hidden
+          />
           <span className="relative inline-flex items-center gap-1.5 rounded-full bg-sage-soft px-3 py-1 text-xs font-medium text-primary">
             <Clock className="h-3.5 w-3.5" /> Quote in under 60 seconds
           </span>
-          <h2 className="relative mt-5 font-serif text-3xl font-medium sm:text-5xl">Ready when you are.</h2>
+          <h2 className="relative mt-5 font-serif text-3xl font-medium sm:text-5xl">
+            Ready when you are.
+          </h2>
           <p className="relative mx-auto mt-3 max-w-xl text-muted-foreground">
             No signup required. See real pricing before anyone calls you.
           </p>

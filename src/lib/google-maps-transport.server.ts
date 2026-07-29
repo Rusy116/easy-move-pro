@@ -41,7 +41,7 @@ export class MapsNotConfiguredError extends Error {
     super(
       "Google Maps is not configured on this server. Set GOOGLE_MAPS_SERVER_KEY " +
         "or GOOGLE_MAPS_API_KEY (an unrestricted or IP-restricted Google Maps API key) " +
-        "in the deployment environment."
+        "in the deployment environment.",
     );
     this.name = "MapsNotConfiguredError";
   }

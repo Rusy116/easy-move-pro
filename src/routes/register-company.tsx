@@ -89,31 +89,63 @@ function RegisterCompanyPage() {
           only after an administrator approves your licensing details.
         </p>
 
-        <form onSubmit={onSubmit} className="grid gap-5 rounded-2xl border border-border bg-card p-6 sm:p-8">
+        <form
+          onSubmit={onSubmit}
+          className="grid gap-5 rounded-2xl border border-border bg-card p-6 sm:p-8"
+        >
           <div className="grid gap-5 sm:grid-cols-2">
             <div>
               <Label htmlFor="companyName">Company name</Label>
-              <Input id="companyName" required value={form.companyName} onChange={(e) => set("companyName", e.target.value)} />
+              <Input
+                id="companyName"
+                required
+                value={form.companyName}
+                onChange={(e) => set("companyName", e.target.value)}
+              />
             </div>
             <div>
               <Label htmlFor="contactName">Contact name</Label>
-              <Input id="contactName" required value={form.contactName} onChange={(e) => set("contactName", e.target.value)} />
+              <Input
+                id="contactName"
+                required
+                value={form.contactName}
+                onChange={(e) => set("contactName", e.target.value)}
+              />
             </div>
             <div>
               <Label htmlFor="email">Work email</Label>
-              <Input id="email" type="email" required value={form.email} onChange={(e) => set("email", e.target.value)} />
+              <Input
+                id="email"
+                type="email"
+                required
+                value={form.email}
+                onChange={(e) => set("email", e.target.value)}
+              />
             </div>
             <div>
               <Label htmlFor="phone">Phone number</Label>
-              <Input id="phone" required value={form.phone} onChange={(e) => set("phone", e.target.value)} />
+              <Input
+                id="phone"
+                required
+                value={form.phone}
+                onChange={(e) => set("phone", e.target.value)}
+              />
             </div>
             <div>
               <Label htmlFor="dot">USDOT number</Label>
-              <Input id="dot" value={form.dotNumber} onChange={(e) => set("dotNumber", e.target.value)} />
+              <Input
+                id="dot"
+                value={form.dotNumber}
+                onChange={(e) => set("dotNumber", e.target.value)}
+              />
             </div>
             <div>
               <Label htmlFor="mc">MC number</Label>
-              <Input id="mc" value={form.mcNumber} onChange={(e) => set("mcNumber", e.target.value)} />
+              <Input
+                id="mc"
+                value={form.mcNumber}
+                onChange={(e) => set("mcNumber", e.target.value)}
+              />
             </div>
           </div>
           <div>

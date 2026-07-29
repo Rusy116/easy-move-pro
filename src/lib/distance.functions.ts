@@ -11,13 +11,14 @@ export const computeDistanceFn = createServerFn({ method: "POST" })
         originCoords: z.object({ lat: z.number(), lng: z.number() }).nullable().optional(),
         destinationCoords: z.object({ lat: z.number(), lng: z.number() }).nullable().optional(),
       })
-      .parse(data)
+      .parse(data),
   )
-  .handler(async ({ data }): Promise<ServerDistanceResult | null> =>
-    computeServerDistance(
-      data.originZip,
-      data.destinationZip,
-      data.originCoords ?? null,
-      data.destinationCoords ?? null
-    )
+  .handler(
+    async ({ data }): Promise<ServerDistanceResult | null> =>
+      computeServerDistance(
+        data.originZip,
+        data.destinationZip,
+        data.originCoords ?? null,
+        data.destinationCoords ?? null,
+      ),
   );

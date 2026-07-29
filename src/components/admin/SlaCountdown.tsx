@@ -38,15 +38,19 @@ export function SlaCountdown({
   const tone = pausedAt
     ? "bg-slate-100 text-slate-700 border-slate-300"
     : expired
-    ? "bg-rose-100 text-rose-800 border-rose-300"
-    : remaining < 3_600_000
-    ? "bg-amber-100 text-amber-800 border-amber-300"
-    : "bg-emerald-100 text-emerald-800 border-emerald-300";
+      ? "bg-rose-100 text-rose-800 border-rose-300"
+      : remaining < 3_600_000
+        ? "bg-amber-100 text-amber-800 border-amber-300"
+        : "bg-emerald-100 text-emerald-800 border-emerald-300";
 
   return (
     <span
       className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 font-mono text-[11px] ${tone} ${className}`}
-      title={pausedAt ? `Paused at ${new Date(pausedAt).toLocaleString()}` : `Expires ${new Date(expiresAt).toLocaleString()}`}
+      title={
+        pausedAt
+          ? `Paused at ${new Date(pausedAt).toLocaleString()}`
+          : `Expires ${new Date(expiresAt).toLocaleString()}`
+      }
     >
       {pausedAt ? <PauseCircle className="h-3 w-3" /> : <Clock className="h-3 w-3" />}
       {pausedAt ? (compact ? "Paused" : "SLA paused") : expired ? "Expired" : label}

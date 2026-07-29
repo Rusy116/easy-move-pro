@@ -2,7 +2,6 @@ import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import type { JobActivity } from "@/lib/company-jobs";
 
-
 /* ------------------------------------------------------------------ */
 /*                               Types                                 */
 /* ------------------------------------------------------------------ */
@@ -72,7 +71,12 @@ export function usePriceRevisions(quoteId: string | null) {
       .channel(`price-revisions-${quoteId}`)
       .on(
         "postgres_changes",
-        { event: "*", schema: "public", table: "company_price_revisions", filter: `quote_id=eq.${quoteId}` },
+        {
+          event: "*",
+          schema: "public",
+          table: "company_price_revisions",
+          filter: `quote_id=eq.${quoteId}`,
+        },
         () => void reload(),
       )
       .subscribe();
@@ -140,7 +144,12 @@ export function useCommissions(companyId: string | null) {
     .filter((r) => r.status === "pending")
     .reduce((sum, r) => sum + Number(r.amount ?? 0), 0);
 
-  return { commissions: rows, loadingCommissions: loading, pendingTotal, reloadCommissions: reload };
+  return {
+    commissions: rows,
+    loadingCommissions: loading,
+    pendingTotal,
+    reloadCommissions: reload,
+  };
 }
 
 /* ------------------------------------------------------------------ */
@@ -223,7 +232,11 @@ export async function requestPriceRevision(args: {
   } as never);
 }
 
-export async function completeMove(args: { quoteId: string; companyId: string; notes?: string | null }) {
+export async function completeMove(args: {
+  quoteId: string;
+  companyId: string;
+  notes?: string | null;
+}) {
   return supabase.rpc("fn_company_complete_move", {
     _quote_id: args.quoteId,
     _company_id: args.companyId,
@@ -265,7 +278,12 @@ export function useCompanyRecentActivity(companyId: string | null, limit = 12) {
       .channel(`company-recent-activity-${companyId}`)
       .on(
         "postgres_changes",
-        { event: "INSERT", schema: "public", table: "company_activity", filter: `company_id=eq.${companyId}` },
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "company_activity",
+          filter: `company_id=eq.${companyId}`,
+        },
         () => void reload(),
       )
       .subscribe();

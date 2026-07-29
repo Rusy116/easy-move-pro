@@ -1,7 +1,11 @@
 import { useMemo, useState } from "react";
 import { Input } from "@/components/ui/input";
 import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
 import type { AvailableJob } from "@/lib/company-jobs";
 
@@ -30,14 +34,13 @@ function uniq(values: Array<string | null | undefined>) {
 }
 
 /** Applies marketplace filters + sorting to the available job list. */
-export function useFilteredMarketplace(
-  jobs: AvailableJob[],
-  f: MarketplaceFilterState,
-) {
+export function useFilteredMarketplace(jobs: AvailableJob[], f: MarketplaceFilterState) {
   return useMemo(() => {
     const rows = jobs.filter((j) => {
-      if (f.state !== "all" && j.origin_state !== f.state && j.destination_state !== f.state) return false;
-      if (f.city !== "all" && j.origin_city !== f.city && j.destination_city !== f.city) return false;
+      if (f.state !== "all" && j.origin_state !== f.state && j.destination_state !== f.state)
+        return false;
+      if (f.city !== "all" && j.origin_city !== f.city && j.destination_city !== f.city)
+        return false;
       if (f.moveType !== "all" && (j.move_type ?? "") !== f.moveType) return false;
       if (f.homeSize !== "all" && (j.property_type ?? "") !== f.homeSize) return false;
       if (f.dateFrom && (!j.move_date || j.move_date < f.dateFrom)) return false;
@@ -47,7 +50,8 @@ export function useFilteredMarketplace(
     const time = (v?: string | null) => (v ? new Date(v).getTime() : 0);
     return rows.sort((a, b) => {
       if (f.sort === "oldest") return time(a.published_at) - time(b.published_at);
-      if (f.sort === "move_date") return (a.move_date ?? "9999").localeCompare(b.move_date ?? "9999");
+      if (f.sort === "move_date")
+        return (a.move_date ?? "9999").localeCompare(b.move_date ?? "9999");
       return time(b.published_at) - time(a.published_at);
     });
   }, [jobs, f]);
@@ -75,43 +79,68 @@ export function MarketplaceFilters({
   return (
     <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
       <Select value={value.state} onValueChange={(v) => set({ state: v })}>
-        <SelectTrigger><SelectValue placeholder="State" /></SelectTrigger>
+        <SelectTrigger>
+          <SelectValue placeholder="State" />
+        </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">All states</SelectItem>
-          {states.map((s) => (<SelectItem key={s} value={s}>{s}</SelectItem>))}
+          {states.map((s) => (
+            <SelectItem key={s} value={s}>
+              {s}
+            </SelectItem>
+          ))}
         </SelectContent>
       </Select>
 
       <Select value={value.city} onValueChange={(v) => set({ city: v })}>
-        <SelectTrigger><SelectValue placeholder="City" /></SelectTrigger>
+        <SelectTrigger>
+          <SelectValue placeholder="City" />
+        </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">All cities</SelectItem>
-          {cities.map((c) => (<SelectItem key={c} value={c}>{c}</SelectItem>))}
+          {cities.map((c) => (
+            <SelectItem key={c} value={c}>
+              {c}
+            </SelectItem>
+          ))}
         </SelectContent>
       </Select>
 
       <Select value={value.moveType} onValueChange={(v) => set({ moveType: v })}>
-        <SelectTrigger><SelectValue placeholder="Move type" /></SelectTrigger>
+        <SelectTrigger>
+          <SelectValue placeholder="Move type" />
+        </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">All move types</SelectItem>
           {moveTypes.map((m) => (
-            <SelectItem key={m} value={m} className="capitalize">{m.replace(/_/g, " ")}</SelectItem>
+            <SelectItem key={m} value={m} className="capitalize">
+              {m.replace(/_/g, " ")}
+            </SelectItem>
           ))}
         </SelectContent>
       </Select>
 
       <Select value={value.homeSize} onValueChange={(v) => set({ homeSize: v })}>
-        <SelectTrigger><SelectValue placeholder="Home size" /></SelectTrigger>
+        <SelectTrigger>
+          <SelectValue placeholder="Home size" />
+        </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">All home sizes</SelectItem>
           {homeSizes.map((h) => (
-            <SelectItem key={h} value={h} className="capitalize">{h.replace(/_/g, " ")}</SelectItem>
+            <SelectItem key={h} value={h} className="capitalize">
+              {h.replace(/_/g, " ")}
+            </SelectItem>
           ))}
         </SelectContent>
       </Select>
 
-      <Select value={value.sort} onValueChange={(v) => set({ sort: v as MarketplaceFilterState["sort"] })}>
-        <SelectTrigger><SelectValue /></SelectTrigger>
+      <Select
+        value={value.sort}
+        onValueChange={(v) => set({ sort: v as MarketplaceFilterState["sort"] })}
+      >
+        <SelectTrigger>
+          <SelectValue />
+        </SelectTrigger>
         <SelectContent>
           <SelectItem value="newest">Newest first</SelectItem>
           <SelectItem value="oldest">Oldest first</SelectItem>

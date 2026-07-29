@@ -16,7 +16,14 @@ export const INVENTORY_CATALOG: InventoryItem[] = [
   // Living room
   { id: "sofa", label: "Sofa", category: "living", cubicFeet: 50, weightLbs: 150 },
   { id: "loveseat", label: "Loveseat", category: "living", cubicFeet: 35, weightLbs: 110 },
-  { id: "sectional", label: "Sectional", category: "living", cubicFeet: 90, weightLbs: 260, heavy: true },
+  {
+    id: "sectional",
+    label: "Sectional",
+    category: "living",
+    cubicFeet: 90,
+    weightLbs: 260,
+    heavy: true,
+  },
   { id: "coffee-table", label: "Coffee table", category: "living", cubicFeet: 15, weightLbs: 50 },
   { id: "end-table", label: "End table", category: "living", cubicFeet: 8, weightLbs: 30 },
   { id: "tv-stand", label: "TV stand", category: "living", cubicFeet: 20, weightLbs: 60 },
@@ -35,18 +42,46 @@ export const INVENTORY_CATALOG: InventoryItem[] = [
   { id: "dining-table", label: "Dining table", category: "dining", cubicFeet: 35, weightLbs: 120 },
   { id: "dining-chair", label: "Dining chair", category: "dining", cubicFeet: 6, weightLbs: 20 },
   { id: "buffet", label: "Buffet", category: "dining", cubicFeet: 40, weightLbs: 140, heavy: true },
-  { id: "china-cabinet", label: "China cabinet", category: "dining", cubicFeet: 45, weightLbs: 160, heavy: true },
+  {
+    id: "china-cabinet",
+    label: "China cabinet",
+    category: "dining",
+    cubicFeet: 45,
+    weightLbs: 160,
+    heavy: true,
+  },
 
   // TVs (by screen size)
   { id: "tv-43", label: 'TV up to 43"', category: "tv", cubicFeet: 6, weightLbs: 20 },
   { id: "tv-55", label: 'TV 44–55"', category: "tv", cubicFeet: 9, weightLbs: 35 },
   { id: "tv-65", label: 'TV 56–65"', category: "tv", cubicFeet: 12, weightLbs: 50 },
   { id: "tv-75", label: 'TV 66–75"', category: "tv", cubicFeet: 16, weightLbs: 65 },
-  { id: "tv-85", label: 'TV 76" and larger', category: "tv", cubicFeet: 22, weightLbs: 90, heavy: true },
+  {
+    id: "tv-85",
+    label: 'TV 76" and larger',
+    category: "tv",
+    cubicFeet: 22,
+    weightLbs: 90,
+    heavy: true,
+  },
 
   // Kitchen & appliances
-  { id: "fridge", label: "Refrigerator", category: "kitchen", cubicFeet: 45, weightLbs: 250, heavy: true },
-  { id: "washer", label: "Washer", category: "kitchen", cubicFeet: 20, weightLbs: 180, heavy: true },
+  {
+    id: "fridge",
+    label: "Refrigerator",
+    category: "kitchen",
+    cubicFeet: 45,
+    weightLbs: 250,
+    heavy: true,
+  },
+  {
+    id: "washer",
+    label: "Washer",
+    category: "kitchen",
+    cubicFeet: 20,
+    weightLbs: 180,
+    heavy: true,
+  },
   { id: "dryer", label: "Dryer", category: "kitchen", cubicFeet: 20, weightLbs: 130 },
   { id: "dishwasher", label: "Dishwasher", category: "kitchen", cubicFeet: 15, weightLbs: 100 },
   { id: "microwave", label: "Microwave", category: "kitchen", cubicFeet: 5, weightLbs: 35 },
@@ -54,7 +89,13 @@ export const INVENTORY_CATALOG: InventoryItem[] = [
   // Office
   { id: "desk", label: "Desk", category: "office", cubicFeet: 30, weightLbs: 90 },
   { id: "office-chair", label: "Office chair", category: "office", cubicFeet: 12, weightLbs: 40 },
-  { id: "filing-cabinet", label: "Filing cabinet", category: "office", cubicFeet: 15, weightLbs: 90 },
+  {
+    id: "filing-cabinet",
+    label: "Filing cabinet",
+    category: "office",
+    cubicFeet: 15,
+    weightLbs: 90,
+  },
 
   // Outdoor
   { id: "patio-table", label: "Patio table", category: "outdoor", cubicFeet: 25, weightLbs: 80 },
@@ -67,7 +108,13 @@ export const INVENTORY_CATALOG: InventoryItem[] = [
   { id: "box-sm", label: "Small box", category: "boxes", cubicFeet: 1.5, weightLbs: 25 },
   { id: "box-md", label: "Medium box", category: "boxes", cubicFeet: 3, weightLbs: 45 },
   { id: "box-lg", label: "Large box", category: "boxes", cubicFeet: 4.5, weightLbs: 60 },
-  { id: "wardrobe-box", label: "Wardrobe box (for hanging clothes)", category: "boxes", cubicFeet: 13, weightLbs: 40 },
+  {
+    id: "wardrobe-box",
+    label: "Wardrobe box (for hanging clothes)",
+    category: "boxes",
+    cubicFeet: 13,
+    weightLbs: 40,
+  },
 ];
 
 export const CATEGORY_LABEL: Record<InventoryItem["category"], string> = {

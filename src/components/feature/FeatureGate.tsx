@@ -1,9 +1,5 @@
 import { useEffect, useState, type ReactNode } from "react";
-import {
-  isFeatureEnabled,
-  readLocalOverrides,
-  type FeatureFlag,
-} from "@/lib/feature-flags";
+import { isFeatureEnabled, readLocalOverrides, type FeatureFlag } from "@/lib/feature-flags";
 import { loadRoleContext, type PlatformRole } from "@/lib/roles";
 
 /**

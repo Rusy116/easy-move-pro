@@ -48,15 +48,21 @@ export function Header() {
         <div className="hidden md:flex items-center gap-3">
           {authed ? (
             <Link to="/dashboard">
-              <Button variant="ghost" size="sm">Dashboard</Button>
+              <Button variant="ghost" size="sm">
+                Dashboard
+              </Button>
             </Link>
           ) : (
             <Link to="/auth">
-              <Button variant="ghost" size="sm">Sign in</Button>
+              <Button variant="ghost" size="sm">
+                Sign in
+              </Button>
             </Link>
           )}
           <Link to="/calculator">
-            <Button size="sm" className="rounded-full">Get Instant Quote</Button>
+            <Button size="sm" className="rounded-full">
+              Get Instant Quote
+            </Button>
           </Link>
         </div>
         <button className="md:hidden" onClick={() => setOpen((v) => !v)} aria-label="Toggle menu">
@@ -79,11 +85,15 @@ export function Header() {
             <div className="mt-2 flex gap-2">
               {authed ? (
                 <Link to="/dashboard" onClick={() => setOpen(false)} className="flex-1">
-                  <Button variant="outline" className="w-full">Dashboard</Button>
+                  <Button variant="outline" className="w-full">
+                    Dashboard
+                  </Button>
                 </Link>
               ) : (
                 <Link to="/auth" onClick={() => setOpen(false)} className="flex-1">
-                  <Button variant="outline" className="w-full">Sign in</Button>
+                  <Button variant="outline" className="w-full">
+                    Sign in
+                  </Button>
                 </Link>
               )}
               <Link to="/calculator" onClick={() => setOpen(false)} className="flex-1">

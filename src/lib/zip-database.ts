@@ -1,8 +1,11 @@
 // ZIP → city/state/coords resolution backed by live Google Geocoding (via the
 // Google Maps Platform connector, server-side). No hardcoded ZIP tables: the
-// ZIP is resolved against real Google data and cached per session.
+// ZIP is resolved against real Google data.
+//
+// Caching and request de-duplication live in `zip-cities.ts` — this module is a
+// thin projection of that single lookup into a flat location shape.
 
-import { lookupZipCities } from "./zip-cities";
+import { lookupZipCities, isValidZipFormat } from "./zip-cities";
 
 export interface ZipLocation {
   zip: string;
@@ -13,38 +16,19 @@ export interface ZipLocation {
 }
 
 export function isValidZip(zip: string): boolean {
-  return /^\d{5}$/.test(zip);
+  return isValidZipFormat(zip);
 }
-
-const cache = new Map<string, ZipLocation | null>();
-const inflight = new Map<string, Promise<ZipLocation | null>>();
 
 /** Resolve a ZIP to its real city, state and coordinates using Google Geocoding. */
 export async function resolveZip(zip: string): Promise<ZipLocation | null> {
-  if (!isValidZip(zip)) return null;
-  if (cache.has(zip)) return cache.get(zip)!;
-
-  const existing = inflight.get(zip);
-  if (existing) return existing;
-
-  const promise = lookupZipCities(zip)
-    .then((res) => {
-      const loc: ZipLocation | null = res
-        ? { zip: res.zip, city: res.primary, state: res.state, lat: res.lat, lng: res.lng }
-        : null;
-      cache.set(zip, loc);
-      return loc;
-    })
-    .catch(() => null)
-    .finally(() => inflight.delete(zip));
-
-  inflight.set(zip, promise);
-  return promise;
+  const res = await lookupZipCities(zip);
+  if (!res) return null;
+  return { zip: res.zip, city: res.primary, state: res.state, lat: res.lat, lng: res.lng };
 }
 
 export function haversineMiles(
   a: { lat: number; lng: number },
-  b: { lat: number; lng: number }
+  b: { lat: number; lng: number },
 ): number {
   const toRad = (x: number) => (x * Math.PI) / 180;
   const R = 3959;

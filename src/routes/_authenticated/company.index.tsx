@@ -1,41 +1,106 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo } from "react";
 import {
-  Globe, Truck, Users, FileText, Calendar, MessageSquare,
-  FolderOpen, Building2, Settings, ArrowRight, Clock, CheckCircle2,
-  History, DollarSign,
+  Globe,
+  Truck,
+  Users,
+  FileText,
+  Calendar,
+  MessageSquare,
+  FolderOpen,
+  Building2,
+  Settings,
+  ArrowRight,
+  Clock,
+  CheckCircle2,
+  History,
+  DollarSign,
 } from "lucide-react";
 import {
-  CompanyHeader, NoCompanyScreen, StatusBanner, useMoverPortal,
+  CompanyHeader,
+  NoCompanyScreen,
+  StatusBanner,
+  useMoverPortal,
 } from "@/components/company/portal-shared";
 import { StatCard, SkeletonRows } from "@/components/shell/Chrome";
-import {
-  useCompanyJobs, ACTIVITY_LABEL, money, timeAgo, type JobStatus,
-} from "@/lib/company-jobs";
+import { useCompanyJobs, ACTIVITY_LABEL, money, timeAgo, type JobStatus } from "@/lib/company-jobs";
 import { useCommissions, useCompanyRecentActivity } from "@/lib/company-crm";
-
 
 export const Route = createFileRoute("/_authenticated/company/")({
   head: () => ({
     meta: [
       { title: "Company Dashboard — Easy Moving Partner Portal" },
-      { name: "description", content: "Your moving company workspace: available jobs, active jobs, customers, estimates, schedule and documents in one place." },
+      {
+        name: "description",
+        content:
+          "Your moving company workspace: available jobs, active jobs, customers, estimates, schedule and documents in one place.",
+      },
     ],
   }),
   component: CompanyHome,
 });
 
 const WORKSPACE = [
-  { to: "/company/jobs", label: "Available Jobs", desc: "Claim new open-market jobs first.", icon: Globe },
-  { to: "/company/myjobs", label: "My Jobs", desc: "Claimed jobs and 12-hour response timers.", icon: Truck },
-  { to: "/company/history", label: "Job History", desc: "Claimed, active, completed and cancelled moves.", icon: History },
-  { to: "/company/customers", label: "Customers", desc: "Your customer records and contact history.", icon: Users },
-  { to: "/company/estimates", label: "Estimates", desc: "Build and send final quotes.", icon: FileText },
-  { to: "/company/schedule", label: "Schedule", desc: "Upcoming moves on a calendar.", icon: Calendar },
-  { to: "/company/messages", label: "Messages", desc: "Conversations with customers and the broker.", icon: MessageSquare },
-  { to: "/company/documents", label: "Documents", desc: "Insurance, licenses and compliance files.", icon: FolderOpen },
-  { to: "/company/profile", label: "Profile", desc: "Company details, DOT/MC and service areas.", icon: Building2 },
-  { to: "/company/settings", label: "Settings", desc: "Notifications, team and preferences.", icon: Settings },
+  {
+    to: "/company/jobs",
+    label: "Available Jobs",
+    desc: "Claim new open-market jobs first.",
+    icon: Globe,
+  },
+  {
+    to: "/company/myjobs",
+    label: "My Jobs",
+    desc: "Claimed jobs and 12-hour response timers.",
+    icon: Truck,
+  },
+  {
+    to: "/company/history",
+    label: "Job History",
+    desc: "Claimed, active, completed and cancelled moves.",
+    icon: History,
+  },
+  {
+    to: "/company/customers",
+    label: "Customers",
+    desc: "Your customer records and contact history.",
+    icon: Users,
+  },
+  {
+    to: "/company/estimates",
+    label: "Estimates",
+    desc: "Build and send final quotes.",
+    icon: FileText,
+  },
+  {
+    to: "/company/schedule",
+    label: "Schedule",
+    desc: "Upcoming moves on a calendar.",
+    icon: Calendar,
+  },
+  {
+    to: "/company/messages",
+    label: "Messages",
+    desc: "Conversations with customers and the broker.",
+    icon: MessageSquare,
+  },
+  {
+    to: "/company/documents",
+    label: "Documents",
+    desc: "Insurance, licenses and compliance files.",
+    icon: FolderOpen,
+  },
+  {
+    to: "/company/profile",
+    label: "Profile",
+    desc: "Company details, DOT/MC and service areas.",
+    icon: Building2,
+  },
+  {
+    to: "/company/settings",
+    label: "Settings",
+    desc: "Notifications, team and preferences.",
+    icon: Settings,
+  },
 ] as const;
 
 function CompanyHome() {
@@ -71,29 +136,65 @@ function CompanyHome() {
       <StatusBanner company={company} />
 
       <section className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-5">
-        <StatCard label="New claimed leads" value={stats.claimed} icon={<Clock className="h-4 w-4" />} tone="warning" hint="Awaiting first contact" />
-        <StatCard label="Active jobs" value={stats.active} icon={<Truck className="h-4 w-4" />} hint="In progress" />
-        <StatCard label="Awaiting customer" value={stats.awaiting} icon={<Globe className="h-4 w-4" />} tone="info" hint="Price confirmed" />
-        <StatCard label="Completed moves" value={stats.completed} icon={<CheckCircle2 className="h-4 w-4" />} tone="success" hint="Delivered" />
-        <StatCard label="Commission pending" value={money(pendingTotal)} icon={<DollarSign className="h-4 w-4" />} hint="Not yet processed" />
+        <StatCard
+          label="New claimed leads"
+          value={stats.claimed}
+          icon={<Clock className="h-4 w-4" />}
+          tone="warning"
+          hint="Awaiting first contact"
+        />
+        <StatCard
+          label="Active jobs"
+          value={stats.active}
+          icon={<Truck className="h-4 w-4" />}
+          hint="In progress"
+        />
+        <StatCard
+          label="Awaiting customer"
+          value={stats.awaiting}
+          icon={<Globe className="h-4 w-4" />}
+          tone="info"
+          hint="Price confirmed"
+        />
+        <StatCard
+          label="Completed moves"
+          value={stats.completed}
+          icon={<CheckCircle2 className="h-4 w-4" />}
+          tone="success"
+          hint="Delivered"
+        />
+        <StatCard
+          label="Commission pending"
+          value={money(pendingTotal)}
+          icon={<DollarSign className="h-4 w-4" />}
+          hint="Not yet processed"
+        />
       </section>
 
       <section className="rounded-2xl border border-border bg-card p-4 sm:p-5">
         <h2 className="text-base font-semibold">Recent activity</h2>
         {activity.length === 0 ? (
-          <p className="mt-3 text-sm text-muted-foreground">No activity yet — claim a job to get started.</p>
+          <p className="mt-3 text-sm text-muted-foreground">
+            No activity yet — claim a job to get started.
+          </p>
         ) : (
           <ol className="mt-4 space-y-3">
             {activity.map((a) => (
-              <li key={a.id} className="flex items-start justify-between gap-3 border-b border-border/60 pb-3 last:border-0 last:pb-0">
-                <span className="text-sm">{ACTIVITY_LABEL[a.action] ?? a.action.replace(/_/g, " ")}</span>
-                <span className="shrink-0 text-xs text-muted-foreground">{timeAgo(a.created_at)}</span>
+              <li
+                key={a.id}
+                className="flex items-start justify-between gap-3 border-b border-border/60 pb-3 last:border-0 last:pb-0"
+              >
+                <span className="text-sm">
+                  {ACTIVITY_LABEL[a.action] ?? a.action.replace(/_/g, " ")}
+                </span>
+                <span className="shrink-0 text-xs text-muted-foreground">
+                  {timeAgo(a.created_at)}
+                </span>
               </li>
             ))}
           </ol>
         )}
       </section>
-
 
       <section>
         <h2 className="mb-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">

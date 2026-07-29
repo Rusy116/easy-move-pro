@@ -9,13 +9,7 @@ import { loadRoleContext, ROLE_HOME, type PlatformRole } from "@/lib/roles";
  * user can never render a workspace that belongs to another role.
  * Server-side enforcement lives in RLS + server functions.
  */
-export function RoleGuard({
-  allow,
-  children,
-}: {
-  allow: PlatformRole[];
-  children: ReactNode;
-}) {
+export function RoleGuard({ allow, children }: { allow: PlatformRole[]; children: ReactNode }) {
   const navigate = useNavigate();
   const [ready, setReady] = useState(false);
 

@@ -1,12 +1,23 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import {
-  CompanyHeader, LeadDetailDialog, NoCompanyScreen, useMoverPortal, type MergedLead,
+  CompanyHeader,
+  LeadDetailDialog,
+  NoCompanyScreen,
+  useMoverPortal,
+  type MergedLead,
 } from "@/components/company/portal-shared";
 import { SkeletonRows } from "@/components/shell/Chrome";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, ChevronLeft, ChevronRight, MapPin, Truck, Users as UsersIcon } from "lucide-react";
+import {
+  Calendar,
+  ChevronLeft,
+  ChevronRight,
+  MapPin,
+  Truck,
+  Users as UsersIcon,
+} from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/company/schedule")({
   head: () => ({ meta: [{ title: "Schedule — Company Portal" }] }),
@@ -15,11 +26,25 @@ export const Route = createFileRoute("/_authenticated/company/schedule")({
 
 type View = "day" | "week" | "month";
 
-function startOfDay(d: Date) { const x = new Date(d); x.setHours(0, 0, 0, 0); return x; }
-function addDays(d: Date, n: number) { const x = new Date(d); x.setDate(x.getDate() + n); return x; }
-function sameDay(a: Date, b: Date) { return a.toDateString() === b.toDateString(); }
-function fmtDay(d: Date) { return d.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" }); }
-function fmtMonth(d: Date) { return d.toLocaleDateString(undefined, { month: "long", year: "numeric" }); }
+function startOfDay(d: Date) {
+  const x = new Date(d);
+  x.setHours(0, 0, 0, 0);
+  return x;
+}
+function addDays(d: Date, n: number) {
+  const x = new Date(d);
+  x.setDate(x.getDate() + n);
+  return x;
+}
+function sameDay(a: Date, b: Date) {
+  return a.toDateString() === b.toDateString();
+}
+function fmtDay(d: Date) {
+  return d.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" });
+}
+function fmtMonth(d: Date) {
+  return d.toLocaleDateString(undefined, { month: "long", year: "numeric" });
+}
 
 function SchedulePage() {
   const { loading, company, merged, reload, canClaim } = useMoverPortal();
@@ -29,8 +54,12 @@ function SchedulePage() {
 
   const jobs = useMemo(() => {
     return merged
-      .filter((r) => r.assignment && r.lead.move_date &&
-        (["accepted", "won", "quoted"].includes(r.assignment.state)))
+      .filter(
+        (r) =>
+          r.assignment &&
+          r.lead.move_date &&
+          ["accepted", "won", "quoted"].includes(r.assignment.state),
+      )
       .map((r) => ({ row: r, when: startOfDay(new Date(r.lead.move_date!)) }))
       .sort((a, b) => a.when.getTime() - b.when.getTime());
   }, [merged]);
@@ -61,9 +90,11 @@ function SchedulePage() {
   if (!company) return <NoCompanyScreen />;
 
   const label =
-    view === "day" ? fmtDay(cursor) :
-    view === "week" ? `${fmtDay(window.start)} – ${fmtDay(window.end)}` :
-    fmtMonth(cursor);
+    view === "day"
+      ? fmtDay(cursor)
+      : view === "week"
+        ? `${fmtDay(window.start)} – ${fmtDay(window.end)}`
+        : fmtMonth(cursor);
 
   return (
     <div className="space-y-6">
@@ -77,15 +108,25 @@ function SchedulePage() {
             <span className="text-sm text-muted-foreground">({visible.length} jobs)</span>
           </div>
           <div className="flex items-center gap-2">
-            <Button size="sm" variant="outline" onClick={() => setCursor(startOfDay(new Date()))}>Today</Button>
-            <Button size="sm" variant="outline" onClick={() => shift(-1)}><ChevronLeft className="h-4 w-4" /></Button>
+            <Button size="sm" variant="outline" onClick={() => setCursor(startOfDay(new Date()))}>
+              Today
+            </Button>
+            <Button size="sm" variant="outline" onClick={() => shift(-1)}>
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
             <span className="text-sm font-medium min-w-[180px] text-center">{label}</span>
-            <Button size="sm" variant="outline" onClick={() => shift(1)}><ChevronRight className="h-4 w-4" /></Button>
+            <Button size="sm" variant="outline" onClick={() => shift(1)}>
+              <ChevronRight className="h-4 w-4" />
+            </Button>
             <div className="ml-2 flex rounded-full border border-border overflow-hidden">
               {(["day", "week", "month"] as View[]).map((v) => (
-                <button key={v} onClick={() => setView(v)}
+                <button
+                  key={v}
+                  onClick={() => setView(v)}
                   className={`px-3 py-1.5 text-xs font-medium capitalize ${view === v ? "bg-primary text-primary-foreground" : "bg-transparent text-muted-foreground hover:bg-muted"}`}
-                >{v}</button>
+                >
+                  {v}
+                </button>
               ))}
             </div>
           </div>
@@ -94,12 +135,7 @@ function SchedulePage() {
         {view === "month" ? (
           <MonthGrid cursor={cursor} jobs={jobs} onOpen={setSelected} />
         ) : (
-          <DayList
-            start={window.start}
-            end={window.end}
-            jobs={visible}
-            onOpen={setSelected}
-          />
+          <DayList start={window.start} end={window.end} jobs={visible} onOpen={setSelected} />
         )}
       </div>
 
@@ -117,12 +153,16 @@ function SchedulePage() {
 }
 
 function JobCard({ row, onOpen }: { row: MergedLead; onOpen: () => void }) {
-  const l = row.lead; const a = row.assignment!;
-  const status = a.state === "accepted" ? "Booked" : a.state === "won" ? "Completed" : "Estimate pending";
+  const l = row.lead;
+  const a = row.assignment!;
+  const status =
+    a.state === "accepted" ? "Booked" : a.state === "won" ? "Completed" : "Estimate pending";
   const color =
-    a.state === "accepted" ? "bg-emerald-50 text-emerald-800 border-emerald-300" :
-    a.state === "won" ? "bg-sky-50 text-sky-800 border-sky-300" :
-    "bg-amber-50 text-amber-800 border-amber-300";
+    a.state === "accepted"
+      ? "bg-emerald-50 text-emerald-800 border-emerald-300"
+      : a.state === "won"
+        ? "bg-sky-50 text-sky-800 border-sky-300"
+        : "bg-amber-50 text-amber-800 border-amber-300";
   return (
     <button
       onClick={onOpen}
@@ -132,13 +172,26 @@ function JobCard({ row, onOpen }: { row: MergedLead; onOpen: () => void }) {
         <div className="min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
             <span className="font-medium truncate">{l.full_name ?? "Customer"}</span>
-            <span className="font-mono text-xs text-muted-foreground">{l.quote_number ?? l.id.slice(0, 8)}</span>
-            <Badge variant="outline" className={color}>{status}</Badge>
+            <span className="font-mono text-xs text-muted-foreground">
+              {l.quote_number ?? l.id.slice(0, 8)}
+            </span>
+            <Badge variant="outline" className={color}>
+              {status}
+            </Badge>
           </div>
           <div className="mt-1 text-xs text-muted-foreground flex flex-wrap items-center gap-x-3 gap-y-1">
-            <span className="flex items-center gap-1"><MapPin className="h-3 w-3" />{(l.origin_city ?? l.origin_zip)} → {(l.destination_city ?? l.destination_zip)}</span>
-            <span className="flex items-center gap-1"><Truck className="h-3 w-3" />{l.truck_size ?? "—"}</span>
-            <span className="flex items-center gap-1"><UsersIcon className="h-3 w-3" />{l.num_movers ?? "?"} crew</span>
+            <span className="flex items-center gap-1">
+              <MapPin className="h-3 w-3" />
+              {l.origin_city ?? l.origin_zip} → {l.destination_city ?? l.destination_zip}
+            </span>
+            <span className="flex items-center gap-1">
+              <Truck className="h-3 w-3" />
+              {l.truck_size ?? "—"}
+            </span>
+            <span className="flex items-center gap-1">
+              <UsersIcon className="h-3 w-3" />
+              {l.num_movers ?? "?"} crew
+            </span>
             {l.preferred_time && <span>· {l.preferred_time}</span>}
           </div>
         </div>
@@ -153,9 +206,13 @@ function JobCard({ row, onOpen }: { row: MergedLead; onOpen: () => void }) {
 }
 
 function DayList({
-  start, end, jobs, onOpen,
+  start,
+  end,
+  jobs,
+  onOpen,
 }: {
-  start: Date; end: Date;
+  start: Date;
+  end: Date;
   jobs: Array<{ row: MergedLead; when: Date }>;
   onOpen: (r: MergedLead) => void;
 }) {
@@ -169,14 +226,24 @@ function DayList({
         return (
           <div key={d.toISOString()}>
             <div className="mb-2 flex items-center gap-2">
-              <div className={`text-sm font-semibold ${sameDay(d, new Date()) ? "text-primary" : ""}`}>{fmtDay(d)}</div>
-              <div className="text-xs text-muted-foreground">{dayJobs.length} job{dayJobs.length === 1 ? "" : "s"}</div>
+              <div
+                className={`text-sm font-semibold ${sameDay(d, new Date()) ? "text-primary" : ""}`}
+              >
+                {fmtDay(d)}
+              </div>
+              <div className="text-xs text-muted-foreground">
+                {dayJobs.length} job{dayJobs.length === 1 ? "" : "s"}
+              </div>
             </div>
             {dayJobs.length === 0 ? (
-              <div className="text-xs text-muted-foreground rounded-lg border border-dashed border-border p-4 text-center">No jobs</div>
+              <div className="text-xs text-muted-foreground rounded-lg border border-dashed border-border p-4 text-center">
+                No jobs
+              </div>
             ) : (
               <div className="space-y-2">
-                {dayJobs.map((j) => <JobCard key={j.row.lead.id} row={j.row} onOpen={() => onOpen(j.row)} />)}
+                {dayJobs.map((j) => (
+                  <JobCard key={j.row.lead.id} row={j.row} onOpen={() => onOpen(j.row)} />
+                ))}
               </div>
             )}
           </div>
@@ -187,7 +254,9 @@ function DayList({
 }
 
 function MonthGrid({
-  cursor, jobs, onOpen,
+  cursor,
+  jobs,
+  onOpen,
 }: {
   cursor: Date;
   jobs: Array<{ row: MergedLead; when: Date }>;
@@ -202,15 +271,26 @@ function MonthGrid({
   return (
     <div>
       <div className="grid grid-cols-7 gap-1 text-xs font-semibold text-muted-foreground mb-1">
-        {["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].map((d) => <div key={d} className="px-2">{d}</div>)}
+        {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((d) => (
+          <div key={d} className="px-2">
+            {d}
+          </div>
+        ))}
       </div>
       <div className="grid grid-cols-7 gap-1">
         {cells.map((d) => {
           const inMonth = d.getMonth() === cursor.getMonth();
           const dayJobs = jobs.filter((j) => sameDay(j.when, d));
           return (
-            <div key={d.toISOString()} className={`min-h-[92px] rounded-lg border p-1.5 text-xs ${inMonth ? "border-border bg-card" : "border-transparent bg-muted/30"} ${sameDay(d, today) ? "ring-2 ring-primary/40" : ""}`}>
-              <div className={`text-[11px] font-semibold ${inMonth ? "" : "text-muted-foreground"}`}>{d.getDate()}</div>
+            <div
+              key={d.toISOString()}
+              className={`min-h-[92px] rounded-lg border p-1.5 text-xs ${inMonth ? "border-border bg-card" : "border-transparent bg-muted/30"} ${sameDay(d, today) ? "ring-2 ring-primary/40" : ""}`}
+            >
+              <div
+                className={`text-[11px] font-semibold ${inMonth ? "" : "text-muted-foreground"}`}
+              >
+                {d.getDate()}
+              </div>
               <div className="mt-1 space-y-1">
                 {dayJobs.slice(0, 3).map((j) => (
                   <button
@@ -218,11 +298,13 @@ function MonthGrid({
                     onClick={() => onOpen(j.row)}
                     className="w-full text-left truncate rounded bg-primary/10 text-primary px-1.5 py-0.5 hover:bg-primary/20"
                   >
-                    {(j.row.lead.full_name ?? j.row.lead.quote_number ?? "Job")}
+                    {j.row.lead.full_name ?? j.row.lead.quote_number ?? "Job"}
                   </button>
                 ))}
                 {dayJobs.length > 3 && (
-                  <div className="text-[10px] text-muted-foreground pl-1">+{dayJobs.length - 3} more</div>
+                  <div className="text-[10px] text-muted-foreground pl-1">
+                    +{dayJobs.length - 3} more
+                  </div>
                 )}
               </div>
             </div>

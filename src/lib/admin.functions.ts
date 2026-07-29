@@ -48,8 +48,6 @@ export const listBrokers = createServerFn({ method: "GET" })
         });
       }
     }
-    brokers.sort((a, b) =>
-      (a.full_name ?? a.email).localeCompare(b.full_name ?? b.email),
-    );
+    brokers.sort((a, b) => (a.full_name ?? a.email).localeCompare(b.full_name ?? b.email));
     return brokers;
   });

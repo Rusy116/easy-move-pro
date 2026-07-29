@@ -4,7 +4,6 @@
 
 import { mapsFetch, mapsTransportMode } from "./google-maps-transport.server";
 
-
 export interface ZipCitiesResult {
   zip: string;
   state: string;
@@ -30,7 +29,7 @@ interface GeocodeResult {
 async function viaGoogle(zip: string): Promise<ZipCitiesResult | null> {
   if (mapsTransportMode() === "unavailable") return null;
   const resp = await mapsFetch(
-    `maps/api/geocode/json?components=${encodeURIComponent(`country:US|postal_code:${zip}`)}`
+    `maps/api/geocode/json?components=${encodeURIComponent(`country:US|postal_code:${zip}`)}`,
   );
   if (!resp.ok) {
     console.error("zip geocode failed", resp.status, await resp.text());

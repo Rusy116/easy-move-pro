@@ -22,7 +22,10 @@ export const Route = createFileRoute("/cities/")({
   head: () => ({
     meta: [
       { title: "Moving Company Cities — Easy Moving" },
-      { name: "description", content: "Find vetted movers and average moving costs in every major US metro area." },
+      {
+        name: "description",
+        content: "Find vetted movers and average moving costs in every major US metro area.",
+      },
     ],
   }),
   component: CitiesIndex,
@@ -32,10 +35,13 @@ function CitiesIndex() {
   return (
     <SiteLayout>
       <section className="mx-auto max-w-7xl px-4 sm:px-6 py-16 sm:py-24">
-        <span className="text-xs font-semibold uppercase tracking-widest text-ochre">Nationwide</span>
+        <span className="text-xs font-semibold uppercase tracking-widest text-ochre">
+          Nationwide
+        </span>
         <h1 className="mt-3 font-serif text-5xl font-medium">Cities we serve.</h1>
         <p className="mt-4 max-w-2xl text-lg text-muted-foreground">
-          Local expertise in every major US metro. See average moving costs, top-rated partners, and city-specific tips.
+          Local expertise in every major US metro. See average moving costs, top-rated partners, and
+          city-specific tips.
         </p>
 
         <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

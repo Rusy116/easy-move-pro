@@ -6,11 +6,20 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
-  Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import { formatDate, money, timeAgo, type MyJob } from "@/lib/company-jobs";
 import {
-  completeMove, confirmFinalPrice, isPriceLocked, requestPriceRevision,
+  completeMove,
+  confirmFinalPrice,
+  isPriceLocked,
+  requestPriceRevision,
   usePriceRevisions,
 } from "@/lib/company-crm";
 
@@ -92,7 +101,11 @@ export function FinalPriceCard({
             <PriceRevisionDialog job={job} companyId={companyId} onChanged={onChanged} />
             {job.job_status !== "completed" && (
               <Button className="rounded-full" disabled={pending !== null} onClick={finish}>
-                {pending === "complete" ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <CheckCircle2 className="mr-2 h-4 w-4" />}
+                {pending === "complete" ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <CheckCircle2 className="mr-2 h-4 w-4" />
+                )}
                 Mark move completed
               </Button>
             )}
@@ -103,27 +116,56 @@ export function FinalPriceCard({
           <div className="mt-4 grid gap-4 sm:grid-cols-3">
             <div>
               <Label htmlFor="fp_price">Final move price ($)</Label>
-              <Input id="fp_price" inputMode="decimal" value={price} onChange={(e) => setPrice(e.target.value)} className="mt-1.5" />
+              <Input
+                id="fp_price"
+                inputMode="decimal"
+                value={price}
+                onChange={(e) => setPrice(e.target.value)}
+                className="mt-1.5"
+              />
             </div>
             <div>
               <Label htmlFor="fp_deposit">Deposit (optional)</Label>
-              <Input id="fp_deposit" inputMode="decimal" value={deposit} onChange={(e) => setDeposit(e.target.value)} className="mt-1.5" />
+              <Input
+                id="fp_deposit"
+                inputMode="decimal"
+                value={deposit}
+                onChange={(e) => setDeposit(e.target.value)}
+                className="mt-1.5"
+              />
             </div>
             <div>
               <Label htmlFor="fp_extra">Additional charges</Label>
-              <Input id="fp_extra" inputMode="decimal" value={additional} onChange={(e) => setAdditional(e.target.value)} className="mt-1.5" />
+              <Input
+                id="fp_extra"
+                inputMode="decimal"
+                value={additional}
+                onChange={(e) => setAdditional(e.target.value)}
+                className="mt-1.5"
+              />
             </div>
             <div className="sm:col-span-3">
               <Label htmlFor="fp_notes">Internal notes</Label>
-              <Textarea id="fp_notes" rows={3} value={notes} onChange={(e) => setNotes(e.target.value)} className="mt-1.5" />
+              <Textarea
+                id="fp_notes"
+                rows={3}
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                className="mt-1.5"
+              />
             </div>
           </div>
           <Button className="mt-4 rounded-full" disabled={pending !== null} onClick={confirm}>
-            {pending === "confirm" ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Lock className="mr-2 h-4 w-4" />}
+            {pending === "confirm" ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <Lock className="mr-2 h-4 w-4" />
+            )}
             Confirm final price
           </Button>
           <p className="mt-2 text-xs text-muted-foreground">
-            Confirming locks the price, notifies the customer and broker, and creates a pending commission record.
+            Confirming locks the price, notifies the customer and broker, and creates a pending
+            commission record.
           </p>
         </>
       )}
@@ -201,7 +243,10 @@ function PriceRevisionDialog({
     if (error) return void toast.error(error.message || "Could not file the revision.");
     toast.success("Price revision recorded. Previous prices are preserved.");
     setOpen(false);
-    setNewPrice(""); setReason(""); setNotes(""); setAttachment("");
+    setNewPrice("");
+    setReason("");
+    setNotes("");
+    setAttachment("");
     onChanged();
   }
 
@@ -216,29 +261,56 @@ function PriceRevisionDialog({
         <DialogHeader>
           <DialogTitle>Request price revision</DialogTitle>
           <DialogDescription>
-            The current price of {money(job.final_price)} stays in the history — nothing is overwritten.
+            The current price of {money(job.final_price)} stays in the history — nothing is
+            overwritten.
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
           <div>
             <Label htmlFor="rev_price">New price ($)</Label>
-            <Input id="rev_price" inputMode="decimal" value={newPrice} onChange={(e) => setNewPrice(e.target.value)} className="mt-1.5" />
+            <Input
+              id="rev_price"
+              inputMode="decimal"
+              value={newPrice}
+              onChange={(e) => setNewPrice(e.target.value)}
+              className="mt-1.5"
+            />
           </div>
           <div>
             <Label htmlFor="rev_reason">Reason</Label>
-            <Input id="rev_reason" placeholder="Extra items added at pickup" value={reason} onChange={(e) => setReason(e.target.value)} className="mt-1.5" />
+            <Input
+              id="rev_reason"
+              placeholder="Extra items added at pickup"
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+              className="mt-1.5"
+            />
           </div>
           <div>
             <Label htmlFor="rev_notes">Notes</Label>
-            <Textarea id="rev_notes" rows={3} value={notes} onChange={(e) => setNotes(e.target.value)} className="mt-1.5" />
+            <Textarea
+              id="rev_notes"
+              rows={3}
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              className="mt-1.5"
+            />
           </div>
           <div>
             <Label htmlFor="rev_file">Attachment link (optional)</Label>
-            <Input id="rev_file" placeholder="https://…" value={attachment} onChange={(e) => setAttachment(e.target.value)} className="mt-1.5" />
+            <Input
+              id="rev_file"
+              placeholder="https://…"
+              value={attachment}
+              onChange={(e) => setAttachment(e.target.value)}
+              className="mt-1.5"
+            />
           </div>
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
+          <Button variant="outline" onClick={() => setOpen(false)}>
+            Cancel
+          </Button>
           <Button onClick={submit} disabled={saving}>
             {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} Submit revision
           </Button>

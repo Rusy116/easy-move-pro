@@ -6,7 +6,11 @@ export const Route = createFileRoute("/about")({
   head: () => ({
     meta: [
       { title: "About Easy Moving" },
-      { name: "description", content: "We're rebuilding the moving industry around instant transparent pricing, vetted crews, and AI-powered move management." },
+      {
+        name: "description",
+        content:
+          "We're rebuilding the moving industry around instant transparent pricing, vetted crews, and AI-powered move management.",
+      },
     ],
   }),
   component: AboutPage,
@@ -17,16 +21,22 @@ function AboutPage() {
     <SiteLayout>
       <section className="mx-auto max-w-3xl px-4 sm:px-6 py-16 sm:py-24">
         <span className="text-xs font-semibold uppercase tracking-widest text-ochre">About</span>
-        <h1 className="mt-3 font-serif text-5xl font-medium">A moving marketplace built for humans.</h1>
+        <h1 className="mt-3 font-serif text-5xl font-medium">
+          A moving marketplace built for humans.
+        </h1>
         <div className="mt-8 space-y-6 text-lg text-muted-foreground leading-relaxed">
           <p>
-            Moving is one of the most stressful things people do. Prices are opaque, quality is inconsistent, and the industry runs on paper and phone calls.
+            Moving is one of the most stressful things people do. Prices are opaque, quality is
+            inconsistent, and the industry runs on paper and phone calls.
           </p>
           <p>
-            Easy Moving is a new kind of marketplace. We match households with vetted, DOT-licensed movers in seconds, using AI to compute accurate itemized quotes and coordinate every step of the move.
+            Easy Moving is a new kind of marketplace. We match households with vetted, DOT-licensed
+            movers in seconds, using AI to compute accurate itemized quotes and coordinate every
+            step of the move.
           </p>
           <p>
-            Every partner mover on our platform is background-checked, insured, and rated by real customers. Prices lock at booking. No surprise fees. Ever.
+            Every partner mover on our platform is background-checked, insured, and rated by real
+            customers. Prices lock at booking. No surprise fees. Ever.
           </p>
         </div>
 
@@ -44,7 +54,9 @@ function AboutPage() {
         </div>
 
         <div className="mt-16">
-          <Link to="/contact"><Button className="rounded-full">Get in touch</Button></Link>
+          <Link to="/contact">
+            <Button className="rounded-full">Get in touch</Button>
+          </Link>
         </div>
       </section>
     </SiteLayout>

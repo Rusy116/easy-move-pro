@@ -1,36 +1,53 @@
 import { useEffect, useState, type ReactNode } from "react";
 import {
-  LayoutDashboard, Inbox, Lock, Globe, FileText, Calendar,
-  Users, MessageSquare, Receipt, BarChart3, Bell, FolderOpen,
-  Building2, Settings, Wallet, LifeBuoy, ShieldAlert, Clock, Truck, History as HistoryIcon,
+  LayoutDashboard,
+  Inbox,
+  Lock,
+  Globe,
+  FileText,
+  Calendar,
+  Users,
+  MessageSquare,
+  Receipt,
+  BarChart3,
+  Bell,
+  FolderOpen,
+  Building2,
+  Settings,
+  Wallet,
+  LifeBuoy,
+  ShieldAlert,
+  Clock,
+  Truck,
+  History as HistoryIcon,
 } from "lucide-react";
 import { RoleShell } from "@/components/shell/RoleShell";
 import { RoleGuard } from "@/components/auth/RoleGuard";
 import { supabase } from "@/integrations/supabase/client";
 
 const FULL_NAV = [
-  { to: "/company",               label: "Dashboard",      icon: <LayoutDashboard className="h-4 w-4" /> },
-  { to: "/company/jobs",          label: "Available Jobs", icon: <Globe className="h-4 w-4" /> },
-  { to: "/company/myjobs",        label: "My Jobs",        icon: <Truck className="h-4 w-4" /> },
-  { to: "/company/expired",       label: "Expired Claims", icon: <Clock className="h-4 w-4" /> },
-  { to: "/company/history",       label: "Job History",    icon: <HistoryIcon className="h-4 w-4" /> },
+  { to: "/company", label: "Dashboard", icon: <LayoutDashboard className="h-4 w-4" /> },
+  { to: "/company/jobs", label: "Available Jobs", icon: <Globe className="h-4 w-4" /> },
+  { to: "/company/myjobs", label: "My Jobs", icon: <Truck className="h-4 w-4" /> },
+  { to: "/company/expired", label: "Expired Claims", icon: <Clock className="h-4 w-4" /> },
+  { to: "/company/history", label: "Job History", icon: <HistoryIcon className="h-4 w-4" /> },
 
-  { to: "/company/leads",         label: "My Leads",      icon: <Inbox className="h-4 w-4" /> },
+  { to: "/company/leads", label: "My Leads", icon: <Inbox className="h-4 w-4" /> },
 
-  { to: "/company/exclusive",     label: "Exclusive",     icon: <Lock className="h-4 w-4" /> },
-  { to: "/company/marketplace",   label: "Marketplace",   icon: <Globe className="h-4 w-4" /> },
-  { to: "/company/estimates",     label: "Estimates",     icon: <FileText className="h-4 w-4" /> },
-  { to: "/company/schedule",      label: "Schedule",      icon: <Calendar className="h-4 w-4" /> },
-  { to: "/company/customers",     label: "Customers",     icon: <Users className="h-4 w-4" /> },
-  { to: "/company/messages",      label: "Messages",      icon: <MessageSquare className="h-4 w-4" /> },
-  { to: "/company/invoices",      label: "Invoices",      icon: <Receipt className="h-4 w-4" /> },
-  { to: "/company/finance",       label: "Commissions",   icon: <Wallet className="h-4 w-4" /> },
-  { to: "/company/documents",     label: "Documents",     icon: <FolderOpen className="h-4 w-4" /> },
-  { to: "/company/analytics",     label: "Analytics",     icon: <BarChart3 className="h-4 w-4" /> },
+  { to: "/company/exclusive", label: "Exclusive", icon: <Lock className="h-4 w-4" /> },
+  { to: "/company/marketplace", label: "Marketplace", icon: <Globe className="h-4 w-4" /> },
+  { to: "/company/estimates", label: "Estimates", icon: <FileText className="h-4 w-4" /> },
+  { to: "/company/schedule", label: "Schedule", icon: <Calendar className="h-4 w-4" /> },
+  { to: "/company/customers", label: "Customers", icon: <Users className="h-4 w-4" /> },
+  { to: "/company/messages", label: "Messages", icon: <MessageSquare className="h-4 w-4" /> },
+  { to: "/company/invoices", label: "Invoices", icon: <Receipt className="h-4 w-4" /> },
+  { to: "/company/finance", label: "Commissions", icon: <Wallet className="h-4 w-4" /> },
+  { to: "/company/documents", label: "Documents", icon: <FolderOpen className="h-4 w-4" /> },
+  { to: "/company/analytics", label: "Analytics", icon: <BarChart3 className="h-4 w-4" /> },
   { to: "/company/notifications", label: "Notifications", icon: <Bell className="h-4 w-4" /> },
-  { to: "/company/profile",       label: "Profile",       icon: <Building2 className="h-4 w-4" /> },
-  { to: "/company/settings",      label: "Settings",      icon: <Settings className="h-4 w-4" /> },
-  { to: "/company/support",       label: "Support",       icon: <LifeBuoy className="h-4 w-4" /> },
+  { to: "/company/profile", label: "Profile", icon: <Building2 className="h-4 w-4" /> },
+  { to: "/company/settings", label: "Settings", icon: <Settings className="h-4 w-4" /> },
+  { to: "/company/support", label: "Support", icon: <LifeBuoy className="h-4 w-4" /> },
 ];
 
 /** Companies awaiting review (or rejected) only see onboarding surfaces. */
@@ -54,7 +71,10 @@ export function CompanyShell({ children }: { children: ReactNode }) {
         .select("status, rejection_reason")
         .limit(1);
       if (cancelled) return;
-      const row = (data?.[0] ?? null) as { status?: string; rejection_reason?: string | null } | null;
+      const row = (data?.[0] ?? null) as {
+        status?: string;
+        rejection_reason?: string | null;
+      } | null;
       setStatus(row?.status ?? "pending");
       setReason(row?.rejection_reason ?? null);
     })();
@@ -107,7 +127,9 @@ function Banner({
       ? "border-amber-300 bg-amber-50 text-amber-900"
       : "border-rose-300 bg-rose-50 text-rose-900";
   return (
-    <div className={`mx-auto mt-4 flex max-w-6xl items-start gap-2 rounded-xl border px-4 py-3 text-sm ${cls}`}>
+    <div
+      className={`mx-auto mt-4 flex max-w-6xl items-start gap-2 rounded-xl border px-4 py-3 text-sm ${cls}`}
+    >
       <span className="mt-0.5 shrink-0">{icon}</span>
       <p>{children}</p>
     </div>

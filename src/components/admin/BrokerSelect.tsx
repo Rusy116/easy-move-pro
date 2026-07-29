@@ -3,7 +3,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { useServerFn } from "@tanstack/react-start";
 import { listBrokers, type BrokerRow } from "@/lib/admin.functions";
 import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
 import { UserRound } from "lucide-react";
 import { toast } from "sonner";
@@ -20,7 +24,9 @@ export function useBrokers() {
         const list = await fetchBrokers();
         cache = list;
         setBrokers(list);
-      } catch { /* silent */ }
+      } catch {
+        /* silent */
+      }
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -44,10 +50,7 @@ export function BrokerSelect({
   }, [brokers, value]);
 
   return (
-    <Select
-      value={value ?? "__none"}
-      onValueChange={(v) => onChange(v === "__none" ? null : v)}
-    >
+    <Select value={value ?? "__none"} onValueChange={(v) => onChange(v === "__none" ? null : v)}>
       <SelectTrigger className={size === "sm" ? "h-7 text-xs" : "h-9"}>
         <SelectValue placeholder="Unassigned">
           {label ? (

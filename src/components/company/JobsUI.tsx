@@ -2,11 +2,27 @@ import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import {
-  Boxes, Calendar, Clock, Mail, MapPin, Phone, Route as RouteIcon, Loader2, ExternalLink,
+  Boxes,
+  Calendar,
+  Clock,
+  Mail,
+  MapPin,
+  Phone,
+  Route as RouteIcon,
+  Loader2,
+  ExternalLink,
 } from "lucide-react";
 import {
-  countdown, formatDate, money, place, timeAgo,
-  JOB_STATUS_LABEL, JOB_STATUS_TONE, type AvailableJob, type JobStatus, type MyJob,
+  countdown,
+  formatDate,
+  money,
+  place,
+  timeAgo,
+  JOB_STATUS_LABEL,
+  JOB_STATUS_TONE,
+  type AvailableJob,
+  type JobStatus,
+  type MyJob,
 } from "@/lib/company-jobs";
 
 /* ------------------------------- badges ------------------------------ */
@@ -95,9 +111,21 @@ export function AvailableJobCard({
       </div>
 
       <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
-        <Fact icon={<MapPin className="h-3 w-3" />} label="Origin" value={place(job.origin_city, job.origin_state)} />
-        <Fact icon={<MapPin className="h-3 w-3" />} label="Destination" value={place(job.destination_city, job.destination_state)} />
-        <Fact icon={<Calendar className="h-3 w-3" />} label="Move date" value={formatDate(job.move_date)} />
+        <Fact
+          icon={<MapPin className="h-3 w-3" />}
+          label="Origin"
+          value={place(job.origin_city, job.origin_state)}
+        />
+        <Fact
+          icon={<MapPin className="h-3 w-3" />}
+          label="Destination"
+          value={place(job.destination_city, job.destination_state)}
+        />
+        <Fact
+          icon={<Calendar className="h-3 w-3" />}
+          label="Move date"
+          value={formatDate(job.move_date)}
+        />
         <Fact
           icon={<RouteIcon className="h-3 w-3" />}
           label="Move type"
@@ -106,15 +134,24 @@ export function AvailableJobCard({
         <Fact
           icon={<Boxes className="h-3 w-3" />}
           label="Home size"
-          value={<span className="capitalize">{(job.property_type ?? "—").replace(/_/g, " ")}</span>}
+          value={
+            <span className="capitalize">{(job.property_type ?? "—").replace(/_/g, " ")}</span>
+          }
         />
-        <Fact icon={<Boxes className="h-3 w-3" />} label="Volume" value={job.estimated_cubic_feet ? `${Math.round(job.estimated_cubic_feet)} cu ft` : "—"} />
+        <Fact
+          icon={<Boxes className="h-3 w-3" />}
+          label="Volume"
+          value={job.estimated_cubic_feet ? `${Math.round(job.estimated_cubic_feet)} cu ft` : "—"}
+        />
       </div>
 
       {job.services && job.services.length > 0 && (
         <div className="mt-4 flex flex-wrap gap-1.5">
           {job.services.map((s) => (
-            <span key={s} className="rounded-full border border-border bg-muted px-2.5 py-0.5 text-[11px] font-medium">
+            <span
+              key={s}
+              className="rounded-full border border-border bg-muted px-2.5 py-0.5 text-[11px] font-medium"
+            >
               {s}
             </span>
           ))}
@@ -124,7 +161,6 @@ export function AvailableJobCard({
       <p className="mt-4 text-[11px] text-muted-foreground">
         Customer name, phone, email and exact addresses unlock after you claim this lead.
       </p>
-
 
       <Button
         onClick={() => onClaim(job)}
@@ -144,7 +180,6 @@ export function AvailableJobCard({
 export function MyJobCard({ job }: { job: MyJob }) {
   const canPortal = Boolean(job.quote_number && job.portal_token);
 
-
   return (
     <article className="rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5">
       <div className="flex flex-wrap items-start justify-between gap-2">
@@ -153,7 +188,8 @@ export function MyJobCard({ job }: { job: MyJob }) {
             {job.quote_number ?? "—"}
           </div>
           <h3 className="mt-0.5 truncate text-lg font-semibold">
-            {place(job.origin_city, job.origin_state)} → {place(job.destination_city, job.destination_state)}
+            {place(job.origin_city, job.origin_state)} →{" "}
+            {place(job.destination_city, job.destination_state)}
           </h3>
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -163,19 +199,39 @@ export function MyJobCard({ job }: { job: MyJob }) {
       </div>
 
       <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <Fact icon={<Calendar className="h-3 w-3" />} label="Move date" value={formatDate(job.final_move_date ?? job.move_date)} />
-        <Fact icon={<RouteIcon className="h-3 w-3" />} label="Distance" value={job.distance_miles ? `${Math.round(job.distance_miles)} mi` : "—"} />
+        <Fact
+          icon={<Calendar className="h-3 w-3" />}
+          label="Move date"
+          value={formatDate(job.final_move_date ?? job.move_date)}
+        />
+        <Fact
+          icon={<RouteIcon className="h-3 w-3" />}
+          label="Distance"
+          value={job.distance_miles ? `${Math.round(job.distance_miles)} mi` : "—"}
+        />
         <Fact icon={<Phone className="h-3 w-3" />} label="Phone" value={job.contact_phone ?? "—"} />
         <Fact icon={<Mail className="h-3 w-3" />} label="Email" value={job.contact_email ?? "—"} />
       </div>
 
       <div className="mt-5 flex flex-wrap gap-2">
-        <Button asChild variant="outline" size="sm" className="rounded-full" disabled={!job.contact_phone}>
+        <Button
+          asChild
+          variant="outline"
+          size="sm"
+          className="rounded-full"
+          disabled={!job.contact_phone}
+        >
           <a href={`tel:${job.contact_phone ?? ""}`}>
             <Phone className="mr-1.5 h-3.5 w-3.5" /> Call
           </a>
         </Button>
-        <Button asChild variant="outline" size="sm" className="rounded-full" disabled={!job.contact_email}>
+        <Button
+          asChild
+          variant="outline"
+          size="sm"
+          className="rounded-full"
+          disabled={!job.contact_email}
+        >
           <a href={`mailto:${job.contact_email ?? ""}`}>
             <Mail className="mr-1.5 h-3.5 w-3.5" /> Email
           </a>

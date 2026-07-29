@@ -1,8 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import {
-  CompanyHeader, EstimateBuilderDialog, LeadCard, LeadDetailDialog,
-  NoCompanyScreen, StatusBanner, useMoverPortal, type MergedLead,
+  CompanyHeader,
+  EstimateBuilderDialog,
+  LeadCard,
+  LeadDetailDialog,
+  NoCompanyScreen,
+  StatusBanner,
+  useMoverPortal,
+  type MergedLead,
 } from "@/components/company/portal-shared";
 import { SkeletonRows } from "@/components/shell/Chrome";
 import { Lock } from "lucide-react";
@@ -33,7 +39,8 @@ function ExclusivePage() {
           <span className="text-sm text-muted-foreground">({rows.length})</span>
         </div>
         <p className="text-sm text-muted-foreground mb-4">
-          You have a limited window to contact these customers. If the SLA expires, the lead moves to the open marketplace.
+          You have a limited window to contact these customers. If the SLA expires, the lead moves
+          to the open marketplace.
         </p>
         <div className="space-y-3">
           {rows.length === 0 && (
@@ -59,7 +66,10 @@ function ExclusivePage() {
           merged={selected}
           onClose={() => setSelected(null)}
           onReload={reload}
-          onEstimate={() => { setEstimateFor(selected); setSelected(null); }}
+          onEstimate={() => {
+            setEstimateFor(selected);
+            setSelected(null);
+          }}
           canClaim={canClaim}
         />
       )}
@@ -68,7 +78,10 @@ function ExclusivePage() {
           merged={estimateFor}
           companyId={company.id}
           onClose={() => setEstimateFor(null)}
-          onSubmitted={() => { setEstimateFor(null); reload(); }}
+          onSubmitted={() => {
+            setEstimateFor(null);
+            reload();
+          }}
         />
       )}
     </div>

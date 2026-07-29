@@ -17,22 +17,18 @@ export const Route = createFileRoute("/api/public/sla-tick")({
           request.headers.get("apikey") ??
           request.headers.get("authorization")?.replace(/^Bearer\s+/i, "");
         const expected =
-          process.env.SUPABASE_PUBLISHABLE_KEY ??
-          process.env.SUPABASE_ANON_KEY ??
-          "";
+          process.env.SUPABASE_PUBLISHABLE_KEY ?? process.env.SUPABASE_ANON_KEY ?? "";
         if (!apiKey || !expected || apiKey !== expected) {
           return new Response("Unauthorized", { status: 401 });
         }
 
-        const { supabaseAdmin } = await import(
-          "@/integrations/supabase/client.server"
-        );
+        const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
         const { data, error } = await supabaseAdmin.rpc("fn_sla_tick");
         if (error) {
-          return new Response(
-            JSON.stringify({ ok: false, error: error.message }),
-            { status: 500, headers: { "Content-Type": "application/json" } },
-          );
+          return new Response(JSON.stringify({ ok: false, error: error.message }), {
+            status: 500,
+            headers: { "Content-Type": "application/json" },
+          });
         }
 
         // Marketplace engine: release 12-hour claims that made no progress.
@@ -42,10 +38,10 @@ export const Route = createFileRoute("/api/public/sla-tick")({
         };
 
         if (claims.error) {
-          return new Response(
-            JSON.stringify({ ok: false, error: claims.error.message }),
-            { status: 500, headers: { "Content-Type": "application/json" } },
-          );
+          return new Response(JSON.stringify({ ok: false, error: claims.error.message }), {
+            status: 500,
+            headers: { "Content-Type": "application/json" },
+          });
         }
 
         return Response.json({
@@ -58,4 +54,3 @@ export const Route = createFileRoute("/api/public/sla-tick")({
     },
   },
 });
-

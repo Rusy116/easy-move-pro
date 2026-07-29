@@ -28,7 +28,8 @@ function CalculatorPage() {
             Moving Quote Calculator
           </h1>
           <p className="mt-4 text-lg text-muted-foreground">
-            Enter your move details. We'll compute a real, itemized price range using live carrier rates and household averages.
+            Enter your move details. We'll compute a real, itemized price range using live carrier
+            rates and household averages.
           </p>
         </div>
         <QuoteCalculator />

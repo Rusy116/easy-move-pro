@@ -26,8 +26,16 @@ import { useServerFn } from "@tanstack/react-start";
 import { attachMemberByEmail } from "@/lib/companies.functions";
 import { adminSetCompanyStatus, type CompanyStatus } from "@/lib/partners.functions";
 import {
-  Plus, UserPlus, Building2, Trash2, FileCheck2, CheckCircle2, XCircle,
-  PauseCircle, RotateCcw, Download,
+  Plus,
+  UserPlus,
+  Building2,
+  Trash2,
+  FileCheck2,
+  CheckCircle2,
+  XCircle,
+  PauseCircle,
+  RotateCcw,
+  Download,
 } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/admin/companies")({
@@ -143,7 +151,6 @@ function CompaniesAdmin() {
     [setStatus, load],
   );
 
-
   if (isAdmin === null) {
     return (
       <AdminShell>
@@ -156,10 +163,7 @@ function CompaniesAdmin() {
       <AdminShell>
         <section className="mx-auto max-w-2xl px-4 py-24 text-center">
           <h1 className="font-serif text-4xl">Admin access required</h1>
-          <Link
-            to="/dashboard"
-            className="mt-6 inline-block text-primary hover:underline"
-          >
+          <Link to="/dashboard" className="mt-6 inline-block text-primary hover:underline">
             ← Back to dashboard
           </Link>
         </section>
@@ -175,9 +179,7 @@ function CompaniesAdmin() {
             <span className="text-xs font-semibold uppercase tracking-widest text-ochre">
               Admin
             </span>
-            <h1 className="mt-2 font-serif text-3xl md:text-4xl font-medium">
-              Moving Companies
-            </h1>
+            <h1 className="mt-2 font-serif text-3xl md:text-4xl font-medium">Moving Companies</h1>
             <p className="mt-1 text-sm text-muted-foreground">
               {companies.filter((c) => c.status === "pending").length} awaiting approval ·{" "}
               {companies.length} partner companies
@@ -229,9 +231,7 @@ function CompaniesAdmin() {
 
         <div className="mt-6 grid gap-4 md:grid-cols-2">
           {loading && companies.length === 0 && (
-            <div className="col-span-full text-center text-muted-foreground py-12">
-              Loading…
-            </div>
+            <div className="col-span-full text-center text-muted-foreground py-12">Loading…</div>
           )}
           {!loading && visible.length === 0 && (
             <div className="col-span-full rounded-2xl border border-dashed border-border bg-card p-10 text-center text-sm text-muted-foreground">
@@ -372,11 +372,22 @@ function CompaniesAdmin() {
                   variant="outline"
                   className="ml-auto text-rose-700 hover:bg-rose-50 hover:text-rose-800 border-rose-200"
                   onClick={async () => {
-                    if (!confirm(`Delete ${c.name}? All lead assignments for this company will be removed.`)) return;
+                    if (
+                      !confirm(
+                        `Delete ${c.name}? All lead assignments for this company will be removed.`,
+                      )
+                    )
+                      return;
                     await supabase.from("quote_assignments").delete().eq("company_id", c.id);
                     await supabase.from("company_members").delete().eq("company_id", c.id);
-                    const { error } = await supabase.from("moving_companies").delete().eq("id", c.id);
-                    if (error) { toast.error(error.message); return; }
+                    const { error } = await supabase
+                      .from("moving_companies")
+                      .delete()
+                      .eq("id", c.id);
+                    if (error) {
+                      toast.error(error.message);
+                      return;
+                    }
                     toast.success("Company deleted");
                     void load();
                   }}
@@ -385,7 +396,6 @@ function CompaniesAdmin() {
                   Delete
                 </Button>
               </div>
-
             </div>
           ))}
         </div>
@@ -409,7 +419,6 @@ function CompaniesAdmin() {
         </Dialog>
       )}
 
-
       {editing && (
         <Dialog open onOpenChange={(o) => !o && setEditing(null)}>
           <CompanyFormDialog
@@ -424,23 +433,14 @@ function CompaniesAdmin() {
 
       {addingMemberFor && (
         <Dialog open onOpenChange={(o) => !o && setAddingMemberFor(null)}>
-          <AddMemberDialog
-            company={addingMemberFor}
-            onDone={() => setAddingMemberFor(null)}
-          />
+          <AddMemberDialog company={addingMemberFor} onDone={() => setAddingMemberFor(null)} />
         </Dialog>
       )}
     </AdminShell>
   );
 }
 
-function CompanyFormDialog({
-  initial,
-  onSaved,
-}: {
-  initial?: Company;
-  onSaved: () => void;
-}) {
+function CompanyFormDialog({ initial, onSaved }: { initial?: Company; onSaved: () => void }) {
   const [form, setForm] = useState({
     name: initial?.name ?? "",
     logo_url: initial?.logo_url ?? "",
@@ -495,10 +495,7 @@ function CompanyFormDialog({
       </DialogHeader>
       <div className="grid gap-3">
         <Field label="Company name *">
-          <Input
-            value={form.name}
-            onChange={(e) => setForm({ ...form, name: e.target.value })}
-          />
+          <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
         </Field>
         <Field label="Logo URL">
           <Input
@@ -614,8 +611,8 @@ function AddMemberDialog({ company, onDone }: { company: Company; onDone: () => 
         <DialogTitle>Add member to {company.name}</DialogTitle>
       </DialogHeader>
       <p className="text-sm text-muted-foreground">
-        Enter the email of an existing Easy Moving account. They'll be granted the
-        Moving Company role and linked to this company.
+        Enter the email of an existing Easy Moving account. They'll be granted the Moving Company
+        role and linked to this company.
       </p>
       <div className="grid gap-2">
         <Label>Email</Label>
@@ -638,9 +635,7 @@ function AddMemberDialog({ company, onDone }: { company: Company; onDone: () => 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <Label className="text-xs uppercase tracking-wider text-muted-foreground">
-        {label}
-      </Label>
+      <Label className="text-xs uppercase tracking-wider text-muted-foreground">{label}</Label>
       <div className="mt-1">{children}</div>
     </div>
   );

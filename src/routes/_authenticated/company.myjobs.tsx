@@ -9,7 +9,10 @@ export const Route = createFileRoute("/_authenticated/company/myjobs")({
   head: () => ({
     meta: [
       { title: "My Jobs — Easy Moving Company Portal" },
-      { name: "description", content: "Track claimed moving jobs, response deadlines and customer contact details." },
+      {
+        name: "description",
+        content: "Track claimed moving jobs, response deadlines and customer contact details.",
+      },
     ],
   }),
   component: MyJobsPage,
@@ -34,13 +37,19 @@ function MyJobsPage() {
 
   const jobs = useMemo(() => {
     if (filter === "all") return myJobs;
-    if (filter === "active") return myJobs.filter((j) => !CLOSED.includes(j.job_status as JobStatus));
+    if (filter === "active")
+      return myJobs.filter((j) => !CLOSED.includes(j.job_status as JobStatus));
     return myJobs.filter((j) => j.job_status === filter);
   }, [myJobs, filter]);
 
   if (loadingCompany || (loading && !myJobs.length)) return <SkeletonRows n={4} />;
   if (!company) {
-    return <EmptyState title="No company linked" body="Your account is not linked to a moving company yet." />;
+    return (
+      <EmptyState
+        title="No company linked"
+        body="Your account is not linked to a moving company yet."
+      />
+    );
   }
 
   return (
@@ -67,7 +76,10 @@ function MyJobsPage() {
       </div>
 
       {jobs.length === 0 ? (
-        <EmptyState title="Nothing here yet" body="Claim a job from Available jobs to see it in this list." />
+        <EmptyState
+          title="Nothing here yet"
+          body="Claim a job from Available jobs to see it in this list."
+        />
       ) : (
         <div className="grid gap-4">
           {jobs.map((job) => (

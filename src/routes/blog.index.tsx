@@ -29,10 +29,12 @@ export const Route = createFileRoute("/blog/")({
     meta: seoMeta({ title: TITLE, description: DESC, path: "/blog" }),
     links: [{ rel: "canonical", href: "/blog" }],
     scripts: [
-      jsonLd(breadcrumbSchema([
-        { name: "Home", url: "/" },
-        { name: "Blog", url: "/blog" },
-      ])),
+      jsonLd(
+        breadcrumbSchema([
+          { name: "Home", url: "/" },
+          { name: "Blog", url: "/blog" },
+        ]),
+      ),
     ],
   }),
   loader: ({ context }) => {
@@ -48,7 +50,9 @@ function BlogIndex() {
   const tagged = useMemo(() => posts.map((p) => ({ ...p, category: categorizePost(p) })), [posts]);
   const counts = useMemo(() => {
     const m: Partial<Record<BlogCategory, number>> = {};
-    tagged.forEach((p) => { m[p.category] = (m[p.category] ?? 0) + 1; });
+    tagged.forEach((p) => {
+      m[p.category] = (m[p.category] ?? 0) + 1;
+    });
     return m;
   }, [tagged]);
   const visible = cat === "all" ? tagged : tagged.filter((p) => p.category === cat);
@@ -64,7 +68,9 @@ function BlogIndex() {
         </p>
 
         <div className="mt-8 flex flex-wrap gap-2">
-          <Chip active={cat === "all"} onClick={() => setCat("all")}>All ({tagged.length})</Chip>
+          <Chip active={cat === "all"} onClick={() => setCat("all")}>
+            All ({tagged.length})
+          </Chip>
           {BLOG_CATEGORIES.map((c) => (
             <Chip key={c.key} active={cat === c.key} onClick={() => setCat(c.key)}>
               {c.label} ({counts[c.key] ?? 0})
@@ -74,14 +80,23 @@ function BlogIndex() {
 
         <div className="mt-8 divide-y divide-border">
           {visible.map((p) => (
-            <Link key={p.slug} to="/blog/$slug" params={{ slug: p.slug }} className="block py-8 group">
+            <Link
+              key={p.slug}
+              to="/blog/$slug"
+              params={{ slug: p.slug }}
+              className="block py-8 group"
+            >
               <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
                 <span className="rounded-full border border-border px-2.5 py-1">
                   {BLOG_CATEGORIES.find((c) => c.key === p.category)?.label}
                 </span>
                 <span>
                   {p.published_at
-                    ? new Date(p.published_at).toLocaleDateString(undefined, { month: "long", day: "numeric", year: "numeric" })
+                    ? new Date(p.published_at).toLocaleDateString(undefined, {
+                        month: "long",
+                        day: "numeric",
+                        year: "numeric",
+                      })
                     : ""}
                 </span>
               </div>
@@ -94,7 +109,9 @@ function BlogIndex() {
           ))}
         </div>
 
-        {visible.length === 0 && <p className="mt-10 text-muted-foreground">No posts in this category yet.</p>}
+        {visible.length === 0 && (
+          <p className="mt-10 text-muted-foreground">No posts in this category yet.</p>
+        )}
       </section>
 
       <InternalLinks
@@ -118,8 +135,14 @@ function BlogIndex() {
 }
 
 function Chip({
-  active, onClick, children,
-}: { active: boolean; onClick: () => void; children: React.ReactNode }) {
+  active,
+  onClick,
+  children,
+}: {
+  active: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
   return (
     <button
       type="button"

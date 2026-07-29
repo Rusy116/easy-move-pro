@@ -4,7 +4,13 @@ import { SiteLayout } from "@/components/site/SiteLayout";
 import { Button } from "@/components/ui/button";
 import { QuoteCalculator } from "@/components/calculator/QuoteCalculator";
 import { Faq, InternalLinks, Breadcrumbs } from "@/components/seo/blocks";
-import { seoMeta, jsonLd, breadcrumbSchema, faqSchema, localBusinessSchema } from "@/lib/seo/schema";
+import {
+  seoMeta,
+  jsonLd,
+  breadcrumbSchema,
+  faqSchema,
+  localBusinessSchema,
+} from "@/lib/seo/schema";
 import { neighborhoodsFor, costTable, cityFaq, cityTips } from "@/lib/seo/city-content";
 import { CITIES } from "./cities.index";
 
@@ -26,17 +32,21 @@ export const Route = createFileRoute("/cities/$city")({
       meta: seoMeta({ title, description, path }),
       links: [{ rel: "canonical", href: path }],
       scripts: [
-        jsonLd(localBusinessSchema({
-          name: `Easy Moving — ${c.name}, ${c.state}`,
-          description,
-          area: `${c.name}, ${c.state}`,
-          url: path,
-        })),
-        jsonLd(breadcrumbSchema([
-          { name: "Home", url: "/" },
-          { name: "Cities", url: "/cities" },
-          { name: c.name, url: path },
-        ])),
+        jsonLd(
+          localBusinessSchema({
+            name: `Easy Moving — ${c.name}, ${c.state}`,
+            description,
+            area: `${c.name}, ${c.state}`,
+            url: path,
+          }),
+        ),
+        jsonLd(
+          breadcrumbSchema([
+            { name: "Home", url: "/" },
+            { name: "Cities", url: "/cities" },
+            { name: c.name, url: path },
+          ]),
+        ),
         jsonLd(faqSchema(cityFaq(c.name, c.state, c.avg))),
       ],
     };
@@ -46,7 +56,9 @@ export const Route = createFileRoute("/cities/$city")({
     <SiteLayout>
       <div className="mx-auto max-w-3xl px-4 py-24 text-center">
         <h1 className="font-serif text-4xl">City not found</h1>
-        <Link to="/cities" className="mt-6 inline-block text-primary hover:underline">Browse all cities →</Link>
+        <Link to="/cities" className="mt-6 inline-block text-primary hover:underline">
+          Browse all cities →
+        </Link>
       </div>
     </SiteLayout>
   ),
@@ -81,8 +93,8 @@ function CityPage() {
                 Moving Companies in {where}
               </h1>
               <p className="mt-3 text-base leading-relaxed text-muted-foreground">
-                Compare DOT-licensed {city.name} movers in seconds. Build your inventory, get a
-                real itemized price range instantly, and lock your rate at booking — the average
+                Compare DOT-licensed {city.name} movers in seconds. Build your inventory, get a real
+                itemized price range instantly, and lock your rate at booking — the average
                 2-bedroom move here runs about ${city.avg.toLocaleString()}.
               </p>
 
@@ -113,7 +125,13 @@ function CityPage() {
         </div>
       </section>
 
-      <Breadcrumbs items={[{ label: "Home", to: "/" }, { label: "Cities", to: "/cities" }, { label: city.name }]} />
+      <Breadcrumbs
+        items={[
+          { label: "Home", to: "/" },
+          { label: "Cities", to: "/cities" },
+          { label: city.name },
+        ]}
+      />
 
       {/* ── SEO content below the calculator ── */}
       <section id="city-guide" className="border-b border-border scroll-mt-4">
@@ -132,8 +150,8 @@ function CityPage() {
           <p className="mt-4 leading-relaxed text-muted-foreground">
             Easy Moving matches you with vetted, DOT-licensed crews serving {where}. Every partner
             carries active cargo and liability coverage, issues certificates of insurance for
-            buildings that require them, and quotes from your real inventory instead of a guess
-            over the phone. Prices lock at booking, so what you approve is what you pay.
+            buildings that require them, and quotes from your real inventory instead of a guess over
+            the phone. Prices lock at booking, so what you approve is what you pay.
           </p>
         </div>
       </section>
@@ -205,7 +223,9 @@ function CityPage() {
           </h2>
           <ul className="mt-6 space-y-4 text-muted-foreground">
             {tips.map((t) => (
-              <li key={t} className="leading-relaxed">• {t}</li>
+              <li key={t} className="leading-relaxed">
+                • {t}
+              </li>
             ))}
           </ul>
         </div>
@@ -226,7 +246,9 @@ function CityPage() {
               <Button className="rounded-full">Get Instant Quote</Button>
             </a>
             <Link to="/services">
-              <Button variant="outline" className="rounded-full">See services</Button>
+              <Button variant="outline" className="rounded-full">
+                See services
+              </Button>
             </Link>
           </div>
         </div>

@@ -43,9 +43,9 @@ export async function loadRoleContext(): Promise<RoleContext | null> {
     supabase.from("profiles").select("status").eq("id", user.id).maybeSingle(),
   ]);
 
-  const roles = ((roleRows ?? []).map((r) => r.role as string).filter((r) =>
-    PRECEDENCE.includes(r as PlatformRole),
-  ) as PlatformRole[]);
+  const roles = (roleRows ?? [])
+    .map((r) => r.role as string)
+    .filter((r) => PRECEDENCE.includes(r as PlatformRole)) as PlatformRole[];
 
   return {
     userId: user.id,

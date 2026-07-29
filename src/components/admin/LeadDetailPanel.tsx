@@ -1,17 +1,33 @@
 import { useEffect, useMemo, useState } from "react";
-import {
-  Sheet, SheetContent, SheetHeader, SheetTitle,
-} from "@/components/ui/sheet";
-import {
-  Tabs, TabsContent, TabsList, TabsTrigger,
-} from "@/components/ui/tabs";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
-import { Phone, Mail, StickyNote, Clock, ExternalLink, Building2, User, Package, MapPin, EyeOff, PauseCircle, PlayCircle, XCircle, X, CheckCircle2 } from "lucide-react";
+import {
+  Phone,
+  Mail,
+  StickyNote,
+  Clock,
+  ExternalLink,
+  Building2,
+  User,
+  Package,
+  MapPin,
+  EyeOff,
+  PauseCircle,
+  PlayCircle,
+  XCircle,
+  X,
+  CheckCircle2,
+} from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
@@ -24,8 +40,15 @@ import { LeadEventsTimeline } from "./LeadEventsTimeline";
 import { pauseSla, resumeSla, extendSla, closeLead } from "@/lib/leads.functions";
 import { LeadWorkflowActions } from "./LeadWorkflow";
 
-
-export const LEAD_STATUSES = ["new", "contacted", "scheduled", "accepted", "won", "lost", "cancelled"] as const;
+export const LEAD_STATUSES = [
+  "new",
+  "contacted",
+  "scheduled",
+  "accepted",
+  "won",
+  "lost",
+  "cancelled",
+] as const;
 
 const STATUS_STYLES: Record<string, string> = {
   new: "bg-blue-100 text-blue-800 border-blue-300",
@@ -37,8 +60,21 @@ const STATUS_STYLES: Record<string, string> = {
   cancelled: "bg-neutral-200 text-neutral-700 border-neutral-300",
 };
 
-type Note = { id: string; quote_id: string; body: string; author_email: string | null; created_at: string };
-type History = { id: string; quote_id: string; from_status: string | null; to_status: string; changed_by_email: string | null; created_at: string };
+type Note = {
+  id: string;
+  quote_id: string;
+  body: string;
+  author_email: string | null;
+  created_at: string;
+};
+type History = {
+  id: string;
+  quote_id: string;
+  from_status: string | null;
+  to_status: string;
+  changed_by_email: string | null;
+  created_at: string;
+};
 
 type Quote = {
   id: string;
@@ -88,8 +124,6 @@ type Quote = {
   lead_status?: string | null;
 };
 
-
-
 function getCustomerName(q: Quote): string {
   const d = q.details as { fullName?: string } | null;
   return d?.fullName?.trim() || "—";
@@ -127,8 +161,16 @@ export function LeadDetailPanel({
     const qid = q.id;
     void (async () => {
       const [{ data: n }, { data: h }] = await Promise.all([
-        supabase.from("quote_notes").select("*").eq("quote_id", qid).order("created_at", { ascending: false }),
-        supabase.from("quote_status_history").select("*").eq("quote_id", qid).order("created_at", { ascending: false }),
+        supabase
+          .from("quote_notes")
+          .select("*")
+          .eq("quote_id", qid)
+          .order("created_at", { ascending: false }),
+        supabase
+          .from("quote_status_history")
+          .select("*")
+          .eq("quote_id", qid)
+          .order("created_at", { ascending: false }),
       ]);
       setNotes((n as Note[]) ?? []);
       setHistory((h as History[]) ?? []);
@@ -136,12 +178,25 @@ export function LeadDetailPanel({
 
     const channel = supabase
       .channel(`quote-${qid}`)
-      .on("postgres_changes", { event: "INSERT", schema: "public", table: "quote_notes", filter: `quote_id=eq.${qid}` },
-        (p) => setNotes((prev) => [p.new as Note, ...prev]))
-      .on("postgres_changes", { event: "INSERT", schema: "public", table: "quote_status_history", filter: `quote_id=eq.${qid}` },
-        (p) => setHistory((prev) => [p.new as History, ...prev]))
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "quote_notes", filter: `quote_id=eq.${qid}` },
+        (p) => setNotes((prev) => [p.new as Note, ...prev]),
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "quote_status_history",
+          filter: `quote_id=eq.${qid}`,
+        },
+        (p) => setHistory((prev) => [p.new as History, ...prev]),
+      )
       .subscribe();
-    return () => { void supabase.removeChannel(channel); };
+    return () => {
+      void supabase.removeChannel(channel);
+    };
   }, [q?.id]);
 
   const inventory = useMemo(() => q?.inventory ?? [], [q]);
@@ -180,8 +235,6 @@ export function LeadDetailPanel({
     await assignBroker(q.id, v);
   }
 
-
-
   async function qualifyLead(quoteId: string) {
     setQualifying(true);
     const { error } = await supabase.rpc("fn_broker_qualify_lead", { _quote_id: quoteId });
@@ -198,7 +251,6 @@ export function LeadDetailPanel({
       toast.error(e instanceof Error ? e.message : "Failed");
     }
   }
-
 
   return (
     <Sheet open={!!quote} onOpenChange={(o) => !o && onClose()}>
@@ -222,7 +274,9 @@ export function LeadDetailPanel({
                 {q.status}
               </Badge>
               {q.accepted_at && (
-                <Badge className="bg-emerald-500/10 text-emerald-700 border-emerald-600/30">Accepted</Badge>
+                <Badge className="bg-emerald-500/10 text-emerald-700 border-emerald-600/30">
+                  Accepted
+                </Badge>
               )}
             </SheetTitle>
           </SheetHeader>
@@ -234,15 +288,23 @@ export function LeadDetailPanel({
             <LeadWorkflowActions quoteId={q.id} status={q.lead_status} />
           </div>
 
-
-
           <div className="mt-3 flex flex-wrap items-center gap-2">
             <Button asChild size="sm" disabled={!phone}>
-              <a href={phone ? `tel:${phone}` : undefined}><Phone className="mr-2 h-4 w-4" />Call</a>
+              <a href={phone ? `tel:${phone}` : undefined}>
+                <Phone className="mr-2 h-4 w-4" />
+                Call
+              </a>
             </Button>
             <Button asChild size="sm" variant="outline" disabled={!email}>
-              <a href={email ? `mailto:${email}?subject=Your%20Easy%20Moving%20Quote%20${q.quote_number ?? ""}` : undefined}>
-                <Mail className="mr-2 h-4 w-4" />Email
+              <a
+                href={
+                  email
+                    ? `mailto:${email}?subject=Your%20Easy%20Moving%20Quote%20${q.quote_number ?? ""}`
+                    : undefined
+                }
+              >
+                <Mail className="mr-2 h-4 w-4" />
+                Email
               </a>
             </Button>
             {q.quote_number && q.portal_token && (
@@ -252,14 +314,18 @@ export function LeadDetailPanel({
                   params={{ quoteNumber: q.quote_number }}
                   search={{ token: q.portal_token }}
                 >
-                  <ExternalLink className="mr-2 h-4 w-4" />Portal
+                  <ExternalLink className="mr-2 h-4 w-4" />
+                  Portal
                 </Link>
               </Button>
             )}
             <Button
               size="sm"
               className="bg-emerald-600 text-white hover:bg-emerald-700"
-              disabled={qualifying || !["new", "qualified", "expired", "cancelled"].includes(q.job_status ?? "new")}
+              disabled={
+                qualifying ||
+                !["new", "qualified", "expired", "cancelled"].includes(q.job_status ?? "new")
+              }
               onClick={() => void qualifyLead(q.id)}
             >
               <CheckCircle2 className="mr-2 h-4 w-4" />
@@ -270,9 +336,15 @@ export function LeadDetailPanel({
 
             <div className="ml-auto flex items-center gap-2">
               <Select value={q.status} onValueChange={(v) => void onStatusChange(q.id, v)}>
-                <SelectTrigger className="h-8 w-[140px] capitalize"><SelectValue /></SelectTrigger>
+                <SelectTrigger className="h-8 w-[140px] capitalize">
+                  <SelectValue />
+                </SelectTrigger>
                 <SelectContent>
-                  {LEAD_STATUSES.map((s) => <SelectItem key={s} value={s} className="capitalize">{s}</SelectItem>)}
+                  {LEAD_STATUSES.map((s) => (
+                    <SelectItem key={s} value={s} className="capitalize">
+                      {s}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -293,63 +365,108 @@ export function LeadDetailPanel({
           <div className="mt-3 flex flex-wrap items-center gap-2 rounded-lg border border-border bg-background/60 px-3 py-2">
             <LeadPhaseBadge phase={q.lead_phase} />
             {q.lead_phase === "exclusive" && (
-              <SlaCountdown
-                expiresAt={q.exclusive_expires_at}
-                pausedAt={q.exclusive_paused_at}
-              />
+              <SlaCountdown expiresAt={q.exclusive_expires_at} pausedAt={q.exclusive_paused_at} />
             )}
-            <span className="inline-flex items-center gap-1 rounded-full border border-border bg-card px-2 py-0.5 text-[11px] text-muted-foreground" title="Mover PII visibility">
+            <span
+              className="inline-flex items-center gap-1 rounded-full border border-border bg-card px-2 py-0.5 text-[11px] text-muted-foreground"
+              title="Mover PII visibility"
+            >
               <EyeOff className="h-3 w-3" />
               {(() => {
                 const m = q.visibility_mask ?? {};
                 const hidden = Object.values(m).filter(Boolean).length;
-                return hidden > 0 ? `${hidden} PII field${hidden > 1 ? "s" : ""} hidden` : "Full visibility";
+                return hidden > 0
+                  ? `${hidden} PII field${hidden > 1 ? "s" : ""} hidden`
+                  : "Full visibility";
               })()}
             </span>
             {q.closed_reason && (
-              <Badge variant="outline" className="text-[11px] capitalize">Closed · {q.closed_reason}</Badge>
+              <Badge variant="outline" className="text-[11px] capitalize">
+                Closed · {q.closed_reason}
+              </Badge>
             )}
 
             {/* Engine quick actions */}
             <div className="ml-auto flex flex-wrap items-center gap-1.5">
               {q.lead_phase === "exclusive" && !q.exclusive_paused_at && (
-                <Button size="sm" variant="ghost" className="h-7 px-2 text-xs"
-                  onClick={() => void runEngine(
-                    () => doPause({ data: { quoteId: q.id, reason: "manual" } }),
-                    "SLA paused")}>
-                  <PauseCircle className="mr-1 h-3.5 w-3.5" />Pause
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="h-7 px-2 text-xs"
+                  onClick={() =>
+                    void runEngine(
+                      () => doPause({ data: { quoteId: q.id, reason: "manual" } }),
+                      "SLA paused",
+                    )
+                  }
+                >
+                  <PauseCircle className="mr-1 h-3.5 w-3.5" />
+                  Pause
                 </Button>
               )}
               {q.lead_phase === "exclusive" && q.exclusive_paused_at && (
-                <Button size="sm" variant="ghost" className="h-7 px-2 text-xs"
-                  onClick={() => void runEngine(
-                    () => doResume({ data: { quoteId: q.id } }),
-                    "SLA resumed")}>
-                  <PlayCircle className="mr-1 h-3.5 w-3.5" />Resume
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="h-7 px-2 text-xs"
+                  onClick={() =>
+                    void runEngine(() => doResume({ data: { quoteId: q.id } }), "SLA resumed")
+                  }
+                >
+                  <PlayCircle className="mr-1 h-3.5 w-3.5" />
+                  Resume
                 </Button>
               )}
               {q.lead_phase === "exclusive" && (
-                <Button size="sm" variant="ghost" className="h-7 px-2 text-xs"
-                  onClick={() => void runEngine(
-                    () => doExtend({ data: { quoteId: q.id, minutes: 60 } }),
-                    "SLA extended +1h")}>
-                  <Clock className="mr-1 h-3.5 w-3.5" />+1h
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="h-7 px-2 text-xs"
+                  onClick={() =>
+                    void runEngine(
+                      () => doExtend({ data: { quoteId: q.id, minutes: 60 } }),
+                      "SLA extended +1h",
+                    )
+                  }
+                >
+                  <Clock className="mr-1 h-3.5 w-3.5" />
+                  +1h
                 </Button>
               )}
               {q.lead_phase !== "closed" && (
-                <Button size="sm" variant="ghost" className="h-7 px-2 text-xs text-rose-700 hover:text-rose-800"
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="h-7 px-2 text-xs text-rose-700 hover:text-rose-800"
                   onClick={() => {
-                    const reason = window.prompt("Close reason (won/lost/cancelled/duplicate/invalid)", "lost");
+                    const reason = window.prompt(
+                      "Close reason (won/lost/cancelled/duplicate/invalid)",
+                      "lost",
+                    );
                     if (!reason) return;
                     if (!["won", "lost", "cancelled", "duplicate", "invalid"].includes(reason)) {
-                      toast.error("Invalid reason"); return;
+                      toast.error("Invalid reason");
+                      return;
                     }
                     void runEngine(
-                      () => doClose({ data: { quoteId: q.id, reason: reason as "won" | "lost" | "cancelled" | "duplicate" | "invalid" } }),
+                      () =>
+                        doClose({
+                          data: {
+                            quoteId: q.id,
+                            reason: reason as
+                              | "won"
+                              | "lost"
+                              | "cancelled"
+                              | "duplicate"
+                              | "invalid",
+                          },
+                        }),
                       "Lead closed",
                     );
-                  }}>
-                  <XCircle className="mr-1 h-3.5 w-3.5" />Close Lead
+                  }}
+                >
+                  <XCircle className="mr-1 h-3.5 w-3.5" />
+                  Close Lead
                 </Button>
               )}
             </div>
@@ -358,11 +475,26 @@ export function LeadDetailPanel({
 
         <Tabs defaultValue="profile" className="w-full">
           <TabsList className="mx-6 mt-4 grid w-[calc(100%-3rem)] grid-cols-5">
-            <TabsTrigger value="profile"><User className="h-3.5 w-3.5 mr-1 hidden sm:inline" />Profile</TabsTrigger>
-            <TabsTrigger value="inventory"><Package className="h-3.5 w-3.5 mr-1 hidden sm:inline" />Inventory</TabsTrigger>
-            <TabsTrigger value="assign"><Building2 className="h-3.5 w-3.5 mr-1 hidden sm:inline" />Movers</TabsTrigger>
-            <TabsTrigger value="notes"><StickyNote className="h-3.5 w-3.5 mr-1 hidden sm:inline" />Notes</TabsTrigger>
-            <TabsTrigger value="timeline"><Clock className="h-3.5 w-3.5 mr-1 hidden sm:inline" />Timeline</TabsTrigger>
+            <TabsTrigger value="profile">
+              <User className="h-3.5 w-3.5 mr-1 hidden sm:inline" />
+              Profile
+            </TabsTrigger>
+            <TabsTrigger value="inventory">
+              <Package className="h-3.5 w-3.5 mr-1 hidden sm:inline" />
+              Inventory
+            </TabsTrigger>
+            <TabsTrigger value="assign">
+              <Building2 className="h-3.5 w-3.5 mr-1 hidden sm:inline" />
+              Movers
+            </TabsTrigger>
+            <TabsTrigger value="notes">
+              <StickyNote className="h-3.5 w-3.5 mr-1 hidden sm:inline" />
+              Notes
+            </TabsTrigger>
+            <TabsTrigger value="timeline">
+              <Clock className="h-3.5 w-3.5 mr-1 hidden sm:inline" />
+              Timeline
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="profile" className="px-6 py-4 space-y-4">
@@ -371,7 +503,10 @@ export function LeadDetailPanel({
                 <Row label="Name" value={getCustomerName(q)} />
                 <Row label="Email" value={email} />
                 <Row label="Phone" value={phone} />
-                <Row label="Contact method" value={(details as { contactMethod?: string }).contactMethod} />
+                <Row
+                  label="Contact method"
+                  value={(details as { contactMethod?: string }).contactMethod}
+                />
                 <Row label="Best time" value={(details as { contactTime?: string }).contactTime} />
               </Section>
               <Section title="Move">
@@ -382,14 +517,28 @@ export function LeadDetailPanel({
                 <Row label="Distance" value={q.distance_miles ? `${q.distance_miles} mi` : null} />
                 <Row label="Insurance" value={q.insurance_tier} />
               </Section>
-              <Section title={<span className="inline-flex items-center gap-1"><MapPin className="h-3 w-3" />Origin</span>}>
+              <Section
+                title={
+                  <span className="inline-flex items-center gap-1">
+                    <MapPin className="h-3 w-3" />
+                    Origin
+                  </span>
+                }
+              >
                 <Row label="Address" value={q.origin_address} />
                 <Row label="City" value={q.origin_city} />
                 <Row label="ZIP" value={q.origin_zip} />
                 <Row label="Floor" value={q.origin_stairs} />
                 <Row label="Elevator" value={q.origin_elevator ? "Yes" : "No"} />
               </Section>
-              <Section title={<span className="inline-flex items-center gap-1"><MapPin className="h-3 w-3" />Destination</span>}>
+              <Section
+                title={
+                  <span className="inline-flex items-center gap-1">
+                    <MapPin className="h-3 w-3" />
+                    Destination
+                  </span>
+                }
+              >
                 <Row label="Address" value={q.destination_address} />
                 <Row label="City" value={q.destination_city} />
                 <Row label="ZIP" value={q.destination_zip} />
@@ -407,7 +556,10 @@ export function LeadDetailPanel({
                 <Section title="Price breakdown">
                   <ul className="text-sm">
                     {breakdown.map((b, i) => (
-                      <li key={i} className="flex justify-between border-b border-border py-1.5 last:border-0">
+                      <li
+                        key={i}
+                        className="flex justify-between border-b border-border py-1.5 last:border-0"
+                      >
                         <span>{b.label}</span>
                         <span className="font-mono">${Number(b.amount).toLocaleString()}</span>
                       </li>
@@ -424,7 +576,10 @@ export function LeadDetailPanel({
             ) : (
               <ul className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 text-sm">
                 {inventory.map((it, i) => (
-                  <li key={i} className="flex items-center gap-2 rounded-md border border-border bg-card/50 px-3 py-1.5">
+                  <li
+                    key={i}
+                    className="flex items-center gap-2 rounded-md border border-border bg-card/50 px-3 py-1.5"
+                  >
                     <span className="font-semibold text-foreground">{it.quantity}×</span>
                     <span className="text-muted-foreground">{it.id}</span>
                   </li>
@@ -445,13 +600,20 @@ export function LeadDetailPanel({
               rows={3}
             />
             <div className="flex justify-end">
-              <Button size="sm" onClick={() => void addNote()} disabled={savingNote || !newNote.trim()}>
+              <Button
+                size="sm"
+                onClick={() => void addNote()}
+                disabled={savingNote || !newNote.trim()}
+              >
                 {savingNote ? "Saving…" : "Add note"}
               </Button>
             </div>
             <div className="space-y-2">
               {notes.map((n) => (
-                <div key={n.id} className="rounded-lg border border-border bg-background p-3 text-sm">
+                <div
+                  key={n.id}
+                  className="rounded-lg border border-border bg-background p-3 text-sm"
+                >
                   <div className="text-xs text-muted-foreground flex justify-between">
                     <span>{n.author_email ?? "admin"}</span>
                     <span>{new Date(n.created_at).toLocaleString()}</span>
@@ -465,19 +627,25 @@ export function LeadDetailPanel({
 
           <TabsContent value="timeline" className="px-6 py-4 space-y-6">
             <div>
-              <div className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Lead events</div>
+              <div className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                Lead events
+              </div>
               <LeadEventsTimeline quoteId={q.id} />
             </div>
             {history.length > 0 && (
               <div>
-                <div className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Status changes</div>
+                <div className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  Status changes
+                </div>
                 <ol className="relative border-l border-border ml-2 space-y-3">
                   {history.map((h) => (
                     <li key={h.id} className="ml-4 relative">
                       <div className="absolute -left-[1.35rem] mt-1.5 h-3 w-3 rounded-full bg-primary border border-background" />
                       <div className="text-sm">
                         <span className="capitalize font-medium">{h.to_status}</span>
-                        {h.from_status && <span className="text-muted-foreground"> ← {h.from_status}</span>}
+                        {h.from_status && (
+                          <span className="text-muted-foreground"> ← {h.from_status}</span>
+                        )}
                       </div>
                       <div className="text-xs text-muted-foreground">
                         {new Date(h.created_at).toLocaleString()}
@@ -495,10 +663,20 @@ export function LeadDetailPanel({
   );
 }
 
-function MiniStat({ label, value, children }: { label: string; value?: React.ReactNode; children?: React.ReactNode }) {
+function MiniStat({
+  label,
+  value,
+  children,
+}: {
+  label: string;
+  value?: React.ReactNode;
+  children?: React.ReactNode;
+}) {
   return (
     <div className="rounded-lg border border-border bg-card/50 px-3 py-2">
-      <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">{label}</div>
+      <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+        {label}
+      </div>
       <div className="mt-0.5 text-sm font-medium">{children ?? value}</div>
     </div>
   );
@@ -507,7 +685,9 @@ function MiniStat({ label, value, children }: { label: string; value?: React.Rea
 function Section({ title, children }: { title: React.ReactNode; children: React.ReactNode }) {
   return (
     <div className="rounded-xl border border-border bg-card/50 p-4">
-      <div className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">{title}</div>
+      <div className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+        {title}
+      </div>
       <div>{children}</div>
     </div>
   );
@@ -518,8 +698,10 @@ function Row({ label, value }: { label: string; value: unknown }) {
     value === null || value === undefined || value === ""
       ? "—"
       : typeof value === "boolean"
-      ? value ? "Yes" : "No"
-      : String(value);
+        ? value
+          ? "Yes"
+          : "No"
+        : String(value);
   return (
     <div className="flex justify-between gap-4 text-sm py-0.5">
       <span className="text-muted-foreground">{label}</span>

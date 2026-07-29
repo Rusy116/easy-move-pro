@@ -1,15 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
-import {
-  Boxes,
-  Calendar,
-  MapPin,
-  Package,
-  Ruler,
-  Star,
-  Truck,
-  UserRound,
-} from "lucide-react";
+import { Boxes, Calendar, MapPin, Package, Ruler, Star, Truck, UserRound } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { CustomerShell } from "@/components/customer/CustomerShell";
@@ -18,12 +9,7 @@ import { MoveProgress, MoveTimeline } from "@/components/customer/MoveTimeline";
 import { AssignedCompanyCard } from "@/components/customer/AssignedCompanyCard";
 import { FinalPriceCard } from "@/components/customer/FinalPriceCard";
 import { ReviewDialog } from "@/components/customer/ReviewDialog";
-import {
-  routeLabel,
-  useAssignedCompany,
-  useMoveTimeline,
-  useMyMoves,
-} from "@/lib/customer-portal";
+import { routeLabel, useAssignedCompany, useMoveTimeline, useMyMoves } from "@/lib/customer-portal";
 import { LEAD_STATUS_LABEL, LEAD_STATUS_STYLE } from "@/lib/lead-status";
 
 export const Route = createFileRoute("/_authenticated/customer/move")({
@@ -251,15 +237,7 @@ function MyMovePage() {
   );
 }
 
-function Field({
-  label,
-  value,
-  icon,
-}: {
-  label: string;
-  value: string;
-  icon?: React.ReactNode;
-}) {
+function Field({ label, value, icon }: { label: string; value: string; icon?: React.ReactNode }) {
   return (
     <div className="min-w-0">
       <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">

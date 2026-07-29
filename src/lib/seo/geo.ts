@@ -9,11 +9,11 @@
 import { STATES, CITIES } from "./locations";
 
 export interface GeoCity {
-  slug: string;          // "los-angeles"
-  name: string;          // "Los Angeles"
-  stateCode: string;     // "CA"
-  stateName: string;     // "California"
-  stateSlug: string;     // "california"
+  slug: string; // "los-angeles"
+  name: string; // "Los Angeles"
+  stateCode: string; // "CA"
+  stateName: string; // "California"
+  stateSlug: string; // "california"
   population: number;
 }
 
@@ -144,7 +144,7 @@ export function cityAverages(c: GeoCity) {
 
 // ── Route (city pair) pages ────────────────────────────────────────────────
 export interface GeoRoute {
-  slug: string;         // "los-angeles-to-phoenix"
+  slug: string; // "los-angeles-to-phoenix"
   from: GeoCity;
   to: GeoCity;
   miles: number;

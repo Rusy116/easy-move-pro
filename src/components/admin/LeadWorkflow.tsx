@@ -3,13 +3,20 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import {
-  Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle,
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
 } from "@/components/ui/dialog";
 import { CheckCircle2, HelpCircle, Megaphone, ThumbsDown } from "lucide-react";
 import { toast } from "sonner";
 import {
-  LEAD_STATUS_LABEL, LEAD_STATUS_STYLE, type LeadStatus,
-  requestLeadInfo, setLeadStatus,
+  LEAD_STATUS_LABEL,
+  LEAD_STATUS_STYLE,
+  type LeadStatus,
+  requestLeadInfo,
+  setLeadStatus,
 } from "@/lib/lead-status";
 
 export function LeadStatusBadge({ status }: { status: string | null | undefined }) {
@@ -66,7 +73,13 @@ export function LeadWorkflowActions({
           size="sm"
           variant="outline"
           disabled={busy}
-          onClick={() => void run(() => setLeadStatus(quoteId, "under_review"), "Moved to review", "under_review")}
+          onClick={() =>
+            void run(
+              () => setLeadStatus(quoteId, "under_review"),
+              "Moved to review",
+              "under_review",
+            )
+          }
         >
           Start review
         </Button>
@@ -77,9 +90,12 @@ export function LeadWorkflowActions({
           size="sm"
           className="bg-emerald-600 text-white hover:bg-emerald-700"
           disabled={busy}
-          onClick={() => void run(() => setLeadStatus(quoteId, "qualified"), "Lead approved", "qualified")}
+          onClick={() =>
+            void run(() => setLeadStatus(quoteId, "qualified"), "Lead approved", "qualified")
+          }
         >
-          <CheckCircle2 className="mr-2 h-4 w-4" />Approve
+          <CheckCircle2 className="mr-2 h-4 w-4" />
+          Approve
         </Button>
       )}
 
@@ -87,14 +103,30 @@ export function LeadWorkflowActions({
         <Button
           size="sm"
           disabled={busy}
-          onClick={() => void run(() => setLeadStatus(quoteId, "published"), "Published to marketplace", "published")}
+          onClick={() =>
+            void run(
+              () => setLeadStatus(quoteId, "published"),
+              "Published to marketplace",
+              "published",
+            )
+          }
         >
-          <Megaphone className="mr-2 h-4 w-4" />Publish to marketplace
+          <Megaphone className="mr-2 h-4 w-4" />
+          Publish to marketplace
         </Button>
       )}
 
-      <Button size="sm" variant="outline" disabled={busy} onClick={() => { setMessage(""); setDialog("info"); }}>
-        <HelpCircle className="mr-2 h-4 w-4" />Request info
+      <Button
+        size="sm"
+        variant="outline"
+        disabled={busy}
+        onClick={() => {
+          setMessage("");
+          setDialog("info");
+        }}
+      >
+        <HelpCircle className="mr-2 h-4 w-4" />
+        Request info
       </Button>
 
       {canReject && (
@@ -103,9 +135,13 @@ export function LeadWorkflowActions({
           variant="outline"
           className="text-rose-700"
           disabled={busy}
-          onClick={() => { setMessage(""); setDialog("reject"); }}
+          onClick={() => {
+            setMessage("");
+            setDialog("reject");
+          }}
         >
-          <ThumbsDown className="mr-2 h-4 w-4" />Reject
+          <ThumbsDown className="mr-2 h-4 w-4" />
+          Reject
         </Button>
       )}
 
@@ -127,7 +163,9 @@ export function LeadWorkflowActions({
             onChange={(e) => setMessage(e.target.value)}
           />
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDialog(null)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setDialog(null)}>
+              Cancel
+            </Button>
             <Button
               disabled={busy || !message.trim()}
               onClick={() => {

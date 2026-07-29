@@ -66,9 +66,7 @@ function CustomerNotificationsPage() {
                             </Badge>
                           )}
                         </div>
-                        {n.body && (
-                          <p className="mt-0.5 text-sm text-muted-foreground">{n.body}</p>
-                        )}
+                        {n.body && <p className="mt-0.5 text-sm text-muted-foreground">{n.body}</p>}
                         <div className="mt-1 text-[11px] text-muted-foreground">
                           {new Date(n.created_at).toLocaleString()}
                         </div>

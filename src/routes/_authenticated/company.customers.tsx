@@ -1,7 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import {
-  CompanyHeader, LeadDetailDialog, NoCompanyScreen, useMoverPortal, type MergedLead,
+  CompanyHeader,
+  LeadDetailDialog,
+  NoCompanyScreen,
+  useMoverPortal,
+  type MergedLead,
 } from "@/components/company/portal-shared";
 import { SkeletonRows } from "@/components/shell/Chrome";
 import { Input } from "@/components/ui/input";
@@ -69,15 +73,16 @@ function CustomersPage() {
   const filtered = useMemo(() => {
     if (!q.trim()) return customers;
     const n = q.toLowerCase();
-    return customers.filter((c) =>
-      c.name.toLowerCase().includes(n) ||
-      (c.email ?? "").toLowerCase().includes(n) ||
-      (c.phone ?? "").includes(n) ||
-      c.cities.join(" ").toLowerCase().includes(n),
+    return customers.filter(
+      (c) =>
+        c.name.toLowerCase().includes(n) ||
+        (c.email ?? "").toLowerCase().includes(n) ||
+        (c.phone ?? "").includes(n) ||
+        c.cities.join(" ").toLowerCase().includes(n),
     );
   }, [customers, q]);
 
-  const selected = selectedKey ? customers.find((c) => c.key === selectedKey) ?? null : null;
+  const selected = selectedKey ? (customers.find((c) => c.key === selectedKey) ?? null) : null;
 
   if (loading && !company) return <SkeletonRows n={4} />;
   if (!company) return <NoCompanyScreen />;
@@ -95,7 +100,12 @@ function CustomersPage() {
           </div>
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input placeholder="Search name, email, phone, city…" className="pl-9" value={q} onChange={(e) => setQ(e.target.value)} />
+            <Input
+              placeholder="Search name, email, phone, city…"
+              className="pl-9"
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+            />
           </div>
           <div className="space-y-2 max-h-[600px] overflow-y-auto pr-1">
             {filtered.length === 0 && (
@@ -108,7 +118,9 @@ function CustomersPage() {
                 key={c.key}
                 onClick={() => setSelectedKey(c.key)}
                 className={`w-full text-left rounded-lg border p-3 transition-colors ${
-                  selectedKey === c.key ? "border-primary bg-primary/5" : "border-border hover:bg-muted/40"
+                  selectedKey === c.key
+                    ? "border-primary bg-primary/5"
+                    : "border-border hover:bg-muted/40"
                 }`}
               >
                 <div className="flex items-center justify-between gap-2">
@@ -120,7 +132,9 @@ function CustomersPage() {
                   </div>
                   <div className="text-right shrink-0">
                     <div className="text-sm font-semibold">${c.lifetimeValue.toLocaleString()}</div>
-                    <div className="text-[10px] text-muted-foreground">{c.moves.length} move{c.moves.length === 1 ? "" : "s"}</div>
+                    <div className="text-[10px] text-muted-foreground">
+                      {c.moves.length} move{c.moves.length === 1 ? "" : "s"}
+                    </div>
                   </div>
                 </div>
               </button>
@@ -138,22 +152,51 @@ function CustomersPage() {
               <div>
                 <h3 className="font-serif text-2xl">{selected.name}</h3>
                 <div className="mt-1 flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
-                  {selected.phone && <span className="flex items-center gap-1"><Phone className="h-3.5 w-3.5" />{selected.phone}</span>}
-                  {selected.email && <span className="flex items-center gap-1"><Mail className="h-3.5 w-3.5" />{selected.email}</span>}
+                  {selected.phone && (
+                    <span className="flex items-center gap-1">
+                      <Phone className="h-3.5 w-3.5" />
+                      {selected.phone}
+                    </span>
+                  )}
+                  {selected.email && (
+                    <span className="flex items-center gap-1">
+                      <Mail className="h-3.5 w-3.5" />
+                      {selected.email}
+                    </span>
+                  )}
                   {selected.cities.length > 0 && (
-                    <span className="flex items-center gap-1"><MapPin className="h-3.5 w-3.5" />{selected.cities.join(", ")}</span>
+                    <span className="flex items-center gap-1">
+                      <MapPin className="h-3.5 w-3.5" />
+                      {selected.cities.join(", ")}
+                    </span>
                   )}
                 </div>
                 <div className="mt-3 flex flex-wrap gap-2">
-                  {selected.phone && <Button size="sm" variant="outline" asChild><a href={`tel:${selected.phone}`}><Phone className="mr-1.5 h-4 w-4" />Call</a></Button>}
-                  {selected.email && <Button size="sm" variant="outline" asChild><a href={`mailto:${selected.email}`}><Mail className="mr-1.5 h-4 w-4" />Email</a></Button>}
+                  {selected.phone && (
+                    <Button size="sm" variant="outline" asChild>
+                      <a href={`tel:${selected.phone}`}>
+                        <Phone className="mr-1.5 h-4 w-4" />
+                        Call
+                      </a>
+                    </Button>
+                  )}
+                  {selected.email && (
+                    <Button size="sm" variant="outline" asChild>
+                      <a href={`mailto:${selected.email}`}>
+                        <Mail className="mr-1.5 h-4 w-4" />
+                        Email
+                      </a>
+                    </Button>
+                  )}
                 </div>
               </div>
 
               <div className="grid grid-cols-3 gap-3">
                 <div className="rounded-lg border border-border p-3">
                   <div className="text-xs text-muted-foreground">Lifetime value</div>
-                  <div className="font-serif text-xl">${selected.lifetimeValue.toLocaleString()}</div>
+                  <div className="font-serif text-xl">
+                    ${selected.lifetimeValue.toLocaleString()}
+                  </div>
                 </div>
                 <div className="rounded-lg border border-border p-3">
                   <div className="text-xs text-muted-foreground">Total moves</div>
@@ -161,12 +204,16 @@ function CustomersPage() {
                 </div>
                 <div className="rounded-lg border border-border p-3">
                   <div className="text-xs text-muted-foreground">Last activity</div>
-                  <div className="font-serif text-xl">{selected.lastMove ? new Date(selected.lastMove).toLocaleDateString() : "—"}</div>
+                  <div className="font-serif text-xl">
+                    {selected.lastMove ? new Date(selected.lastMove).toLocaleDateString() : "—"}
+                  </div>
                 </div>
               </div>
 
               <div>
-                <div className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-2">Timeline</div>
+                <div className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-2">
+                  Timeline
+                </div>
                 <div className="space-y-2">
                   {selected.moves.map((r) => {
                     const a = r.assignment!;
@@ -179,11 +226,17 @@ function CustomersPage() {
                         <div className="flex flex-wrap items-center justify-between gap-2">
                           <div className="min-w-0">
                             <div className="flex items-center gap-2 flex-wrap">
-                              <span className="font-mono text-xs text-muted-foreground">{r.lead.quote_number ?? r.lead.id.slice(0, 8)}</span>
-                              <Badge variant="outline" className="capitalize">{a.state}</Badge>
+                              <span className="font-mono text-xs text-muted-foreground">
+                                {r.lead.quote_number ?? r.lead.id.slice(0, 8)}
+                              </span>
+                              <Badge variant="outline" className="capitalize">
+                                {a.state}
+                              </Badge>
                             </div>
                             <div className="text-xs text-muted-foreground mt-0.5">
-                              {(r.lead.origin_city ?? r.lead.origin_zip)} → {(r.lead.destination_city ?? r.lead.destination_zip)} · {r.lead.move_date ?? "TBD"}
+                              {r.lead.origin_city ?? r.lead.origin_zip} →{" "}
+                              {r.lead.destination_city ?? r.lead.destination_zip} ·{" "}
+                              {r.lead.move_date ?? "TBD"}
                             </div>
                           </div>
                           <div className="text-right">

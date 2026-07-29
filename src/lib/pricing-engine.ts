@@ -34,14 +34,14 @@ export interface RateCard {
   // Truck
   truckDayRate: number;
   // Fuel / distance
-  fuelPerMile: number;              // local moves
+  fuelPerMile: number; // local moves
   fuelMinimum: number;
   interstateLineHaulPerCuFt: number; // interstate: long-haul $/cu-ft
-  interstatePerMile: number;         // interstate: $/mile add-on
+  interstatePerMile: number; // interstate: $/mile add-on
   interstateOriginDestinationFee: number;
   // Access surcharges (per side)
-  stairsPerFlight: number;           // charged when no elevator
-  noElevatorPenalty: number;         // flat, applied when floor > 0 and no elevator
+  stairsPerFlight: number; // charged when no elevator
+  noElevatorPenalty: number; // flat, applied when floor > 0 and no elevator
   longCarry: number;
   parkingModerate: number;
   parkingDifficult: number;
@@ -64,7 +64,7 @@ export interface RateCard {
   insuranceRate: Record<InsuranceTier, number>;
   declaredValuePerLb: number;
   // Timing multipliers
-  peakSeasonMultiplier: number;      // May 15 – Sep 15
+  peakSeasonMultiplier: number; // May 15 – Sep 15
   weekendSurcharge: number;
   // Tax
   serviceTaxRate: number;
@@ -120,7 +120,7 @@ export interface QuoteInput {
   // Inventory (the primary pricing driver)
   inventory: InventoryCounts;
   // Access per side
-  originFloor: number;         // 0 = ground floor
+  originFloor: number; // 0 = ground floor
   destinationFloor: number;
   originElevator: boolean;
   destinationElevator: boolean;
@@ -260,9 +260,7 @@ export function computeQuote(input: QuoteInput): QuoteResult {
 
   // Truck -------------------------------------------------------------------
   const truckDays =
-    input.moveType === "interstate"
-      ? Math.max(1, Math.ceil(input.distanceMiles / 500))
-      : 1;
+    input.moveType === "interstate" ? Math.max(1, Math.ceil(input.distanceMiles / 500)) : 1;
   const truckCost = truckDays * r.truckDayRate;
   lines.push({
     label: `${truck.size} · ${truckDays} day${truckDays > 1 ? "s" : ""}`,
@@ -280,7 +278,7 @@ export function computeQuote(input: QuoteInput): QuoteResult {
     });
   } else {
     const lineHaul = Math.round(
-      cubicFeet * r.interstateLineHaulPerCuFt + input.distanceMiles * r.interstatePerMile
+      cubicFeet * r.interstateLineHaulPerCuFt + input.distanceMiles * r.interstatePerMile,
     );
     lines.push({
       label: `Interstate line haul (${input.distanceMiles} mi)`,
@@ -394,9 +392,7 @@ export function computeQuote(input: QuoteInput): QuoteResult {
   // Insurance ---------------------------------------------------------------
   const declaredValue = weightLbs * r.declaredValuePerLb;
   const insuranceCost =
-    input.insurance === "basic"
-      ? 0
-      : Math.round(declaredValue * r.insuranceRate[input.insurance]);
+    input.insurance === "basic" ? 0 : Math.round(declaredValue * r.insuranceRate[input.insurance]);
   if (insuranceCost > 0)
     lines.push({
       label: `${input.insurance === "full" ? "Full value" : "Standard"} insurance`,

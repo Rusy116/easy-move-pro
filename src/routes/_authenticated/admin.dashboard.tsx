@@ -60,7 +60,11 @@ const STATUS_KEYS = [
 
 const STATUS_META: Record<
   (typeof STATUS_KEYS)[number],
-  { label: string; tone: "default" | "info" | "success" | "warning" | "danger"; icon: React.ReactNode }
+  {
+    label: string;
+    tone: "default" | "info" | "success" | "warning" | "danger";
+    icon: React.ReactNode;
+  }
 > = {
   new: { label: "New", tone: "info", icon: <Bell className="h-4 w-4" /> },
   contacted: { label: "Contacted", tone: "info", icon: <Inbox className="h-4 w-4" /> },
@@ -98,7 +102,9 @@ function DashboardPage() {
       const [q, a, c] = await Promise.all([
         supabase
           .from("quotes")
-          .select("id,created_at,status,accepted_at,estimated_low,estimated_high,origin_state,destination_state")
+          .select(
+            "id,created_at,status,accepted_at,estimated_low,estimated_high,origin_state,destination_state",
+          )
           .order("created_at", { ascending: false })
           .limit(5000),
         supabase.from("quote_assignments").select("quote_id,company_id"),
@@ -121,7 +127,10 @@ function DashboardPage() {
       if (q.status in counts) counts[q.status]++;
       if (q.accepted_at) counts.accepted++;
       const mid = (Number(q.estimated_low) + Number(q.estimated_high)) / 2;
-      if (mid > 0) { estSum += mid; estN++; }
+      if (mid > 0) {
+        estSum += mid;
+        estN++;
+      }
       if (q.status === "won") {
         revLow += Number(q.estimated_low || 0);
         revHigh += Number(q.estimated_high || 0);
@@ -211,7 +220,11 @@ function DashboardPage() {
   }, [assignments, companies]);
 
   if (isAdmin === null) {
-    return <AdminShell><div className="p-16 text-center text-muted-foreground">Loading…</div></AdminShell>;
+    return (
+      <AdminShell>
+        <div className="p-16 text-center text-muted-foreground">Loading…</div>
+      </AdminShell>
+    );
   }
   if (!isAdmin) {
     return (
@@ -238,21 +251,35 @@ function DashboardPage() {
           />
 
           {loading ? (
-            <div className="mt-8"><SkeletonRows n={4} /></div>
+            <div className="mt-8">
+              <SkeletonRows n={4} />
+            </div>
           ) : (
             <>
               {/* KPI row */}
               <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-                <StatCard label="Total quotes" value={stats.total.toLocaleString()} icon={<Inbox className="h-4 w-4" />} />
+                <StatCard
+                  label="Total quotes"
+                  value={stats.total.toLocaleString()}
+                  icon={<Inbox className="h-4 w-4" />}
+                />
                 <StatCard
                   label="Revenue (won)"
-                  value={stats.counts.won === 0 ? "—" : `$${Math.round(stats.revLow / 1000)}k–$${Math.round(stats.revHigh / 1000)}k`}
+                  value={
+                    stats.counts.won === 0
+                      ? "—"
+                      : `$${Math.round(stats.revLow / 1000)}k–$${Math.round(stats.revHigh / 1000)}k`
+                  }
                   tone="success"
                   icon={<DollarSign className="h-4 w-4" />}
                 />
                 <StatCard
                   label="Avg estimate"
-                  value={stats.avgEstimate > 0 ? `$${Math.round(stats.avgEstimate).toLocaleString()}` : "—"}
+                  value={
+                    stats.avgEstimate > 0
+                      ? `$${Math.round(stats.avgEstimate).toLocaleString()}`
+                      : "—"
+                  }
                   icon={<TrendingUp className="h-4 w-4" />}
                 />
                 <StatCard
@@ -286,14 +313,23 @@ function DashboardPage() {
                       <XAxis dataKey="label" tick={{ fontSize: 11 }} interval={4} />
                       <YAxis allowDecimals={false} tick={{ fontSize: 11 }} width={28} />
                       <Tooltip />
-                      <Line type="monotone" dataKey="count" stroke="hsl(var(--primary))" strokeWidth={2} dot={false} />
+                      <Line
+                        type="monotone"
+                        dataKey="count"
+                        stroke="hsl(var(--primary))"
+                        strokeWidth={2}
+                        dot={false}
+                      />
                     </LineChart>
                   </ResponsiveContainer>
                 </ChartCard>
 
                 <ChartCard title="Revenue by month" subtitle="Won quotes, last 12 months">
                   <ResponsiveContainer width="100%" height={260}>
-                    <BarChart data={revenueByMonth} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+                    <BarChart
+                      data={revenueByMonth}
+                      margin={{ top: 8, right: 8, left: 0, bottom: 0 }}
+                    >
                       <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
                       <XAxis dataKey="label" tick={{ fontSize: 11 }} />
                       <YAxis
@@ -312,7 +348,11 @@ function DashboardPage() {
                     <EmptyChart />
                   ) : (
                     <ResponsiveContainer width="100%" height={260}>
-                      <BarChart data={byState} layout="vertical" margin={{ top: 8, right: 8, left: 4, bottom: 0 }}>
+                      <BarChart
+                        data={byState}
+                        layout="vertical"
+                        margin={{ top: 8, right: 8, left: 4, bottom: 0 }}
+                      >
                         <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
                         <XAxis type="number" allowDecimals={false} tick={{ fontSize: 11 }} />
                         <YAxis dataKey="state" type="category" tick={{ fontSize: 11 }} width={40} />
@@ -328,7 +368,11 @@ function DashboardPage() {
                     <EmptyChart message="No assignments yet" />
                   ) : (
                     <ResponsiveContainer width="100%" height={260}>
-                      <BarChart data={topCompanies} layout="vertical" margin={{ top: 8, right: 8, left: 4, bottom: 0 }}>
+                      <BarChart
+                        data={topCompanies}
+                        layout="vertical"
+                        margin={{ top: 8, right: 8, left: 4, bottom: 0 }}
+                      >
                         <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
                         <XAxis type="number" allowDecimals={false} tick={{ fontSize: 11 }} />
                         <YAxis dataKey="name" type="category" tick={{ fontSize: 11 }} width={120} />
@@ -369,8 +413,6 @@ function ChartCard({
 
 function EmptyChart({ message = "No data yet" }: { message?: string }) {
   return (
-    <div className="grid h-[260px] place-items-center text-sm text-muted-foreground">
-      {message}
-    </div>
+    <div className="grid h-[260px] place-items-center text-sm text-muted-foreground">{message}</div>
   );
 }

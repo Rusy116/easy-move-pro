@@ -242,7 +242,12 @@ export function useJobActivity(quoteId: string | null) {
       .channel(`job-activity-${quoteId}`)
       .on(
         "postgres_changes",
-        { event: "INSERT", schema: "public", table: "company_activity", filter: `quote_id=eq.${quoteId}` },
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "company_activity",
+          filter: `quote_id=eq.${quoteId}`,
+        },
         () => void reload(),
       )
       .subscribe();
@@ -307,7 +312,11 @@ export function useExpiredClaims(companyId: string | null) {
     if (!companyId) return;
     const channel = supabase
       .channel(`company-expired-${companyId}`)
-      .on("postgres_changes", { event: "*", schema: "public", table: "company_claims" }, () => void reload())
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "company_claims" },
+        () => void reload(),
+      )
       .subscribe();
     return () => {
       void supabase.removeChannel(channel);

@@ -25,7 +25,12 @@ function ExpiredClaimsPage() {
 
   if (loadingCompany || (loading && !rows.length)) return <SkeletonRows n={3} />;
   if (!company) {
-    return <EmptyState title="No company linked" body="Your account is not linked to a moving company yet." />;
+    return (
+      <EmptyState
+        title="No company linked"
+        body="Your account is not linked to a moving company yet."
+      />
+    );
   }
 
   return (
@@ -33,7 +38,8 @@ function ExpiredClaimsPage() {
       <header>
         <h1 className="text-2xl font-semibold tracking-tight">Expired claims</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          These leads returned to the marketplace because the 12-hour exclusive window closed without progress.
+          These leads returned to the marketplace because the 12-hour exclusive window closed
+          without progress.
         </p>
       </header>
 
@@ -64,10 +70,26 @@ function ExpiredClaimsPage() {
               </div>
 
               <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
-                <Fact icon={<MapPin className="h-3 w-3" />} label="Origin" value={place(r.origin_city, r.origin_state)} />
-                <Fact icon={<MapPin className="h-3 w-3" />} label="Destination" value={place(r.destination_city, r.destination_state)} />
-                <Fact icon={<Calendar className="h-3 w-3" />} label="Move date" value={formatDate(r.move_date)} />
-                <Fact icon={<Clock className="h-3 w-3" />} label="Expired" value={formatDate(r.expires_at)} />
+                <Fact
+                  icon={<MapPin className="h-3 w-3" />}
+                  label="Origin"
+                  value={place(r.origin_city, r.origin_state)}
+                />
+                <Fact
+                  icon={<MapPin className="h-3 w-3" />}
+                  label="Destination"
+                  value={place(r.destination_city, r.destination_state)}
+                />
+                <Fact
+                  icon={<Calendar className="h-3 w-3" />}
+                  label="Move date"
+                  value={formatDate(r.move_date)}
+                />
+                <Fact
+                  icon={<Clock className="h-3 w-3" />}
+                  label="Expired"
+                  value={formatDate(r.expires_at)}
+                />
               </div>
 
               {r.job_status === "open_market" && (

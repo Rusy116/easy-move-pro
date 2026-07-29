@@ -152,11 +152,7 @@ function CustomerSettingsPage() {
                   />
                 </div>
               </div>
-              <Button
-                className="mt-4 rounded-full"
-                disabled={savingProfile}
-                onClick={saveProfile}
-              >
+              <Button className="mt-4 rounded-full" disabled={savingProfile} onClick={saveProfile}>
                 {savingProfile ? (
                   <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
                 ) : (

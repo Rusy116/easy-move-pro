@@ -64,9 +64,7 @@ export function AssignedCompanyCard({
           value={
             company.insurance_carrier
               ? `${company.insurance_carrier}${
-                  company.insurance_expires
-                    ? ` · valid to ${company.insurance_expires}`
-                    : ""
+                  company.insurance_expires ? ` · valid to ${company.insurance_expires}` : ""
                 }`
               : null
           }

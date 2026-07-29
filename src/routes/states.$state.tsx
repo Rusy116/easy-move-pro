@@ -22,12 +22,16 @@ export const Route = createFileRoute("/states/$state")({
       meta: seoMeta({ title, description, path }),
       links: [{ rel: "canonical", href: path }],
       scripts: [
-        jsonLd(serviceSchema({ name: `${s.name} Moving Services`, description, areaServed: s.name })),
-        jsonLd(breadcrumbSchema([
-          { name: "Home", url: "/" },
-          { name: "Movers by state", url: "/states" },
-          { name: `${s.name} Movers`, url: path },
-        ])),
+        jsonLd(
+          serviceSchema({ name: `${s.name} Moving Services`, description, areaServed: s.name }),
+        ),
+        jsonLd(
+          breadcrumbSchema([
+            { name: "Home", url: "/" },
+            { name: "Movers by state", url: "/states" },
+            { name: `${s.name} Movers`, url: path },
+          ]),
+        ),
         jsonLd(faqSchema(stateFaq(s.name))),
       ],
     };
@@ -37,7 +41,9 @@ export const Route = createFileRoute("/states/$state")({
     <SiteLayout>
       <div className="mx-auto max-w-3xl px-4 py-24 text-center">
         <h1 className="font-serif text-4xl">State not found</h1>
-        <Link to="/states" className="mt-6 inline-block text-primary hover:underline">Browse all states →</Link>
+        <Link to="/states" className="mt-6 inline-block text-primary hover:underline">
+          Browse all states →
+        </Link>
       </div>
     </SiteLayout>
   ),
@@ -45,10 +51,22 @@ export const Route = createFileRoute("/states/$state")({
 
 function stateFaq(name: string) {
   return [
-    { q: `How much does a move cost in ${name}?`, a: `Local ${name} moves usually land between $900 and $3,500 depending on volume, access and services. Interstate moves out of ${name} are priced by weight, distance and delivery window. The calculator prices your exact inventory instantly.` },
-    { q: `Are ${name} moving companies on Easy Moving licensed?`, a: `Yes. Every partner is verified for state licensing, DOT/MC authority where required, insurance and service area before approval.` },
-    { q: `Do you cover small towns in ${name}?`, a: `Yes. Our partner network covers metros and surrounding suburbs statewide, plus long-distance carriers for rural pickups.` },
-    { q: `How quickly can I get matched in ${name}?`, a: `Most requests are matched within a few hours. One company gets an exclusive 12-hour window to respond, so you are not called by a dozen brokers.` },
+    {
+      q: `How much does a move cost in ${name}?`,
+      a: `Local ${name} moves usually land between $900 and $3,500 depending on volume, access and services. Interstate moves out of ${name} are priced by weight, distance and delivery window. The calculator prices your exact inventory instantly.`,
+    },
+    {
+      q: `Are ${name} moving companies on Easy Moving licensed?`,
+      a: `Yes. Every partner is verified for state licensing, DOT/MC authority where required, insurance and service area before approval.`,
+    },
+    {
+      q: `Do you cover small towns in ${name}?`,
+      a: `Yes. Our partner network covers metros and surrounding suburbs statewide, plus long-distance carriers for rural pickups.`,
+    },
+    {
+      q: `How quickly can I get matched in ${name}?`,
+      a: `Most requests are matched within a few hours. One company gets an exclusive 12-hour window to respond, so you are not called by a dozen brokers.`,
+    },
   ];
 }
 
@@ -62,17 +80,23 @@ function StatePage() {
   return (
     <SiteLayout>
       <Breadcrumbs
-        items={[{ label: "Home", to: "/" }, { label: "States", to: "/states" }, { label: state.name }]}
+        items={[
+          { label: "Home", to: "/" },
+          { label: "States", to: "/states" },
+          { label: state.name },
+        ]}
       />
       <section className="border-b border-border">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 py-16">
-          <span className="text-xs font-semibold uppercase tracking-widest text-ochre">{state.code}</span>
+          <span className="text-xs font-semibold uppercase tracking-widest text-ochre">
+            {state.code}
+          </span>
           <h1 className="mt-3 font-serif text-4xl sm:text-5xl font-medium tracking-tight">
             {state.name} Movers
           </h1>
           <p className="mt-4 max-w-2xl text-lg text-muted-foreground">
-            Licensed local, long-distance and interstate moving companies serving {state.name}.
-            Get an itemized estimate in seconds, then let one vetted mover confirm your final price.
+            Licensed local, long-distance and interstate moving companies serving {state.name}. Get
+            an itemized estimate in seconds, then let one vetted mover confirm your final price.
           </p>
         </div>
       </section>

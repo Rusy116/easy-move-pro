@@ -27,15 +27,13 @@ export function PageHeader({
               {eyebrow}
             </span>
           )}
-          <h1 className="mt-1 truncate font-serif text-3xl font-medium md:text-4xl">
-            {title}
-          </h1>
-          {subtitle && (
-            <p className="mt-1 text-sm text-muted-foreground">{subtitle}</p>
-          )}
+          <h1 className="mt-1 truncate font-serif text-3xl font-medium md:text-4xl">{title}</h1>
+          {subtitle && <p className="mt-1 text-sm text-muted-foreground">{subtitle}</p>}
         </div>
       </div>
-      {actions && <div className="flex flex-wrap items-center gap-2 justify-self-end">{actions}</div>}
+      {actions && (
+        <div className="flex flex-wrap items-center gap-2 justify-self-end">{actions}</div>
+      )}
     </header>
   );
 }
@@ -68,7 +66,9 @@ export function StatCard({
         </span>
         {icon && <span className="text-muted-foreground/70">{icon}</span>}
       </div>
-      <div className={`mt-2 font-serif text-2xl md:text-3xl font-medium tabular-nums ${tones[tone]}`}>
+      <div
+        className={`mt-2 font-serif text-2xl md:text-3xl font-medium tabular-nums ${tones[tone]}`}
+      >
         {value}
       </div>
       {hint && <div className="mt-1 text-xs text-muted-foreground">{hint}</div>}
@@ -89,9 +89,7 @@ export function SectionShell({
     <section className="card-premium p-4 sm:p-6">
       {(title || right) && (
         <div className="mb-4 flex items-center justify-between gap-3">
-          {title && (
-            <h2 className="font-serif text-lg font-medium tracking-tight">{title}</h2>
-          )}
+          {title && <h2 className="font-serif text-lg font-medium tracking-tight">{title}</h2>}
           {right}
         </div>
       )}

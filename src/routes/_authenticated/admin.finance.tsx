@@ -6,17 +6,41 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
 import {
-  Banknote, Download, RefreshCw, TrendingUp, AlertTriangle, CheckCircle2, Hourglass,
+  Banknote,
+  Download,
+  RefreshCw,
+  TrendingUp,
+  AlertTriangle,
+  CheckCircle2,
+  Hourglass,
 } from "lucide-react";
 import {
-  useCommissionInvoices, useCommissionLedger, useQuoteMeta, useCompanyOptions,
-  useFinanceReports, applyFinanceFilters, totalsOf, money, pct, STATUS_STYLES,
-  EMPTY_FILTERS, COMMISSION_STATUSES, downloadCsv, setCommissionStatus, runOverdueSweep,
-  REPORT_LABELS, type FinanceFilters, type ReportKind,
+  useCommissionInvoices,
+  useCommissionLedger,
+  useQuoteMeta,
+  useCompanyOptions,
+  useFinanceReports,
+  applyFinanceFilters,
+  totalsOf,
+  money,
+  pct,
+  STATUS_STYLES,
+  EMPTY_FILTERS,
+  COMMISSION_STATUSES,
+  downloadCsv,
+  setCommissionStatus,
+  runOverdueSweep,
+  REPORT_LABELS,
+  type FinanceFilters,
+  type ReportKind,
 } from "@/lib/finance";
 
 export const Route = createFileRoute("/_authenticated/admin/finance")({
@@ -95,14 +119,19 @@ function AdminFinancePage() {
       "outstanding-invoices": rows
         .filter((r) => r.status === "invoiced" || r.status === "overdue")
         .map((r) => ({
-          invoice: r.number, company: companyName(r.company_id),
-          amount: r.amount, due: r.due_date, status: r.status,
+          invoice: r.number,
+          company: companyName(r.company_id),
+          amount: r.amount,
+          due: r.due_date,
+          status: r.status,
         })),
       "paid-invoices": rows
         .filter((r) => r.status === "paid")
         .map((r) => ({
-          invoice: r.number, company: companyName(r.company_id),
-          amount: r.amount, paid_at: r.paid_at,
+          invoice: r.number,
+          company: companyName(r.company_id),
+          amount: r.amount,
+          paid_at: r.paid_at,
         })),
     };
     const data = map[kind];
@@ -135,16 +164,38 @@ function AdminFinancePage() {
         />
 
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
-          <StatCard label="Total revenue" value={money(totals.total)} icon={<TrendingUp className="h-4 w-4" />} />
-          <StatCard label="Paid" value={money(totals.paid)} tone="success" icon={<CheckCircle2 className="h-4 w-4" />} />
+          <StatCard
+            label="Total revenue"
+            value={money(totals.total)}
+            icon={<TrendingUp className="h-4 w-4" />}
+          />
+          <StatCard
+            label="Paid"
+            value={money(totals.paid)}
+            tone="success"
+            icon={<CheckCircle2 className="h-4 w-4" />}
+          />
           <StatCard label="Outstanding" value={money(totals.outstanding)} tone="warning" />
-          <StatCard label="Overdue" value={money(totals.overdue)} tone="danger" icon={<AlertTriangle className="h-4 w-4" />} />
-          <StatCard label="Cancelled" value={money(totals.cancelled)} icon={<Hourglass className="h-4 w-4" />} />
+          <StatCard
+            label="Overdue"
+            value={money(totals.overdue)}
+            tone="danger"
+            icon={<AlertTriangle className="h-4 w-4" />}
+          />
+          <StatCard
+            label="Cancelled"
+            value={money(totals.cancelled)}
+            icon={<Hourglass className="h-4 w-4" />}
+          />
         </div>
 
         <SectionShell
           title="Commission invoices"
-          right={<Badge variant="outline" className="rounded-full">{rows.length}</Badge>}
+          right={
+            <Badge variant="outline" className="rounded-full">
+              {rows.length}
+            </Badge>
+          }
         >
           <div className="mb-4 grid gap-2 sm:grid-cols-2 xl:grid-cols-6">
             <Input
@@ -156,11 +207,15 @@ function AdminFinancePage() {
               value={filters.companyId}
               onValueChange={(v) => setFilters({ ...filters, companyId: v })}
             >
-              <SelectTrigger><SelectValue placeholder="Company" /></SelectTrigger>
+              <SelectTrigger>
+                <SelectValue placeholder="Company" />
+              </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All companies</SelectItem>
                 {companies.map((c) => (
-                  <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                  <SelectItem key={c.id} value={c.id}>
+                    {c.name}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -168,23 +223,33 @@ function AdminFinancePage() {
               value={filters.brokerId}
               onValueChange={(v) => setFilters({ ...filters, brokerId: v })}
             >
-              <SelectTrigger><SelectValue placeholder="Broker" /></SelectTrigger>
+              <SelectTrigger>
+                <SelectValue placeholder="Broker" />
+              </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All brokers</SelectItem>
                 {brokerOptions.map((b) => (
-                  <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>
+                  <SelectItem key={b.id} value={b.id}>
+                    {b.name}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
             <Select
               value={filters.status}
-              onValueChange={(v) => setFilters({ ...filters, status: v as FinanceFilters["status"] })}
+              onValueChange={(v) =>
+                setFilters({ ...filters, status: v as FinanceFilters["status"] })
+              }
             >
-              <SelectTrigger><SelectValue placeholder="Status" /></SelectTrigger>
+              <SelectTrigger>
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All statuses</SelectItem>
                 {COMMISSION_STATUSES.filter((s) => s !== "pending").map((s) => (
-                  <SelectItem key={s} value={s}>{s}</SelectItem>
+                  <SelectItem key={s} value={s}>
+                    {s}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -197,7 +262,9 @@ function AdminFinancePage() {
               value={filters.sort}
               onValueChange={(v) => setFilters({ ...filters, sort: v as FinanceFilters["sort"] })}
             >
-              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
               <SelectContent>
                 <SelectItem value="newest">Newest first</SelectItem>
                 <SelectItem value="oldest">Oldest first</SelectItem>
@@ -210,7 +277,9 @@ function AdminFinancePage() {
           {loadingInvoices ? (
             <SkeletonRows n={5} />
           ) : rows.length === 0 ? (
-            <p className="py-8 text-center text-sm text-muted-foreground">No invoices match these filters.</p>
+            <p className="py-8 text-center text-sm text-muted-foreground">
+              No invoices match these filters.
+            </p>
           ) : (
             <div className="space-y-2">
               {rows.map((r) => {
@@ -223,14 +292,20 @@ function AdminFinancePage() {
                     <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-2">
                         <span className="font-medium">{r.number}</span>
-                        <Badge variant="outline" className={`rounded-full ${STATUS_STYLES[r.status]}`}>
+                        <Badge
+                          variant="outline"
+                          className={`rounded-full ${STATUS_STYLES[r.status]}`}
+                        >
                           {r.status}
                         </Badge>
-                        <span className="text-sm text-muted-foreground">{companyName(r.company_id)}</span>
+                        <span className="text-sm text-muted-foreground">
+                          {companyName(r.company_id)}
+                        </span>
                       </div>
                       <div className="mt-1 text-xs text-muted-foreground">
-                        {meta[r.quote_id]?.quoteNumber ?? "Lead"} · Move {meta[r.quote_id]?.moveDate ?? "—"} ·
-                        Issued {r.issue_date} · Due {r.due_date}
+                        {meta[r.quote_id]?.quoteNumber ?? "Lead"} · Move{" "}
+                        {meta[r.quote_id]?.moveDate ?? "—"} · Issued {r.issue_date} · Due{" "}
+                        {r.due_date}
                         {r.paid_at ? ` · Paid ${new Date(r.paid_at).toLocaleDateString()}` : ""}
                       </div>
                     </div>
@@ -248,10 +323,14 @@ function AdminFinancePage() {
                         disabled={busy === r.commission_id}
                         onValueChange={(v) => void changeStatus(r.commission_id, v)}
                       >
-                        <SelectTrigger className="w-[140px]"><SelectValue /></SelectTrigger>
+                        <SelectTrigger className="w-[140px]">
+                          <SelectValue />
+                        </SelectTrigger>
                         <SelectContent>
                           {COMMISSION_STATUSES.map((s) => (
-                            <SelectItem key={s} value={s}>{s}</SelectItem>
+                            <SelectItem key={s} value={s}>
+                              {s}
+                            </SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
@@ -270,11 +349,16 @@ function AdminFinancePage() {
             ) : (
               <div className="space-y-2">
                 {byCompany.slice(0, 8).map((c) => (
-                  <div key={c.company_id} className="flex items-center justify-between gap-3 text-sm">
+                  <div
+                    key={c.company_id}
+                    className="flex items-center justify-between gap-3 text-sm"
+                  >
                     <span className="truncate">{c.company_name}</span>
                     <span className="tabular-nums">
                       {money(c.total)}{" "}
-                      <span className="text-xs text-muted-foreground">({money(c.outstanding)} open)</span>
+                      <span className="text-xs text-muted-foreground">
+                        ({money(c.outstanding)} open)
+                      </span>
                     </span>
                   </div>
                 ))}
@@ -288,7 +372,10 @@ function AdminFinancePage() {
             ) : (
               <div className="space-y-2">
                 {byBroker.slice(0, 8).map((b) => (
-                  <div key={b.broker_id ?? "none"} className="flex items-center justify-between gap-3 text-sm">
+                  <div
+                    key={b.broker_id ?? "none"}
+                    className="flex items-center justify-between gap-3 text-sm"
+                  >
                     <span className="truncate">{b.broker_name}</span>
                     <span className="tabular-nums">{money(b.total)}</span>
                   </div>
@@ -310,7 +397,10 @@ function AdminFinancePage() {
                   <div key={m.month} className="space-y-1">
                     <div className="flex items-center justify-between text-xs">
                       <span className="text-muted-foreground">
-                        {new Date(m.month).toLocaleDateString("en-US", { month: "short", year: "numeric" })}
+                        {new Date(m.month).toLocaleDateString("en-US", {
+                          month: "short",
+                          year: "numeric",
+                        })}
                       </span>
                       <span className="tabular-nums">
                         {money(m.invoiced)} · paid {money(m.paid)}

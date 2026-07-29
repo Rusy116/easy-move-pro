@@ -6,11 +6,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
  * All wrap SECURITY DEFINER functions that enforce mover identity server-side.
  */
 
-async function callRpc(
-  ctx: { supabase: any },
-  fn: string,
-  args: Record<string, unknown>,
-) {
+async function callRpc(ctx: { supabase: any }, fn: string, args: Record<string, unknown>) {
   const { data, error } = await ctx.supabase.rpc(fn, args);
   if (error) throw new Error(error.message);
   return data;

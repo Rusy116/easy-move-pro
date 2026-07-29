@@ -12,9 +12,18 @@ const DESC =
   "Free AI moving tools: instant cost estimator, packing assistant, inventory generator, timeline planner and budget planner for your relocation.";
 
 const FAQ = [
-  { q: "Are the AI moving tools free?", a: "Yes. The AI cost estimator is live today and free to use. The remaining planners roll out to every Easy Moving account at no cost." },
-  { q: "Do I have to create an account?", a: "No account is needed to price a move. You only create one when you want to track the move in your customer portal." },
-  { q: "How accurate is the AI cost estimate?", a: "It prices your actual inventory volume, weight, access conditions, services and distance, so it is far closer than a bedroom-count guess. The final price is confirmed by the moving company that takes your job." },
+  {
+    q: "Are the AI moving tools free?",
+    a: "Yes. The AI cost estimator is live today and free to use. The remaining planners roll out to every Easy Moving account at no cost.",
+  },
+  {
+    q: "Do I have to create an account?",
+    a: "No account is needed to price a move. You only create one when you want to track the move in your customer portal.",
+  },
+  {
+    q: "How accurate is the AI cost estimate?",
+    a: "It prices your actual inventory volume, weight, access conditions, services and distance, so it is far closer than a bedroom-count guess. The final price is confirmed by the moving company that takes your job.",
+  },
 ];
 
 export const Route = createFileRoute("/ai-tools")({
@@ -22,10 +31,12 @@ export const Route = createFileRoute("/ai-tools")({
     meta: seoMeta({ title: TITLE, description: DESC, path: "/ai-tools" }),
     links: [{ rel: "canonical", href: "/ai-tools" }],
     scripts: [
-      jsonLd(breadcrumbSchema([
-        { name: "Home", url: "/" },
-        { name: "AI moving tools", url: "/ai-tools" },
-      ])),
+      jsonLd(
+        breadcrumbSchema([
+          { name: "Home", url: "/" },
+          { name: "AI moving tools", url: "/ai-tools" },
+        ]),
+      ),
       jsonLd(faqSchema(FAQ)),
     ],
   }),
@@ -41,7 +52,9 @@ function AiToolsPage() {
       <Breadcrumbs items={[{ label: "Home", to: "/" }, { label: "AI tools" }]} />
       <section className="border-b border-border">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 py-16 sm:py-24">
-          <span className="text-xs font-semibold uppercase tracking-widest text-ochre">AI tools</span>
+          <span className="text-xs font-semibold uppercase tracking-widest text-ochre">
+            AI tools
+          </span>
           <h1 className="mt-3 font-serif text-5xl font-medium">Plan the whole move with AI.</h1>
           <p className="mt-4 max-w-2xl text-lg text-muted-foreground">
             A connected toolkit that prices, packs, schedules and budgets your relocation. The cost
@@ -52,7 +65,10 @@ function AiToolsPage() {
             {AI_TOOLS.map((t) => {
               const live = Boolean(t.liveHref) || aiEnabled;
               return (
-                <div key={t.slug} className="flex flex-col rounded-2xl border border-border bg-card p-6">
+                <div
+                  key={t.slug}
+                  className="flex flex-col rounded-2xl border border-border bg-card p-6"
+                >
                   <div className="mb-4 inline-flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
                     {live ? <Sparkles className="h-4 w-4" /> : <Lock className="h-4 w-4" />}
                   </div>

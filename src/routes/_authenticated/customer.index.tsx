@@ -85,9 +85,7 @@ function CustomerDashboard() {
                 <StatCard
                   label="Move status"
                   value={
-                    <span className="text-xl">
-                      {LEAD_STATUS_LABEL[activeMove.lead_status]}
-                    </span>
+                    <span className="text-xl">{LEAD_STATUS_LABEL[activeMove.lead_status]}</span>
                   }
                   hint={new Date(activeMove.lead_status_updated_at).toLocaleDateString()}
                   icon={<CheckCircle2 className="h-4 w-4" />}
@@ -116,9 +114,7 @@ function CustomerDashboard() {
                       ? money(activeMove.final_price)
                       : `${money(activeMove.estimated_low)}+`
                   }
-                  hint={
-                    activeMove.final_price != null ? "Confirmed" : "Broker estimate"
-                  }
+                  hint={activeMove.final_price != null ? "Confirmed" : "Broker estimate"}
                   tone="success"
                   icon={<DollarSign className="h-4 w-4" />}
                 />
@@ -154,9 +150,7 @@ function CustomerDashboard() {
                   }
                 >
                   {notifications.length === 0 ? (
-                    <p className="text-sm text-muted-foreground">
-                      You&apos;re all caught up.
-                    </p>
+                    <p className="text-sm text-muted-foreground">You&apos;re all caught up.</p>
                   ) : (
                     <ul className="space-y-3">
                       {notifications.map((n) => (
@@ -220,10 +214,7 @@ function CustomerDashboard() {
                             {new Date(m.created_at).toLocaleDateString()}
                           </div>
                         </div>
-                        <Badge
-                          variant="outline"
-                          className={LEAD_STATUS_STYLE[m.lead_status]}
-                        >
+                        <Badge variant="outline" className={LEAD_STATUS_STYLE[m.lead_status]}>
                           {LEAD_STATUS_LABEL[m.lead_status]}
                         </Badge>
                       </li>

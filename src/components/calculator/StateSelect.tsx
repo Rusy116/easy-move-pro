@@ -35,7 +35,7 @@ export function StateSelect({ value, onChange, className }: Props) {
           className={cn(
             "h-10 w-full justify-between px-3 font-normal",
             !value && "text-muted-foreground",
-            className
+            className,
           )}
         >
           <span className="truncate">{value ? value : "Select state"}</span>
@@ -58,10 +58,7 @@ export function StateSelect({ value, onChange, className }: Props) {
                   }}
                 >
                   <Check
-                    className={cn(
-                      "mr-2 h-4 w-4",
-                      value === s.code ? "opacity-100" : "opacity-0"
-                    )}
+                    className={cn("mr-2 h-4 w-4", value === s.code ? "opacity-100" : "opacity-0")}
                   />
                   <span className="truncate">{s.name}</span>
                   <span className="ml-auto text-xs text-muted-foreground">{s.code}</span>

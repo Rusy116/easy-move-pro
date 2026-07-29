@@ -36,11 +36,15 @@ export function SeoHero({
           <p className="mt-6 text-lg text-muted-foreground leading-relaxed">{subhead}</p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link to={primaryHref as "/join"}>
-              <Button size="lg" className="rounded-full">{primaryLabel}</Button>
+              <Button size="lg" className="rounded-full">
+                {primaryLabel}
+              </Button>
             </Link>
             {secondaryHref && secondaryLabel && (
               <Link to={secondaryHref as "/moving-leads"}>
-                <Button variant="outline" size="lg" className="rounded-full">{secondaryLabel}</Button>
+                <Button variant="outline" size="lg" className="rounded-full">
+                  {secondaryLabel}
+                </Button>
               </Link>
             )}
           </div>
@@ -62,7 +66,9 @@ export function FeatureGrid({
     <section className="border-b border-border">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 py-16">
         {title && (
-          <h2 className="mb-10 font-serif text-3xl md:text-4xl font-semibold tracking-tight">{title}</h2>
+          <h2 className="mb-10 font-serif text-3xl md:text-4xl font-semibold tracking-tight">
+            {title}
+          </h2>
         )}
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {items.map((it) => (
@@ -91,7 +97,9 @@ export function Benefits({
   return (
     <section className="border-b border-border bg-muted/30">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 py-16">
-        <h2 className="max-w-3xl font-serif text-3xl md:text-4xl font-semibold tracking-tight">{title}</h2>
+        <h2 className="max-w-3xl font-serif text-3xl md:text-4xl font-semibold tracking-tight">
+          {title}
+        </h2>
         <div className="mt-10 grid gap-8 md:grid-cols-2">
           {items.map((it) => (
             <div key={it.title} className="flex gap-4">
@@ -111,18 +119,16 @@ export function Benefits({
 }
 
 // ────────────────────────────── Statistics ──────────────────────────────
-export function Statistics({
-  items,
-}: {
-  items: Array<{ value: string; label: string }>;
-}) {
+export function Statistics({ items }: { items: Array<{ value: string; label: string }> }) {
   return (
     <section className="border-b border-border">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 py-16">
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
           {items.map((s) => (
             <div key={s.label} className="text-center">
-              <div className="font-serif text-4xl md:text-5xl font-semibold text-primary">{s.value}</div>
+              <div className="font-serif text-4xl md:text-5xl font-semibold text-primary">
+                {s.value}
+              </div>
               <div className="mt-2 text-sm text-muted-foreground">{s.label}</div>
             </div>
           ))}
@@ -138,7 +144,9 @@ export function Faq({ items }: { items: Array<{ q: string; a: string }> }) {
   return (
     <section className="border-b border-border">
       <div className="mx-auto max-w-4xl px-4 sm:px-6 py-16">
-        <h2 className="font-serif text-3xl md:text-4xl font-semibold tracking-tight">Frequently asked questions</h2>
+        <h2 className="font-serif text-3xl md:text-4xl font-semibold tracking-tight">
+          Frequently asked questions
+        </h2>
         <div className="mt-8 divide-y divide-border rounded-2xl border border-border bg-card">
           {items.map((it, i) => {
             const isOpen = open === i;
@@ -152,7 +160,9 @@ export function Faq({ items }: { items: Array<{ q: string; a: string }> }) {
               >
                 <div className="flex items-center justify-between gap-4">
                   <span className="font-medium text-foreground">{it.q}</span>
-                  <ChevronDown className={`h-4 w-4 shrink-0 text-muted-foreground transition-transform ${isOpen ? "rotate-180" : ""}`} />
+                  <ChevronDown
+                    className={`h-4 w-4 shrink-0 text-muted-foreground transition-transform ${isOpen ? "rotate-180" : ""}`}
+                  />
                 </div>
                 {isOpen && (
                   <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{it.a}</p>
@@ -168,24 +178,46 @@ export function Faq({ items }: { items: Array<{ q: string; a: string }> }) {
 
 // ────────────────────────────── Testimonials ──────────────────────────────
 const DEFAULT_TESTIMONIALS = [
-  { name: "Marcus R.", company: "Northstar Movers, Denver", body: "We went from 4 jobs a week to 18 in six months. The exclusive leads changed everything." },
-  { name: "Priya S.", company: "Bay Area Relocations, San Jose", body: "The estimate builder alone saves our sales team 10 hours a week. And customers actually understand the price." },
-  { name: "Jamal T.", company: "Peach State Moving, Atlanta", body: "Best money we spend. Real leads, real customers, no shared list nonsense." },
+  {
+    name: "Marcus R.",
+    company: "Northstar Movers, Denver",
+    body: "We went from 4 jobs a week to 18 in six months. The exclusive leads changed everything.",
+  },
+  {
+    name: "Priya S.",
+    company: "Bay Area Relocations, San Jose",
+    body: "The estimate builder alone saves our sales team 10 hours a week. And customers actually understand the price.",
+  },
+  {
+    name: "Jamal T.",
+    company: "Peach State Moving, Atlanta",
+    body: "Best money we spend. Real leads, real customers, no shared list nonsense.",
+  },
 ];
 
-export function Testimonials({ items = DEFAULT_TESTIMONIALS }: { items?: typeof DEFAULT_TESTIMONIALS }) {
+export function Testimonials({
+  items = DEFAULT_TESTIMONIALS,
+}: {
+  items?: typeof DEFAULT_TESTIMONIALS;
+}) {
   return (
     <section className="border-b border-border bg-muted/30">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 py-16">
-        <h2 className="font-serif text-3xl md:text-4xl font-semibold tracking-tight">Trusted by moving companies nationwide</h2>
+        <h2 className="font-serif text-3xl md:text-4xl font-semibold tracking-tight">
+          Trusted by moving companies nationwide
+        </h2>
         <div className="mt-10 grid gap-6 md:grid-cols-3">
           {items.map((t) => (
             <div key={t.name} className="rounded-2xl border border-border bg-card p-6">
               <div className="flex gap-0.5 text-primary">
-                {Array.from({ length: 5 }).map((_, i) => <Star key={i} className="h-4 w-4 fill-current" />)}
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <Star key={i} className="h-4 w-4 fill-current" />
+                ))}
               </div>
               <p className="mt-4 text-sm leading-relaxed text-foreground">"{t.body}"</p>
-              <p className="mt-4 text-xs font-medium text-muted-foreground">{t.name} · {t.company}</p>
+              <p className="mt-4 text-xs font-medium text-muted-foreground">
+                {t.name} · {t.company}
+              </p>
             </div>
           ))}
         </div>
@@ -211,7 +243,9 @@ export function ComparisonTable({
               <tr>
                 <th className="px-6 py-4 text-left font-medium text-muted-foreground">Feature</th>
                 <th className="px-6 py-4 text-left font-semibold text-primary">Easy Moving</th>
-                <th className="px-6 py-4 text-left font-medium text-muted-foreground">{competitor}</th>
+                <th className="px-6 py-4 text-left font-medium text-muted-foreground">
+                  {competitor}
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
@@ -232,14 +266,26 @@ export function ComparisonTable({
 
 // ────────────────────────────── Partner logos ──────────────────────────────
 export function PartnerLogos() {
-  const items = ["Northstar Movers", "Peach State Moving", "Bay Area Relocations", "Coastal Van Lines", "Summit Movers", "Cardinal Moving Co."];
+  const items = [
+    "Northstar Movers",
+    "Peach State Moving",
+    "Bay Area Relocations",
+    "Coastal Van Lines",
+    "Summit Movers",
+    "Cardinal Moving Co.",
+  ];
   return (
     <section className="border-b border-border bg-muted/20">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 py-12">
-        <p className="text-center text-xs uppercase tracking-widest text-muted-foreground">Trusted by moving companies across the U.S.</p>
+        <p className="text-center text-xs uppercase tracking-widest text-muted-foreground">
+          Trusted by moving companies across the U.S.
+        </p>
         <div className="mt-6 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-6">
           {items.map((n) => (
-            <div key={n} className="flex h-14 items-center justify-center rounded-lg border border-border bg-card text-xs font-medium tracking-wide text-muted-foreground">
+            <div
+              key={n}
+              className="flex h-14 items-center justify-center rounded-lg border border-border bg-card text-xs font-medium tracking-wide text-muted-foreground"
+            >
               {n}
             </div>
           ))}
@@ -287,7 +333,9 @@ export function Breadcrumbs({ items }: { items: Array<{ label: string; to?: stri
           <li key={i} className="flex items-center gap-2">
             {i > 0 && <span className="opacity-50">/</span>}
             {it.to ? (
-              <Link to={it.to as "/"} className="hover:text-foreground">{it.label}</Link>
+              <Link to={it.to as "/"} className="hover:text-foreground">
+                {it.label}
+              </Link>
             ) : (
               <span className="text-foreground">{it.label}</span>
             )}
@@ -309,7 +357,9 @@ export function InternalLinks({
   return (
     <section className="border-b border-border">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 py-12">
-        <h2 className="text-sm font-semibold uppercase tracking-widest text-muted-foreground">{title}</h2>
+        <h2 className="text-sm font-semibold uppercase tracking-widest text-muted-foreground">
+          {title}
+        </h2>
         <div className="mt-4 flex flex-wrap gap-2">
           {links.map((l) => (
             <Link

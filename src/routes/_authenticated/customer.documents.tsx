@@ -109,9 +109,7 @@ function CustomerDocumentsPage() {
                         <div className="text-xs text-muted-foreground">
                           <span className="capitalize">{d.kind.replace(/_/g, " ")}</span> ·{" "}
                           {new Date(d.created_at).toLocaleDateString()}
-                          {d.size_bytes
-                            ? ` · ${Math.round(Number(d.size_bytes) / 1024)} KB`
-                            : ""}
+                          {d.size_bytes ? ` · ${Math.round(Number(d.size_bytes) / 1024)} KB` : ""}
                         </div>
                       </div>
                       <Button

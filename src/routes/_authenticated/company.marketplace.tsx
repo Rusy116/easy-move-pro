@@ -1,8 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import {
-  CompanyHeader, LeadCard, LeadDetailDialog,
-  NoCompanyScreen, StatusBanner, useMoverPortal, type MergedLead,
+  CompanyHeader,
+  LeadCard,
+  LeadDetailDialog,
+  NoCompanyScreen,
+  StatusBanner,
+  useMoverPortal,
+  type MergedLead,
 } from "@/components/company/portal-shared";
 import { SkeletonRows } from "@/components/shell/Chrome";
 import { Globe } from "lucide-react";
@@ -15,7 +20,10 @@ export const Route = createFileRoute("/_authenticated/company/marketplace")({
 function MarketplacePage() {
   const { loading, company, merged, reload, canClaim } = useMoverPortal();
   const [selected, setSelected] = useState<MergedLead | null>(null);
-  const rows = useMemo(() => merged.filter((r) => r.bucket === "open_market" && !r.assignment), [merged]);
+  const rows = useMemo(
+    () => merged.filter((r) => r.bucket === "open_market" && !r.assignment),
+    [merged],
+  );
 
   if (loading && !company) return <SkeletonRows n={4} />;
   if (!company) return <NoCompanyScreen />;
@@ -32,7 +40,8 @@ function MarketplacePage() {
           <span className="text-sm text-muted-foreground">({rows.length})</span>
         </div>
         <p className="text-sm text-muted-foreground mb-4">
-          These leads are open to all approved partners. Claim to unlock customer contact details and submit an estimate.
+          These leads are open to all approved partners. Claim to unlock customer contact details
+          and submit an estimate.
         </p>
         <div className="space-y-3">
           {rows.length === 0 && (

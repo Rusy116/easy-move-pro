@@ -109,7 +109,7 @@ export function AddressAutocomplete({
 
   async function fetchViaBrowser(q: string): Promise<Row[]> {
     const { AutocompleteSuggestion } = (await window.google.maps.importLibrary(
-      "places"
+      "places",
     )) as google.maps.PlacesLibrary;
     const request: google.maps.places.AutocompleteRequest = {
       input: normalizedBiasZip ? `${q} ${normalizedBiasZip}` : q,
@@ -126,7 +126,7 @@ export function AddressAutocomplete({
     const { suggestions } = await Promise.race([
       AutocompleteSuggestion.fetchAutocompleteSuggestions(request),
       new Promise<never>((_, rej) =>
-        window.setTimeout(() => rej(new Error("places-js-timeout")), 3500)
+        window.setTimeout(() => rej(new Error("places-js-timeout")), 3500),
       ),
     ]);
 
@@ -201,7 +201,6 @@ export function AddressAutocomplete({
             console.error(`[places] autocomplete unavailable: ${fromServer.error}`);
             message = null;
           }
-
         } catch {
           if (next.length === 0) message = null;
         }
@@ -228,7 +227,6 @@ export function AddressAutocomplete({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value, jsReady, jsFailed, bias?.lat, bias?.lng, bias?.radiusMeters, normalizedBiasZip]);
 
-
   async function pick(row: Row) {
     if (!row) return;
     setOpen(false);
@@ -245,11 +243,8 @@ export function AddressAutocomplete({
           const comps = place.addressComponents ?? [];
           const short = (type: string) =>
             comps.find((c) => c.types.includes(type))?.shortText ?? "";
-          const long = (type: string) =>
-            comps.find((c) => c.types.includes(type))?.longText ?? "";
-          const streetAddress = [short("street_number"), long("route")]
-            .filter(Boolean)
-            .join(" ");
+          const long = (type: string) => comps.find((c) => c.types.includes(type))?.longText ?? "";
+          const streetAddress = [short("street_number"), long("route")].filter(Boolean).join(" ");
           const formatted = place.formattedAddress ?? row.prediction.text.text;
           selection = {
             formattedAddress: formatted,
@@ -338,7 +333,7 @@ export function AddressAutocomplete({
               onClick={() => pick(r)}
               className={cn(
                 "flex w-full items-start gap-2 px-3 py-2 text-left text-sm transition-colors",
-                i === activeIdx ? "bg-muted" : "hover:bg-muted/60"
+                i === activeIdx ? "bg-muted" : "hover:bg-muted/60",
               )}
             >
               <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-sage" />

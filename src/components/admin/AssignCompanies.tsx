@@ -4,14 +4,16 @@ import { useServerFn } from "@tanstack/react-start";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
 import { Building2, X, Lock, Globe, Sparkles, Send } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
-import {
-  withdrawAssignment, forceOpenMarket, assignCompanies,
-} from "@/lib/leads.functions";
+import { withdrawAssignment, forceOpenMarket, assignCompanies } from "@/lib/leads.functions";
 import { SlaCountdown } from "./SlaCountdown";
 import { LeadPhaseBadge } from "./LeadPhaseBadge";
 
@@ -82,10 +84,16 @@ export function AssignCompanies({ quoteId }: { quoteId: string }) {
         .from("moving_companies")
         .select("id,name,service_states,approved,suspended")
         .order("name"),
-      supabase.from("quote_assignments").select("*").eq("quote_id", quoteId).order("created_at", { ascending: false }),
+      supabase
+        .from("quote_assignments")
+        .select("*")
+        .eq("quote_id", quoteId)
+        .order("created_at", { ascending: false }),
       supabase
         .from("quotes")
-        .select("id,lead_phase,exclusive_assignment_id,exclusive_expires_at,exclusive_paused_at,exclusive_pause_reason")
+        .select(
+          "id,lead_phase,exclusive_assignment_id,exclusive_expires_at,exclusive_paused_at,exclusive_pause_reason",
+        )
         .eq("id", quoteId)
         .maybeSingle(),
     ]);
@@ -98,14 +106,25 @@ export function AssignCompanies({ quoteId }: { quoteId: string }) {
     void reload();
     const ch = supabase
       .channel(`assign-${quoteId}`)
-      .on("postgres_changes",
-        { event: "*", schema: "public", table: "quote_assignments", filter: `quote_id=eq.${quoteId}` },
-        () => void reload())
-      .on("postgres_changes",
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "quote_assignments",
+          filter: `quote_id=eq.${quoteId}`,
+        },
+        () => void reload(),
+      )
+      .on(
+        "postgres_changes",
         { event: "UPDATE", schema: "public", table: "quotes", filter: `id=eq.${quoteId}` },
-        (p) => setQuote(p.new as QuotePhaseRow))
+        (p) => setQuote(p.new as QuotePhaseRow),
+      )
       .subscribe();
-    return () => { void supabase.removeChannel(ch); };
+    return () => {
+      void supabase.removeChannel(ch);
+    };
   }, [quoteId, reload]);
 
   const activeAssignments = assignments.filter((a) => !TERMINAL.has(a.state));
@@ -214,9 +233,7 @@ export function AssignCompanies({ quoteId }: { quoteId: string }) {
         </div>
 
         {activeAssignments.length === 0 && (
-          <p className="text-sm text-muted-foreground mb-3">
-            No active assignments.
-          </p>
+          <p className="text-sm text-muted-foreground mb-3">No active assignments.</p>
         )}
 
         <div className="space-y-2">
@@ -229,20 +246,32 @@ export function AssignCompanies({ quoteId }: { quoteId: string }) {
                     <div className="flex items-center gap-2 font-medium">
                       <span className="truncate">{c?.name ?? "Unknown company"}</span>
                       {a.is_exclusive && (
-                        <Badge variant="outline" className="border-indigo-300 bg-indigo-50 text-indigo-800 text-[10px]">
-                          <Lock className="mr-0.5 h-2.5 w-2.5" />Exclusive
+                        <Badge
+                          variant="outline"
+                          className="border-indigo-300 bg-indigo-50 text-indigo-800 text-[10px]"
+                        >
+                          <Lock className="mr-0.5 h-2.5 w-2.5" />
+                          Exclusive
                         </Badge>
                       )}
                       {!a.is_exclusive && (
-                        <Badge variant="outline" className="border-amber-300 bg-amber-50 text-amber-900 text-[10px]">
-                          <Sparkles className="mr-0.5 h-2.5 w-2.5" />Open market
+                        <Badge
+                          variant="outline"
+                          className="border-amber-300 bg-amber-50 text-amber-900 text-[10px]"
+                        >
+                          <Sparkles className="mr-0.5 h-2.5 w-2.5" />
+                          Open market
                         </Badge>
                       )}
                     </div>
                     <div className="mt-1 flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
                       <span>Invited {new Date(a.invited_at ?? a.created_at).toLocaleString()}</span>
-                      {a.viewed_at && <span>· Viewed {new Date(a.viewed_at).toLocaleString()}</span>}
-                      {a.contacted_at && <span>· Contacted {new Date(a.contacted_at).toLocaleString()}</span>}
+                      {a.viewed_at && (
+                        <span>· Viewed {new Date(a.viewed_at).toLocaleString()}</span>
+                      )}
+                      {a.contacted_at && (
+                        <span>· Contacted {new Date(a.contacted_at).toLocaleString()}</span>
+                      )}
                     </div>
                   </div>
                   <Button
@@ -284,10 +313,14 @@ export function AssignCompanies({ quoteId }: { quoteId: string }) {
               <div className="ml-auto flex items-center gap-1 normal-case tracking-normal">
                 <span className="text-muted-foreground">SLA</span>
                 <Select value={String(slaHours)} onValueChange={(v) => setSlaHours(Number(v))}>
-                  <SelectTrigger className="h-7 w-[80px] text-xs"><SelectValue /></SelectTrigger>
+                  <SelectTrigger className="h-7 w-[80px] text-xs">
+                    <SelectValue />
+                  </SelectTrigger>
                   <SelectContent>
                     {[6, 12, 24, 48].map((h) => (
-                      <SelectItem key={h} value={String(h)} className="text-xs">{h}h</SelectItem>
+                      <SelectItem key={h} value={String(h)} className="text-xs">
+                        {h}h
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -295,7 +328,8 @@ export function AssignCompanies({ quoteId }: { quoteId: string }) {
             </div>
 
             <p className="mb-2 text-xs text-muted-foreground">
-              Select one company for an exclusive {slaHours}h SLA, or multiple to invite them all in open market.
+              Select one company for an exclusive {slaHours}h SLA, or multiple to invite them all in
+              open market.
             </p>
 
             <div className="space-y-1.5">
@@ -305,7 +339,9 @@ export function AssignCompanies({ quoteId }: { quoteId: string }) {
                   <label
                     key={c.id}
                     className={`flex cursor-pointer items-center gap-3 rounded-lg border px-3 py-2 text-sm transition-colors ${
-                      checked ? "border-primary bg-primary/5" : "border-border bg-background hover:bg-muted/40"
+                      checked
+                        ? "border-primary bg-primary/5"
+                        : "border-border bg-background hover:bg-muted/40"
                     }`}
                   >
                     <Checkbox
@@ -336,8 +372,8 @@ export function AssignCompanies({ quoteId }: { quoteId: string }) {
                 {selected.size === 0
                   ? "No companies selected"
                   : selected.size === 1
-                  ? "1 company · exclusive assignment"
-                  : `${selected.size} companies · open market`}
+                    ? "1 company · exclusive assignment"
+                    : `${selected.size} companies · open market`}
               </span>
               <Button
                 size="sm"
@@ -379,11 +415,15 @@ export function AssignCompanies({ quoteId }: { quoteId: string }) {
               return (
                 <div key={a.id} className="flex flex-wrap items-center gap-2 text-xs">
                   <span className="font-medium">{c?.name ?? "—"}</span>
-                  <Badge variant="outline" className={`capitalize ${STATE_STYLES[a.state] ?? ""}`}>{a.state}</Badge>
+                  <Badge variant="outline" className={`capitalize ${STATE_STYLES[a.state] ?? ""}`}>
+                    {a.state}
+                  </Badge>
                   <span className="text-muted-foreground">
                     {new Date(a.closed_at ?? a.created_at).toLocaleString()}
                   </span>
-                  {a.decline_reason && <span className="text-muted-foreground">· {a.decline_reason}</span>}
+                  {a.decline_reason && (
+                    <span className="text-muted-foreground">· {a.decline_reason}</span>
+                  )}
                 </div>
               );
             })}

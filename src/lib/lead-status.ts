@@ -16,14 +16,9 @@ export const LEAD_STATUS_FLOW = [
 
 export const LEAD_STATUS_TERMINAL = ["rejected", "cancelled"] as const;
 
-export type LeadStatus =
-  | (typeof LEAD_STATUS_FLOW)[number]
-  | (typeof LEAD_STATUS_TERMINAL)[number];
+export type LeadStatus = (typeof LEAD_STATUS_FLOW)[number] | (typeof LEAD_STATUS_TERMINAL)[number];
 
-export const ALL_LEAD_STATUSES: LeadStatus[] = [
-  ...LEAD_STATUS_FLOW,
-  ...LEAD_STATUS_TERMINAL,
-];
+export const ALL_LEAD_STATUSES: LeadStatus[] = [...LEAD_STATUS_FLOW, ...LEAD_STATUS_TERMINAL];
 
 export const LEAD_STATUS_LABEL: Record<LeadStatus, string> = {
   draft: "Draft",
@@ -93,11 +88,7 @@ export const BROKER_QUEUE_LABEL: Record<string, string> = {
   rejected: "Rejected",
 };
 
-export async function setLeadStatus(
-  quoteId: string,
-  status: LeadStatus,
-  note?: string,
-) {
+export async function setLeadStatus(quoteId: string, status: LeadStatus, note?: string) {
   const { error } = await supabase.rpc("fn_set_lead_status", {
     _quote_id: quoteId,
     _status: status,

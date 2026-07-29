@@ -26,10 +26,7 @@ function CustomerReviewsPage() {
   const { reviews, loading: loadingReviews, reload } = useMyReviews();
   const [target, setTarget] = useState<string | null>(null);
 
-  const completed = useMemo(
-    () => moves.filter((m) => m.lead_status === "completed"),
-    [moves],
-  );
+  const completed = useMemo(() => moves.filter((m) => m.lead_status === "completed"), [moves]);
   const reviewed = new Set(reviews.map((r) => r.quote_id));
 
   return (
@@ -80,11 +77,7 @@ function CustomerReviewsPage() {
                           </Button>
                         </div>
                       ) : (
-                        <Button
-                          size="sm"
-                          className="rounded-full"
-                          onClick={() => setTarget(m.id)}
-                        >
+                        <Button size="sm" className="rounded-full" onClick={() => setTarget(m.id)}>
                           Leave a review
                         </Button>
                       )}

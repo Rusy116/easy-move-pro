@@ -3,11 +3,7 @@ import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { LogOut, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
-import {
-  isFeatureEnabled,
-  readLocalOverrides,
-  type FeatureFlag,
-} from "@/lib/feature-flags";
+import { isFeatureEnabled, readLocalOverrides, type FeatureFlag } from "@/lib/feature-flags";
 import { loadRoleContext, type PlatformRole } from "@/lib/roles";
 
 export type ShellNavItem = {
@@ -39,9 +35,7 @@ export function RoleShell({ brand, eyebrow, accent, nav, children }: RoleShellPr
   const [email, setEmail] = useState<string>("");
   const [open, setOpen] = useState(false);
   const [role, setRole] = useState<PlatformRole | null>(null);
-  const [flagOverrides, setFlagOverrides] = useState<Partial<Record<FeatureFlag, boolean>>>(
-    {},
-  );
+  const [flagOverrides, setFlagOverrides] = useState<Partial<Record<FeatureFlag, boolean>>>({});
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => setEmail(data.user?.email ?? ""));
@@ -53,7 +47,6 @@ export function RoleShell({ brand, eyebrow, accent, nav, children }: RoleShellPr
     () => nav.filter((n) => !n.flag || isFeatureEnabled(n.flag, role, flagOverrides)),
     [nav, role, flagOverrides],
   );
-
 
   async function signOut() {
     await supabase.auth.signOut();

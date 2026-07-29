@@ -17,11 +17,14 @@ import { LeadDetailPanel } from "@/components/admin/LeadDetailPanel";
 import { LeadStatusBadge } from "@/components/admin/LeadWorkflow";
 import { useBrokers } from "@/components/admin/BrokerSelect";
 import {
-  ALL_LEAD_STATUSES, BROKER_QUEUES, BROKER_QUEUE_LABEL, LEAD_STATUS_LABEL,
-  type BrokerQueue, type LeadStatus,
+  ALL_LEAD_STATUSES,
+  BROKER_QUEUES,
+  BROKER_QUEUE_LABEL,
+  LEAD_STATUS_LABEL,
+  type BrokerQueue,
+  type LeadStatus,
 } from "@/lib/lead-status";
 import { toast } from "sonner";
-
 
 export const Route = createFileRoute("/_authenticated/broker/")({
   head: () => ({ meta: [{ title: "Broker leads — Easy Move Pro" }] }),
@@ -63,7 +66,6 @@ function BrokerLeadsPage() {
   const [moveTo, setMoveTo] = useState("");
   const [selected, setSelected] = useState<Lead | null>(null);
 
-
   useEffect(() => {
     (async () => {
       const { data } = await supabase
@@ -80,33 +82,28 @@ function BrokerLeadsPage() {
   useEffect(() => {
     const channel = supabase
       .channel("broker-quotes-sync")
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "quotes" },
-        (payload) => {
-          const row = payload.new as Lead | null;
-          if (payload.eventType === "DELETE") {
-            const oldId = (payload.old as { id?: string })?.id;
-            if (!oldId) return;
-            setLeads((prev) => prev.filter((l) => l.id !== oldId));
-            setSelected((prev) => (prev && prev.id === oldId ? null : prev));
-            return;
-          }
-          if (!row?.id) return;
-          setLeads((prev) => {
-            const exists = prev.some((l) => l.id === row.id);
-            if (!exists) return [row, ...prev];
-            return prev.map((l) => (l.id === row.id ? { ...l, ...row } : l));
-          });
-          setSelected((prev) => (prev && prev.id === row.id ? { ...prev, ...row } : prev));
-        },
-      )
+      .on("postgres_changes", { event: "*", schema: "public", table: "quotes" }, (payload) => {
+        const row = payload.new as Lead | null;
+        if (payload.eventType === "DELETE") {
+          const oldId = (payload.old as { id?: string })?.id;
+          if (!oldId) return;
+          setLeads((prev) => prev.filter((l) => l.id !== oldId));
+          setSelected((prev) => (prev && prev.id === oldId ? null : prev));
+          return;
+        }
+        if (!row?.id) return;
+        setLeads((prev) => {
+          const exists = prev.some((l) => l.id === row.id);
+          if (!exists) return [row, ...prev];
+          return prev.map((l) => (l.id === row.id ? { ...l, ...row } : l));
+        });
+        setSelected((prev) => (prev && prev.id === row.id ? { ...prev, ...row } : prev));
+      })
       .subscribe();
     return () => {
       void supabase.removeChannel(channel);
     };
   }, []);
-
 
   const brokers = useBrokers();
 
@@ -141,7 +138,11 @@ function BrokerLeadsPage() {
         const b = (l.assigned_broker_id as string | null) ?? "";
         if (brokerFilter === "unassigned" ? b !== "" : b !== brokerFilter) return false;
       }
-      if (stateFilter !== "all" && l.origin_state !== stateFilter && l.destination_state !== stateFilter)
+      if (
+        stateFilter !== "all" &&
+        l.origin_state !== stateFilter &&
+        l.destination_state !== stateFilter
+      )
         return false;
       if (cityFilter !== "all" && l.origin_city !== cityFilter && l.destination_city !== cityFilter)
         return false;
@@ -236,21 +237,35 @@ function BrokerLeadsPage() {
 
         <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <Select value={stateFilter} onValueChange={setStateFilter}>
-            <SelectTrigger><SelectValue placeholder="State" /></SelectTrigger>
+            <SelectTrigger>
+              <SelectValue placeholder="State" />
+            </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All states</SelectItem>
-              {stateOptions.map((s) => (<SelectItem key={s} value={s}>{s}</SelectItem>))}
+              {stateOptions.map((s) => (
+                <SelectItem key={s} value={s}>
+                  {s}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
           <Select value={cityFilter} onValueChange={setCityFilter}>
-            <SelectTrigger><SelectValue placeholder="City" /></SelectTrigger>
+            <SelectTrigger>
+              <SelectValue placeholder="City" />
+            </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All cities</SelectItem>
-              {cityOptions.map((c) => (<SelectItem key={c} value={c}>{c}</SelectItem>))}
+              {cityOptions.map((c) => (
+                <SelectItem key={c} value={c}>
+                  {c}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
           <Select value={moveType} onValueChange={setMoveType}>
-            <SelectTrigger><SelectValue placeholder="Move type" /></SelectTrigger>
+            <SelectTrigger>
+              <SelectValue placeholder="Move type" />
+            </SelectTrigger>
             <SelectContent>
               {MOVE_TYPES.map((m) => (
                 <SelectItem key={m} value={m} className="capitalize">
@@ -260,12 +275,16 @@ function BrokerLeadsPage() {
             </SelectContent>
           </Select>
           <Select value={brokerFilter} onValueChange={setBrokerFilter}>
-            <SelectTrigger><SelectValue placeholder="Broker" /></SelectTrigger>
+            <SelectTrigger>
+              <SelectValue placeholder="Broker" />
+            </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All brokers</SelectItem>
               <SelectItem value="unassigned">Unassigned</SelectItem>
               {brokers.map((b) => (
-                <SelectItem key={b.id} value={b.id}>{b.full_name || b.email}</SelectItem>
+                <SelectItem key={b.id} value={b.id}>
+                  {b.full_name || b.email}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -276,7 +295,6 @@ function BrokerLeadsPage() {
             <Input type="date" value={moveTo} onChange={(e) => setMoveTo(e.target.value)} />
           </div>
         </div>
-
 
         <div className="mt-6 grid gap-3">
           {loading ? (
@@ -312,7 +330,6 @@ function BrokerLeadsPage() {
                       <Badge variant="outline" className="capitalize">
                         {l.lead_phase.replace("_", " ")}
                       </Badge>
-
                     </div>
                     <div className="mt-1.5 flex items-center gap-2 font-serif text-lg font-medium">
                       <MapPin className="h-4 w-4 shrink-0 text-sage" />

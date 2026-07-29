@@ -37,7 +37,10 @@ function EstimatesPage() {
       .eq("company_id", company.id)
       .order("submitted_at", { ascending: false })
       .limit(200)
-      .then(({ data }) => { setRows((data ?? []) as Revision[]); setBusy(false); });
+      .then(({ data }) => {
+        setRows((data ?? []) as Revision[]);
+        setBusy(false);
+      });
   }, [company]);
 
   const stats = useMemo(() => {
@@ -70,13 +73,27 @@ function EstimatesPage() {
         )}
         <div className="space-y-2">
           {rows.map((r) => (
-            <div key={r.id} className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border p-3 text-sm">
+            <div
+              key={r.id}
+              className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border p-3 text-sm"
+            >
               <div className="flex items-center gap-2">
-                <span className="font-mono text-xs text-muted-foreground">{r.assignment_id.slice(0, 8)}</span>
+                <span className="font-mono text-xs text-muted-foreground">
+                  {r.assignment_id.slice(0, 8)}
+                </span>
                 <span className="font-semibold">v{r.revision}</span>
-                {r.is_current && <Badge variant="outline" className="bg-emerald-50 text-emerald-800 border-emerald-300">Current</Badge>}
+                {r.is_current && (
+                  <Badge
+                    variant="outline"
+                    className="bg-emerald-50 text-emerald-800 border-emerald-300"
+                  >
+                    Current
+                  </Badge>
+                )}
               </div>
-              <div className="text-muted-foreground text-xs">{new Date(r.submitted_at).toLocaleString()}</div>
+              <div className="text-muted-foreground text-xs">
+                {new Date(r.submitted_at).toLocaleString()}
+              </div>
               <div className="font-serif text-lg">${Number(r.amount).toLocaleString()}</div>
             </div>
           ))}

@@ -14,7 +14,11 @@ function digits(raw: string) {
 }
 
 function list(v: unknown, max = 200): string[] {
-  if (Array.isArray(v)) return v.map((s) => String(s).trim()).filter(Boolean).slice(0, max);
+  if (Array.isArray(v))
+    return v
+      .map((s) => String(s).trim())
+      .filter(Boolean)
+      .slice(0, max);
   return String(v ?? "")
     .split(",")
     .map((s) => s.trim())
@@ -147,9 +151,11 @@ export const registerPartnerCompany = createServerFn({ method: "POST" })
       status: "active",
     } as never);
 
-    await supabaseAdmin
-      .from("company_members")
-      .insert({ company_id: (company as { id: string }).id, user_id: userId, role: "owner" } as never);
+    await supabaseAdmin.from("company_members").insert({
+      company_id: (company as { id: string }).id,
+      user_id: userId,
+      role: "owner",
+    } as never);
 
     await supabaseAdmin.from("user_roles").delete().eq("user_id", userId);
     await supabaseAdmin.from("user_roles").insert({ user_id: userId, role: "mover" } as never);

@@ -3,10 +3,22 @@ import { ShieldCheck, Sparkles, BadgeDollarSign, Network } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { QuoteCalculator } from "@/components/calculator/QuoteCalculator";
 import { Faq, InternalLinks, Breadcrumbs, Testimonials, Cta } from "@/components/seo/blocks";
-import { seoMeta, jsonLd, breadcrumbSchema, faqSchema, localBusinessSchema } from "@/lib/seo/schema";
+import {
+  seoMeta,
+  jsonLd,
+  breadcrumbSchema,
+  faqSchema,
+  localBusinessSchema,
+} from "@/lib/seo/schema";
 import { neighborhoodsFor } from "@/lib/seo/city-content";
 import {
-  findCity, findState, citiesInStateSlug, cityAverages, cityFaq, cityPath, routesForCity,
+  findCity,
+  findState,
+  citiesInStateSlug,
+  cityAverages,
+  cityFaq,
+  cityPath,
+  routesForCity,
 } from "@/lib/seo/geo";
 
 export const Route = createFileRoute("/$state/$city")({
@@ -29,17 +41,21 @@ export const Route = createFileRoute("/$state/$city")({
       meta: seoMeta({ title, description, path }),
       links: [{ rel: "canonical", href: path }],
       scripts: [
-        jsonLd(localBusinessSchema({
-          name: `Easy Moving — ${c.name}, ${c.stateCode}`,
-          description,
-          area: `${c.name}, ${c.stateCode}`,
-          url: path,
-        })),
-        jsonLd(breadcrumbSchema([
-          { name: "Home", url: "/" },
-          { name: `${c.stateName} Movers`, url: `/states/${c.stateSlug}` },
-          { name: `${c.name} Movers`, url: path },
-        ])),
+        jsonLd(
+          localBusinessSchema({
+            name: `Easy Moving — ${c.name}, ${c.stateCode}`,
+            description,
+            area: `${c.name}, ${c.stateCode}`,
+            url: path,
+          }),
+        ),
+        jsonLd(
+          breadcrumbSchema([
+            { name: "Home", url: "/" },
+            { name: `${c.stateName} Movers`, url: `/states/${c.stateSlug}` },
+            { name: `${c.name} Movers`, url: path },
+          ]),
+        ),
         jsonLd(faqSchema(cityFaq(c))),
       ],
     };
@@ -71,7 +87,9 @@ function CityMoversPage() {
   const where = `${city.name}, ${city.stateCode}`;
   const neighborhoods = neighborhoodsFor(city.slug, city.name);
   const faq = cityFaq(city);
-  const nearby = citiesInStateSlug(state.slug).filter((c) => c.slug !== city.slug).slice(0, 11);
+  const nearby = citiesInStateSlug(state.slug)
+    .filter((c) => c.slug !== city.slug)
+    .slice(0, 11);
   const popularRoutes = routesForCity(city.slug).slice(0, 8);
 
   return (
@@ -81,23 +99,32 @@ function CityMoversPage() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 pt-6 pb-10 lg:pt-10">
           <div className="grid gap-6 lg:grid-cols-[minmax(0,360px)_minmax(0,1fr)] lg:gap-10">
             <div className="lg:sticky lg:top-6 lg:self-start">
-              <span className="text-xs font-semibold uppercase tracking-widest text-ochre">{where}</span>
+              <span className="text-xs font-semibold uppercase tracking-widest text-ochre">
+                {where}
+              </span>
               <h1 className="mt-2 font-serif text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight">
                 {city.name} Movers
               </h1>
               <p className="mt-3 text-base leading-relaxed text-muted-foreground">
                 Vetted moving companies serving {where}. Build your inventory, get a real itemized
-                price in seconds, and let one licensed local mover respond — never a shared lead list.
+                price in seconds, and let one licensed local mover respond — never a shared lead
+                list.
               </p>
               <ul className="mt-5 grid grid-cols-2 gap-2">
                 {BADGES.map((b) => (
-                  <li key={b.label} className="flex min-w-0 items-center gap-2 rounded-full border border-border bg-card px-3 py-2 text-xs font-medium">
+                  <li
+                    key={b.label}
+                    className="flex min-w-0 items-center gap-2 rounded-full border border-border bg-card px-3 py-2 text-xs font-medium"
+                  >
                     <b.icon className="h-3.5 w-3.5 shrink-0 text-primary" aria-hidden />
                     <span className="truncate">{b.label}</span>
                   </li>
                 ))}
               </ul>
-              <a href="#city-guide" className="mt-5 hidden lg:inline-block text-sm text-muted-foreground hover:text-foreground">
+              <a
+                href="#city-guide"
+                className="mt-5 hidden lg:inline-block text-sm text-muted-foreground hover:text-foreground"
+              >
                 Read the {city.name} moving guide ↓
               </a>
             </div>
@@ -122,10 +149,10 @@ function CityMoversPage() {
           <h2 className="font-serif text-3xl font-medium">Moving in {city.name}</h2>
           <p className="mt-4 text-muted-foreground leading-relaxed">
             {city.name} is one of {city.stateName}'s busiest relocation markets, with roughly{" "}
-            {city.population.toLocaleString()} residents and constant turnover between neighborhoods,
-            suburbs and out-of-state metros. Crews here plan around parking permits, walk-up carries,
-            building elevator reservations and peak-season demand — all of which change the price of
-            your move far more than a bedroom count does.
+            {city.population.toLocaleString()} residents and constant turnover between
+            neighborhoods, suburbs and out-of-state metros. Crews here plan around parking permits,
+            walk-up carries, building elevator reservations and peak-season demand — all of which
+            change the price of your move far more than a bedroom count does.
           </p>
 
           <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -136,10 +163,14 @@ function CityMoversPage() {
               ["Hourly crew", a.hourly],
             ].map(([label, value]) => (
               <div key={label as string} className="rounded-2xl border border-border bg-card p-5">
-                <div className="text-xs uppercase tracking-widest text-muted-foreground">{label}</div>
+                <div className="text-xs uppercase tracking-widest text-muted-foreground">
+                  {label}
+                </div>
                 <div className="mt-2 font-serif text-2xl">
                   ${(value as number).toLocaleString()}
-                  {label === "Hourly crew" && <span className="text-sm text-muted-foreground">/hr</span>}
+                  {label === "Hourly crew" && (
+                    <span className="text-sm text-muted-foreground">/hr</span>
+                  )}
                 </div>
               </div>
             ))}
@@ -148,7 +179,10 @@ function CityMoversPage() {
           <h3 className="mt-12 font-serif text-2xl font-medium">Service areas in {city.name}</h3>
           <div className="mt-4 flex flex-wrap gap-2">
             {neighborhoods.map((n) => (
-              <span key={n} className="rounded-full border border-border bg-card px-3 py-1.5 text-xs text-muted-foreground">
+              <span
+                key={n}
+                className="rounded-full border border-border bg-card px-3 py-1.5 text-xs text-muted-foreground"
+              >
                 {n}
               </span>
             ))}
@@ -170,9 +204,12 @@ function CityMoversPage() {
                   params={{ route: r.slug }}
                   className="rounded-2xl border border-border bg-card p-5 transition-shadow hover:shadow-md"
                 >
-                  <div className="font-medium">{r.from.name} → {r.to.name}</div>
+                  <div className="font-medium">
+                    {r.from.name} → {r.to.name}
+                  </div>
                   <div className="mt-2 text-xs text-muted-foreground">
-                    {r.miles.toLocaleString()} mi · ${r.low.toLocaleString()}–${r.high.toLocaleString()}
+                    {r.miles.toLocaleString()} mi · ${r.low.toLocaleString()}–$
+                    {r.high.toLocaleString()}
                   </div>
                 </Link>
               ))}
@@ -200,4 +237,3 @@ function CityMoversPage() {
     </SiteLayout>
   );
 }
-

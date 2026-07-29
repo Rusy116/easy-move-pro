@@ -95,7 +95,13 @@ export function generateEstimatePdf(input: EstimatePdfInput): jsPDF {
   drawPanel(doc, margin + colW + 16, y, colW, 96, "Move");
   drawKV(doc, margin + colW + 28, y + 30, "Date", input.moveDate || "Flexible");
   drawKV(doc, margin + colW + 28, y + 50, "Distance", `${input.distanceMiles} mi`);
-  drawKV(doc, margin + colW + 28, y + 70, "Crew", `${input.numMovers} movers · ${input.laborHours.toFixed(1)} hrs`);
+  drawKV(
+    doc,
+    margin + colW + 28,
+    y + 70,
+    "Crew",
+    `${input.numMovers} movers · ${input.laborHours.toFixed(1)} hrs`,
+  );
 
   y += 116;
 
@@ -109,8 +115,21 @@ export function generateEstimatePdf(input: EstimatePdfInput): jsPDF {
   doc.setTextColor("#111827");
   doc.setFont("helvetica", "normal");
   doc.setFontSize(10);
-  wrappedText(doc, input.origin.fullAddress || `${input.origin.city}, ${input.origin.state} ${input.origin.zip}`, margin + 12, y + 46, (pageWidth - margin * 2) / 2 - 20);
-  wrappedText(doc, input.destination.fullAddress || `${input.destination.city}, ${input.destination.state} ${input.destination.zip}`, margin + 12 + (pageWidth - margin * 2) / 2, y + 46, (pageWidth - margin * 2) / 2 - 20);
+  wrappedText(
+    doc,
+    input.origin.fullAddress || `${input.origin.city}, ${input.origin.state} ${input.origin.zip}`,
+    margin + 12,
+    y + 46,
+    (pageWidth - margin * 2) / 2 - 20,
+  );
+  wrappedText(
+    doc,
+    input.destination.fullAddress ||
+      `${input.destination.city}, ${input.destination.state} ${input.destination.zip}`,
+    margin + 12 + (pageWidth - margin * 2) / 2,
+    y + 46,
+    (pageWidth - margin * 2) / 2 - 20,
+  );
   y += 112;
 
   // Estimate box
@@ -127,7 +146,11 @@ export function generateEstimatePdf(input: EstimatePdfInput): jsPDF {
   doc.setFont("helvetica", "normal");
   doc.setFontSize(9);
   doc.setTextColor(MUTED);
-  doc.text(`Truck: ${input.truckSize} · ${input.cubicFeet} cu ft · ${input.weightLbs.toLocaleString()} lbs`, margin + 16, y + 66);
+  doc.text(
+    `Truck: ${input.truckSize} · ${input.cubicFeet} cu ft · ${input.weightLbs.toLocaleString()} lbs`,
+    margin + 16,
+    y + 66,
+  );
   y += 96;
 
   // Breakdown

@@ -38,7 +38,7 @@ async function guard(resp: Response, label: string) {
 export async function autocompleteAddresses(
   input: string,
   bias?: { lat: number; lng: number; radius?: number } | null,
-  zip?: string
+  zip?: string,
 ): Promise<PlaceSuggestion[]> {
   const zipContext = zip ? await resolveZipCities(zip).catch(() => null) : null;
   const body: Record<string, unknown> = {

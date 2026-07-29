@@ -22,13 +22,7 @@ import {
   type CustomerMove,
 } from "@/lib/customer-portal";
 
-export function FinalPriceCard({
-  move,
-  onChanged,
-}: {
-  move: CustomerMove;
-  onChanged: () => void;
-}) {
+export function FinalPriceCard({ move, onChanged }: { move: CustomerMove; onChanged: () => void }) {
   const [busy, setBusy] = useState(false);
   const [cancelOpen, setCancelOpen] = useState(false);
 
@@ -137,11 +131,7 @@ export function FinalPriceCard({
       )}
 
       <div className="flex flex-wrap gap-2 border-t border-border/60 pt-4">
-        <Button
-          className="rounded-full"
-          disabled={!canConfirm || busy}
-          onClick={handleConfirm}
-        >
+        <Button className="rounded-full" disabled={!canConfirm || busy} onClick={handleConfirm}>
           {busy ? (
             <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
           ) : (
@@ -150,11 +140,7 @@ export function FinalPriceCard({
           {confirmed ? "Move confirmed" : "Confirm move"}
         </Button>
         {canCancel && (
-          <Button
-            variant="outline"
-            className="rounded-full"
-            onClick={() => setCancelOpen(true)}
-          >
+          <Button variant="outline" className="rounded-full" onClick={() => setCancelOpen(true)}>
             Cancel move
           </Button>
         )}
@@ -207,8 +193,8 @@ export function CancelMoveDialog({
         <DialogHeader>
           <DialogTitle className="font-serif">Cancel this move</DialogTitle>
           <DialogDescription>
-            Tell us why so we can improve. Your broker, moving company and our team
-            are notified automatically.
+            Tell us why so we can improve. Your broker, moving company and our team are notified
+            automatically.
           </DialogDescription>
         </DialogHeader>
 

@@ -3,9 +3,7 @@ import { LEAD_STATUS_FLOW, LEAD_STATUS_LABEL, type LeadStatus } from "@/lib/lead
 import type { TimelineEntry } from "@/lib/customer-portal";
 
 /** Canonical customer-facing lifecycle steps. */
-const STEPS: LeadStatus[] = [...LEAD_STATUS_FLOW].filter(
-  (s) => s !== "draft",
-) as LeadStatus[];
+const STEPS: LeadStatus[] = [...LEAD_STATUS_FLOW].filter((s) => s !== "draft") as LeadStatus[];
 
 const STEP_COPY: Partial<Record<LeadStatus, string>> = {
   submitted: "Quote submitted",
@@ -58,9 +56,7 @@ export function MoveProgress({ status }: { status: LeadStatus }) {
           <span className="mt-0.5 shrink-0">
             <Circle className="h-4 w-4 text-rose-500" />
           </span>
-          <span className="text-sm font-medium text-rose-700">
-            {LEAD_STATUS_LABEL[status]}
-          </span>
+          <span className="text-sm font-medium text-rose-700">{LEAD_STATUS_LABEL[status]}</span>
         </li>
       )}
     </ol>
@@ -86,12 +82,8 @@ export function MoveTimeline({
             aria-hidden
           />
           <div className="text-sm font-medium">{e.label}</div>
-          {e.detail && (
-            <div className="text-xs text-muted-foreground">{e.detail}</div>
-          )}
-          <div className="text-xs text-muted-foreground">
-            {new Date(e.at).toLocaleString()}
-          </div>
+          {e.detail && <div className="text-xs text-muted-foreground">{e.detail}</div>}
+          <div className="text-xs text-muted-foreground">{new Date(e.at).toLocaleString()}</div>
         </li>
       ))}
     </ol>

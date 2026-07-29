@@ -24,7 +24,7 @@ export async function computeDistance(
   originZip: string,
   destinationZip: string,
   originCoords?: { lat: number; lng: number } | null,
-  destinationCoords?: { lat: number; lng: number } | null
+  destinationCoords?: { lat: number; lng: number } | null,
 ): Promise<DistanceResult | null> {
   try {
     const precise = await computeDistanceFn({

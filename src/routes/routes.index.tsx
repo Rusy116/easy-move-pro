@@ -13,10 +13,12 @@ export const Route = createFileRoute("/routes/")({
     meta: seoMeta({ title: TITLE, description: DESC, path: "/routes" }),
     links: [{ rel: "canonical", href: "/routes" }],
     scripts: [
-      jsonLd(breadcrumbSchema([
-        { name: "Home", url: "/" },
-        { name: "Moving routes", url: "/routes" },
-      ])),
+      jsonLd(
+        breadcrumbSchema([
+          { name: "Home", url: "/" },
+          { name: "Moving routes", url: "/routes" },
+        ]),
+      ),
     ],
   }),
   component: RoutesIndex,
@@ -27,10 +29,13 @@ function RoutesIndex() {
     <SiteLayout>
       <Breadcrumbs items={[{ label: "Home", to: "/" }, { label: "Moving routes" }]} />
       <section className="mx-auto max-w-7xl px-4 sm:px-6 py-16 sm:py-24">
-        <span className="text-xs font-semibold uppercase tracking-widest text-ochre">Long distance</span>
+        <span className="text-xs font-semibold uppercase tracking-widest text-ochre">
+          Long distance
+        </span>
         <h1 className="mt-3 font-serif text-5xl font-medium">Popular moving routes.</h1>
         <p className="mt-4 max-w-2xl text-lg text-muted-foreground">
-          Real distance, drive time and cost ranges for the corridors our partner network moves most.
+          Real distance, drive time and cost ranges for the corridors our partner network moves
+          most.
         </p>
 
         <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

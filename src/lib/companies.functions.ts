@@ -41,7 +41,10 @@ export const attachMemberByEmail = createServerFn({ method: "POST" })
     // Grant 'mover' role (idempotent)
     await supabaseAdmin
       .from("user_roles")
-      .upsert({ user_id: userId, role: "mover" }, { onConflict: "user_id,role", ignoreDuplicates: true });
+      .upsert(
+        { user_id: userId, role: "mover" },
+        { onConflict: "user_id,role", ignoreDuplicates: true },
+      );
 
     // Attach to company
     const { error: memErr } = await supabaseAdmin

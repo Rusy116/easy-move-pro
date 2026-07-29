@@ -5,7 +5,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { SkeletonRows } from "@/components/shell/Chrome";
 import { AvailableJobCard, EmptyState } from "@/components/company/JobsUI";
 import {
-  MarketplaceFilters, useFilteredMarketplace, useMarketplaceFilters,
+  MarketplaceFilters,
+  useFilteredMarketplace,
+  useMarketplaceFilters,
 } from "@/components/company/MarketplaceFilters";
 import { useCompanyJobs, useMyCompany, logJobView, type AvailableJob } from "@/lib/company-jobs";
 
@@ -13,7 +15,10 @@ export const Route = createFileRoute("/_authenticated/company/jobs")({
   head: () => ({
     meta: [
       { title: "Available Jobs — Easy Moving Company Portal" },
-      { name: "description", content: "Browse qualified moving jobs on the open marketplace and claim them instantly." },
+      {
+        name: "description",
+        content: "Browse qualified moving jobs on the open marketplace and claim them instantly.",
+      },
     ],
   }),
   component: AvailableJobsPage,
@@ -47,7 +52,12 @@ function AvailableJobsPage() {
 
   if (loadingCompany || (loading && !available.length)) return <SkeletonRows n={4} />;
   if (!company) {
-    return <EmptyState title="No company linked" body="Your account is not linked to a moving company yet." />;
+    return (
+      <EmptyState
+        title="No company linked"
+        body="Your account is not linked to a moving company yet."
+      />
+    );
   }
 
   return (
@@ -55,7 +65,8 @@ function AvailableJobsPage() {
       <header>
         <h1 className="text-2xl font-semibold tracking-tight">Available jobs</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Broker-qualified moves open to every approved company. First to claim owns the job for 12 hours.
+          Broker-qualified moves open to every approved company. First to claim owns the job for 12
+          hours.
         </p>
       </header>
 
@@ -69,7 +80,12 @@ function AvailableJobsPage() {
       ) : (
         <div className="grid gap-4 lg:grid-cols-2">
           {rows.map((job) => (
-            <AvailableJobCard key={job.id} job={job} claiming={claimingId === job.id} onClaim={claim} />
+            <AvailableJobCard
+              key={job.id}
+              job={job}
+              claiming={claimingId === job.id}
+              onClaim={claim}
+            />
           ))}
         </div>
       )}

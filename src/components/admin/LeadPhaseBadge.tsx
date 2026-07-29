@@ -22,7 +22,10 @@ export function LeadPhaseBadge({ phase }: { phase: string | null | undefined }) 
   const Icon =
     p === "exclusive" ? Lock : p === "open_market" ? Globe : p === "closed" ? XCircle : Circle;
   return (
-    <Badge variant="outline" className={`inline-flex items-center gap-1 ${STYLES[p] ?? STYLES.unassigned}`}>
+    <Badge
+      variant="outline"
+      className={`inline-flex items-center gap-1 ${STYLES[p] ?? STYLES.unassigned}`}
+    >
       <Icon className="h-3 w-3" />
       {LABELS[p] ?? p}
     </Badge>

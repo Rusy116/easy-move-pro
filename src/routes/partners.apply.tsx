@@ -169,25 +169,52 @@ function PartnerApplyPage() {
           <Section title="Company">
             <div className="grid gap-4 sm:grid-cols-2">
               <F label="Company name *">
-                <Input required value={form.companyName} onChange={(e) => set("companyName", e.target.value)} />
+                <Input
+                  required
+                  value={form.companyName}
+                  onChange={(e) => set("companyName", e.target.value)}
+                />
               </F>
               <F label="Website">
-                <Input value={form.website} onChange={(e) => set("website", e.target.value)} placeholder="https://" />
+                <Input
+                  value={form.website}
+                  onChange={(e) => set("website", e.target.value)}
+                  placeholder="https://"
+                />
               </F>
               <F label="Owner first name *">
-                <Input required value={form.ownerFirstName} onChange={(e) => set("ownerFirstName", e.target.value)} />
+                <Input
+                  required
+                  value={form.ownerFirstName}
+                  onChange={(e) => set("ownerFirstName", e.target.value)}
+                />
               </F>
               <F label="Owner last name *">
-                <Input required value={form.ownerLastName} onChange={(e) => set("ownerLastName", e.target.value)} />
+                <Input
+                  required
+                  value={form.ownerLastName}
+                  onChange={(e) => set("ownerLastName", e.target.value)}
+                />
               </F>
               <F label="Phone *">
                 <Input required value={form.phone} onChange={(e) => set("phone", e.target.value)} />
               </F>
               <F label="Email *">
-                <Input type="email" required value={form.email} onChange={(e) => set("email", e.target.value)} />
+                <Input
+                  type="email"
+                  required
+                  value={form.email}
+                  onChange={(e) => set("email", e.target.value)}
+                />
               </F>
               <F label="Password * (min. 8 characters)">
-                <Input type="password" required minLength={8} value={form.password} onChange={(e) => set("password", e.target.value)} />
+                <Input
+                  type="password"
+                  required
+                  minLength={8}
+                  value={form.password}
+                  onChange={(e) => set("password", e.target.value)}
+                />
               </F>
             </div>
           </Section>
@@ -201,13 +228,23 @@ function PartnerApplyPage() {
                 <Input value={form.mcNumber} onChange={(e) => set("mcNumber", e.target.value)} />
               </F>
               <F label="Insurance carrier">
-                <Input value={form.insuranceCarrier} onChange={(e) => set("insuranceCarrier", e.target.value)} />
+                <Input
+                  value={form.insuranceCarrier}
+                  onChange={(e) => set("insuranceCarrier", e.target.value)}
+                />
               </F>
               <F label="Insurance policy number">
-                <Input value={form.insurancePolicy} onChange={(e) => set("insurancePolicy", e.target.value)} />
+                <Input
+                  value={form.insurancePolicy}
+                  onChange={(e) => set("insurancePolicy", e.target.value)}
+                />
               </F>
               <F label="Insurance expiry">
-                <Input type="date" value={form.insuranceExpires} onChange={(e) => set("insuranceExpires", e.target.value)} />
+                <Input
+                  type="date"
+                  value={form.insuranceExpires}
+                  onChange={(e) => set("insuranceExpires", e.target.value)}
+                />
               </F>
             </div>
           </Section>
@@ -215,16 +252,30 @@ function PartnerApplyPage() {
           <Section title="Business address">
             <div className="grid gap-4 sm:grid-cols-2">
               <F label="Street address">
-                <Input value={form.addressLine1} onChange={(e) => set("addressLine1", e.target.value)} />
+                <Input
+                  value={form.addressLine1}
+                  onChange={(e) => set("addressLine1", e.target.value)}
+                />
               </F>
               <F label="City">
-                <Input value={form.addressCity} onChange={(e) => set("addressCity", e.target.value)} />
+                <Input
+                  value={form.addressCity}
+                  onChange={(e) => set("addressCity", e.target.value)}
+                />
               </F>
               <F label="State">
-                <Input maxLength={2} value={form.addressState} onChange={(e) => set("addressState", e.target.value)} placeholder="CA" />
+                <Input
+                  maxLength={2}
+                  value={form.addressState}
+                  onChange={(e) => set("addressState", e.target.value)}
+                  placeholder="CA"
+                />
               </F>
               <F label="ZIP code">
-                <Input value={form.addressZip} onChange={(e) => set("addressZip", e.target.value)} />
+                <Input
+                  value={form.addressZip}
+                  onChange={(e) => set("addressZip", e.target.value)}
+                />
               </F>
             </div>
           </Section>
@@ -232,18 +283,35 @@ function PartnerApplyPage() {
           <Section title="Operations">
             <div className="grid gap-4 sm:grid-cols-2">
               <F label="Fleet size (trucks)">
-                <Input type="number" min="0" value={form.fleetSize} onChange={(e) => set("fleetSize", e.target.value)} />
+                <Input
+                  type="number"
+                  min="0"
+                  value={form.fleetSize}
+                  onChange={(e) => set("fleetSize", e.target.value)}
+                />
               </F>
               <F label="Number of movers">
-                <Input type="number" min="0" value={form.moversCount} onChange={(e) => set("moversCount", e.target.value)} />
+                <Input
+                  type="number"
+                  min="0"
+                  value={form.moversCount}
+                  onChange={(e) => set("moversCount", e.target.value)}
+                />
               </F>
             </div>
             <div className="mt-4 grid gap-4">
               <F label="States served (comma separated, e.g. CA, NV, AZ)">
-                <Input value={form.serviceStates} onChange={(e) => set("serviceStates", e.target.value)} />
+                <Input
+                  value={form.serviceStates}
+                  onChange={(e) => set("serviceStates", e.target.value)}
+                />
               </F>
               <F label="Cities served (comma separated)">
-                <Textarea rows={2} value={form.serviceCities} onChange={(e) => set("serviceCities", e.target.value)} />
+                <Textarea
+                  rows={2}
+                  value={form.serviceCities}
+                  onChange={(e) => set("serviceCities", e.target.value)}
+                />
               </F>
               <div>
                 <Label className="text-xs uppercase tracking-wider text-muted-foreground">

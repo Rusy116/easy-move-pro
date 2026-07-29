@@ -27,7 +27,9 @@ export function InternalNotesCard({ quoteId, companyId }: { quoteId: string; com
       <h2 className="flex items-center gap-1.5 text-base font-semibold">
         <StickyNote className="h-4 w-4" /> Internal notes
       </h2>
-      <p className="mt-1 text-xs text-muted-foreground">Visible to your team only — never shown to the customer.</p>
+      <p className="mt-1 text-xs text-muted-foreground">
+        Visible to your team only — never shown to the customer.
+      </p>
 
       <Textarea
         rows={3}
@@ -36,7 +38,12 @@ export function InternalNotesCard({ quoteId, companyId }: { quoteId: string; com
         placeholder="Call summary, access instructions, crew reminders…"
         className="mt-3"
       />
-      <Button className="mt-3 rounded-full" size="sm" disabled={saving || !body.trim()} onClick={save}>
+      <Button
+        className="mt-3 rounded-full"
+        size="sm"
+        disabled={saving || !body.trim()}
+        onClick={save}
+      >
         {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} Add note
       </Button>
 
@@ -45,7 +52,9 @@ export function InternalNotesCard({ quoteId, companyId }: { quoteId: string; com
           {notes.map((n) => (
             <li key={n.id} className="border-b border-border/60 pb-3 last:border-0 last:pb-0">
               <p className="text-sm whitespace-pre-wrap">{n.body}</p>
-              <span className="mt-1 block text-xs text-muted-foreground">{timeAgo(n.created_at)}</span>
+              <span className="mt-1 block text-xs text-muted-foreground">
+                {timeAgo(n.created_at)}
+              </span>
             </li>
           ))}
         </ol>

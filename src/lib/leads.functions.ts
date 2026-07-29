@@ -6,11 +6,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
  * All wrap SECURITY DEFINER functions that enforce is_admin() server-side.
  */
 
-async function callRpc(
-  ctx: { supabase: any },
-  fn: string,
-  args: Record<string, unknown>,
-) {
+async function callRpc(ctx: { supabase: any }, fn: string, args: Record<string, unknown>) {
   const { data, error } = await ctx.supabase.rpc(fn, args);
   if (error) throw new Error(error.message);
   return data;
@@ -72,10 +68,7 @@ export const forceOpenMarket = createServerFn({ method: "POST" })
 export const closeLead = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator(
-    (i: {
-      quoteId: string;
-      reason: "won" | "lost" | "cancelled" | "duplicate" | "invalid";
-    }) => i,
+    (i: { quoteId: string; reason: "won" | "lost" | "cancelled" | "duplicate" | "invalid" }) => i,
   )
   .handler(async ({ data, context }) =>
     callRpc(context, "fn_close_lead", { _quote_id: data.quoteId, _reason: data.reason }),

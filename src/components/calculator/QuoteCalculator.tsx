@@ -72,7 +72,6 @@ const PROPERTY_TYPES: { value: PropertyType; label: string; Icon: typeof Home }[
   { value: "storage", label: "Storage", Icon: Warehouse },
 ];
 
-
 export type CarryDistance = "short" | "medium" | "long";
 
 const CARRY_OPTIONS: { value: CarryDistance; label: string }[] = [
@@ -86,9 +85,9 @@ interface SideState {
   zip: string;
   city: string;
   state: string;
-  street: string;          // route (street name only)
-  houseNumber: string;     // separate input
-  fullAddress: string;     // formatted (for storage / distance)
+  street: string; // route (street name only)
+  houseNumber: string; // separate input
+  fullAddress: string; // formatted (for storage / distance)
   lat: number | null;
   lng: number | null;
   placeId: string;
@@ -245,11 +244,10 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
     if (typeof window === "undefined") return;
     const t = window.setTimeout(() => {
       try {
-        window.localStorage.setItem(
-          DRAFT_KEY,
-          JSON.stringify({ savedAt: Date.now(), form }),
-        );
-      } catch { /* storage unavailable */ }
+        window.localStorage.setItem(DRAFT_KEY, JSON.stringify({ savedAt: Date.now(), form }));
+      } catch {
+        /* storage unavailable */
+      }
     }, 400);
     return () => window.clearTimeout(t);
   }, [form]);
@@ -278,10 +276,7 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
   const set = <K extends keyof FormState>(k: K, v: FormState[K]) =>
     setForm((s) => ({ ...s, [k]: v }));
 
-  const setSide = (
-    which: "origin" | "destination",
-    patch: Partial<SideState>
-  ) =>
+  const setSide = (which: "origin" | "destination", patch: Partial<SideState>) =>
     setForm((s) => ({
       ...s,
       [which]: { ...s[which], ...patch },
@@ -290,7 +285,7 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
   const setLocationSide = (
     which: "origin" | "destination",
     patch: Partial<SideState>,
-    expectedZip?: string
+    expectedZip?: string,
   ) =>
     setForm((s) => {
       const current = s[which];
@@ -337,7 +332,11 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
       computeDistance(form.origin.zip, form.destination.zip, oCoords, dCoords).then((r) => {
         if (cancelled || !r) return;
         const sameState = r.origin.state === r.destination.state;
-        setDistance({ miles: r.miles, type: sameState ? "local" : "interstate", provider: r.provider });
+        setDistance({
+          miles: r.miles,
+          type: sameState ? "local" : "interstate",
+          provider: r.provider,
+        });
       });
     } else {
       setDistance(null);
@@ -392,7 +391,11 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
   }, [form, distance]);
 
   function resetCalculatorForm() {
-    try { window.localStorage.removeItem(DRAFT_KEY); } catch { /* ignore */ }
+    try {
+      window.localStorage.removeItem(DRAFT_KEY);
+    } catch {
+      /* ignore */
+    }
     setForm(createInitialForm());
 
     setOriginLoc(null);
@@ -607,9 +610,10 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
       resetCalculatorForm();
       toast.success("Your moving quote request was submitted.");
     } catch (e) {
-      const message = e instanceof Error && e.message
-        ? e.message
-        : "We couldn't submit your quote. Please try again.";
+      const message =
+        e instanceof Error && e.message
+          ? e.message
+          : "We couldn't submit your quote. Please try again.";
       setSubmitError(message);
       setStage("form");
       toast.error(message);
@@ -624,7 +628,6 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
     setSaving(false);
     setStage("summary");
   }
-
 
   // ---------- Render ---------------------------------------------------------
 
@@ -668,327 +671,405 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
       </div>
 
       {stage === "form" && (
-      <div className="grid grid-cols-[minmax(0,1fr)] gap-6 p-5 sm:p-8 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-        {/* Origin ----------------------------------------------------------- */}
-        <SectionCard step="01" label="Origin">
-          <LocationBlock
-            side={form.origin}
-            role="from"
-            onChange={(patch, expectedZip) => setLocationSide("origin", patch, expectedZip)}
-            fallbackLoc={originLoc}
-          />
-        </SectionCard>
+        <div className="grid grid-cols-[minmax(0,1fr)] gap-6 p-5 sm:p-8 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+          {/* Origin ----------------------------------------------------------- */}
+          <SectionCard step="01" label="Origin">
+            <LocationBlock
+              side={form.origin}
+              role="from"
+              onChange={(patch, expectedZip) => setLocationSide("origin", patch, expectedZip)}
+              fallbackLoc={originLoc}
+            />
+          </SectionCard>
 
-        {/* Destination ------------------------------------------------------ */}
-        <SectionCard step="02" label="Destination">
-          <LocationBlock
-            side={form.destination}
-            role="to"
-            onChange={(patch, expectedZip) => setLocationSide("destination", patch, expectedZip)}
-            fallbackLoc={destLoc}
-          />
-        </SectionCard>
+          {/* Destination ------------------------------------------------------ */}
+          <SectionCard step="02" label="Destination">
+            <LocationBlock
+              side={form.destination}
+              role="to"
+              onChange={(patch, expectedZip) => setLocationSide("destination", patch, expectedZip)}
+              fallbackLoc={destLoc}
+            />
+          </SectionCard>
 
-        {distance && (
-          <div className="md:col-span-2 flex items-center gap-2 rounded-lg bg-muted/60 px-3 py-2 text-xs text-muted-foreground">
-            <Truck className="h-3.5 w-3.5 text-sage" />
-            <span className="font-medium text-foreground">{distance.miles} mi</span>
-            <span>·</span>
-            <span className="capitalize">{distance.type} move</span>
-          </div>
-        )}
+          {distance && (
+            <div className="md:col-span-2 flex items-center gap-2 rounded-lg bg-muted/60 px-3 py-2 text-xs text-muted-foreground">
+              <Truck className="h-3.5 w-3.5 text-sage" />
+              <span className="font-medium text-foreground">{distance.miles} mi</span>
+              <span>·</span>
+              <span className="capitalize">{distance.type} move</span>
+            </div>
+          )}
 
-        {/* Inventory builder ----------------------------------------------- */}
-        <SectionCard step="04" label="Inventory (optional but recommended)" className="md:col-span-2">
-          <InventoryBuilder
-            counts={form.inventory}
-            onChange={(inv) => set("inventory", inv)}
-            cubicFeet={quote?.cubicFeet ?? 0}
-            weightLbs={quote?.weightLbs ?? 0}
-            truckSize={quote?.truckSize ?? "—"}
-          />
-        </SectionCard>
+          {/* Inventory builder ----------------------------------------------- */}
+          <SectionCard
+            step="04"
+            label="Inventory (optional but recommended)"
+            className="md:col-span-2"
+          >
+            <InventoryBuilder
+              counts={form.inventory}
+              onChange={(inv) => set("inventory", inv)}
+              cubicFeet={quote?.cubicFeet ?? 0}
+              weightLbs={quote?.weightLbs ?? 0}
+              truckSize={quote?.truckSize ?? "—"}
+            />
+          </SectionCard>
 
+          {/* Services --------------------------------------------------------- */}
+          <SectionCard step="06" label="Services & add-ons" className="md:col-span-2">
+            <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+              <ToggleCard
+                label="Packing"
+                desc="Full-service packing"
+                price="+$350–$900"
+                active={form.packing}
+                onClick={() => set("packing", !form.packing)}
+              />
+              <ToggleCard
+                label="Unpacking"
+                desc="Unpack at destination"
+                price="+$200–$600"
+                active={form.unpacking}
+                onClick={() => set("unpacking", !form.unpacking)}
+              />
+              <ToggleCard
+                label="Furniture assembly"
+                desc="Disassemble & reassemble"
+                price="+$100–$400"
+                active={form.assembly}
+                onClick={() => set("assembly", !form.assembly)}
+              />
+              <ToggleCard
+                label="Storage"
+                desc="30-day secure storage"
+                price="from $150/mo"
+                active={form.storage}
+                onClick={() => set("storage", !form.storage)}
+              />
+              <ToggleCard
+                label="Junk removal"
+                desc="Haul away unwanted items"
+                price="from $100"
+                active={form.junkRemoval}
+                onClick={() => set("junkRemoval", !form.junkRemoval)}
+              />
+              <ToggleCard
+                label="Appliances"
+                desc="Disconnect & reconnect"
+                price="+$75–$250"
+                active={form.appliances}
+                onClick={() => set("appliances", !form.appliances)}
+              />
+            </div>
+            <p className="mt-2 text-[11px] leading-relaxed text-muted-foreground/80">
+              Estimated additional cost. Final pricing depends on inventory, distance, and service
+              requirements.
+            </p>
+          </SectionCard>
 
-        {/* Services --------------------------------------------------------- */}
-        <SectionCard step="06" label="Services & add-ons" className="md:col-span-2">
-          <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-            <ToggleCard label="Packing" desc="Full-service packing" price="+$350–$900" active={form.packing} onClick={() => set("packing", !form.packing)} />
-            <ToggleCard label="Unpacking" desc="Unpack at destination" price="+$200–$600" active={form.unpacking} onClick={() => set("unpacking", !form.unpacking)} />
-            <ToggleCard label="Furniture assembly" desc="Disassemble & reassemble" price="+$100–$400" active={form.assembly} onClick={() => set("assembly", !form.assembly)} />
-            <ToggleCard label="Storage" desc="30-day secure storage" price="from $150/mo" active={form.storage} onClick={() => set("storage", !form.storage)} />
-            <ToggleCard label="Junk removal" desc="Haul away unwanted items" price="from $100" active={form.junkRemoval} onClick={() => set("junkRemoval", !form.junkRemoval)} />
-            <ToggleCard label="Appliances" desc="Disconnect & reconnect" price="+$75–$250" active={form.appliances} onClick={() => set("appliances", !form.appliances)} />
-          </div>
-          <p className="mt-2 text-[11px] leading-relaxed text-muted-foreground/80">
-            Estimated additional cost. Final pricing depends on inventory, distance, and service requirements.
-          </p>
-        </SectionCard>
+          {/* Specialty items -------------------------------------------------- */}
+          <SectionCard step="07" label="Specialty items" className="md:col-span-2">
+            <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+              <ToggleCard
+                label="Piano"
+                desc="Upright or grand"
+                price="+$350–$900"
+                active={form.piano}
+                onClick={() => set("piano", !form.piano)}
+              />
+              <ToggleCard
+                label="Safe"
+                desc="Gun safe or vault"
+                price="+$250–$800"
+                active={form.safe}
+                onClick={() => set("safe", !form.safe)}
+              />
+              <ToggleCard
+                label="Gym equipment"
+                desc="Treadmill, rack, etc."
+                price="+$150–$500"
+                active={form.gymEquipment}
+                onClick={() => set("gymEquipment", !form.gymEquipment)}
+              />
+              <ToggleCard
+                label="Fragile items"
+                desc="Art, antiques, glass"
+                price="+$100–$400"
+                active={form.fragileItems}
+                onClick={() => set("fragileItems", !form.fragileItems)}
+              />
+            </div>
+          </SectionCard>
 
-        {/* Specialty items -------------------------------------------------- */}
-        <SectionCard step="07" label="Specialty items" className="md:col-span-2">
-          <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
-            <ToggleCard label="Piano" desc="Upright or grand" price="+$350–$900" active={form.piano} onClick={() => set("piano", !form.piano)} />
-            <ToggleCard label="Safe" desc="Gun safe or vault" price="+$250–$800" active={form.safe} onClick={() => set("safe", !form.safe)} />
-            <ToggleCard label="Gym equipment" desc="Treadmill, rack, etc." price="+$150–$500" active={form.gymEquipment} onClick={() => set("gymEquipment", !form.gymEquipment)} />
-            <ToggleCard label="Fragile items" desc="Art, antiques, glass" price="+$100–$400" active={form.fragileItems} onClick={() => set("fragileItems", !form.fragileItems)} />
-          </div>
-        </SectionCard>
-
-        {/* Insurance -------------------------------------------------------- */}
-        <SectionCard step="08" label="Insurance coverage">
-          <div className="grid gap-2">
-            {(
-              [
-                { v: "basic", t: "Basic (included)", d: "$0.60 per lb liability" },
-                { v: "standard", t: "Standard", d: "Full replacement to declared value" },
-                { v: "full", t: "Full value protection", d: "Repair, replace or reimburse" },
-              ] as { v: InsuranceTier; t: string; d: string }[]
-            ).map(({ v, t, d }) => {
-              const active = form.insurance === v;
-              return (
-                <div
-                  key={v}
-                  className={cn(
-                    "group relative flex items-start gap-3 rounded-xl border p-3 transition-all",
-                    active
-                      ? "border-primary bg-primary/5 ring-2 ring-primary/20 animate-scale-in"
-                      : "border-border bg-card hover:border-primary/40"
-                  )}
-                >
-                  <button
-                    type="button"
-                    onClick={() => set("insurance", v)}
-                    className="flex flex-1 items-start gap-3 text-left"
-                    aria-pressed={active}
+          {/* Insurance -------------------------------------------------------- */}
+          <SectionCard step="08" label="Insurance coverage">
+            <div className="grid gap-2">
+              {(
+                [
+                  { v: "basic", t: "Basic (included)", d: "$0.60 per lb liability" },
+                  { v: "standard", t: "Standard", d: "Full replacement to declared value" },
+                  { v: "full", t: "Full value protection", d: "Repair, replace or reimburse" },
+                ] as { v: InsuranceTier; t: string; d: string }[]
+              ).map(({ v, t, d }) => {
+                const active = form.insurance === v;
+                return (
+                  <div
+                    key={v}
+                    className={cn(
+                      "group relative flex items-start gap-3 rounded-xl border p-3 transition-all",
+                      active
+                        ? "border-primary bg-primary/5 ring-2 ring-primary/20 animate-scale-in"
+                        : "border-border bg-card hover:border-primary/40",
+                    )}
                   >
-                    <div
-                      className={cn(
-                        "grid h-8 w-8 shrink-0 place-items-center rounded-lg transition-colors",
-                        active
-                          ? "bg-primary text-primary-foreground"
-                          : "bg-muted text-muted-foreground"
-                      )}
+                    <button
+                      type="button"
+                      onClick={() => set("insurance", v)}
+                      className="flex flex-1 items-start gap-3 text-left"
+                      aria-pressed={active}
                     >
-                      {active ? <Check className="h-4 w-4" /> : <Shield className="h-4 w-4" />}
-                    </div>
-                    <div className="min-w-0">
-                      <div className="text-sm font-medium">{t}</div>
-                      <div className="text-[11px] text-muted-foreground">{d}</div>
-                    </div>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setInsuranceModal(v);
-                    }}
-                    className="grid h-7 w-7 shrink-0 place-items-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-                    aria-label={`More details about ${t}`}
-                  >
-                    <Info className="h-4 w-4" />
-                  </button>
-                </div>
-              );
-            })}
-          </div>
-        </SectionCard>
-
-        <InsuranceInfoModal
-          tier={insuranceModal}
-          open={insuranceModal !== null}
-          onOpenChange={(o) => !o && setInsuranceModal(null)}
-          onSelect={(t) => set("insurance", t)}
-        />
-
-
-        {/* Timing ----------------------------------------------------------- */}
-        <SectionCard step="09" label="When are you moving?">
-          <div className="grid gap-2">
-            <div className="relative">
-              <CalendarIcon className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input type="date" value={form.moveDate} onChange={(e) => set("moveDate", e.target.value)} className="pl-9" />
+                      <div
+                        className={cn(
+                          "grid h-8 w-8 shrink-0 place-items-center rounded-lg transition-colors",
+                          active
+                            ? "bg-primary text-primary-foreground"
+                            : "bg-muted text-muted-foreground",
+                        )}
+                      >
+                        {active ? <Check className="h-4 w-4" /> : <Shield className="h-4 w-4" />}
+                      </div>
+                      <div className="min-w-0">
+                        <div className="text-sm font-medium">{t}</div>
+                        <div className="text-[11px] text-muted-foreground">{d}</div>
+                      </div>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setInsuranceModal(v);
+                      }}
+                      className="grid h-7 w-7 shrink-0 place-items-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                      aria-label={`More details about ${t}`}
+                    >
+                      <Info className="h-4 w-4" />
+                    </button>
+                  </div>
+                );
+              })}
             </div>
-            <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-4">
-              {(["morning", "midday", "afternoon", "flexible"] as const).map((t) => (
-                <button
-                  key={t}
-                  type="button"
-                  onClick={() => set("preferredTime", t)}
+          </SectionCard>
+
+          <InsuranceInfoModal
+            tier={insuranceModal}
+            open={insuranceModal !== null}
+            onOpenChange={(o) => !o && setInsuranceModal(null)}
+            onSelect={(t) => set("insurance", t)}
+          />
+
+          {/* Timing ----------------------------------------------------------- */}
+          <SectionCard step="09" label="When are you moving?">
+            <div className="grid gap-2">
+              <div className="relative">
+                <CalendarIcon className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  type="date"
+                  value={form.moveDate}
+                  onChange={(e) => set("moveDate", e.target.value)}
+                  className="pl-9"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-4">
+                {(["morning", "midday", "afternoon", "flexible"] as const).map((t) => (
+                  <button
+                    key={t}
+                    type="button"
+                    onClick={() => set("preferredTime", t)}
+                    className={cn(
+                      "rounded-md border px-2 py-1.5 text-xs font-medium capitalize transition-all",
+                      form.preferredTime === t
+                        ? "border-primary bg-primary/5 text-primary"
+                        : "border-border bg-card text-muted-foreground hover:bg-accent",
+                    )}
+                  >
+                    <Clock className="mr-1 inline h-3 w-3" />
+                    {t}
+                  </button>
+                ))}
+              </div>
+              <label className="flex cursor-pointer items-center gap-2 rounded-md border border-border bg-card px-3 py-2 text-sm">
+                <span
                   className={cn(
-                    "rounded-md border px-2 py-1.5 text-xs font-medium capitalize transition-all",
-                    form.preferredTime === t
-                      ? "border-primary bg-primary/5 text-primary"
-                      : "border-border bg-card text-muted-foreground hover:bg-accent"
+                    "grid h-4 w-4 place-items-center rounded-sm border",
+                    form.flexibleDate
+                      ? "border-primary bg-primary text-primary-foreground"
+                      : "border-border",
                   )}
                 >
-                  <Clock className="mr-1 inline h-3 w-3" />
-                  {t}
-                </button>
-              ))}
+                  {form.flexibleDate && <Check className="h-3 w-3" />}
+                </span>
+                <input
+                  type="checkbox"
+                  className="sr-only"
+                  checked={form.flexibleDate}
+                  onChange={(e) => set("flexibleDate", e.target.checked)}
+                />
+                My date is flexible (±3 days for a better rate)
+              </label>
             </div>
-            <label className="flex cursor-pointer items-center gap-2 rounded-md border border-border bg-card px-3 py-2 text-sm">
-              <span
-                className={cn(
-                  "grid h-4 w-4 place-items-center rounded-sm border",
-                  form.flexibleDate ? "border-primary bg-primary text-primary-foreground" : "border-border"
-                )}
+          </SectionCard>
+
+          {!compact && (
+            <>
+              <SectionCard step="10" label="Contact" className="md:col-span-2">
+                <div className="grid gap-3">
+                  <div>
+                    <Label className="mb-1 block text-[11px] font-medium text-muted-foreground">
+                      Full name <span className="text-destructive">*</span>
+                    </Label>
+                    <Input
+                      placeholder="Jane Doe"
+                      value={form.fullName}
+                      onChange={(e) => set("fullName", e.target.value.slice(0, 100))}
+                      maxLength={100}
+                      autoComplete="name"
+                    />
+                  </div>
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <div>
+                      <Label className="mb-1 block text-[11px] font-medium text-muted-foreground">
+                        Phone number <span className="text-destructive">*</span>
+                      </Label>
+                      <Input
+                        placeholder="(555) 123-4567"
+                        inputMode="tel"
+                        autoComplete="tel"
+                        value={form.phone}
+                        onChange={(e) => set("phone", formatUsPhone(e.target.value))}
+                        maxLength={20}
+                        className={cn(
+                          form.phone && !isValidUsPhone(form.phone) && "border-destructive",
+                        )}
+                      />
+                      {form.phone && !isValidUsPhone(form.phone) && (
+                        <p className="mt-1 text-[11px] text-destructive">
+                          Please enter a valid US phone number.
+                        </p>
+                      )}
+                    </div>
+                    <div>
+                      <Label className="mb-1 block text-[11px] font-medium text-muted-foreground">
+                        Email address <span className="text-destructive">*</span>
+                      </Label>
+                      <Input
+                        type="email"
+                        placeholder="you@example.com"
+                        autoComplete="email"
+                        value={form.email}
+                        onChange={(e) => set("email", e.target.value)}
+                        maxLength={255}
+                        className={cn(
+                          form.email && !isValidEmail(form.email) && "border-destructive",
+                        )}
+                      />
+                      {form.email && !isValidEmail(form.email) && (
+                        <p className="mt-1 text-[11px] text-destructive">
+                          Please enter a valid email address.
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  <p className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                    <Lock className="h-3 w-3 text-sage" />
+                    Your information is private. We never sell or share your personal information.
+                  </p>
+                </div>
+              </SectionCard>
+
+              <SectionCard
+                step="11"
+                label="How would you like us to contact you?"
+                className="md:col-span-2"
               >
-                {form.flexibleDate && <Check className="h-3 w-3" />}
-              </span>
-              <input
-                type="checkbox"
-                className="sr-only"
-                checked={form.flexibleDate}
-                onChange={(e) => set("flexibleDate", e.target.checked)}
-              />
-              My date is flexible (±3 days for a better rate)
-            </label>
-          </div>
-        </SectionCard>
+                <div className="grid grid-cols-3 gap-2">
+                  {(
+                    [
+                      { v: "phone", l: "Phone Call" },
+                      { v: "sms", l: "Text (SMS)" },
+                      { v: "email", l: "Email" },
+                    ] as { v: FormState["contactMethod"]; l: string }[]
+                  ).map(({ v, l }) => {
+                    const active = form.contactMethod === v;
+                    return (
+                      <button
+                        key={v}
+                        type="button"
+                        onClick={() => set("contactMethod", v)}
+                        className={cn(
+                          "whitespace-nowrap rounded-xl border px-2 py-2.5 text-xs font-medium transition-all sm:px-3 sm:text-sm",
+                          active
+                            ? "border-primary bg-primary/5 text-primary ring-2 ring-primary/20"
+                            : "border-border bg-card text-muted-foreground hover:border-primary/40",
+                        )}
+                      >
+                        {l}
+                      </button>
+                    );
+                  })}
+                </div>
+              </SectionCard>
 
-        {!compact && (
-          <>
-            <SectionCard step="10" label="Contact" className="md:col-span-2">
-              <div className="grid gap-3">
-                <div>
-                  <Label className="mb-1 block text-[11px] font-medium text-muted-foreground">
-                    Full name <span className="text-destructive">*</span>
-                  </Label>
-                  <Input
-                    placeholder="Jane Doe"
-                    value={form.fullName}
-                    onChange={(e) => set("fullName", e.target.value.slice(0, 100))}
-                    maxLength={100}
-                    autoComplete="name"
-                  />
+              <SectionCard step="12" label="Best time to contact you" className="md:col-span-2">
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-5">
+                  {(
+                    [
+                      { v: "morning", l: "Morning" },
+                      { v: "midday", l: "Midday" },
+                      { v: "afternoon", l: "Afternoon" },
+                      { v: "evening", l: "Evening" },
+                      { v: "anytime", l: "Anytime" },
+                    ] as { v: FormState["contactTime"]; l: string }[]
+                  ).map(({ v, l }) => {
+                    const active = form.contactTime === v;
+                    return (
+                      <button
+                        key={v}
+                        type="button"
+                        onClick={() => set("contactTime", v)}
+                        className={cn(
+                          "rounded-xl border px-3 py-2.5 text-sm font-medium transition-all",
+                          active
+                            ? "border-primary bg-primary/5 text-primary ring-2 ring-primary/20"
+                            : "border-border bg-card text-muted-foreground hover:border-primary/40",
+                        )}
+                      >
+                        {l}
+                      </button>
+                    );
+                  })}
                 </div>
-                <div className="grid gap-3 sm:grid-cols-2">
-                  <div>
-                    <Label className="mb-1 block text-[11px] font-medium text-muted-foreground">
-                      Phone number <span className="text-destructive">*</span>
-                    </Label>
-                    <Input
-                      placeholder="(555) 123-4567"
-                      inputMode="tel"
-                      autoComplete="tel"
-                      value={form.phone}
-                      onChange={(e) => set("phone", formatUsPhone(e.target.value))}
-                      maxLength={20}
-                      className={cn(
-                        form.phone && !isValidUsPhone(form.phone) && "border-destructive"
-                      )}
-                    />
-                    {form.phone && !isValidUsPhone(form.phone) && (
-                      <p className="mt-1 text-[11px] text-destructive">
-                        Please enter a valid US phone number.
-                      </p>
-                    )}
-                  </div>
-                  <div>
-                    <Label className="mb-1 block text-[11px] font-medium text-muted-foreground">
-                      Email address <span className="text-destructive">*</span>
-                    </Label>
-                    <Input
-                      type="email"
-                      placeholder="you@example.com"
-                      autoComplete="email"
-                      value={form.email}
-                      onChange={(e) => set("email", e.target.value)}
-                      maxLength={255}
-                      className={cn(
-                        form.email && !isValidEmail(form.email) && "border-destructive"
-                      )}
-                    />
-                    {form.email && !isValidEmail(form.email) && (
-                      <p className="mt-1 text-[11px] text-destructive">
-                        Please enter a valid email address.
-                      </p>
-                    )}
-                  </div>
-                </div>
-                <p className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
-                  <Lock className="h-3 w-3 text-sage" />
-                  Your information is private. We never sell or share your personal information.
+              </SectionCard>
+
+              <SectionCard
+                step="13"
+                label="Additional information (optional)"
+                className="md:col-span-2"
+              >
+                <Textarea
+                  placeholder="Gate code, HOA requirements, fragile items, piano, safe, narrow stairs, parking restrictions, or anything else we should know."
+                  value={form.notes}
+                  onChange={(e) => set("notes", e.target.value.slice(0, 1000))}
+                  rows={3}
+                />
+                <p className="mt-1.5 text-[11px] leading-relaxed text-muted-foreground/80">
+                  Examples: Gate code • Fragile items • HOA requirements • Narrow stairs • Parking
+                  restrictions • Special instructions
                 </p>
-              </div>
-            </SectionCard>
-
-            <SectionCard step="11" label="How would you like us to contact you?" className="md:col-span-2">
-              <div className="grid grid-cols-3 gap-2">
-                {(
-                  [
-                    { v: "phone", l: "Phone Call" },
-                    { v: "sms", l: "Text (SMS)" },
-                    { v: "email", l: "Email" },
-                  ] as { v: FormState["contactMethod"]; l: string }[]
-                ).map(({ v, l }) => {
-                  const active = form.contactMethod === v;
-                  return (
-                    <button
-                      key={v}
-                      type="button"
-                      onClick={() => set("contactMethod", v)}
-                      className={cn(
-                        "whitespace-nowrap rounded-xl border px-2 py-2.5 text-xs font-medium transition-all sm:px-3 sm:text-sm",
-                        active
-                          ? "border-primary bg-primary/5 text-primary ring-2 ring-primary/20"
-                          : "border-border bg-card text-muted-foreground hover:border-primary/40"
-                      )}
-
-                    >
-                      {l}
-                    </button>
-                  );
-                })}
-              </div>
-            </SectionCard>
-
-            <SectionCard step="12" label="Best time to contact you" className="md:col-span-2">
-              <div className="grid grid-cols-2 gap-2 sm:grid-cols-5">
-                {(
-                  [
-                    { v: "morning", l: "Morning" },
-                    { v: "midday", l: "Midday" },
-                    { v: "afternoon", l: "Afternoon" },
-                    { v: "evening", l: "Evening" },
-                    { v: "anytime", l: "Anytime" },
-                  ] as { v: FormState["contactTime"]; l: string }[]
-                ).map(({ v, l }) => {
-                  const active = form.contactTime === v;
-                  return (
-                    <button
-                      key={v}
-                      type="button"
-                      onClick={() => set("contactTime", v)}
-                      className={cn(
-                        "rounded-xl border px-3 py-2.5 text-sm font-medium transition-all",
-                        active
-                          ? "border-primary bg-primary/5 text-primary ring-2 ring-primary/20"
-                          : "border-border bg-card text-muted-foreground hover:border-primary/40"
-                      )}
-                    >
-                      {l}
-                    </button>
-                  );
-                })}
-              </div>
-            </SectionCard>
-
-            <SectionCard step="13" label="Additional information (optional)" className="md:col-span-2">
-              <Textarea
-                placeholder="Gate code, HOA requirements, fragile items, piano, safe, narrow stairs, parking restrictions, or anything else we should know."
-                value={form.notes}
-                onChange={(e) => set("notes", e.target.value.slice(0, 1000))}
-                rows={3}
-              />
-              <p className="mt-1.5 text-[11px] leading-relaxed text-muted-foreground/80">
-                Examples: Gate code • Fragile items • HOA requirements • Narrow stairs • Parking restrictions • Special instructions
-              </p>
-            </SectionCard>
-          </>
-        )}
-      </div>
+              </SectionCard>
+            </>
+          )}
+        </div>
       )}
 
       {/* Stage: form → trust section + final CTA */}
@@ -999,7 +1080,9 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
             <div className="flex flex-col items-center gap-2 text-center">
               <div className="flex items-center gap-1 text-ochre" aria-label="5 out of 5 stars">
                 {"★★★★★".split("").map((s, i) => (
-                  <span key={i} className="text-lg leading-none">{s}</span>
+                  <span key={i} className="text-lg leading-none">
+                    {s}
+                  </span>
                 ))}
               </div>
               <p className="text-sm font-semibold">Trusted by Hundreds of Customers</p>
@@ -1054,17 +1137,26 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
             </Button>
             <p className="text-center text-[11px] leading-relaxed text-muted-foreground">
               By clicking Get My Free Moving Quote, you agree to our{" "}
-              <a href="/privacy" className="font-medium text-primary underline-offset-2 hover:underline">
+              <a
+                href="/privacy"
+                className="font-medium text-primary underline-offset-2 hover:underline"
+              >
                 Privacy Policy
               </a>{" "}
               and{" "}
-              <a href="/terms" className="font-medium text-primary underline-offset-2 hover:underline">
+              <a
+                href="/terms"
+                className="font-medium text-primary underline-offset-2 hover:underline"
+              >
                 Terms of Service
               </a>
               .
             </p>
             {submitError && (
-              <div className="rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-center text-sm font-medium text-destructive" role="alert">
+              <div
+                className="rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-center text-sm font-medium text-destructive"
+                role="alert"
+              >
                 {submitError}
               </div>
             )}
@@ -1079,7 +1171,6 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
 
       {/* Stage: submitting */}
       {stage === "submitting" && <SubmittingScreen />}
-
     </div>
   );
 }
@@ -1114,18 +1205,25 @@ function PriceHeader({
   propertyType: PropertyType;
   selectedServices: string[];
 }) {
-  const propertyLabel =
-    PROPERTY_TYPES.find((p) => p.value === propertyType)?.label ?? "";
+  const propertyLabel = PROPERTY_TYPES.find((p) => p.value === propertyType)?.label ?? "";
   return (
     <div className="relative overflow-hidden bg-primary px-4 py-4 text-primary-foreground shadow-lg sm:px-8 sm:py-6">
-      <div className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-ochre/30 blur-3xl" aria-hidden />
-      <div className="pointer-events-none absolute -bottom-20 -left-20 h-56 w-56 rounded-full bg-ochre/10 blur-3xl" aria-hidden />
+      <div
+        className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-ochre/30 blur-3xl"
+        aria-hidden
+      />
+      <div
+        className="pointer-events-none absolute -bottom-20 -left-20 h-56 w-56 rounded-full bg-ochre/10 blur-3xl"
+        aria-hidden
+      />
       <div className="relative grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 sm:items-end sm:gap-4">
         <div className="min-w-0">
           <span className="inline-flex max-w-full items-center gap-1.5 truncate rounded-full bg-primary-foreground/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-widest">
             <Sparkles className="h-3 w-3 shrink-0 text-ochre" /> Live estimate
           </span>
-          <h3 className="mt-2 truncate font-serif text-base font-medium leading-tight sm:text-2xl">Instant Moving Quote</h3>
+          <h3 className="mt-2 truncate font-serif text-base font-medium leading-tight sm:text-2xl">
+            Instant Moving Quote
+          </h3>
           <p className="mt-1 truncate text-[11px] leading-snug opacity-70 sm:text-sm">
             {distance
               ? `${distance.miles} mi ${distance.type} · ${propertyLabel}${quote ? ` · ${quote.numMovers} movers · ${quote.truckSize}` : ""}`
@@ -1152,7 +1250,6 @@ function PriceHeader({
         </div>
       </div>
 
-
       <div className="relative mt-3 flex min-h-[22px] flex-wrap gap-1">
         {selectedServices.length > 0 ? (
           selectedServices.map((s) => (
@@ -1170,7 +1267,6 @@ function PriceHeader({
           </span>
         )}
       </div>
-
     </div>
   );
 }
@@ -1237,7 +1333,6 @@ function ZipInput({
           ""
         )}
       </p>
-
     </div>
   );
 }
@@ -1256,6 +1351,7 @@ function LocationBlock({
   const [cities, setCities] = useState<string[]>([]);
   const [zipCenter, setZipCenter] = useState<{ lat: number; lng: number } | null>(null);
   const [loadingCities, setLoadingCities] = useState(false);
+  const [zipNotFound, setZipNotFound] = useState(false);
 
   // Look up cities + state from ZIP. State is resolved offline first so it is
   // always populated, then refined by the Google geocode result when available.
@@ -1265,6 +1361,7 @@ function LocationBlock({
     if (!isValidZip(zipAtLookupStart)) {
       setCities([]);
       setZipCenter(null);
+      setZipNotFound(false);
       return;
     }
 
@@ -1282,12 +1379,19 @@ function LocationBlock({
 
     // 2) Refine with the authoritative ZIP lookup.
     setLoadingCities(true);
+    setZipNotFound(false);
     lookupZipCities(zipAtLookupStart)
       .then((r) => {
         if (cancelled) return;
         if (!r) {
+          // The ZIP looks well-formed but does not exist. Never keep a city
+          // left over from a previous ZIP — the ZIP is the source of truth.
           setCities(fallbackLoc?.city ? [fallbackLoc.city] : []);
           setZipCenter(fallbackLoc ? { lat: fallbackLoc.lat, lng: fallbackLoc.lng } : null);
+          if (!fallbackLoc?.city) {
+            setZipNotFound(true);
+            if (side.city) onChange({ city: "" }, zipAtLookupStart);
+          }
           return;
         }
         setCities(r.cities);
@@ -1308,13 +1412,10 @@ function LocationBlock({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [side.zip, fallbackLoc?.state, fallbackLoc?.city]);
 
-
   const invalidZip = side.zip.length === 5 && !isValidZip(side.zip);
+  const unknownZip = !loadingCities && zipNotFound && !invalidZip && side.zip.length === 5;
   const cityMismatch =
-    !loadingCities &&
-    !!side.city &&
-    cities.length > 0 &&
-    !cities.includes(side.city);
+    !loadingCities && !!side.city && cities.length > 0 && !cities.includes(side.city);
 
   return (
     <div className="grid min-w-0 gap-2.5">
@@ -1337,13 +1438,15 @@ function LocationBlock({
                   "flex items-center gap-2 rounded-xl border p-2.5 text-left transition-all",
                   active
                     ? "border-primary bg-primary/5 ring-2 ring-primary/20"
-                    : "border-border bg-card hover:border-primary/40"
+                    : "border-border bg-card hover:border-primary/40",
                 )}
               >
                 <span
                   className={cn(
                     "grid h-7 w-7 shrink-0 place-items-center rounded-lg",
-                    active ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+                    active
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-muted text-muted-foreground",
                   )}
                 >
                   <Icon className="h-3.5 w-3.5" />
@@ -1357,9 +1460,7 @@ function LocationBlock({
 
       {/* ZIP */}
       <div className="min-w-0">
-        <Label className="mb-1 block text-[11px] font-medium text-muted-foreground">
-          ZIP code
-        </Label>
+        <Label className="mb-1 block text-[11px] font-medium text-muted-foreground">ZIP code</Label>
         <div className="relative">
           <MapPin className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
@@ -1373,6 +1474,7 @@ function LocationBlock({
               // Changing the ZIP invalidates everything derived from it.
               setCities([]);
               setZipCenter(null);
+              setZipNotFound(false);
               onChange({
                 zip,
                 city: "",
@@ -1386,20 +1488,22 @@ function LocationBlock({
             }}
             className={cn(
               "w-full pl-9 font-mono tracking-wider",
-              invalidZip && "border-destructive"
+              (invalidZip || unknownZip) && "border-destructive",
             )}
           />
         </div>
-        {invalidZip && (
+        {invalidZip ? (
           <p className="mt-1 text-[11px] text-destructive">Enter a valid 5-digit US ZIP</p>
-        )}
+        ) : unknownZip ? (
+          <p className="mt-1 text-[11px] text-destructive">
+            We couldn't find ZIP {side.zip}. Check the number, or type the city below.
+          </p>
+        ) : null}
       </div>
 
       {/* City */}
       <div className="min-w-0">
-        <Label className="mb-1 block text-[11px] font-medium text-muted-foreground">
-          City
-        </Label>
+        <Label className="mb-1 block text-[11px] font-medium text-muted-foreground">City</Label>
         {cities.length > 1 ? (
           <select
             value={side.city}
@@ -1419,10 +1523,10 @@ function LocationBlock({
               loadingCities
                 ? "Looking up city…"
                 : invalidZip
-                ? "Enter a valid ZIP"
-                : side.zip.length === 5
-                ? "Enter city"
-                : "Enter ZIP first"
+                  ? "Enter a valid ZIP"
+                  : side.zip.length === 5
+                    ? "Enter city"
+                    : "Enter ZIP first"
             }
             value={side.city}
             onChange={(e) => onChange({ city: e.target.value })}
@@ -1431,19 +1535,15 @@ function LocationBlock({
         )}
         {cityMismatch && (
           <p className="mt-1 text-[11px] text-destructive">
-            {side.city} doesn't match ZIP {side.zip} — expected{" "}
-            {cities.slice(0, 3).join(", ")}
+            {side.city} doesn't match ZIP {side.zip} — expected {cities.slice(0, 3).join(", ")}
             {cities.length > 3 ? "…" : ""}.
           </p>
         )}
       </div>
 
-
       {/* Street (Google Places) — enabled only after city is selected */}
       <div>
-        <Label className="mb-1 block text-[11px] font-medium text-muted-foreground">
-          Street
-        </Label>
+        <Label className="mb-1 block text-[11px] font-medium text-muted-foreground">Street</Label>
         <AddressAutocomplete
           placeholder="Start typing your street address"
           value={side.street}
@@ -1484,9 +1584,7 @@ function LocationBlock({
           />
         </div>
         <div>
-          <Label className="mb-1 block text-[11px] font-medium text-muted-foreground">
-            State
-          </Label>
+          <Label className="mb-1 block text-[11px] font-medium text-muted-foreground">State</Label>
           <StateSelect value={side.state} onChange={(v) => onChange({ state: v })} />
         </div>
       </div>
@@ -1506,9 +1604,7 @@ function LocationBlock({
           >
             <Minus className="h-3.5 w-3.5" />
           </button>
-          <span className="w-8 text-center text-sm font-medium tabular-nums">
-            {side.floor}
-          </span>
+          <span className="w-8 text-center text-sm font-medium tabular-nums">{side.floor}</span>
           <button
             type="button"
             onClick={() => onChange({ floor: Math.min(50, side.floor + 1) })}
@@ -1536,7 +1632,7 @@ function LocationBlock({
                 "rounded-md border px-2 py-1 text-xs font-medium transition-all",
                 side.elevator === v
                   ? "border-primary bg-primary/5 text-primary"
-                  : "border-border bg-card text-muted-foreground hover:bg-accent"
+                  : "border-border bg-card text-muted-foreground hover:bg-accent",
               )}
             >
               {l}
@@ -1566,7 +1662,7 @@ function LocationBlock({
                 "rounded-md border px-2 py-1.5 text-xs font-medium text-left transition-all",
                 side.parking === v
                   ? "border-primary bg-primary/5 text-primary"
-                  : "border-border bg-card text-muted-foreground hover:bg-accent"
+                  : "border-border bg-card text-muted-foreground hover:bg-accent",
               )}
             >
               {l}
@@ -1580,9 +1676,7 @@ function LocationBlock({
 
       {/* Carry distance */}
       <div className="rounded-md border border-border bg-card px-3 py-2 text-sm">
-        <div className="mb-1.5 font-medium">
-          How far will movers carry items to the door?
-        </div>
+        <div className="mb-1.5 font-medium">How far will movers carry items to the door?</div>
         <div className="grid grid-cols-3 gap-1">
           {CARRY_OPTIONS.map(({ value, label }) => (
             <button
@@ -1593,7 +1687,7 @@ function LocationBlock({
                 "rounded-md border px-2 py-1.5 text-xs font-medium transition-all",
                 side.carry === value
                   ? "border-primary bg-primary/5 text-primary"
-                  : "border-border bg-card text-muted-foreground hover:bg-accent"
+                  : "border-border bg-card text-muted-foreground hover:bg-accent",
               )}
             >
               {label}
@@ -1613,7 +1707,6 @@ function LocationBlock({
           onChange={(e) => onChange({ accessNotes: e.target.value.slice(0, 300) })}
         />
       </div>
-
     </div>
   );
 }
@@ -1637,13 +1730,15 @@ function ToggleCard({
       onClick={onClick}
       className={cn(
         "flex items-start gap-3 rounded-xl border p-3 text-left transition-all",
-        active ? "border-primary bg-primary/5 ring-2 ring-primary/20" : "border-border bg-card hover:border-primary/40 hover:bg-accent/50"
+        active
+          ? "border-primary bg-primary/5 ring-2 ring-primary/20"
+          : "border-border bg-card hover:border-primary/40 hover:bg-accent/50",
       )}
     >
       <div
         className={cn(
           "grid h-8 w-8 shrink-0 place-items-center rounded-lg",
-          active ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+          active ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground",
         )}
       >
         <Package className="h-4 w-4" />
@@ -1655,7 +1750,7 @@ function ToggleCard({
             <span
               className={cn(
                 "ml-auto shrink-0 whitespace-nowrap rounded-full px-1.5 py-0.5 text-[10px] font-semibold tabular-nums",
-                active ? "bg-primary/15 text-primary" : "bg-muted text-muted-foreground"
+                active ? "bg-primary/15 text-primary" : "bg-muted text-muted-foreground",
               )}
             >
               {price}
@@ -1715,17 +1810,37 @@ function AccessGroup({
         </div>
       </div>
       <label className="flex cursor-pointer items-center gap-2 rounded-md border border-border bg-card px-3 py-2 text-sm">
-        <span className={cn("grid h-4 w-4 place-items-center rounded-sm border", elevator ? "border-primary bg-primary text-primary-foreground" : "border-border")}>
+        <span
+          className={cn(
+            "grid h-4 w-4 place-items-center rounded-sm border",
+            elevator ? "border-primary bg-primary text-primary-foreground" : "border-border",
+          )}
+        >
           {elevator && <Check className="h-3 w-3" />}
         </span>
-        <input type="checkbox" className="sr-only" checked={elevator} onChange={(e) => onElevator(e.target.checked)} />
+        <input
+          type="checkbox"
+          className="sr-only"
+          checked={elevator}
+          onChange={(e) => onElevator(e.target.checked)}
+        />
         Elevator available
       </label>
       <label className="flex cursor-pointer items-center gap-2 rounded-md border border-border bg-card px-3 py-2 text-sm">
-        <span className={cn("grid h-4 w-4 place-items-center rounded-sm border", longCarry ? "border-primary bg-primary text-primary-foreground" : "border-border")}>
+        <span
+          className={cn(
+            "grid h-4 w-4 place-items-center rounded-sm border",
+            longCarry ? "border-primary bg-primary text-primary-foreground" : "border-border",
+          )}
+        >
           {longCarry && <Check className="h-3 w-3" />}
         </span>
-        <input type="checkbox" className="sr-only" checked={longCarry} onChange={(e) => onLongCarry(e.target.checked)} />
+        <input
+          type="checkbox"
+          className="sr-only"
+          checked={longCarry}
+          onChange={(e) => onLongCarry(e.target.checked)}
+        />
         Long carry (over 75 ft from truck)
       </label>
       <div className="rounded-md border border-border bg-card px-3 py-2 text-sm">
@@ -1740,7 +1855,7 @@ function AccessGroup({
                 "rounded-md border px-2 py-1 text-xs font-medium capitalize transition-all",
                 parking === p
                   ? "border-primary bg-primary/5 text-primary"
-                  : "border-border bg-card text-muted-foreground hover:bg-accent"
+                  : "border-border bg-card text-muted-foreground hover:bg-accent",
               )}
             >
               {p}
@@ -1810,7 +1925,10 @@ function InventoryBuilder({
                   {items.map((item) => {
                     const qty = counts[item.id] ?? 0;
                     return (
-                      <div key={item.id} className="flex min-w-0 items-center justify-between gap-2 rounded-md bg-muted/40 px-3 py-1.5">
+                      <div
+                        key={item.id}
+                        className="flex min-w-0 items-center justify-between gap-2 rounded-md bg-muted/40 px-3 py-1.5"
+                      >
                         <div className="min-w-0 flex-1">
                           <div className="truncate text-sm font-medium">{item.label}</div>
                           <div className="truncate text-[10px] text-muted-foreground">
@@ -1818,7 +1936,6 @@ function InventoryBuilder({
                           </div>
                         </div>
                         <div className="flex shrink-0 items-center gap-1">
-
                           <button
                             type="button"
                             onClick={() => setQty(item.id, qty - 1)}
@@ -1828,7 +1945,9 @@ function InventoryBuilder({
                           >
                             <Minus className="h-3.5 w-3.5" />
                           </button>
-                          <span className="w-6 text-center text-sm font-medium tabular-nums">{qty}</span>
+                          <span className="w-6 text-center text-sm font-medium tabular-nums">
+                            {qty}
+                          </span>
                           <button
                             type="button"
                             onClick={() => setQty(item.id, qty + 1)}
@@ -1860,7 +1979,9 @@ function InventoryBuilder({
 function Stat({ label, value, className }: { label: string; value: string; className?: string }) {
   return (
     <div className={className}>
-      <div className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">{label}</div>
+      <div className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+        {label}
+      </div>
       <div className="text-sm font-medium tabular-nums">{value}</div>
     </div>
   );
@@ -1899,11 +2020,17 @@ function ItemizedBreakdown({ quote }: { quote: QuoteResult }) {
           const rows = quote.breakdown.filter((b) => b.group === group);
           if (rows.length === 0) return [];
           return [
-            <li key={`h-${group}`} className="bg-muted/40 px-4 py-1.5 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+            <li
+              key={`h-${group}`}
+              className="bg-muted/40 px-4 py-1.5 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground"
+            >
               {groupLabel[group]}
             </li>,
             ...rows.map((r) => (
-              <li key={`${group}-${r.label}`} className="flex items-center justify-between px-4 py-2 text-sm">
+              <li
+                key={`${group}-${r.label}`}
+                className="flex items-center justify-between px-4 py-2 text-sm"
+              >
                 <span className="text-muted-foreground">{r.label}</span>
                 <span className="font-medium tabular-nums">${r.amount.toLocaleString()}</span>
               </li>
@@ -1920,7 +2047,9 @@ function ItemizedBreakdown({ quote }: { quote: QuoteResult }) {
         </li>
         <li className="flex items-center justify-between bg-primary/5 px-4 py-2.5 text-sm">
           <span className="font-semibold">Total estimate</span>
-          <span className="font-serif text-lg font-medium tabular-nums">${quote.total.toLocaleString()}</span>
+          <span className="font-serif text-lg font-medium tabular-nums">
+            ${quote.total.toLocaleString()}
+          </span>
         </li>
       </ul>
     </div>
@@ -1929,13 +2058,7 @@ function ItemizedBreakdown({ quote }: { quote: QuoteResult }) {
 
 // ---------- Review & confirmation screens -----------------------------------
 
-function ReviewRow({
-  label,
-  value,
-}: {
-  label: string;
-  value: React.ReactNode;
-}) {
+function ReviewRow({ label, value }: { label: string; value: React.ReactNode }) {
   return (
     <div className="flex items-start justify-between gap-4 py-2.5">
       <div className="flex items-start gap-2 text-sm text-muted-foreground">
@@ -2019,8 +2142,8 @@ function ReviewScreen({
     form.insurance === "basic"
       ? "Basic (included)"
       : form.insurance === "standard"
-      ? "Standard coverage"
-      : "Full value protection";
+        ? "Standard coverage"
+        : "Full value protection";
 
   function addressLine(s: SideState): string {
     const line1 = [s.houseNumber, s.street].filter(Boolean).join(" ");
@@ -2045,7 +2168,10 @@ function ReviewScreen({
 
         {/* Premium estimate card */}
         <div className="relative overflow-hidden rounded-3xl bg-primary p-6 text-primary-foreground shadow-[0_20px_60px_-30px_rgba(20,40,25,0.5)] sm:p-8">
-          <div className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-ochre/30 blur-3xl" aria-hidden />
+          <div
+            className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-ochre/30 blur-3xl"
+            aria-hidden
+          />
           <div className="relative">
             <div className="text-[10px] font-semibold uppercase tracking-widest opacity-70">
               Your estimated moving quote
@@ -2055,7 +2181,8 @@ function ReviewScreen({
               <span className="mx-2 opacity-40">–</span>${quote.high.toLocaleString()}
             </div>
             <div className="mt-1 text-sm opacity-80">
-              {distance.miles} mi {distance.type} move · {quote.numMovers} movers · {quote.truckSize}
+              {distance.miles} mi {distance.type} move · {quote.numMovers} movers ·{" "}
+              {quote.truckSize}
             </div>
 
             <div className="mt-5 grid gap-1.5 text-sm sm:grid-cols-2">
@@ -2112,7 +2239,10 @@ function ReviewScreen({
           <ReviewSection title="Route" onEdit={onEdit}>
             <ReviewRow label="Origin address" value={addressLine(form.origin)} />
             <ReviewRow label="Destination address" value={addressLine(form.destination)} />
-            <ReviewRow label="Estimated distance" value={`${distance.miles} mi (${distance.type})`} />
+            <ReviewRow
+              label="Estimated distance"
+              value={`${distance.miles} mi (${distance.type})`}
+            />
           </ReviewSection>
 
           <ReviewSection title="Move details" onEdit={onEdit}>
@@ -2165,11 +2295,7 @@ function ReviewScreen({
         </div>
 
         <div className="flex flex-col-reverse gap-3 pt-2 sm:flex-row sm:items-center sm:justify-between">
-          <Button
-            variant="outline"
-            onClick={onEdit}
-            className="rounded-full"
-          >
+          <Button variant="outline" onClick={onEdit} className="rounded-full">
             <Pencil className="mr-2 h-4 w-4" />
             Edit details
           </Button>
@@ -2212,9 +2338,7 @@ function ThankYouScreen({
   saved: SavedQuoteSnapshot | null;
   onEdit: () => void;
 }) {
-  const portalHref = saved
-    ? `/portal/${saved.quoteNumber}?token=${saved.portalToken}`
-    : null;
+  const portalHref = saved ? `/portal/${saved.quoteNumber}?token=${saved.portalToken}` : null;
 
   async function handleDownload() {
     if (!saved) return;
@@ -2233,8 +2357,7 @@ function ThankYouScreen({
         </h3>
         <p className="mt-4 text-base leading-relaxed text-muted-foreground">
           We've received your moving request.
-          <br />
-          A moving specialist will contact you within 5–15 minutes.
+          <br />A moving specialist will contact you within 5–15 minutes.
         </p>
 
         {saved && (
@@ -2249,12 +2372,7 @@ function ThankYouScreen({
         )}
 
         <div className="mt-8 flex flex-col items-stretch gap-3 sm:flex-row sm:justify-center">
-          <Button
-            onClick={handleDownload}
-            size="lg"
-            className="rounded-full"
-            disabled={!saved}
-          >
+          <Button onClick={handleDownload} size="lg" className="rounded-full" disabled={!saved}>
             Download PDF Estimate
           </Button>
           {portalHref && (
@@ -2280,7 +2398,10 @@ function ThankYouScreen({
             { Icon: Truck, label: "Professional movers" },
             { Icon: Lock, label: "Secure online quote" },
           ].map(({ Icon, label }) => (
-            <div key={label} className="flex items-center justify-center gap-1.5 rounded-lg border border-border bg-card px-2 py-2">
+            <div
+              key={label}
+              className="flex items-center justify-center gap-1.5 rounded-lg border border-border bg-card px-2 py-2"
+            >
               <Icon className="h-3.5 w-3.5 text-sage" />
               <span className="font-medium">{label}</span>
             </div>
@@ -2324,7 +2445,10 @@ function EstimateSummaryScreen({
         </div>
 
         <div className="relative mt-6 overflow-hidden rounded-3xl bg-primary p-6 text-primary-foreground shadow-[0_20px_60px_-30px_rgba(20,40,25,0.5)] sm:p-8">
-          <div className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-ochre/30 blur-3xl" aria-hidden />
+          <div
+            className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-ochre/30 blur-3xl"
+            aria-hidden
+          />
           <div className="relative">
             <div className="text-[10px] font-semibold uppercase tracking-widest opacity-70">
               Estimated price range
@@ -2360,7 +2484,8 @@ function EstimateSummaryScreen({
         </div>
 
         <p className="mt-4 text-center text-xs text-muted-foreground">
-          Take a moment to review your estimate. A moving specialist will contact you within 5–15 minutes.
+          Take a moment to review your estimate. A moving specialist will contact you within 5–15
+          minutes.
         </p>
 
         <div className="mt-6 flex justify-center">

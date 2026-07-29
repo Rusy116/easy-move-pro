@@ -6,13 +6,27 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
 import { Wallet, Download, Receipt, AlertTriangle, CheckCircle2, Clock } from "lucide-react";
 import {
-  useCommissionInvoices, useCommissionLedger, useQuoteMeta, applyFinanceFilters,
-  totalsOf, money, pct, STATUS_STYLES, EMPTY_FILTERS, COMMISSION_STATUSES,
-  downloadCsv, activePaymentProvider, DEFAULT_COMMISSION_RATE,
+  useCommissionInvoices,
+  useCommissionLedger,
+  useQuoteMeta,
+  applyFinanceFilters,
+  totalsOf,
+  money,
+  pct,
+  STATUS_STYLES,
+  EMPTY_FILTERS,
+  COMMISSION_STATUSES,
+  downloadCsv,
+  activePaymentProvider,
+  DEFAULT_COMMISSION_RATE,
   type FinanceFilters,
 } from "@/lib/finance";
 
@@ -125,7 +139,11 @@ function CompanyFinancePage() {
 
       <SectionShell
         title="Commission invoices"
-        right={<Badge variant="outline" className="rounded-full">{rows.length}</Badge>}
+        right={
+          <Badge variant="outline" className="rounded-full">
+            {rows.length}
+          </Badge>
+        }
       >
         <div className="mb-4 grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
           <Input
@@ -137,11 +155,15 @@ function CompanyFinancePage() {
             value={filters.status}
             onValueChange={(v) => setFilters({ ...filters, status: v as FinanceFilters["status"] })}
           >
-            <SelectTrigger><SelectValue placeholder="Status" /></SelectTrigger>
+            <SelectTrigger>
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All statuses</SelectItem>
               {COMMISSION_STATUSES.filter((s) => s !== "pending").map((s) => (
-                <SelectItem key={s} value={s}>{s}</SelectItem>
+                <SelectItem key={s} value={s}>
+                  {s}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -154,7 +176,9 @@ function CompanyFinancePage() {
             value={filters.sort}
             onValueChange={(v) => setFilters({ ...filters, sort: v as FinanceFilters["sort"] })}
           >
-            <SelectTrigger><SelectValue /></SelectTrigger>
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
             <SelectContent>
               <SelectItem value="newest">Newest first</SelectItem>
               <SelectItem value="oldest">Oldest first</SelectItem>
@@ -185,8 +209,8 @@ function CompanyFinancePage() {
                     </Badge>
                   </div>
                   <div className="mt-1 text-xs text-muted-foreground">
-                    {meta[r.quote_id]?.quoteNumber ?? "Lead"} ·{" "}
-                    Move {meta[r.quote_id]?.moveDate ?? "—"} · Issued {r.issue_date} · Due {r.due_date}
+                    {meta[r.quote_id]?.quoteNumber ?? "Lead"} · Move{" "}
+                    {meta[r.quote_id]?.moveDate ?? "—"} · Issued {r.issue_date} · Due {r.due_date}
                   </div>
                 </div>
                 <div className="text-right">

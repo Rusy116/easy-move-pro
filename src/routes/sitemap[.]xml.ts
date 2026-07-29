@@ -4,10 +4,13 @@ import { STATES, CITIES } from "@/lib/seo/locations";
 import { PRODUCT_PAGES, EDUCATION_PAGES, COMPARISON_PAGES } from "@/lib/seo/content";
 import { GEO_STATES, GEO_CITIES, GEO_ROUTES, cityPath, statePath, routePath } from "@/lib/seo/geo";
 
-
 const BASE_URL = "";
 
-interface SitemapEntry { path: string; changefreq?: string; priority?: string }
+interface SitemapEntry {
+  path: string;
+  changefreq?: string;
+  priority?: string;
+}
 
 export const Route = createFileRoute("/sitemap.xml")({
   server: {
@@ -33,34 +36,67 @@ export const Route = createFileRoute("/sitemap.xml")({
         ];
 
         // Geo platform pages
-        GEO_STATES.forEach((s) => entries.push({ path: statePath(s), changefreq: "monthly", priority: "0.7" }));
-        GEO_CITIES.forEach((c) => entries.push({ path: cityPath(c), changefreq: "monthly", priority: "0.7" }));
-        GEO_ROUTES.forEach((r) => entries.push({ path: routePath(r), changefreq: "monthly", priority: "0.6" }));
-
-
+        GEO_STATES.forEach((s) =>
+          entries.push({ path: statePath(s), changefreq: "monthly", priority: "0.7" }),
+        );
+        GEO_CITIES.forEach((c) =>
+          entries.push({ path: cityPath(c), changefreq: "monthly", priority: "0.7" }),
+        );
+        GEO_ROUTES.forEach((r) =>
+          entries.push({ path: routePath(r), changefreq: "monthly", priority: "0.6" }),
+        );
 
         const citySlugs = [
-          "new-york","los-angeles","chicago","austin","san-francisco","miami",
-          "seattle","denver","boston","atlanta","phoenix","portland","washington","dallas",
+          "new-york",
+          "los-angeles",
+          "chicago",
+          "austin",
+          "san-francisco",
+          "miami",
+          "seattle",
+          "denver",
+          "boston",
+          "atlanta",
+          "phoenix",
+          "portland",
+          "washington",
+          "dallas",
         ];
-        citySlugs.forEach((s) => entries.push({ path: `/cities/${s}`, changefreq: "monthly", priority: "0.6" }));
+        citySlugs.forEach((s) =>
+          entries.push({ path: `/cities/${s}`, changefreq: "monthly", priority: "0.6" }),
+        );
 
         // Product landing pages
-        PRODUCT_PAGES.forEach((p) => entries.push({ path: p.route, changefreq: "weekly", priority: "0.8" }));
+        PRODUCT_PAGES.forEach((p) =>
+          entries.push({ path: p.route, changefreq: "weekly", priority: "0.8" }),
+        );
         // Education
-        EDUCATION_PAGES.forEach((p) => entries.push({ path: `/learn/${p.slug}`, changefreq: "monthly", priority: "0.6" }));
+        EDUCATION_PAGES.forEach((p) =>
+          entries.push({ path: `/learn/${p.slug}`, changefreq: "monthly", priority: "0.6" }),
+        );
         // Comparisons
-        COMPARISON_PAGES.forEach((p) => entries.push({ path: `/compare/${p.slug}`, changefreq: "monthly", priority: "0.7" }));
+        COMPARISON_PAGES.forEach((p) =>
+          entries.push({ path: `/compare/${p.slug}`, changefreq: "monthly", priority: "0.7" }),
+        );
         // Partner locations
-        STATES.forEach((s) => entries.push({ path: `/partners/${s.slug}`, changefreq: "monthly", priority: "0.7" }));
-        CITIES.forEach((c) => entries.push({ path: `/partners/${c.slug}`, changefreq: "monthly", priority: "0.6" }));
+        STATES.forEach((s) =>
+          entries.push({ path: `/partners/${s.slug}`, changefreq: "monthly", priority: "0.7" }),
+        );
+        CITIES.forEach((c) =>
+          entries.push({ path: `/partners/${c.slug}`, changefreq: "monthly", priority: "0.6" }),
+        );
 
-        const urls = entries.map((e) =>
-          `  <url>\n    <loc>${BASE_URL}${e.path}</loc>\n${e.changefreq ? `    <changefreq>${e.changefreq}</changefreq>\n` : ""}${e.priority ? `    <priority>${e.priority}</priority>\n` : ""}  </url>`,
-        ).join("\n");
+        const urls = entries
+          .map(
+            (e) =>
+              `  <url>\n    <loc>${BASE_URL}${e.path}</loc>\n${e.changefreq ? `    <changefreq>${e.changefreq}</changefreq>\n` : ""}${e.priority ? `    <priority>${e.priority}</priority>\n` : ""}  </url>`,
+          )
+          .join("\n");
 
         const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>`;
-        return new Response(xml, { headers: { "Content-Type": "application/xml", "Cache-Control": "public, max-age=3600" } });
+        return new Response(xml, {
+          headers: { "Content-Type": "application/xml", "Cache-Control": "public, max-age=3600" },
+        });
       },
     },
   },

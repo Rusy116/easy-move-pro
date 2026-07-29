@@ -5,12 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 /*                              Types                                  */
 /* ================================================================== */
 
-export type CommissionStatus =
-  | "pending"
-  | "invoiced"
-  | "paid"
-  | "overdue"
-  | "cancelled";
+export type CommissionStatus = "pending" | "invoiced" | "paid" | "overdue" | "cancelled";
 
 export type InvoiceStatus = "invoiced" | "paid" | "overdue" | "cancelled";
 
@@ -87,8 +82,7 @@ export const money = (n: number | null | undefined, currency = "USD") =>
     maximumFractionDigits: 2,
   }).format(Number(n ?? 0));
 
-export const pct = (rate: number | null | undefined) =>
-  `${Math.round(Number(rate ?? 0) * 100)}%`;
+export const pct = (rate: number | null | undefined) => `${Math.round(Number(rate ?? 0) * 100)}%`;
 
 export const STATUS_STYLES: Record<CommissionStatus, string> = {
   pending: "bg-muted text-muted-foreground border-border",
@@ -277,10 +271,7 @@ export function useCompanyOptions() {
   const [rows, setRows] = useState<Array<{ id: string; name: string }>>([]);
   useEffect(() => {
     void (async () => {
-      const { data } = await supabase
-        .from("moving_companies")
-        .select("id, name")
-        .order("name");
+      const { data } = await supabase.from("moving_companies").select("id, name").order("name");
       setRows((data ?? []) as Array<{ id: string; name: string }>);
     })();
   }, []);
@@ -389,7 +380,9 @@ export function toCsv(rows: Array<Record<string, unknown>>): string {
     const s = v == null ? "" : String(v);
     return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
   };
-  return [headers.join(","), ...rows.map((r) => headers.map((h) => esc(r[h])).join(","))].join("\n");
+  return [headers.join(","), ...rows.map((r) => headers.map((h) => esc(r[h])).join(","))].join(
+    "\n",
+  );
 }
 
 export function downloadCsv(filename: string, rows: Array<Record<string, unknown>>) {

@@ -47,6 +47,7 @@ import { Route as AuthenticatedCompanyIndexRouteImport } from './routes/_authent
 import { Route as AuthenticatedBrokerIndexRouteImport } from './routes/_authenticated/broker.index'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as ApiPublicSlaTickRouteImport } from './routes/api/public/sla-tick'
+import { Route as AuthenticatedCustomerReviewsRouteImport } from './routes/_authenticated/customer.reviews'
 import { Route as AuthenticatedCustomerQuotesRouteImport } from './routes/_authenticated/customer.quotes'
 import { Route as AuthenticatedCustomerNotificationsRouteImport } from './routes/_authenticated/customer.notifications'
 import { Route as AuthenticatedCustomerMoveRouteImport } from './routes/_authenticated/customer.move'
@@ -272,6 +273,12 @@ const ApiPublicSlaTickRoute = ApiPublicSlaTickRouteImport.update({
   path: '/api/public/sla-tick',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedCustomerReviewsRoute =
+  AuthenticatedCustomerReviewsRouteImport.update({
+    id: '/customer/reviews',
+    path: '/customer/reviews',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedCustomerQuotesRoute =
   AuthenticatedCustomerQuotesRouteImport.update({
     id: '/customer/quotes',
@@ -527,6 +534,7 @@ export interface FileRoutesByFullPath {
   '/customer/move': typeof AuthenticatedCustomerMoveRoute
   '/customer/notifications': typeof AuthenticatedCustomerNotificationsRoute
   '/customer/quotes': typeof AuthenticatedCustomerQuotesRoute
+  '/customer/reviews': typeof AuthenticatedCustomerReviewsRoute
   '/api/public/sla-tick': typeof ApiPublicSlaTickRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/broker/': typeof AuthenticatedBrokerIndexRoute
@@ -597,6 +605,7 @@ export interface FileRoutesByTo {
   '/customer/move': typeof AuthenticatedCustomerMoveRoute
   '/customer/notifications': typeof AuthenticatedCustomerNotificationsRoute
   '/customer/quotes': typeof AuthenticatedCustomerQuotesRoute
+  '/customer/reviews': typeof AuthenticatedCustomerReviewsRoute
   '/api/public/sla-tick': typeof ApiPublicSlaTickRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/broker': typeof AuthenticatedBrokerIndexRoute
@@ -670,6 +679,7 @@ export interface FileRoutesById {
   '/_authenticated/customer/move': typeof AuthenticatedCustomerMoveRoute
   '/_authenticated/customer/notifications': typeof AuthenticatedCustomerNotificationsRoute
   '/_authenticated/customer/quotes': typeof AuthenticatedCustomerQuotesRoute
+  '/_authenticated/customer/reviews': typeof AuthenticatedCustomerReviewsRoute
   '/api/public/sla-tick': typeof ApiPublicSlaTickRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/broker/': typeof AuthenticatedBrokerIndexRoute
@@ -743,6 +753,7 @@ export interface FileRouteTypes {
     | '/customer/move'
     | '/customer/notifications'
     | '/customer/quotes'
+    | '/customer/reviews'
     | '/api/public/sla-tick'
     | '/admin/'
     | '/broker/'
@@ -813,6 +824,7 @@ export interface FileRouteTypes {
     | '/customer/move'
     | '/customer/notifications'
     | '/customer/quotes'
+    | '/customer/reviews'
     | '/api/public/sla-tick'
     | '/admin'
     | '/broker'
@@ -885,6 +897,7 @@ export interface FileRouteTypes {
     | '/_authenticated/customer/move'
     | '/_authenticated/customer/notifications'
     | '/_authenticated/customer/quotes'
+    | '/_authenticated/customer/reviews'
     | '/api/public/sla-tick'
     | '/_authenticated/admin/'
     | '/_authenticated/broker/'
@@ -1196,6 +1209,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicSlaTickRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/customer/reviews': {
+      id: '/_authenticated/customer/reviews'
+      path: '/customer/reviews'
+      fullPath: '/customer/reviews'
+      preLoaderRoute: typeof AuthenticatedCustomerReviewsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/customer/quotes': {
       id: '/_authenticated/customer/quotes'
       path: '/customer/quotes'
@@ -1490,6 +1510,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedCustomerMoveRoute: typeof AuthenticatedCustomerMoveRoute
   AuthenticatedCustomerNotificationsRoute: typeof AuthenticatedCustomerNotificationsRoute
   AuthenticatedCustomerQuotesRoute: typeof AuthenticatedCustomerQuotesRoute
+  AuthenticatedCustomerReviewsRoute: typeof AuthenticatedCustomerReviewsRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
   AuthenticatedBrokerIndexRoute: typeof AuthenticatedBrokerIndexRoute
   AuthenticatedCustomerIndexRoute: typeof AuthenticatedCustomerIndexRoute
@@ -1511,6 +1532,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedCustomerNotificationsRoute:
     AuthenticatedCustomerNotificationsRoute,
   AuthenticatedCustomerQuotesRoute: AuthenticatedCustomerQuotesRoute,
+  AuthenticatedCustomerReviewsRoute: AuthenticatedCustomerReviewsRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
   AuthenticatedBrokerIndexRoute: AuthenticatedBrokerIndexRoute,
   AuthenticatedCustomerIndexRoute: AuthenticatedCustomerIndexRoute,

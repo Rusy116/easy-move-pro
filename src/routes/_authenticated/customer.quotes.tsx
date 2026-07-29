@@ -19,8 +19,8 @@ import {
 } from "lucide-react";
 import { PageHeader, StatCard, SkeletonRows } from "@/components/shell/Chrome";
 
-export const Route = createFileRoute("/_authenticated/customer")({
-  head: () => ({ meta: [{ title: "Customer Dashboard — Easy Moving" }] }),
+export const Route = createFileRoute("/_authenticated/customer/quotes")({
+  head: () => ({ meta: [{ title: "My Quotes — Easy Moving" }] }),
   component: DashboardPage,
 });
 

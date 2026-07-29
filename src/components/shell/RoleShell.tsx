@@ -80,7 +80,7 @@ export function RoleShell({ brand, eyebrow, accent, nav, children }: RoleShellPr
               </div>
             </div>
             <nav className="hidden md:flex flex-wrap items-center gap-1">
-              {nav.map((n) => {
+              {visibleNav.map((n) => {
                 const active = pathname === n.to;
                 return (
                   <Link
@@ -120,7 +120,7 @@ export function RoleShell({ brand, eyebrow, accent, nav, children }: RoleShellPr
         {open && (
           <div className="md:hidden border-t border-border bg-background">
             <div className="mx-auto flex max-w-7xl flex-col gap-1 px-3 py-3">
-              {nav.map((n) => (
+              {visibleNav.map((n) => (
                 <Link
                   key={n.to}
                   to={n.to}

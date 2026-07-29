@@ -36,7 +36,11 @@ export const Route = createFileRoute("/api/public/sla-tick")({
         }
 
         // Marketplace engine: release 12-hour claims that made no progress.
-        const claims = await supabaseAdmin.rpc("fn_claim_expiry_tick" as never);
+        const claims = (await supabaseAdmin.rpc("fn_claim_expiry_tick" as never)) as {
+          data: unknown;
+          error: { message: string } | null;
+        };
+
         if (claims.error) {
           return new Response(
             JSON.stringify({ ok: false, error: claims.error.message }),

@@ -392,7 +392,9 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
   }, [form, distance]);
 
   function resetCalculatorForm() {
+    try { window.localStorage.removeItem(DRAFT_KEY); } catch { /* ignore */ }
     setForm(createInitialForm());
+
     setOriginLoc(null);
     setDestLoc(null);
     setDistance(null);

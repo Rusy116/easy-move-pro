@@ -83,9 +83,11 @@ export function AvailableJobCard({
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div className="min-w-0">
           <div className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
-            {job.quote_number ?? "—"}
+            Lead ID
           </div>
-          <h3 className="mt-0.5 truncate text-lg font-semibold">{job.customer_name ?? "Customer"}</h3>
+          <h3 className="mt-0.5 truncate font-mono text-lg font-semibold">
+            {job.quote_number ?? job.id.slice(0, 8)}
+          </h3>
         </div>
         <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-2.5 py-1 text-[11px] font-medium text-muted-foreground">
           <Clock className="h-3 w-3" /> {timeAgo(job.published_at)}
@@ -96,13 +98,17 @@ export function AvailableJobCard({
         <Fact icon={<MapPin className="h-3 w-3" />} label="Origin" value={place(job.origin_city, job.origin_state)} />
         <Fact icon={<MapPin className="h-3 w-3" />} label="Destination" value={place(job.destination_city, job.destination_state)} />
         <Fact icon={<Calendar className="h-3 w-3" />} label="Move date" value={formatDate(job.move_date)} />
-        <Fact icon={<RouteIcon className="h-3 w-3" />} label="Distance" value={job.distance_miles ? `${Math.round(job.distance_miles)} mi` : "—"} />
-        <Fact icon={<Boxes className="h-3 w-3" />} label="Volume" value={job.estimated_cubic_feet ? `${Math.round(job.estimated_cubic_feet)} cu ft` : "—"} />
+        <Fact
+          icon={<RouteIcon className="h-3 w-3" />}
+          label="Move type"
+          value={<span className="capitalize">{(job.move_type ?? "—").replace(/_/g, " ")}</span>}
+        />
         <Fact
           icon={<Boxes className="h-3 w-3" />}
-          label="Estimate"
-          value={`${money(job.estimated_low)} – ${money(job.estimated_high)}`}
+          label="Home size"
+          value={<span className="capitalize">{(job.property_type ?? "—").replace(/_/g, " ")}</span>}
         />
+        <Fact icon={<Boxes className="h-3 w-3" />} label="Volume" value={job.estimated_cubic_feet ? `${Math.round(job.estimated_cubic_feet)} cu ft` : "—"} />
       </div>
 
       {job.services && job.services.length > 0 && (
@@ -114,6 +120,11 @@ export function AvailableJobCard({
           ))}
         </div>
       )}
+
+      <p className="mt-4 text-[11px] text-muted-foreground">
+        Customer name, phone, email and exact addresses unlock after you claim this lead.
+      </p>
+
 
       <Button
         onClick={() => onClaim(job)}

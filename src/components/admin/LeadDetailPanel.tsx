@@ -22,6 +22,8 @@ import { SlaCountdown } from "./SlaCountdown";
 import { LeadPhaseBadge } from "./LeadPhaseBadge";
 import { LeadEventsTimeline } from "./LeadEventsTimeline";
 import { pauseSla, resumeSla, extendSla, closeLead } from "@/lib/leads.functions";
+import { LeadWorkflowActions } from "./LeadWorkflow";
+
 
 export const LEAD_STATUSES = ["new", "contacted", "scheduled", "accepted", "won", "lost", "cancelled"] as const;
 
@@ -83,7 +85,9 @@ type Quote = {
   visibility_mask: Record<string, boolean> | null;
   closed_reason: string | null;
   job_status?: string | null;
+  lead_status?: string | null;
 };
+
 
 
 function getCustomerName(q: Quote): string {

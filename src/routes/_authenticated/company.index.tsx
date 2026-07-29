@@ -3,12 +3,17 @@ import { useMemo } from "react";
 import {
   Globe, Truck, Users, FileText, Calendar, MessageSquare,
   FolderOpen, Building2, Settings, ArrowRight, Clock, CheckCircle2,
+  History, DollarSign,
 } from "lucide-react";
 import {
   CompanyHeader, NoCompanyScreen, StatusBanner, useMoverPortal,
 } from "@/components/company/portal-shared";
 import { StatCard, SkeletonRows } from "@/components/shell/Chrome";
-import { useCompanyJobs, type JobStatus } from "@/lib/company-jobs";
+import {
+  useCompanyJobs, ACTIVITY_LABEL, money, timeAgo, type JobStatus,
+} from "@/lib/company-jobs";
+import { useCommissions, useCompanyRecentActivity } from "@/lib/company-crm";
+
 
 export const Route = createFileRoute("/_authenticated/company/")({
   head: () => ({
@@ -23,6 +28,7 @@ export const Route = createFileRoute("/_authenticated/company/")({
 const WORKSPACE = [
   { to: "/company/jobs", label: "Available Jobs", desc: "Claim new open-market jobs first.", icon: Globe },
   { to: "/company/myjobs", label: "My Jobs", desc: "Claimed jobs and 12-hour response timers.", icon: Truck },
+  { to: "/company/history", label: "Job History", desc: "Claimed, active, completed and cancelled moves.", icon: History },
   { to: "/company/customers", label: "Customers", desc: "Your customer records and contact history.", icon: Users },
   { to: "/company/estimates", label: "Estimates", desc: "Build and send final quotes.", icon: FileText },
   { to: "/company/schedule", label: "Schedule", desc: "Upcoming moves on a calendar.", icon: Calendar },
@@ -35,14 +41,17 @@ const WORKSPACE = [
 function CompanyHome() {
   const { loading, company, merged, reload } = useMoverPortal();
   const { available, myJobs } = useCompanyJobs(company?.id ?? null);
+  const { pendingTotal } = useCommissions(company?.id ?? null);
+  const { activity } = useCompanyRecentActivity(company?.id ?? null);
 
   const stats = useMemo(() => {
     const closed: JobStatus[] = ["completed", "cancelled", "rejected", "expired"];
     return {
-      available: available.length,
+      claimed: myJobs.filter((j) => j.job_status === "claimed").length,
       active: myJobs.filter((j) => !closed.includes(j.job_status as JobStatus)).length,
-      awaiting: myJobs.filter((j) => j.job_status === "claimed").length,
-      booked: myJobs.filter((j) => j.job_status === "booked").length,
+      awaiting: myJobs.filter((j) => j.lead_status === "price_confirmed").length,
+      completed: myJobs.filter((j) => j.job_status === "completed").length,
+      available: available.length,
       leads: merged.length,
     };
   }, [available, myJobs, merged]);
@@ -61,12 +70,30 @@ function CompanyHome() {
       <CompanyHeader company={company} onRefresh={reload} />
       <StatusBanner company={company} />
 
-      <section className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
-        <StatCard label="Available jobs" value={stats.available} icon={<Globe className="h-4 w-4" />} tone="info" hint="Open market" />
-        <StatCard label="Active jobs" value={stats.active} icon={<Truck className="h-4 w-4" />} hint="Claimed by you" />
-        <StatCard label="Awaiting response" value={stats.awaiting} icon={<Clock className="h-4 w-4" />} tone="warning" hint="12-hour timer" />
-        <StatCard label="Booked" value={stats.booked} icon={<CheckCircle2 className="h-4 w-4" />} tone="success" hint="Customer accepted" />
+      <section className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-5">
+        <StatCard label="New claimed leads" value={stats.claimed} icon={<Clock className="h-4 w-4" />} tone="warning" hint="Awaiting first contact" />
+        <StatCard label="Active jobs" value={stats.active} icon={<Truck className="h-4 w-4" />} hint="In progress" />
+        <StatCard label="Awaiting customer" value={stats.awaiting} icon={<Globe className="h-4 w-4" />} tone="info" hint="Price confirmed" />
+        <StatCard label="Completed moves" value={stats.completed} icon={<CheckCircle2 className="h-4 w-4" />} tone="success" hint="Delivered" />
+        <StatCard label="Commission pending" value={money(pendingTotal)} icon={<DollarSign className="h-4 w-4" />} hint="Not yet processed" />
       </section>
+
+      <section className="rounded-2xl border border-border bg-card p-4 sm:p-5">
+        <h2 className="text-base font-semibold">Recent activity</h2>
+        {activity.length === 0 ? (
+          <p className="mt-3 text-sm text-muted-foreground">No activity yet — claim a job to get started.</p>
+        ) : (
+          <ol className="mt-4 space-y-3">
+            {activity.map((a) => (
+              <li key={a.id} className="flex items-start justify-between gap-3 border-b border-border/60 pb-3 last:border-0 last:pb-0">
+                <span className="text-sm">{ACTIVITY_LABEL[a.action] ?? a.action.replace(/_/g, " ")}</span>
+                <span className="shrink-0 text-xs text-muted-foreground">{timeAgo(a.created_at)}</span>
+              </li>
+            ))}
+          </ol>
+        )}
+      </section>
+
 
       <section>
         <h2 className="mb-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">

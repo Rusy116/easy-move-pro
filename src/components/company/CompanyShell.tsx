@@ -2,7 +2,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import {
   LayoutDashboard, Inbox, Lock, Globe, FileText, Calendar,
   Users, MessageSquare, Receipt, BarChart3, Bell, FolderOpen,
-  Building2, Settings, LifeBuoy, ShieldAlert, Clock, Truck, History as HistoryIcon,
+  Building2, Settings, Wallet, LifeBuoy, ShieldAlert, Clock, Truck, History as HistoryIcon,
 } from "lucide-react";
 import { RoleShell } from "@/components/shell/RoleShell";
 import { RoleGuard } from "@/components/auth/RoleGuard";
@@ -24,6 +24,7 @@ const FULL_NAV = [
   { to: "/company/customers",     label: "Customers",     icon: <Users className="h-4 w-4" /> },
   { to: "/company/messages",      label: "Messages",      icon: <MessageSquare className="h-4 w-4" /> },
   { to: "/company/invoices",      label: "Invoices",      icon: <Receipt className="h-4 w-4" /> },
+  { to: "/company/finance",       label: "Commissions",   icon: <Wallet className="h-4 w-4" /> },
   { to: "/company/documents",     label: "Documents",     icon: <FolderOpen className="h-4 w-4" /> },
   { to: "/company/analytics",     label: "Analytics",     icon: <BarChart3 className="h-4 w-4" /> },
   { to: "/company/notifications", label: "Notifications", icon: <Bell className="h-4 w-4" /> },

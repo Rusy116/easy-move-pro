@@ -2,6 +2,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import type {} from "@tanstack/react-start";
 import { STATES, CITIES } from "@/lib/seo/locations";
 import { PRODUCT_PAGES, EDUCATION_PAGES, COMPARISON_PAGES } from "@/lib/seo/content";
+import { GEO_STATES, GEO_CITIES, GEO_ROUTES, cityPath, statePath, routePath } from "@/lib/seo/geo";
+
 
 const BASE_URL = "";
 

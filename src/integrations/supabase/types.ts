@@ -158,6 +158,101 @@ export type Database = {
         }
         Relationships: []
       }
+      commission_invoices: {
+        Row: {
+          amount: number
+          broker_id: string | null
+          cancelled_at: string | null
+          commission_id: string
+          company_id: string
+          created_at: string
+          currency: string
+          customer_id: string | null
+          due_date: string
+          final_price: number
+          id: string
+          issue_date: string
+          notes: string | null
+          number: string
+          paid_at: string | null
+          quote_id: string
+          rate: number
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          broker_id?: string | null
+          cancelled_at?: string | null
+          commission_id: string
+          company_id: string
+          created_at?: string
+          currency?: string
+          customer_id?: string | null
+          due_date?: string
+          final_price: number
+          id?: string
+          issue_date?: string
+          notes?: string | null
+          number: string
+          paid_at?: string | null
+          quote_id: string
+          rate: number
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          broker_id?: string | null
+          cancelled_at?: string | null
+          commission_id?: string
+          company_id?: string
+          created_at?: string
+          currency?: string
+          customer_id?: string | null
+          due_date?: string
+          final_price?: number
+          id?: string
+          issue_date?: string
+          notes?: string | null
+          number?: string
+          paid_at?: string | null
+          quote_id?: string
+          rate?: number
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "commission_invoices_commission_id_fkey"
+            columns: ["commission_id"]
+            isOneToOne: true
+            referencedRelation: "company_commissions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "commission_invoices_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "moving_companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "commission_invoices_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "mover_lead_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "commission_invoices_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "quotes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       company_activity: {
         Row: {
           action: string
@@ -275,11 +370,17 @@ export type Database = {
         Row: {
           amount: number
           base_price: number
+          broker_id: string | null
+          cancelled_at: string | null
           company_id: string
           created_at: string
           currency: string
+          customer_id: string | null
+          due_date: string | null
           id: string
+          invoice_id: string | null
           notes: string | null
+          paid_at: string | null
           quote_id: string
           rate: number
           status: string
@@ -288,11 +389,17 @@ export type Database = {
         Insert: {
           amount: number
           base_price: number
+          broker_id?: string | null
+          cancelled_at?: string | null
           company_id: string
           created_at?: string
           currency?: string
+          customer_id?: string | null
+          due_date?: string | null
           id?: string
+          invoice_id?: string | null
           notes?: string | null
+          paid_at?: string | null
           quote_id: string
           rate?: number
           status?: string
@@ -301,11 +408,17 @@ export type Database = {
         Update: {
           amount?: number
           base_price?: number
+          broker_id?: string | null
+          cancelled_at?: string | null
           company_id?: string
           created_at?: string
           currency?: string
+          customer_id?: string | null
+          due_date?: string | null
           id?: string
+          invoice_id?: string | null
           notes?: string | null
+          paid_at?: string | null
           quote_id?: string
           rate?: number
           status?: string
@@ -2641,6 +2754,10 @@ export type Database = {
         Args: { _quote_id: string }
         Returns: number
       }
+      fn_admin_set_commission_status: {
+        Args: { _commission_id: string; _note?: string; _status: string }
+        Returns: Json
+      }
       fn_assign_exclusive: {
         Args: { _company_id: string; _quote_id: string; _sla_hours?: number }
         Returns: {
@@ -2710,6 +2827,10 @@ export type Database = {
         }
       }
       fn_broker_qualify_lead: { Args: { _quote_id: string }; Returns: Json }
+      fn_cancel_commission_for_quote: {
+        Args: { _quote_id: string; _reason: string }
+        Returns: undefined
+      }
       fn_claim_expiry_tick: {
         Args: never
         Returns: {
@@ -2970,9 +3091,87 @@ export type Database = {
         Args: { _minutes: number; _quote_id: string }
         Returns: undefined
       }
+      fn_finance_audit: {
+        Args: {
+          _action: string
+          _after?: Json
+          _before?: Json
+          _entity_id: string
+          _entity_type: string
+          _quote_id: string
+          _reason?: string
+        }
+        Returns: undefined
+      }
+      fn_finance_broker_report: {
+        Args: never
+        Returns: {
+          broker_id: string
+          broker_name: string
+          invoices: number
+          outstanding: number
+          paid: number
+          total: number
+        }[]
+      }
+      fn_finance_company_report: {
+        Args: never
+        Returns: {
+          company_id: string
+          company_name: string
+          invoices: number
+          outstanding: number
+          overdue: number
+          paid: number
+          total: number
+        }[]
+      }
+      fn_finance_monthly_report: {
+        Args: { _months?: number }
+        Returns: {
+          cancelled: number
+          invoiced: number
+          invoices: number
+          month: string
+          outstanding: number
+          overdue: number
+          paid: number
+        }[]
+      }
+      fn_finance_overdue_tick: { Args: never; Returns: number }
       fn_force_open_market: {
         Args: { _quote_id: string; _reason?: string }
         Returns: undefined
+      }
+      fn_generate_commission_invoice: {
+        Args: { _commission_id: string }
+        Returns: {
+          amount: number
+          broker_id: string | null
+          cancelled_at: string | null
+          commission_id: string
+          company_id: string
+          created_at: string
+          currency: string
+          customer_id: string | null
+          due_date: string
+          final_price: number
+          id: string
+          issue_date: string
+          notes: string | null
+          number: string
+          paid_at: string | null
+          quote_id: string
+          rate: number
+          status: string
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "commission_invoices"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
       fn_is_company_member: { Args: { _company_id: string }; Returns: boolean }
       fn_job_log: {

@@ -1550,6 +1550,7 @@ function LocationBlock({
           onChangeText={(v) => onChange({ street: v })}
           biasZip={side.zip}
           bias={zipCenter}
+          disabled={!isValidZip(side.zip)}
           onSelect={(p: PlaceSelection) => {
             const parts = p.streetAddress.trim().split(/\s+/);
             const first = parts[0] ?? "";

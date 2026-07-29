@@ -50,6 +50,7 @@ import { Route as ApiPublicSlaTickRouteImport } from './routes/api/public/sla-ti
 import { Route as AuthenticatedCustomerQuotesRouteImport } from './routes/_authenticated/customer.quotes'
 import { Route as AuthenticatedCustomerMoveRouteImport } from './routes/_authenticated/customer.move'
 import { Route as AuthenticatedCustomerMessagesRouteImport } from './routes/_authenticated/customer.messages'
+import { Route as AuthenticatedCustomerDocumentsRouteImport } from './routes/_authenticated/customer.documents'
 import { Route as AuthenticatedCompanySupportRouteImport } from './routes/_authenticated/company.support'
 import { Route as AuthenticatedCompanySettingsRouteImport } from './routes/_authenticated/company.settings'
 import { Route as AuthenticatedCompanyScheduleRouteImport } from './routes/_authenticated/company.schedule'
@@ -287,6 +288,12 @@ const AuthenticatedCustomerMessagesRoute =
     path: '/customer/messages',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedCustomerDocumentsRoute =
+  AuthenticatedCustomerDocumentsRouteImport.update({
+    id: '/customer/documents',
+    path: '/customer/documents',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedCompanySupportRoute =
   AuthenticatedCompanySupportRouteImport.update({
     id: '/support',
@@ -500,6 +507,7 @@ export interface FileRoutesByFullPath {
   '/company/schedule': typeof AuthenticatedCompanyScheduleRoute
   '/company/settings': typeof AuthenticatedCompanySettingsRoute
   '/company/support': typeof AuthenticatedCompanySupportRoute
+  '/customer/documents': typeof AuthenticatedCustomerDocumentsRoute
   '/customer/messages': typeof AuthenticatedCustomerMessagesRoute
   '/customer/move': typeof AuthenticatedCustomerMoveRoute
   '/customer/quotes': typeof AuthenticatedCustomerQuotesRoute
@@ -567,6 +575,7 @@ export interface FileRoutesByTo {
   '/company/schedule': typeof AuthenticatedCompanyScheduleRoute
   '/company/settings': typeof AuthenticatedCompanySettingsRoute
   '/company/support': typeof AuthenticatedCompanySupportRoute
+  '/customer/documents': typeof AuthenticatedCustomerDocumentsRoute
   '/customer/messages': typeof AuthenticatedCustomerMessagesRoute
   '/customer/move': typeof AuthenticatedCustomerMoveRoute
   '/customer/quotes': typeof AuthenticatedCustomerQuotesRoute
@@ -637,6 +646,7 @@ export interface FileRoutesById {
   '/_authenticated/company/schedule': typeof AuthenticatedCompanyScheduleRoute
   '/_authenticated/company/settings': typeof AuthenticatedCompanySettingsRoute
   '/_authenticated/company/support': typeof AuthenticatedCompanySupportRoute
+  '/_authenticated/customer/documents': typeof AuthenticatedCustomerDocumentsRoute
   '/_authenticated/customer/messages': typeof AuthenticatedCustomerMessagesRoute
   '/_authenticated/customer/move': typeof AuthenticatedCustomerMoveRoute
   '/_authenticated/customer/quotes': typeof AuthenticatedCustomerQuotesRoute
@@ -707,6 +717,7 @@ export interface FileRouteTypes {
     | '/company/schedule'
     | '/company/settings'
     | '/company/support'
+    | '/customer/documents'
     | '/customer/messages'
     | '/customer/move'
     | '/customer/quotes'
@@ -774,6 +785,7 @@ export interface FileRouteTypes {
     | '/company/schedule'
     | '/company/settings'
     | '/company/support'
+    | '/customer/documents'
     | '/customer/messages'
     | '/customer/move'
     | '/customer/quotes'
@@ -843,6 +855,7 @@ export interface FileRouteTypes {
     | '/_authenticated/company/schedule'
     | '/_authenticated/company/settings'
     | '/_authenticated/company/support'
+    | '/_authenticated/customer/documents'
     | '/_authenticated/customer/messages'
     | '/_authenticated/customer/move'
     | '/_authenticated/customer/quotes'
@@ -1178,6 +1191,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCustomerMessagesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/customer/documents': {
+      id: '/_authenticated/customer/documents'
+      path: '/customer/documents'
+      fullPath: '/customer/documents'
+      preLoaderRoute: typeof AuthenticatedCustomerDocumentsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/company/support': {
       id: '/_authenticated/company/support'
       path: '/support'
@@ -1424,6 +1444,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminSettingsRoute: typeof AuthenticatedAdminSettingsRoute
   AuthenticatedAdminUsersRoute: typeof AuthenticatedAdminUsersRoute
   AuthenticatedBrokerPerformanceRoute: typeof AuthenticatedBrokerPerformanceRoute
+  AuthenticatedCustomerDocumentsRoute: typeof AuthenticatedCustomerDocumentsRoute
   AuthenticatedCustomerMessagesRoute: typeof AuthenticatedCustomerMessagesRoute
   AuthenticatedCustomerMoveRoute: typeof AuthenticatedCustomerMoveRoute
   AuthenticatedCustomerQuotesRoute: typeof AuthenticatedCustomerQuotesRoute
@@ -1441,6 +1462,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminSettingsRoute: AuthenticatedAdminSettingsRoute,
   AuthenticatedAdminUsersRoute: AuthenticatedAdminUsersRoute,
   AuthenticatedBrokerPerformanceRoute: AuthenticatedBrokerPerformanceRoute,
+  AuthenticatedCustomerDocumentsRoute: AuthenticatedCustomerDocumentsRoute,
   AuthenticatedCustomerMessagesRoute: AuthenticatedCustomerMessagesRoute,
   AuthenticatedCustomerMoveRoute: AuthenticatedCustomerMoveRoute,
   AuthenticatedCustomerQuotesRoute: AuthenticatedCustomerQuotesRoute,

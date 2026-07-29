@@ -160,15 +160,19 @@ export function AddressAutocomplete({
     };
   }
 
-  // Debounced fetch of suggestions
+  // Debounced fetch of suggestions.
+  //
+  // Single deterministic strategy: the server gateway is the primary provider
+  // (it is not referrer-restricted, so it behaves identically in preview and in
+  // production). The browser Maps JS path is only a secondary fallback. Any
+  // failure of BOTH paths is surfaced in the UI instead of leaving an empty
+  // dropdown.
   useEffect(() => {
-    // No early return while Maps JS is still loading — the server path below
-    // handles those keystrokes, and the effect re-runs once JS becomes ready.
-
     if (debounceRef.current) window.clearTimeout(debounceRef.current);
     const q = value.trim();
     if (q.length < 2) {
       setRows([]);
+      setError(null);
       setLoading(false);
       return;
     }
@@ -177,46 +181,36 @@ export function AddressAutocomplete({
     debounceRef.current = window.setTimeout(async () => {
       let next: Row[] = [];
       let message: string | null = null;
-      const preferServer = Boolean(normalizedBiasZip);
-      let tryServer = preferServer || useServerRef.current || !jsReady;
-      if (!preferServer && !useServerRef.current && jsReady) {
-        try {
-          next = await fetchViaBrowser(q);
-          // A referrer-blocked key can resolve with zero suggestions instead of
-          // rejecting, so an empty result also falls through to the server.
-          if (next.length === 0) tryServer = true;
-        } catch {
-          // Browser key rejected (referrer restriction) or transient API error —
-          // switch to the server gateway for the rest of the session.
-          useServerRef.current = true;
-          tryServer = true;
+
+      try {
+        const fromServer = await fetchViaServer(q);
+        next = fromServer.rows;
+        if (next.length === 0 && fromServer.error) {
+          console.error(`[places] autocomplete unavailable: ${fromServer.error}`);
+          message =
+            fromServer.error === "not_configured"
+              ? "Address lookup isn't configured — add a Google Maps credential to enable suggestions."
+              : "Address lookup is temporarily unavailable — please type the address manually.";
         }
+      } catch (e) {
+        console.error("[places] autocomplete request failed", e);
+        message = "Address lookup is temporarily unavailable — please type the address manually.";
       }
 
-      if (tryServer) {
-        try {
-          const fromServer = await fetchViaServer(q);
-          if (fromServer.rows.length > 0 || useServerRef.current) next = fromServer.rows;
-          if (next.length === 0 && fromServer.error) {
-            console.error(`[places] autocomplete unavailable: ${fromServer.error}`);
-            message = null;
-          }
-        } catch {
-          if (next.length === 0) message = null;
-        }
-      }
-
-      if (next.length === 0 && preferServer && !useServerRef.current && jsReady) {
+      // Secondary: browser Maps JS (only if it loaded and the server returned nothing).
+      if (next.length === 0 && jsReady && !jsFailed) {
         try {
           next = await fetchViaBrowser(q);
-        } catch {
+          if (next.length > 0) message = null;
+        } catch (err) {
+          console.warn("[places] browser fallback failed", err);
           useServerRef.current = true;
         }
       }
 
       if (reqId !== reqIdRef.current) return;
       setRows(next);
-      setError(message);
+      setError(next.length > 0 ? null : message);
       setOpen(next.length > 0);
       setActiveIdx(0);
       setLoading(false);
@@ -226,6 +220,7 @@ export function AddressAutocomplete({
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value, jsReady, jsFailed, bias?.lat, bias?.lng, bias?.radiusMeters, normalizedBiasZip]);
+
 
   async function pick(row: Row) {
     if (!row) return;

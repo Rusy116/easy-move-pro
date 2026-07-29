@@ -25,7 +25,19 @@ export const Route = createFileRoute("/sitemap.xml")({
           // SEO Partner Acquisition
           { path: "/partners", changefreq: "weekly", priority: "0.9" },
           { path: "/join", changefreq: "monthly", priority: "0.8" },
+          { path: "/for-movers", changefreq: "weekly", priority: "0.9" },
+          { path: "/resources", changefreq: "weekly", priority: "0.7" },
+          { path: "/ai-tools", changefreq: "monthly", priority: "0.7" },
+          { path: "/states", changefreq: "monthly", priority: "0.8" },
+          { path: "/routes", changefreq: "monthly", priority: "0.8" },
         ];
+
+        // Geo platform pages
+        GEO_STATES.forEach((s) => entries.push({ path: statePath(s), changefreq: "monthly", priority: "0.7" }));
+        GEO_CITIES.forEach((c) => entries.push({ path: cityPath(c), changefreq: "monthly", priority: "0.7" }));
+        GEO_ROUTES.forEach((r) => entries.push({ path: routePath(r), changefreq: "monthly", priority: "0.6" }));
+
+
 
         const citySlugs = [
           "new-york","los-angeles","chicago","austin","san-francisco","miami",

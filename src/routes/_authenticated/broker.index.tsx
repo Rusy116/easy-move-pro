@@ -14,7 +14,14 @@ import {
 } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { LeadDetailPanel } from "@/components/admin/LeadDetailPanel";
+import { LeadStatusBadge } from "@/components/admin/LeadWorkflow";
+import { useBrokers } from "@/components/admin/BrokerSelect";
+import {
+  ALL_LEAD_STATUSES, BROKER_QUEUES, BROKER_QUEUE_LABEL, LEAD_STATUS_LABEL,
+  type BrokerQueue, type LeadStatus,
+} from "@/lib/lead-status";
 import { toast } from "sonner";
+
 
 export const Route = createFileRoute("/_authenticated/broker/")({
   head: () => ({ meta: [{ title: "Broker leads — Easy Move Pro" }] }),
@@ -39,14 +46,23 @@ type Lead = {
   estimated_high: number;
 };
 
-const STATUSES = ["all", "new", "contacted", "scheduled", "accepted", "won", "lost", "cancelled"];
+const STATUSES = ["all", ...ALL_LEAD_STATUSES];
+const MOVE_TYPES = ["all", "local", "long_distance", "interstate"];
 
 function BrokerLeadsPage() {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
   const [q, setQ] = useState("");
+  const [queue, setQueue] = useState<BrokerQueue>("all");
   const [status, setStatus] = useState("all");
+  const [stateFilter, setStateFilter] = useState("all");
+  const [cityFilter, setCityFilter] = useState("all");
+  const [moveType, setMoveType] = useState("all");
+  const [brokerFilter, setBrokerFilter] = useState("all");
+  const [moveFrom, setMoveFrom] = useState("");
+  const [moveTo, setMoveTo] = useState("");
   const [selected, setSelected] = useState<Lead | null>(null);
+
 
   useEffect(() => {
     (async () => {

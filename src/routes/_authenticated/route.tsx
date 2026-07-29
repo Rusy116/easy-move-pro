@@ -3,13 +3,6 @@ import { supabase } from "@/integrations/supabase/client";
 
 const AUTH_RESTORE_RETRY_DELAYS_MS = [0, 150, 350, 700, 1200];
 
-function redirectPreviewProtectedRouteToSessionOrigin() {
-  const previewMatch = window.location.host.match(/^id-preview--(.+)\.lovable\.app$/);
-  if (!previewMatch) return null;
-
-  return `https://${previewMatch[1]}.lovableproject.com${window.location.pathname}${window.location.search}${window.location.hash}`;
-}
-
 async function waitForAuthenticatedUser() {
   for (const delay of AUTH_RESTORE_RETRY_DELAYS_MS) {
     if (delay > 0) {
@@ -36,12 +29,6 @@ async function waitForAuthenticatedUser() {
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
   beforeLoad: async () => {
-    const previewSessionOrigin = redirectPreviewProtectedRouteToSessionOrigin();
-    if (previewSessionOrigin) {
-      window.location.replace(previewSessionOrigin);
-      await new Promise<never>(() => {});
-    }
-
     const user = await waitForAuthenticatedUser();
     if (!user) throw redirect({ to: "/auth" });
     return { user };

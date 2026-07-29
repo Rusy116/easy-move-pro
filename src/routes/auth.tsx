@@ -32,12 +32,6 @@ export const Route = createFileRoute("/auth")({
   component: AuthPage,
 });
 
-function getPreviewSessionOriginUrl() {
-  const previewMatch = window.location.host.match(/^id-preview--(.+)\.lovable\.app$/);
-  if (!previewMatch) return null;
-  return `https://${previewMatch[1]}.lovableproject.com${window.location.pathname}${window.location.search}${window.location.hash}`;
-}
-
 function AuthPage() {
   const navigate = useNavigate();
   const signIn = useServerFn(signInWithIdentifier);
@@ -46,11 +40,6 @@ function AuthPage() {
   const [password, setPassword] = useState("");
 
   useEffect(() => {
-    const previewSessionOrigin = getPreviewSessionOriginUrl();
-    if (previewSessionOrigin) {
-      window.location.replace(previewSessionOrigin);
-      return;
-    }
     loadRoleContext().then((ctx) => {
       if (ctx && ctx.status !== "disabled") {
         navigate({ to: homeForRoles(ctx.roles) as never });

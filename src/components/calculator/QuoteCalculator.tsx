@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Loader2,
   MapPin,
@@ -231,19 +231,37 @@ function loadDraftForm(): FormState | null {
   }
 }
 
+function isEmptyDraft(form: FormState): boolean {
+  return (
+    !form.origin.zip &&
+    !form.destination.zip &&
+    !form.origin.street &&
+    !form.destination.street &&
+    !form.fullName &&
+    !form.email &&
+    !form.phone &&
+    Object.values(form.inventory).every((count) => count === 0)
+  );
+}
+
 export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
   const [form, setForm] = useState<FormState>(() => createInitialForm());
+  const hasUserEditedRef = useRef(false);
 
   // Restore any saved draft after hydration (avoids SSR mismatch).
   useEffect(() => {
     const draft = loadDraftForm();
-    if (draft) setForm(draft);
+    if (draft && !hasUserEditedRef.current && !isEmptyDraft(draft)) setForm(draft);
   }, []);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
     const t = window.setTimeout(() => {
       try {
+        if (isEmptyDraft(form)) {
+          window.localStorage.removeItem(DRAFT_KEY);
+          return;
+        }
         window.localStorage.setItem(DRAFT_KEY, JSON.stringify({ savedAt: Date.now(), form }));
       } catch {
         /* storage unavailable */
@@ -273,20 +291,25 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
     fullName: string;
   } | null>(null);
 
-  const set = <K extends keyof FormState>(k: K, v: FormState[K]) =>
+  const set = <K extends keyof FormState>(k: K, v: FormState[K]) => {
+    hasUserEditedRef.current = true;
     setForm((s) => ({ ...s, [k]: v }));
+  };
 
-  const setSide = (which: "origin" | "destination", patch: Partial<SideState>) =>
+  const setSide = (which: "origin" | "destination", patch: Partial<SideState>) => {
+    hasUserEditedRef.current = true;
     setForm((s) => ({
       ...s,
       [which]: { ...s[which], ...patch },
     }));
+  };
 
   const setLocationSide = (
     which: "origin" | "destination",
     patch: Partial<SideState>,
     expectedZip?: string,
-  ) =>
+  ) => {
+    hasUserEditedRef.current = true;
     setForm((s) => {
       const current = s[which];
       if (expectedZip && current.zip !== expectedZip) return s;
@@ -295,6 +318,7 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
         [which]: { ...current, ...patch },
       };
     });
+  };
 
   // Resolve ZIPs (async — swap for Google Maps later)
   useEffect(() => {
@@ -397,6 +421,7 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
       /* ignore */
     }
     setForm(createInitialForm());
+    hasUserEditedRef.current = false;
 
     setOriginLoc(null);
     setDestLoc(null);

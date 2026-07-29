@@ -83,7 +83,7 @@ export async function autocompleteAddresses(
       };
     }>;
   };
-  const suggestions = (json.suggestions ?? [])
+  const mappedSuggestions = (json.suggestions ?? [])
     .map((s) => s.placePrediction)
     .filter((p): p is NonNullable<typeof p> => !!p?.placeId)
     .map((p) => ({
@@ -92,14 +92,18 @@ export async function autocompleteAddresses(
       mainText: p.structuredFormat?.mainText?.text ?? p.text?.text ?? "",
       secondaryText: p.structuredFormat?.secondaryText?.text ?? "",
     }))
-    .filter((s) => s.placeId)
-    .filter((s) => {
-      if (!zipContext) return true;
-      const hay = `${s.text} ${s.mainText} ${s.secondaryText}`.toLowerCase();
-      const state = zipContext.state.toLowerCase();
-      const cityMatches = zipContext.cities.some((city) => hay.includes(city.toLowerCase()));
-      return cityMatches && (!state || hay.includes(state));
-    })
+    .filter((s) => s.placeId);
+
+  const textScopedSuggestions = zipContext
+    ? mappedSuggestions.filter((s) => {
+        const hay = `${s.text} ${s.mainText} ${s.secondaryText}`.toLowerCase();
+        const state = zipContext.state.toLowerCase();
+        const cityMatches = zipContext.cities.some((city) => hay.includes(city.toLowerCase()));
+        return cityMatches && (!state || hay.includes(state));
+      })
+    : mappedSuggestions;
+
+  const suggestions = (textScopedSuggestions.length > 0 ? textScopedSuggestions : mappedSuggestions)
     .sort((a, b) => {
       if (!zipContext) return 0;
       const hayA = `${a.text} ${a.mainText} ${a.secondaryText}`.toLowerCase();
@@ -112,7 +116,11 @@ export async function autocompleteAddresses(
     })
     .slice(0, 6);
 
-  if (zipContext && suggestions.length === 0) {
+  if (zipContext && mappedSuggestions.length > 0 && textScopedSuggestions.length === 0) {
+    console.warn(
+      `[places] ZIP-restricted suggestions for ${zipContext.zip} did not include city/state text; using provider-restricted results`,
+    );
+  } else if (zipContext && suggestions.length === 0) {
     console.warn(
       `[places] no ZIP-scoped autocomplete suggestions for ${zipContext.zip} (${zipContext.cities.join(", ")}, ${zipContext.state})`,
     );

@@ -22,6 +22,8 @@ import { SlaCountdown } from "./SlaCountdown";
 import { LeadPhaseBadge } from "./LeadPhaseBadge";
 import { LeadEventsTimeline } from "./LeadEventsTimeline";
 import { pauseSla, resumeSla, extendSla, closeLead } from "@/lib/leads.functions";
+import { LeadWorkflowActions } from "./LeadWorkflow";
+
 
 export const LEAD_STATUSES = ["new", "contacted", "scheduled", "accepted", "won", "lost", "cancelled"] as const;
 
@@ -83,7 +85,9 @@ type Quote = {
   visibility_mask: Record<string, boolean> | null;
   closed_reason: string | null;
   job_status?: string | null;
+  lead_status?: string | null;
 };
+
 
 
 function getCustomerName(q: Quote): string {
@@ -222,6 +226,15 @@ export function LeadDetailPanel({
               )}
             </SheetTitle>
           </SheetHeader>
+
+          <div className="mt-3 rounded-lg border border-border bg-muted/30 p-3">
+            <div className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+              Lead workflow
+            </div>
+            <LeadWorkflowActions quoteId={q.id} status={q.lead_status} />
+          </div>
+
+
 
           <div className="mt-3 flex flex-wrap items-center gap-2">
             <Button asChild size="sm" disabled={!phone}>

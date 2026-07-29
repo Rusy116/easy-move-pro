@@ -215,9 +215,45 @@ interface SavedQuoteSnapshot {
 
 // ---------- Component --------------------------------------------------------
 
+// Auto-save the wizard between steps so a customer never loses progress.
+const DRAFT_KEY = "emp:quote-wizard-draft:v1";
+
+function loadDraftForm(): FormState | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = window.localStorage.getItem(DRAFT_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as { savedAt?: number; form?: FormState };
+    // Drafts expire after 7 days.
+    if (!parsed?.form || !parsed.savedAt || Date.now() - parsed.savedAt > 7 * 864e5) return null;
+    return { ...createInitialForm(), ...parsed.form };
+  } catch {
+    return null;
+  }
+}
 
 export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
   const [form, setForm] = useState<FormState>(() => createInitialForm());
+
+  // Restore any saved draft after hydration (avoids SSR mismatch).
+  useEffect(() => {
+    const draft = loadDraftForm();
+    if (draft) setForm(draft);
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const t = window.setTimeout(() => {
+      try {
+        window.localStorage.setItem(
+          DRAFT_KEY,
+          JSON.stringify({ savedAt: Date.now(), form }),
+        );
+      } catch { /* storage unavailable */ }
+    }, 400);
+    return () => window.clearTimeout(t);
+  }, [form]);
+
   const [originLoc, setOriginLoc] = useState<ZipLocation | null>(null);
   const [destLoc, setDestLoc] = useState<FromMaybeNull>(null);
   const [distance, setDistance] = useState<{
@@ -356,7 +392,9 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
   }, [form, distance]);
 
   function resetCalculatorForm() {
+    try { window.localStorage.removeItem(DRAFT_KEY); } catch { /* ignore */ }
     setForm(createInitialForm());
+
     setOriginLoc(null);
     setDestLoc(null);
     setDistance(null);

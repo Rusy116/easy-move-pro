@@ -267,3 +267,60 @@ export const ACTIVITY_LABEL: Record<string, string> = {
   customer_accepted_final: "Customer accepted the final quote",
   customer_rejected_final: "Customer rejected the final quote",
 };
+
+/* ------------------------------------------------------------------ */
+/*                     Marketplace engine (Phase 3)                    */
+/* ------------------------------------------------------------------ */
+
+export type ExpiredClaim = {
+  quote_id: string;
+  quote_number: string | null;
+  origin_city: string | null;
+  origin_state: string | null;
+  destination_city: string | null;
+  destination_state: string | null;
+  move_date: string | null;
+  claimed_at: string | null;
+  expires_at: string | null;
+  job_status: string | null;
+};
+
+/** Claims that ran past the 12-hour exclusive window and returned to the marketplace. */
+export function useExpiredClaims(companyId: string | null) {
+  const [rows, setRows] = useState<ExpiredClaim[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const reload = useCallback(async () => {
+    if (!companyId) return;
+    const { data } = await supabase.rpc("fn_company_expired_claims", {
+      _company_id: companyId,
+    } as never);
+    setRows((data ?? []) as ExpiredClaim[]);
+    setLoading(false);
+  }, [companyId]);
+
+  useEffect(() => {
+    void reload();
+  }, [reload]);
+
+  useEffect(() => {
+    if (!companyId) return;
+    const channel = supabase
+      .channel(`company-expired-${companyId}`)
+      .on("postgres_changes", { event: "*", schema: "public", table: "company_claims" }, () => void reload())
+      .subscribe();
+    return () => {
+      void supabase.removeChannel(channel);
+    };
+  }, [companyId, reload]);
+
+  return { rows, loading, reload };
+}
+
+/** Audit trail: record that a company opened a marketplace lead. */
+export async function logJobView(quoteId: string, companyId: string) {
+  await supabase.rpc("fn_company_log_view", {
+    _quote_id: quoteId,
+    _company_id: companyId,
+  } as never);
+}

@@ -2357,6 +2357,12 @@ export type Database = {
         }
       }
       fn_broker_qualify_lead: { Args: { _quote_id: string }; Returns: Json }
+      fn_claim_expiry_tick: {
+        Args: never
+        Returns: {
+          quote_id: string
+        }[]
+      }
       fn_close_lead: {
         Args: { _quote_id: string; _reason: string }
         Returns: undefined
@@ -2385,6 +2391,25 @@ export type Database = {
       fn_company_claim_job: {
         Args: { _company_id: string; _quote_id: string }
         Returns: Json
+      }
+      fn_company_expired_claims: {
+        Args: { _company_id: string }
+        Returns: {
+          claimed_at: string
+          destination_city: string
+          destination_state: string
+          expires_at: string
+          job_status: string
+          move_date: string
+          origin_city: string
+          origin_state: string
+          quote_id: string
+          quote_number: string
+        }[]
+      }
+      fn_company_log_view: {
+        Args: { _company_id: string; _quote_id: string }
+        Returns: undefined
       }
       fn_company_matches_lead: {
         Args: { _company_id: string; _quote_id: string }
@@ -2647,6 +2672,16 @@ export type Database = {
       fn_my_account_status: { Args: never; Returns: string }
       fn_my_company_ids: { Args: never; Returns: string[] }
       fn_my_primary_role: { Args: never; Returns: string }
+      fn_notify_marketplace: {
+        Args: {
+          _body: string
+          _company_id?: string
+          _quote_id: string
+          _title: string
+          _type: string
+        }
+        Returns: undefined
+      }
       fn_pause_sla: {
         Args: { _quote_id: string; _reason: string }
         Returns: undefined

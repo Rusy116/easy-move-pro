@@ -58,6 +58,7 @@ import { Route as AuthenticatedCompanyMarketplaceRouteImport } from './routes/_a
 import { Route as AuthenticatedCompanyLeadsRouteImport } from './routes/_authenticated/company.leads'
 import { Route as AuthenticatedCompanyJobsRouteImport } from './routes/_authenticated/company.jobs'
 import { Route as AuthenticatedCompanyInvoicesRouteImport } from './routes/_authenticated/company.invoices'
+import { Route as AuthenticatedCompanyHistoryRouteImport } from './routes/_authenticated/company.history'
 import { Route as AuthenticatedCompanyExpiredRouteImport } from './routes/_authenticated/company.expired'
 import { Route as AuthenticatedCompanyExclusiveRouteImport } from './routes/_authenticated/company.exclusive'
 import { Route as AuthenticatedCompanyEstimatesRouteImport } from './routes/_authenticated/company.estimates'
@@ -330,6 +331,12 @@ const AuthenticatedCompanyInvoicesRoute =
     path: '/invoices',
     getParentRoute: () => AuthenticatedCompanyRoute,
   } as any)
+const AuthenticatedCompanyHistoryRoute =
+  AuthenticatedCompanyHistoryRouteImport.update({
+    id: '/history',
+    path: '/history',
+    getParentRoute: () => AuthenticatedCompanyRoute,
+  } as any)
 const AuthenticatedCompanyExpiredRoute =
   AuthenticatedCompanyExpiredRouteImport.update({
     id: '/expired',
@@ -460,6 +467,7 @@ export interface FileRoutesByFullPath {
   '/company/estimates': typeof AuthenticatedCompanyEstimatesRoute
   '/company/exclusive': typeof AuthenticatedCompanyExclusiveRoute
   '/company/expired': typeof AuthenticatedCompanyExpiredRoute
+  '/company/history': typeof AuthenticatedCompanyHistoryRoute
   '/company/invoices': typeof AuthenticatedCompanyInvoicesRoute
   '/company/jobs': typeof AuthenticatedCompanyJobsRoute
   '/company/leads': typeof AuthenticatedCompanyLeadsRoute
@@ -523,6 +531,7 @@ export interface FileRoutesByTo {
   '/company/estimates': typeof AuthenticatedCompanyEstimatesRoute
   '/company/exclusive': typeof AuthenticatedCompanyExclusiveRoute
   '/company/expired': typeof AuthenticatedCompanyExpiredRoute
+  '/company/history': typeof AuthenticatedCompanyHistoryRoute
   '/company/invoices': typeof AuthenticatedCompanyInvoicesRoute
   '/company/jobs': typeof AuthenticatedCompanyJobsRoute
   '/company/leads': typeof AuthenticatedCompanyLeadsRoute
@@ -589,6 +598,7 @@ export interface FileRoutesById {
   '/_authenticated/company/estimates': typeof AuthenticatedCompanyEstimatesRoute
   '/_authenticated/company/exclusive': typeof AuthenticatedCompanyExclusiveRoute
   '/_authenticated/company/expired': typeof AuthenticatedCompanyExpiredRoute
+  '/_authenticated/company/history': typeof AuthenticatedCompanyHistoryRoute
   '/_authenticated/company/invoices': typeof AuthenticatedCompanyInvoicesRoute
   '/_authenticated/company/jobs': typeof AuthenticatedCompanyJobsRoute
   '/_authenticated/company/leads': typeof AuthenticatedCompanyLeadsRoute
@@ -655,6 +665,7 @@ export interface FileRouteTypes {
     | '/company/estimates'
     | '/company/exclusive'
     | '/company/expired'
+    | '/company/history'
     | '/company/invoices'
     | '/company/jobs'
     | '/company/leads'
@@ -718,6 +729,7 @@ export interface FileRouteTypes {
     | '/company/estimates'
     | '/company/exclusive'
     | '/company/expired'
+    | '/company/history'
     | '/company/invoices'
     | '/company/jobs'
     | '/company/leads'
@@ -783,6 +795,7 @@ export interface FileRouteTypes {
     | '/_authenticated/company/estimates'
     | '/_authenticated/company/exclusive'
     | '/_authenticated/company/expired'
+    | '/_authenticated/company/history'
     | '/_authenticated/company/invoices'
     | '/_authenticated/company/jobs'
     | '/_authenticated/company/leads'
@@ -1181,6 +1194,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCompanyInvoicesRouteImport
       parentRoute: typeof AuthenticatedCompanyRoute
     }
+    '/_authenticated/company/history': {
+      id: '/_authenticated/company/history'
+      path: '/history'
+      fullPath: '/company/history'
+      preLoaderRoute: typeof AuthenticatedCompanyHistoryRouteImport
+      parentRoute: typeof AuthenticatedCompanyRoute
+    }
     '/_authenticated/company/expired': {
       id: '/_authenticated/company/expired'
       path: '/expired'
@@ -1290,6 +1310,7 @@ interface AuthenticatedCompanyRouteChildren {
   AuthenticatedCompanyEstimatesRoute: typeof AuthenticatedCompanyEstimatesRoute
   AuthenticatedCompanyExclusiveRoute: typeof AuthenticatedCompanyExclusiveRoute
   AuthenticatedCompanyExpiredRoute: typeof AuthenticatedCompanyExpiredRoute
+  AuthenticatedCompanyHistoryRoute: typeof AuthenticatedCompanyHistoryRoute
   AuthenticatedCompanyInvoicesRoute: typeof AuthenticatedCompanyInvoicesRoute
   AuthenticatedCompanyJobsRoute: typeof AuthenticatedCompanyJobsRoute
   AuthenticatedCompanyLeadsRoute: typeof AuthenticatedCompanyLeadsRoute
@@ -1313,6 +1334,7 @@ const AuthenticatedCompanyRouteChildren: AuthenticatedCompanyRouteChildren = {
   AuthenticatedCompanyEstimatesRoute: AuthenticatedCompanyEstimatesRoute,
   AuthenticatedCompanyExclusiveRoute: AuthenticatedCompanyExclusiveRoute,
   AuthenticatedCompanyExpiredRoute: AuthenticatedCompanyExpiredRoute,
+  AuthenticatedCompanyHistoryRoute: AuthenticatedCompanyHistoryRoute,
   AuthenticatedCompanyInvoicesRoute: AuthenticatedCompanyInvoicesRoute,
   AuthenticatedCompanyJobsRoute: AuthenticatedCompanyJobsRoute,
   AuthenticatedCompanyLeadsRoute: AuthenticatedCompanyLeadsRoute,

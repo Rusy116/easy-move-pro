@@ -9,6 +9,9 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { SkeletonRows } from "@/components/shell/Chrome";
 import { EmptyState, Fact, JobStatusBadge, ResponseCountdown } from "@/components/company/JobsUI";
+import { FinalPriceCard } from "@/components/company/FinalPriceCard";
+import { InternalNotesCard } from "@/components/company/InternalNotesCard";
+
 import {
   ACTIVITY_LABEL, formatDate, money, place, timeAgo, logJobView,
   useCompanyJobs, useJobActivity, useMyCompany, type MyJob,
@@ -227,6 +230,16 @@ function JobDetailsPage() {
           </Button>
         </div>
       </section>
+
+      {/* Phase 4 — final price lock, revision history and internal notes */}
+      {company && (
+        <>
+          <FinalPriceCard job={job} companyId={company.id} onChanged={() => void reload()} />
+          <InternalNotesCard quoteId={job.id} companyId={company.id} />
+        </>
+      )}
+
+
 
       {/* Audit log */}
       <section className="rounded-2xl border border-border bg-card p-4 sm:p-5">

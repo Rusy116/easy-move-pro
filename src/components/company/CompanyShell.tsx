@@ -12,6 +12,8 @@ const FULL_NAV = [
   { to: "/company",               label: "Dashboard",      icon: <LayoutDashboard className="h-4 w-4" /> },
   { to: "/company/jobs",          label: "Available Jobs", icon: <Globe className="h-4 w-4" /> },
   { to: "/company/myjobs",        label: "My Jobs",        icon: <Truck className="h-4 w-4" /> },
+  { to: "/company/expired",       label: "Expired Claims", icon: <Clock className="h-4 w-4" /> },
+
   { to: "/company/leads",         label: "My Leads",      icon: <Inbox className="h-4 w-4" /> },
 
   { to: "/company/exclusive",     label: "Exclusive",     icon: <Lock className="h-4 w-4" /> },

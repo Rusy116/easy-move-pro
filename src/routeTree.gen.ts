@@ -48,6 +48,7 @@ import { Route as AuthenticatedBrokerIndexRouteImport } from './routes/_authenti
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as ApiPublicSlaTickRouteImport } from './routes/api/public/sla-tick'
 import { Route as AuthenticatedCustomerQuotesRouteImport } from './routes/_authenticated/customer.quotes'
+import { Route as AuthenticatedCustomerMoveRouteImport } from './routes/_authenticated/customer.move'
 import { Route as AuthenticatedCompanySupportRouteImport } from './routes/_authenticated/company.support'
 import { Route as AuthenticatedCompanySettingsRouteImport } from './routes/_authenticated/company.settings'
 import { Route as AuthenticatedCompanyScheduleRouteImport } from './routes/_authenticated/company.schedule'
@@ -273,6 +274,12 @@ const AuthenticatedCustomerQuotesRoute =
     path: '/customer/quotes',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedCustomerMoveRoute =
+  AuthenticatedCustomerMoveRouteImport.update({
+    id: '/customer/move',
+    path: '/customer/move',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedCompanySupportRoute =
   AuthenticatedCompanySupportRouteImport.update({
     id: '/support',
@@ -486,6 +493,7 @@ export interface FileRoutesByFullPath {
   '/company/schedule': typeof AuthenticatedCompanyScheduleRoute
   '/company/settings': typeof AuthenticatedCompanySettingsRoute
   '/company/support': typeof AuthenticatedCompanySupportRoute
+  '/customer/move': typeof AuthenticatedCustomerMoveRoute
   '/customer/quotes': typeof AuthenticatedCustomerQuotesRoute
   '/api/public/sla-tick': typeof ApiPublicSlaTickRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
@@ -551,6 +559,7 @@ export interface FileRoutesByTo {
   '/company/schedule': typeof AuthenticatedCompanyScheduleRoute
   '/company/settings': typeof AuthenticatedCompanySettingsRoute
   '/company/support': typeof AuthenticatedCompanySupportRoute
+  '/customer/move': typeof AuthenticatedCustomerMoveRoute
   '/customer/quotes': typeof AuthenticatedCustomerQuotesRoute
   '/api/public/sla-tick': typeof ApiPublicSlaTickRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
@@ -619,6 +628,7 @@ export interface FileRoutesById {
   '/_authenticated/company/schedule': typeof AuthenticatedCompanyScheduleRoute
   '/_authenticated/company/settings': typeof AuthenticatedCompanySettingsRoute
   '/_authenticated/company/support': typeof AuthenticatedCompanySupportRoute
+  '/_authenticated/customer/move': typeof AuthenticatedCustomerMoveRoute
   '/_authenticated/customer/quotes': typeof AuthenticatedCustomerQuotesRoute
   '/api/public/sla-tick': typeof ApiPublicSlaTickRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
@@ -687,6 +697,7 @@ export interface FileRouteTypes {
     | '/company/schedule'
     | '/company/settings'
     | '/company/support'
+    | '/customer/move'
     | '/customer/quotes'
     | '/api/public/sla-tick'
     | '/admin/'
@@ -752,6 +763,7 @@ export interface FileRouteTypes {
     | '/company/schedule'
     | '/company/settings'
     | '/company/support'
+    | '/customer/move'
     | '/customer/quotes'
     | '/api/public/sla-tick'
     | '/admin'
@@ -819,6 +831,7 @@ export interface FileRouteTypes {
     | '/_authenticated/company/schedule'
     | '/_authenticated/company/settings'
     | '/_authenticated/company/support'
+    | '/_authenticated/customer/move'
     | '/_authenticated/customer/quotes'
     | '/api/public/sla-tick'
     | '/_authenticated/admin/'
@@ -1138,6 +1151,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCustomerQuotesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/customer/move': {
+      id: '/_authenticated/customer/move'
+      path: '/customer/move'
+      fullPath: '/customer/move'
+      preLoaderRoute: typeof AuthenticatedCustomerMoveRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/company/support': {
       id: '/_authenticated/company/support'
       path: '/support'
@@ -1384,6 +1404,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminSettingsRoute: typeof AuthenticatedAdminSettingsRoute
   AuthenticatedAdminUsersRoute: typeof AuthenticatedAdminUsersRoute
   AuthenticatedBrokerPerformanceRoute: typeof AuthenticatedBrokerPerformanceRoute
+  AuthenticatedCustomerMoveRoute: typeof AuthenticatedCustomerMoveRoute
   AuthenticatedCustomerQuotesRoute: typeof AuthenticatedCustomerQuotesRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
   AuthenticatedBrokerIndexRoute: typeof AuthenticatedBrokerIndexRoute
@@ -1399,6 +1420,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminSettingsRoute: AuthenticatedAdminSettingsRoute,
   AuthenticatedAdminUsersRoute: AuthenticatedAdminUsersRoute,
   AuthenticatedBrokerPerformanceRoute: AuthenticatedBrokerPerformanceRoute,
+  AuthenticatedCustomerMoveRoute: AuthenticatedCustomerMoveRoute,
   AuthenticatedCustomerQuotesRoute: AuthenticatedCustomerQuotesRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
   AuthenticatedBrokerIndexRoute: AuthenticatedBrokerIndexRoute,

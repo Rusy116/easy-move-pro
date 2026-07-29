@@ -1122,6 +1122,204 @@ export type Database = {
           },
         ]
       }
+      customer_notifications: {
+        Row: {
+          body: string | null
+          created_at: string
+          id: string
+          payload: Json
+          quote_id: string | null
+          read_at: string | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string
+          id?: string
+          payload?: Json
+          quote_id?: string | null
+          read_at?: string | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          body?: string | null
+          created_at?: string
+          id?: string
+          payload?: Json
+          quote_id?: string | null
+          read_at?: string | null
+          title?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "customer_notifications_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "mover_lead_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "customer_notifications_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "quotes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      customer_preferences: {
+        Row: {
+          created_at: string
+          email_marketing: boolean
+          email_messages: boolean
+          email_status_updates: boolean
+          sms_status_updates: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email_marketing?: boolean
+          email_messages?: boolean
+          email_status_updates?: boolean
+          sms_status_updates?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email_marketing?: boolean
+          email_messages?: boolean
+          email_status_updates?: boolean
+          sms_status_updates?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      customer_purchases: {
+        Row: {
+          amount_cents: number
+          created_at: string
+          currency: string
+          download_url: string | null
+          id: string
+          product_id: string | null
+          purchased_at: string
+          status: string
+          title: string
+          user_id: string
+          version: string
+        }
+        Insert: {
+          amount_cents?: number
+          created_at?: string
+          currency?: string
+          download_url?: string | null
+          id?: string
+          product_id?: string | null
+          purchased_at?: string
+          status?: string
+          title: string
+          user_id: string
+          version?: string
+        }
+        Update: {
+          amount_cents?: number
+          created_at?: string
+          currency?: string
+          download_url?: string | null
+          id?: string
+          product_id?: string | null
+          purchased_at?: string
+          status?: string
+          title?: string
+          user_id?: string
+          version?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "customer_purchases_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "digital_products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      customer_reviews: {
+        Row: {
+          body: string | null
+          company_id: string | null
+          created_at: string
+          id: string
+          quote_id: string
+          rating_communication: number
+          rating_overall: number
+          rating_professionalism: number
+          rating_punctuality: number
+          title: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          body?: string | null
+          company_id?: string | null
+          created_at?: string
+          id?: string
+          quote_id: string
+          rating_communication: number
+          rating_overall: number
+          rating_professionalism: number
+          rating_punctuality: number
+          title?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          body?: string | null
+          company_id?: string | null
+          created_at?: string
+          id?: string
+          quote_id?: string
+          rating_communication?: number
+          rating_overall?: number
+          rating_professionalism?: number
+          rating_punctuality?: number
+          title?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "customer_reviews_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "moving_companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "customer_reviews_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: true
+            referencedRelation: "mover_lead_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "customer_reviews_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: true
+            referencedRelation: "quotes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       digital_products: {
         Row: {
           cover_url: string | null
@@ -1811,6 +2009,10 @@ export type Database = {
           assigned_company_id: string | null
           bedrooms: number
           breakdown: Json
+          cancellation_note: string | null
+          cancellation_reason: string | null
+          cancelled_at: string | null
+          cancelled_by: string | null
           claim_deadline_at: string | null
           claimed_at: string | null
           closed_at: string | null
@@ -1925,6 +2127,10 @@ export type Database = {
           assigned_company_id?: string | null
           bedrooms?: number
           breakdown?: Json
+          cancellation_note?: string | null
+          cancellation_reason?: string | null
+          cancelled_at?: string | null
+          cancelled_by?: string | null
           claim_deadline_at?: string | null
           claimed_at?: string | null
           closed_at?: string | null
@@ -2039,6 +2245,10 @@ export type Database = {
           assigned_company_id?: string | null
           bedrooms?: number
           breakdown?: Json
+          cancellation_note?: string | null
+          cancellation_reason?: string | null
+          cancelled_at?: string | null
+          cancelled_by?: string | null
           claim_deadline_at?: string | null
           claimed_at?: string | null
           closed_at?: string | null
@@ -2585,6 +2795,10 @@ export type Database = {
           assigned_company_id: string | null
           bedrooms: number
           breakdown: Json
+          cancellation_note: string | null
+          cancellation_reason: string | null
+          cancelled_at: string | null
+          cancelled_by: string | null
           claim_deadline_at: string | null
           claimed_at: string | null
           closed_at: string | null
@@ -2712,8 +2926,39 @@ export type Database = {
         Returns: Json
       }
       fn_current_mover_company: { Args: never; Returns: string }
+      fn_customer_cancel_move: {
+        Args: { _note: string; _quote_id: string; _reason: string }
+        Returns: Json
+      }
+      fn_customer_confirm_move: { Args: { _quote_id: string }; Returns: Json }
+      fn_customer_notify: {
+        Args: {
+          _body: string
+          _quote_id: string
+          _title: string
+          _type: string
+          _user_id: string
+        }
+        Returns: undefined
+      }
       fn_customer_respond_final_quote: {
         Args: { _accept: boolean; _quote_number: string; _token: string }
+        Returns: Json
+      }
+      fn_customer_start_conversation: {
+        Args: { _quote_id: string }
+        Returns: string
+      }
+      fn_customer_submit_review: {
+        Args: {
+          _body: string
+          _communication: number
+          _overall: number
+          _professionalism: number
+          _punctuality: number
+          _quote_id: string
+          _title: string
+        }
         Returns: Json
       }
       fn_distribute_lead: {
@@ -2851,6 +3096,7 @@ export type Database = {
         }
         Returns: undefined
       }
+      fn_owns_quote: { Args: { _quote_id: string }; Returns: boolean }
       fn_pause_sla: {
         Args: { _quote_id: string; _reason: string }
         Returns: undefined
@@ -2919,6 +3165,10 @@ export type Database = {
           assigned_company_id: string | null
           bedrooms: number
           breakdown: Json
+          cancellation_note: string | null
+          cancellation_reason: string | null
+          cancelled_at: string | null
+          cancelled_by: string | null
           claim_deadline_at: string | null
           claimed_at: string | null
           closed_at: string | null

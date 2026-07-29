@@ -1,10 +1,22 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { LogOut, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
+import {
+  isFeatureEnabled,
+  readLocalOverrides,
+  type FeatureFlag,
+} from "@/lib/feature-flags";
+import { loadRoleContext, type PlatformRole } from "@/lib/roles";
 
-export type ShellNavItem = { to: string; label: string; icon?: ReactNode };
+export type ShellNavItem = {
+  to: string;
+  label: string;
+  icon?: ReactNode;
+  /** Optional feature flag — item is hidden when the flag is off. */
+  flag?: FeatureFlag;
+};
 
 export type RoleShellProps = {
   brand: string;
@@ -26,10 +38,22 @@ export function RoleShell({ brand, eyebrow, accent, nav, children }: RoleShellPr
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const [email, setEmail] = useState<string>("");
   const [open, setOpen] = useState(false);
+  const [role, setRole] = useState<PlatformRole | null>(null);
+  const [flagOverrides, setFlagOverrides] = useState<Partial<Record<FeatureFlag, boolean>>>(
+    {},
+  );
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => setEmail(data.user?.email ?? ""));
+    setFlagOverrides(readLocalOverrides());
+    loadRoleContext().then((ctx) => setRole(ctx?.primaryRole ?? null));
   }, []);
+
+  const visibleNav = useMemo(
+    () => nav.filter((n) => !n.flag || isFeatureEnabled(n.flag, role, flagOverrides)),
+    [nav, role, flagOverrides],
+  );
+
 
   async function signOut() {
     await supabase.auth.signOut();

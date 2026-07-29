@@ -41,8 +41,11 @@ export async function autocompleteAddresses(
   zip?: string,
 ): Promise<PlaceSuggestion[]> {
   const zipContext = zip ? await resolveZipCities(zip).catch(() => null) : null;
+  const scopedInput = zipContext
+    ? `${input}, ${zipContext.primary}, ${zipContext.state} ${zipContext.zip}`
+    : input;
   const body: Record<string, unknown> = {
-    input,
+    input: scopedInput,
     includedRegionCodes: ["us"],
   };
 
@@ -80,15 +83,23 @@ export async function autocompleteAddresses(
       };
     }>;
   };
-  return (json.suggestions ?? [])
+  const suggestions = (json.suggestions ?? [])
     .map((s) => s.placePrediction)
     .filter((p): p is NonNullable<typeof p> => !!p?.placeId)
     .map((p) => ({
-      placeId: p.placeId!,
+      placeId: p.placeId ?? "",
       text: p.text?.text ?? "",
       mainText: p.structuredFormat?.mainText?.text ?? p.text?.text ?? "",
       secondaryText: p.structuredFormat?.secondaryText?.text ?? "",
     }))
+    .filter((s) => s.placeId)
+    .filter((s) => {
+      if (!zipContext) return true;
+      const hay = `${s.text} ${s.mainText} ${s.secondaryText}`.toLowerCase();
+      const state = zipContext.state.toLowerCase();
+      const cityMatches = zipContext.cities.some((city) => hay.includes(city.toLowerCase()));
+      return cityMatches && (!state || hay.includes(state));
+    })
     .sort((a, b) => {
       if (!zipContext) return 0;
       const hayA = `${a.text} ${a.mainText} ${a.secondaryText}`.toLowerCase();
@@ -100,6 +111,14 @@ export async function autocompleteAddresses(
       return score(hayB) - score(hayA);
     })
     .slice(0, 6);
+
+  if (zipContext && suggestions.length === 0) {
+    console.warn(
+      `[places] no ZIP-scoped autocomplete suggestions for ${zipContext.zip} (${zipContext.cities.join(", ")}, ${zipContext.state})`,
+    );
+  }
+
+  return suggestions;
 }
 
 export async function placeDetailsById(placeId: string): Promise<PlaceDetailsResult | null> {

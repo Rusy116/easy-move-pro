@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Loader2, MapPin, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { hasPublicBrowserPlacesKey, loadGoogleMaps } from "@/lib/google-maps-loader";
 import { placeDetails, placesAutocomplete } from "@/lib/places.functions";
 import { cn } from "@/lib/utils";
 
@@ -33,19 +32,13 @@ interface Row {
   placeId: string;
   main: string;
   secondary: string;
-  /** Present only for browser-JS suggestions; enables session-token details. */
-  prediction?: google.maps.places.PlacePrediction;
 }
 
 /**
- * Places API (New) address autocomplete.
- *
- * Primary path: Maps JS `AutocompleteSuggestion` in the browser.
- * Fallback path: server function through the Google Maps connector gateway.
- * The fallback keeps suggestions working when the referrer-restricted browser
- * key is rejected (403) on the current origin, or when the Maps JS script can't
- * load at all — previously those failures were swallowed and the dropdown
- * silently stayed empty.
+ * Places API (New) address autocomplete through the server connector gateway.
+ * The server path is the single source of truth so production domains are not
+ * affected by browser referrer restrictions, missing public keys, or competing
+ * browser/server result ordering.
  */
 export function AddressAutocomplete({
   placeholder,
@@ -57,44 +50,15 @@ export function AddressAutocomplete({
   disabled: disabledProp,
   className,
 }: Props) {
-  const [jsReady, setJsReady] = useState(false);
-  const [jsFailed, setJsFailed] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [rows, setRows] = useState<Row[]>([]);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [activeIdx, setActiveIdx] = useState(0);
 
-  // Once the browser path errors we stop retrying it for the rest of the session.
-  const useServerRef = useRef(!hasPublicBrowserPlacesKey());
-  const sessionTokenRef = useRef<google.maps.places.AutocompleteSessionToken | null>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
   const debounceRef = useRef<number | null>(null);
   const reqIdRef = useRef(0);
-
-  // Load Maps JS API + Places library (best effort — failure falls back to server)
-  useEffect(() => {
-    if (useServerRef.current) return;
-    let cancelled = false;
-    loadGoogleMaps()
-      .then(async (g) => {
-        await g.maps.importLibrary("places");
-        if (cancelled) return;
-        sessionTokenRef.current = new g.maps.places.AutocompleteSessionToken();
-        setJsReady(true);
-      })
-      .catch((err) => {
-        if (cancelled) return;
-        // Surface the exact reason (missing key / blocked script / timeout)
-        // instead of silently leaving an empty dropdown.
-        console.warn("[address-autocomplete] Maps JS unavailable, using server fallback:", err);
-        useServerRef.current = true;
-        setJsFailed(true);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -106,41 +70,6 @@ export function AddressAutocomplete({
   }, []);
 
   const normalizedBiasZip = biasZip && /^\d{5}$/.test(biasZip) ? biasZip : undefined;
-
-  async function fetchViaBrowser(q: string): Promise<Row[]> {
-    const { AutocompleteSuggestion } = (await window.google.maps.importLibrary(
-      "places",
-    )) as google.maps.PlacesLibrary;
-    const request: google.maps.places.AutocompleteRequest = {
-      input: normalizedBiasZip ? `${q} ${normalizedBiasZip}` : q,
-      sessionToken: sessionTokenRef.current ?? undefined,
-      includedRegionCodes: ["us"],
-    };
-    if (bias) {
-      request.locationBias = {
-        center: { lat: bias.lat, lng: bias.lng },
-        radius: bias.radiusMeters ?? 15000,
-      } as google.maps.CircleLiteral;
-    }
-    // A blocked key can leave this promise pending forever, so bound the wait.
-    const { suggestions } = await Promise.race([
-      AutocompleteSuggestion.fetchAutocompleteSuggestions(request),
-      new Promise<never>((_, rej) =>
-        window.setTimeout(() => rej(new Error("places-js-timeout")), 3500),
-      ),
-    ]);
-
-    return suggestions
-      .map((s) => s.placePrediction)
-      .filter((p): p is google.maps.places.PlacePrediction => !!p)
-      .slice(0, 6)
-      .map((p) => ({
-        placeId: p.placeId ?? "",
-        main: p.mainText?.text ?? p.text.text,
-        secondary: p.secondaryText?.text ?? "",
-        prediction: p,
-      }));
-  }
 
   async function fetchViaServer(q: string): Promise<{ rows: Row[]; error?: string }> {
     const res = await placesAutocomplete({
@@ -160,13 +89,9 @@ export function AddressAutocomplete({
     };
   }
 
-  // Debounced fetch of suggestions.
-  //
-  // Single deterministic strategy: the server gateway is the primary provider
-  // (it is not referrer-restricted, so it behaves identically in preview and in
-  // production). The browser Maps JS path is only a secondary fallback. Any
-  // failure of BOTH paths is surfaced in the UI instead of leaving an empty
-  // dropdown.
+  // Debounced fetch of suggestions. The server gateway is intentionally the
+  // only provider: ZIP/city/state biasing, credentials, and error messaging all
+  // live in one place instead of racing duplicate browser/server lookups.
   useEffect(() => {
     if (debounceRef.current) window.clearTimeout(debounceRef.current);
     const q = value.trim();
@@ -197,17 +122,6 @@ export function AddressAutocomplete({
         message = "Address lookup is temporarily unavailable — please type the address manually.";
       }
 
-      // Secondary: browser Maps JS (only if it loaded and the server returned nothing).
-      if (next.length === 0 && jsReady && !jsFailed) {
-        try {
-          next = await fetchViaBrowser(q);
-          if (next.length > 0) message = null;
-        } catch (err) {
-          console.warn("[places] browser fallback failed", err);
-          useServerRef.current = true;
-        }
-      }
-
       if (reqId !== reqIdRef.current) return;
       setRows(next);
       setError(next.length > 0 ? null : message);
@@ -219,7 +133,7 @@ export function AddressAutocomplete({
       if (debounceRef.current) window.clearTimeout(debounceRef.current);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [value, jsReady, jsFailed, bias?.lat, bias?.lng, bias?.radiusMeters, normalizedBiasZip]);
+  }, [value, bias?.lat, bias?.lng, bias?.radiusMeters, normalizedBiasZip]);
 
 
   async function pick(row: Row) {
@@ -228,39 +142,6 @@ export function AddressAutocomplete({
     setLoading(true);
     try {
       let selection: PlaceSelection | null = null;
-
-      if (row.prediction && !useServerRef.current) {
-        try {
-          const place = row.prediction.toPlace();
-          await place.fetchFields({
-            fields: ["formattedAddress", "addressComponents", "location", "id"],
-          });
-          const comps = place.addressComponents ?? [];
-          const short = (type: string) =>
-            comps.find((c) => c.types.includes(type))?.shortText ?? "";
-          const long = (type: string) => comps.find((c) => c.types.includes(type))?.longText ?? "";
-          const streetAddress = [short("street_number"), long("route")].filter(Boolean).join(" ");
-          const formatted = place.formattedAddress ?? row.prediction.text.text;
-          selection = {
-            formattedAddress: formatted,
-            streetAddress: streetAddress || formatted,
-            city:
-              long("locality") ||
-              long("sublocality") ||
-              long("postal_town") ||
-              long("administrative_area_level_2"),
-            state: short("administrative_area_level_1"),
-            zip: short("postal_code"),
-            lat: place.location?.lat() ?? 0,
-            lng: place.location?.lng() ?? 0,
-            placeId: place.id ?? row.placeId,
-          };
-          // Session token is consumed on details; mint a new one for the next query
-          sessionTokenRef.current = new window.google.maps.places.AutocompleteSessionToken();
-        } catch {
-          useServerRef.current = true;
-        }
-      }
 
       if (!selection && row.placeId) {
         const d = await placeDetails({ data: { placeId: row.placeId } });

@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { BookOpen, CheckSquare, Play, Download, HelpCircle, Lightbulb } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";

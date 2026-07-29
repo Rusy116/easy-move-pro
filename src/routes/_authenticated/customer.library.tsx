@@ -43,7 +43,7 @@ function MyLibraryPage() {
                   <p className="mt-1 text-sm text-muted-foreground">
                     Purchased guides and templates will appear here, ready to download.
                   </p>
-                  <Link to="/products" className="mt-4 inline-block">
+                  <Link to="/store" className="mt-4 inline-block">
                     <Button variant="secondary" className="rounded-full">
                       Browse the store
                     </Button>

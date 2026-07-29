@@ -2,7 +2,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import {
   LayoutDashboard, Inbox, Lock, Globe, FileText, Calendar,
   Users, MessageSquare, Receipt, BarChart3, Bell, FolderOpen,
-  Building2, Settings, LifeBuoy, ShieldAlert, Clock, Truck,
+  Building2, Settings, LifeBuoy, ShieldAlert, Clock, Truck, History as HistoryIcon,
 } from "lucide-react";
 import { RoleShell } from "@/components/shell/RoleShell";
 import { RoleGuard } from "@/components/auth/RoleGuard";
@@ -13,6 +13,7 @@ const FULL_NAV = [
   { to: "/company/jobs",          label: "Available Jobs", icon: <Globe className="h-4 w-4" /> },
   { to: "/company/myjobs",        label: "My Jobs",        icon: <Truck className="h-4 w-4" /> },
   { to: "/company/expired",       label: "Expired Claims", icon: <Clock className="h-4 w-4" /> },
+  { to: "/company/history",       label: "Job History",    icon: <HistoryIcon className="h-4 w-4" /> },
 
   { to: "/company/leads",         label: "My Leads",      icon: <Inbox className="h-4 w-4" /> },
 

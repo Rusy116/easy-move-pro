@@ -235,3 +235,44 @@ export async function completeMove(args: { quoteId: string; companyId: string; n
 export function isPriceLocked(leadStatus?: string | null) {
   return ["price_confirmed", "customer_confirmed", "completed"].includes(leadStatus ?? "");
 }
+
+/* ------------------------------------------------------------------ */
+/*                          Recent activity                            */
+/* ------------------------------------------------------------------ */
+
+/** Latest audit-log entries across every job this company owns. */
+export function useCompanyRecentActivity(companyId: string | null, limit = 12) {
+  const [activity, setActivity] = useState<JobActivity[]>([]);
+
+  const reload = useCallback(async () => {
+    if (!companyId) return;
+    const { data } = await supabase
+      .from("company_activity")
+      .select("*")
+      .eq("company_id", companyId)
+      .order("created_at", { ascending: false })
+      .limit(limit);
+    setActivity((data ?? []) as JobActivity[]);
+  }, [companyId, limit]);
+
+  useEffect(() => {
+    void reload();
+  }, [reload]);
+
+  useEffect(() => {
+    if (!companyId) return;
+    const channel = supabase
+      .channel(`company-recent-activity-${companyId}`)
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "company_activity", filter: `company_id=eq.${companyId}` },
+        () => void reload(),
+      )
+      .subscribe();
+    return () => {
+      void supabase.removeChannel(channel);
+    };
+  }, [companyId, reload]);
+
+  return { activity, reloadActivity: reload };
+}

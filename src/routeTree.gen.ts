@@ -51,6 +51,7 @@ import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedCompanyRouteImport } from './routes/_authenticated/company'
 import { Route as StateCityRouteImport } from './routes/$state.$city'
+import { Route as AuthenticatedCompanyIndexRouteImport } from './routes/_authenticated/company.index'
 import { Route as AuthenticatedBrokerIndexRouteImport } from './routes/_authenticated/broker.index'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as ApiPublicSlaTickRouteImport } from './routes/api/public/sla-tick'
@@ -304,6 +305,12 @@ const StateCityRoute = StateCityRouteImport.update({
   path: '/$state/$city',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedCompanyIndexRoute =
+  AuthenticatedCompanyIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedCompanyRoute,
+  } as any)
 const AuthenticatedBrokerIndexRoute =
   AuthenticatedBrokerIndexRouteImport.update({
     id: '/broker/',
@@ -642,6 +649,7 @@ export interface FileRoutesByFullPath {
   '/api/public/sla-tick': typeof ApiPublicSlaTickRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/broker/': typeof AuthenticatedBrokerIndexRoute
+  '/company/': typeof AuthenticatedCompanyIndexRoute
   '/company/job/$jobId': typeof AuthenticatedCompanyJobJobIdRoute
 }
 export interface FileRoutesByTo {
@@ -670,7 +678,6 @@ export interface FileRoutesByTo {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/store': typeof StoreRoute
   '/$state/$city': typeof StateCityRoute
-  '/company': typeof AuthenticatedCompanyRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/cities/$city': typeof CitiesCityRoute
@@ -728,6 +735,7 @@ export interface FileRoutesByTo {
   '/api/public/sla-tick': typeof ApiPublicSlaTickRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/broker': typeof AuthenticatedBrokerIndexRoute
+  '/company': typeof AuthenticatedCompanyIndexRoute
   '/company/job/$jobId': typeof AuthenticatedCompanyJobJobIdRoute
 }
 export interface FileRoutesById {
@@ -816,6 +824,7 @@ export interface FileRoutesById {
   '/api/public/sla-tick': typeof ApiPublicSlaTickRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/broker/': typeof AuthenticatedBrokerIndexRoute
+  '/_authenticated/company/': typeof AuthenticatedCompanyIndexRoute
   '/_authenticated/company/job/$jobId': typeof AuthenticatedCompanyJobJobIdRoute
 }
 export interface FileRouteTypes {
@@ -904,6 +913,7 @@ export interface FileRouteTypes {
     | '/api/public/sla-tick'
     | '/admin/'
     | '/broker/'
+    | '/company/'
     | '/company/job/$jobId'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -932,7 +942,6 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/store'
     | '/$state/$city'
-    | '/company'
     | '/dashboard'
     | '/blog/$slug'
     | '/cities/$city'
@@ -990,6 +999,7 @@ export interface FileRouteTypes {
     | '/api/public/sla-tick'
     | '/admin'
     | '/broker'
+    | '/company'
     | '/company/job/$jobId'
   id:
     | '__root__'
@@ -1077,6 +1087,7 @@ export interface FileRouteTypes {
     | '/api/public/sla-tick'
     | '/_authenticated/admin/'
     | '/_authenticated/broker/'
+    | '/_authenticated/company/'
     | '/_authenticated/company/job/$jobId'
   fileRoutesById: FileRoutesById
 }
@@ -1420,6 +1431,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StateCityRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/company/': {
+      id: '/_authenticated/company/'
+      path: '/'
+      fullPath: '/company/'
+      preLoaderRoute: typeof AuthenticatedCompanyIndexRouteImport
+      parentRoute: typeof AuthenticatedCompanyRoute
+    }
     '/_authenticated/broker/': {
       id: '/_authenticated/broker/'
       path: '/broker'
@@ -1746,6 +1764,7 @@ interface AuthenticatedCompanyRouteChildren {
   AuthenticatedCompanyScheduleRoute: typeof AuthenticatedCompanyScheduleRoute
   AuthenticatedCompanySettingsRoute: typeof AuthenticatedCompanySettingsRoute
   AuthenticatedCompanySupportRoute: typeof AuthenticatedCompanySupportRoute
+  AuthenticatedCompanyIndexRoute: typeof AuthenticatedCompanyIndexRoute
   AuthenticatedCompanyJobJobIdRoute: typeof AuthenticatedCompanyJobJobIdRoute
 }
 
@@ -1772,6 +1791,7 @@ const AuthenticatedCompanyRouteChildren: AuthenticatedCompanyRouteChildren = {
   AuthenticatedCompanyScheduleRoute: AuthenticatedCompanyScheduleRoute,
   AuthenticatedCompanySettingsRoute: AuthenticatedCompanySettingsRoute,
   AuthenticatedCompanySupportRoute: AuthenticatedCompanySupportRoute,
+  AuthenticatedCompanyIndexRoute: AuthenticatedCompanyIndexRoute,
   AuthenticatedCompanyJobJobIdRoute: AuthenticatedCompanyJobJobIdRoute,
 }
 

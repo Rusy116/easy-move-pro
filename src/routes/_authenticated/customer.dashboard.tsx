@@ -25,7 +25,7 @@ import {
 } from "@/lib/customer-portal";
 import { LEAD_STATUS_LABEL, LEAD_STATUS_STYLE } from "@/lib/lead-status";
 
-export const Route = createFileRoute("/_authenticated/customer/")({
+export const Route = createFileRoute("/_authenticated/customer/dashboard")({
   head: () => ({
     meta: [
       { title: "Customer Dashboard — Easy Moving" },

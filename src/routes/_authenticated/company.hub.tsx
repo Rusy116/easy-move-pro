@@ -26,7 +26,7 @@ import { StatCard, SkeletonRows } from "@/components/shell/Chrome";
 import { useCompanyJobs, ACTIVITY_LABEL, money, timeAgo, type JobStatus } from "@/lib/company-jobs";
 import { useCommissions, useCompanyRecentActivity } from "@/lib/company-crm";
 
-export const Route = createFileRoute("/_authenticated/company/")({
+export const Route = createFileRoute("/_authenticated/company/hub")({
   head: () => ({
     meta: [
       { title: "Company Dashboard — Easy Moving Partner Portal" },

@@ -110,7 +110,7 @@ function DashboardPage() {
                   </Link>
                 )}
                 {roles.includes("admin") && (
-                  <Link to="/admin">
+                  <Link to="/admin/leads">
                     <Button variant="secondary" className="rounded-full">
                       Admin
                     </Button>

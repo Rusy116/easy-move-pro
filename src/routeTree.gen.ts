@@ -51,6 +51,7 @@ import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedCompanyRouteImport } from './routes/_authenticated/company'
 import { Route as StateCityRouteImport } from './routes/$state.$city'
+import { Route as AuthenticatedBrokerIndexRouteImport } from './routes/_authenticated/broker.index'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as ApiPublicSlaTickRouteImport } from './routes/api/public/sla-tick'
 import { Route as AuthenticatedCustomerSettingsRouteImport } from './routes/_authenticated/customer.settings'
@@ -301,6 +302,12 @@ const StateCityRoute = StateCityRouteImport.update({
   path: '/$state/$city',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedBrokerIndexRoute =
+  AuthenticatedBrokerIndexRouteImport.update({
+    id: '/broker/',
+    path: '/broker/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   id: '/admin/',
   path: '/admin/',
@@ -618,6 +625,7 @@ export interface FileRoutesByFullPath {
   '/customer/settings': typeof AuthenticatedCustomerSettingsRoute
   '/api/public/sla-tick': typeof ApiPublicSlaTickRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
+  '/broker/': typeof AuthenticatedBrokerIndexRoute
   '/company/job/$jobId': typeof AuthenticatedCompanyJobJobIdRoute
 }
 export interface FileRoutesByTo {
@@ -701,6 +709,7 @@ export interface FileRoutesByTo {
   '/customer/settings': typeof AuthenticatedCustomerSettingsRoute
   '/api/public/sla-tick': typeof ApiPublicSlaTickRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
+  '/broker': typeof AuthenticatedBrokerIndexRoute
   '/company/job/$jobId': typeof AuthenticatedCompanyJobJobIdRoute
 }
 export interface FileRoutesById {
@@ -786,6 +795,7 @@ export interface FileRoutesById {
   '/_authenticated/customer/settings': typeof AuthenticatedCustomerSettingsRoute
   '/api/public/sla-tick': typeof ApiPublicSlaTickRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
+  '/_authenticated/broker/': typeof AuthenticatedBrokerIndexRoute
   '/_authenticated/company/job/$jobId': typeof AuthenticatedCompanyJobJobIdRoute
 }
 export interface FileRouteTypes {
@@ -871,6 +881,7 @@ export interface FileRouteTypes {
     | '/customer/settings'
     | '/api/public/sla-tick'
     | '/admin/'
+    | '/broker/'
     | '/company/job/$jobId'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -954,6 +965,7 @@ export interface FileRouteTypes {
     | '/customer/settings'
     | '/api/public/sla-tick'
     | '/admin'
+    | '/broker'
     | '/company/job/$jobId'
   id:
     | '__root__'
@@ -1038,6 +1050,7 @@ export interface FileRouteTypes {
     | '/_authenticated/customer/settings'
     | '/api/public/sla-tick'
     | '/_authenticated/admin/'
+    | '/_authenticated/broker/'
     | '/_authenticated/company/job/$jobId'
   fileRoutesById: FileRoutesById
 }
@@ -1380,6 +1393,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/$state/$city'
       preLoaderRoute: typeof StateCityRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/broker/': {
+      id: '/_authenticated/broker/'
+      path: '/broker'
+      fullPath: '/broker/'
+      preLoaderRoute: typeof AuthenticatedBrokerIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/admin/': {
       id: '/_authenticated/admin/'
@@ -1738,6 +1758,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedCustomerReviewsRoute: typeof AuthenticatedCustomerReviewsRoute
   AuthenticatedCustomerSettingsRoute: typeof AuthenticatedCustomerSettingsRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
+  AuthenticatedBrokerIndexRoute: typeof AuthenticatedBrokerIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -1761,6 +1782,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedCustomerReviewsRoute: AuthenticatedCustomerReviewsRoute,
   AuthenticatedCustomerSettingsRoute: AuthenticatedCustomerSettingsRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
+  AuthenticatedBrokerIndexRoute: AuthenticatedBrokerIndexRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =

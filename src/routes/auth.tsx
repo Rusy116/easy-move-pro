@@ -8,8 +8,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { signInWithIdentifier } from "@/lib/auth.functions";
+import { devQuickSignIn } from "@/lib/dev-login.functions";
+import { DEV_ACCOUNTS, DEV_LOGIN_ENABLED, type DevRole } from "@/lib/dev-login";
 import { homeForRoles, loadRoleContext, type PlatformRole } from "@/lib/roles";
 import { toast } from "sonner";
+
 
 export const Route = createFileRoute("/auth")({
   head: () => ({

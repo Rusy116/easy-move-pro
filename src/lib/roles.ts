@@ -4,10 +4,10 @@ import { supabase } from "@/integrations/supabase/client";
 export type PlatformRole = "admin" | "broker" | "mover" | "customer";
 
 export const ROLE_HOME: Record<PlatformRole, string> = {
-  admin: "/admin",
-  broker: "/broker",
-  mover: "/company",
-  customer: "/customer",
+  admin: "/admin/dashboard",
+  broker: "/broker/dashboard",
+  mover: "/company/dashboard",
+  customer: "/customer/dashboard",
 };
 
 export const ROLE_LABEL: Record<PlatformRole, string> = {

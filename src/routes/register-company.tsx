@@ -60,7 +60,7 @@ function RegisterCompanyPage() {
       });
       if (error) throw new Error(error.message);
       toast.success("Account created — your application is pending approval.");
-      navigate({ to: "/company" });
+      navigate({ to: "/company/dashboard" });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Registration failed");
     } finally {

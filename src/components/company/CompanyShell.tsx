@@ -2,24 +2,20 @@ import { useEffect, useState, type ReactNode } from "react";
 import {
   LayoutDashboard,
   Inbox,
-  Lock,
   Globe,
   FileText,
   Calendar,
   Users,
   MessageSquare,
   Receipt,
-  BarChart3,
   Bell,
   FolderOpen,
   Building2,
   Settings,
   Wallet,
-  LifeBuoy,
   ShieldAlert,
   Clock,
   Truck,
-  History as HistoryIcon,
 } from "lucide-react";
 import { RoleShell } from "@/components/shell/RoleShell";
 import { RoleGuard } from "@/components/auth/RoleGuard";

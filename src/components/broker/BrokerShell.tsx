@@ -1,10 +1,11 @@
 import type { ReactNode } from "react";
-import { Inbox, BarChart3 } from "lucide-react";
+import { Inbox, BarChart3, LayoutDashboard } from "lucide-react";
 import { RoleShell } from "@/components/shell/RoleShell";
 import { RoleGuard } from "@/components/auth/RoleGuard";
 
 const NAV = [
-  { to: "/broker", label: "Leads", icon: <Inbox className="h-4 w-4" /> },
+  { to: "/broker/dashboard", label: "Dashboard", icon: <LayoutDashboard className="h-4 w-4" /> },
+  { to: "/broker/leads", label: "Leads", icon: <Inbox className="h-4 w-4" /> },
   { to: "/broker/performance", label: "Performance", icon: <BarChart3 className="h-4 w-4" /> },
 ];
 

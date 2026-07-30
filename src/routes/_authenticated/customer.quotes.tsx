@@ -103,14 +103,14 @@ function DashboardPage() {
             actions={
               <>
                 {roles.includes("mover") && (
-                  <Link to="/company">
+                  <Link to="/company/dashboard">
                     <Button variant="secondary" className="rounded-full">
                       <Truck className="mr-1.5 h-4 w-4" /> Company portal
                     </Button>
                   </Link>
                 )}
                 {roles.includes("admin") && (
-                  <Link to="/admin">
+                  <Link to="/admin/leads">
                     <Button variant="secondary" className="rounded-full">
                       Admin
                     </Button>

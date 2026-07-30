@@ -64,6 +64,7 @@ import { Route as AuthenticatedCustomerMoveRouteImport } from './routes/_authent
 import { Route as AuthenticatedCustomerMessagesRouteImport } from './routes/_authenticated/customer.messages'
 import { Route as AuthenticatedCustomerLibraryRouteImport } from './routes/_authenticated/customer.library'
 import { Route as AuthenticatedCustomerDocumentsRouteImport } from './routes/_authenticated/customer.documents'
+import { Route as AuthenticatedCustomerDashboardRouteImport } from './routes/_authenticated/customer.dashboard'
 import { Route as AuthenticatedCompanySupportRouteImport } from './routes/_authenticated/company.support'
 import { Route as AuthenticatedCompanySettingsRouteImport } from './routes/_authenticated/company.settings'
 import { Route as AuthenticatedCompanyScheduleRouteImport } from './routes/_authenticated/company.schedule'
@@ -75,6 +76,7 @@ import { Route as AuthenticatedCompanyMarketplaceRouteImport } from './routes/_a
 import { Route as AuthenticatedCompanyLeadsRouteImport } from './routes/_authenticated/company.leads'
 import { Route as AuthenticatedCompanyJobsRouteImport } from './routes/_authenticated/company.jobs'
 import { Route as AuthenticatedCompanyInvoicesRouteImport } from './routes/_authenticated/company.invoices'
+import { Route as AuthenticatedCompanyHubRouteImport } from './routes/_authenticated/company.hub'
 import { Route as AuthenticatedCompanyHistoryRouteImport } from './routes/_authenticated/company.history'
 import { Route as AuthenticatedCompanyFinanceRouteImport } from './routes/_authenticated/company.finance'
 import { Route as AuthenticatedCompanyExpiredRouteImport } from './routes/_authenticated/company.expired'
@@ -85,6 +87,8 @@ import { Route as AuthenticatedCompanyDashboardRouteImport } from './routes/_aut
 import { Route as AuthenticatedCompanyCustomersRouteImport } from './routes/_authenticated/company.customers'
 import { Route as AuthenticatedCompanyAnalyticsRouteImport } from './routes/_authenticated/company.analytics'
 import { Route as AuthenticatedBrokerPerformanceRouteImport } from './routes/_authenticated/broker.performance'
+import { Route as AuthenticatedBrokerLeadsRouteImport } from './routes/_authenticated/broker.leads'
+import { Route as AuthenticatedBrokerDashboardRouteImport } from './routes/_authenticated/broker.dashboard'
 import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin.users'
 import { Route as AuthenticatedAdminSettingsRouteImport } from './routes/_authenticated/admin.settings'
 import { Route as AuthenticatedAdminLeadsRouteImport } from './routes/_authenticated/admin.leads'
@@ -378,6 +382,12 @@ const AuthenticatedCustomerDocumentsRoute =
     path: '/customer/documents',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedCustomerDashboardRoute =
+  AuthenticatedCustomerDashboardRouteImport.update({
+    id: '/customer/dashboard',
+    path: '/customer/dashboard',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedCompanySupportRoute =
   AuthenticatedCompanySupportRouteImport.update({
     id: '/support',
@@ -444,6 +454,11 @@ const AuthenticatedCompanyInvoicesRoute =
     path: '/invoices',
     getParentRoute: () => AuthenticatedCompanyRoute,
   } as any)
+const AuthenticatedCompanyHubRoute = AuthenticatedCompanyHubRouteImport.update({
+  id: '/hub',
+  path: '/hub',
+  getParentRoute: () => AuthenticatedCompanyRoute,
+} as any)
 const AuthenticatedCompanyHistoryRoute =
   AuthenticatedCompanyHistoryRouteImport.update({
     id: '/history',
@@ -502,6 +517,18 @@ const AuthenticatedBrokerPerformanceRoute =
   AuthenticatedBrokerPerformanceRouteImport.update({
     id: '/broker/performance',
     path: '/broker/performance',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedBrokerLeadsRoute =
+  AuthenticatedBrokerLeadsRouteImport.update({
+    id: '/broker/leads',
+    path: '/broker/leads',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedBrokerDashboardRoute =
+  AuthenticatedBrokerDashboardRouteImport.update({
+    id: '/broker/dashboard',
+    path: '/broker/dashboard',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedAdminUsersRoute = AuthenticatedAdminUsersRouteImport.update({
@@ -593,6 +620,8 @@ export interface FileRoutesByFullPath {
   '/admin/leads': typeof AuthenticatedAdminLeadsRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
+  '/broker/dashboard': typeof AuthenticatedBrokerDashboardRoute
+  '/broker/leads': typeof AuthenticatedBrokerLeadsRoute
   '/broker/performance': typeof AuthenticatedBrokerPerformanceRoute
   '/company/analytics': typeof AuthenticatedCompanyAnalyticsRoute
   '/company/customers': typeof AuthenticatedCompanyCustomersRoute
@@ -603,6 +632,7 @@ export interface FileRoutesByFullPath {
   '/company/expired': typeof AuthenticatedCompanyExpiredRoute
   '/company/finance': typeof AuthenticatedCompanyFinanceRoute
   '/company/history': typeof AuthenticatedCompanyHistoryRoute
+  '/company/hub': typeof AuthenticatedCompanyHubRoute
   '/company/invoices': typeof AuthenticatedCompanyInvoicesRoute
   '/company/jobs': typeof AuthenticatedCompanyJobsRoute
   '/company/leads': typeof AuthenticatedCompanyLeadsRoute
@@ -614,6 +644,7 @@ export interface FileRoutesByFullPath {
   '/company/schedule': typeof AuthenticatedCompanyScheduleRoute
   '/company/settings': typeof AuthenticatedCompanySettingsRoute
   '/company/support': typeof AuthenticatedCompanySupportRoute
+  '/customer/dashboard': typeof AuthenticatedCustomerDashboardRoute
   '/customer/documents': typeof AuthenticatedCustomerDocumentsRoute
   '/customer/library': typeof AuthenticatedCustomerLibraryRoute
   '/customer/messages': typeof AuthenticatedCustomerMessagesRoute
@@ -676,6 +707,8 @@ export interface FileRoutesByTo {
   '/admin/leads': typeof AuthenticatedAdminLeadsRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
+  '/broker/dashboard': typeof AuthenticatedBrokerDashboardRoute
+  '/broker/leads': typeof AuthenticatedBrokerLeadsRoute
   '/broker/performance': typeof AuthenticatedBrokerPerformanceRoute
   '/company/analytics': typeof AuthenticatedCompanyAnalyticsRoute
   '/company/customers': typeof AuthenticatedCompanyCustomersRoute
@@ -686,6 +719,7 @@ export interface FileRoutesByTo {
   '/company/expired': typeof AuthenticatedCompanyExpiredRoute
   '/company/finance': typeof AuthenticatedCompanyFinanceRoute
   '/company/history': typeof AuthenticatedCompanyHistoryRoute
+  '/company/hub': typeof AuthenticatedCompanyHubRoute
   '/company/invoices': typeof AuthenticatedCompanyInvoicesRoute
   '/company/jobs': typeof AuthenticatedCompanyJobsRoute
   '/company/leads': typeof AuthenticatedCompanyLeadsRoute
@@ -697,6 +731,7 @@ export interface FileRoutesByTo {
   '/company/schedule': typeof AuthenticatedCompanyScheduleRoute
   '/company/settings': typeof AuthenticatedCompanySettingsRoute
   '/company/support': typeof AuthenticatedCompanySupportRoute
+  '/customer/dashboard': typeof AuthenticatedCustomerDashboardRoute
   '/customer/documents': typeof AuthenticatedCustomerDocumentsRoute
   '/customer/library': typeof AuthenticatedCustomerLibraryRoute
   '/customer/messages': typeof AuthenticatedCustomerMessagesRoute
@@ -762,6 +797,8 @@ export interface FileRoutesById {
   '/_authenticated/admin/leads': typeof AuthenticatedAdminLeadsRoute
   '/_authenticated/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
+  '/_authenticated/broker/dashboard': typeof AuthenticatedBrokerDashboardRoute
+  '/_authenticated/broker/leads': typeof AuthenticatedBrokerLeadsRoute
   '/_authenticated/broker/performance': typeof AuthenticatedBrokerPerformanceRoute
   '/_authenticated/company/analytics': typeof AuthenticatedCompanyAnalyticsRoute
   '/_authenticated/company/customers': typeof AuthenticatedCompanyCustomersRoute
@@ -772,6 +809,7 @@ export interface FileRoutesById {
   '/_authenticated/company/expired': typeof AuthenticatedCompanyExpiredRoute
   '/_authenticated/company/finance': typeof AuthenticatedCompanyFinanceRoute
   '/_authenticated/company/history': typeof AuthenticatedCompanyHistoryRoute
+  '/_authenticated/company/hub': typeof AuthenticatedCompanyHubRoute
   '/_authenticated/company/invoices': typeof AuthenticatedCompanyInvoicesRoute
   '/_authenticated/company/jobs': typeof AuthenticatedCompanyJobsRoute
   '/_authenticated/company/leads': typeof AuthenticatedCompanyLeadsRoute
@@ -783,6 +821,7 @@ export interface FileRoutesById {
   '/_authenticated/company/schedule': typeof AuthenticatedCompanyScheduleRoute
   '/_authenticated/company/settings': typeof AuthenticatedCompanySettingsRoute
   '/_authenticated/company/support': typeof AuthenticatedCompanySupportRoute
+  '/_authenticated/customer/dashboard': typeof AuthenticatedCustomerDashboardRoute
   '/_authenticated/customer/documents': typeof AuthenticatedCustomerDocumentsRoute
   '/_authenticated/customer/library': typeof AuthenticatedCustomerLibraryRoute
   '/_authenticated/customer/messages': typeof AuthenticatedCustomerMessagesRoute
@@ -848,6 +887,8 @@ export interface FileRouteTypes {
     | '/admin/leads'
     | '/admin/settings'
     | '/admin/users'
+    | '/broker/dashboard'
+    | '/broker/leads'
     | '/broker/performance'
     | '/company/analytics'
     | '/company/customers'
@@ -858,6 +899,7 @@ export interface FileRouteTypes {
     | '/company/expired'
     | '/company/finance'
     | '/company/history'
+    | '/company/hub'
     | '/company/invoices'
     | '/company/jobs'
     | '/company/leads'
@@ -869,6 +911,7 @@ export interface FileRouteTypes {
     | '/company/schedule'
     | '/company/settings'
     | '/company/support'
+    | '/customer/dashboard'
     | '/customer/documents'
     | '/customer/library'
     | '/customer/messages'
@@ -931,6 +974,8 @@ export interface FileRouteTypes {
     | '/admin/leads'
     | '/admin/settings'
     | '/admin/users'
+    | '/broker/dashboard'
+    | '/broker/leads'
     | '/broker/performance'
     | '/company/analytics'
     | '/company/customers'
@@ -941,6 +986,7 @@ export interface FileRouteTypes {
     | '/company/expired'
     | '/company/finance'
     | '/company/history'
+    | '/company/hub'
     | '/company/invoices'
     | '/company/jobs'
     | '/company/leads'
@@ -952,6 +998,7 @@ export interface FileRouteTypes {
     | '/company/schedule'
     | '/company/settings'
     | '/company/support'
+    | '/customer/dashboard'
     | '/customer/documents'
     | '/customer/library'
     | '/customer/messages'
@@ -1016,6 +1063,8 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/leads'
     | '/_authenticated/admin/settings'
     | '/_authenticated/admin/users'
+    | '/_authenticated/broker/dashboard'
+    | '/_authenticated/broker/leads'
     | '/_authenticated/broker/performance'
     | '/_authenticated/company/analytics'
     | '/_authenticated/company/customers'
@@ -1026,6 +1075,7 @@ export interface FileRouteTypes {
     | '/_authenticated/company/expired'
     | '/_authenticated/company/finance'
     | '/_authenticated/company/history'
+    | '/_authenticated/company/hub'
     | '/_authenticated/company/invoices'
     | '/_authenticated/company/jobs'
     | '/_authenticated/company/leads'
@@ -1037,6 +1087,7 @@ export interface FileRouteTypes {
     | '/_authenticated/company/schedule'
     | '/_authenticated/company/settings'
     | '/_authenticated/company/support'
+    | '/_authenticated/customer/dashboard'
     | '/_authenticated/customer/documents'
     | '/_authenticated/customer/library'
     | '/_authenticated/customer/messages'
@@ -1484,6 +1535,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCustomerDocumentsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/customer/dashboard': {
+      id: '/_authenticated/customer/dashboard'
+      path: '/customer/dashboard'
+      fullPath: '/customer/dashboard'
+      preLoaderRoute: typeof AuthenticatedCustomerDashboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/company/support': {
       id: '/_authenticated/company/support'
       path: '/support'
@@ -1561,6 +1619,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCompanyInvoicesRouteImport
       parentRoute: typeof AuthenticatedCompanyRoute
     }
+    '/_authenticated/company/hub': {
+      id: '/_authenticated/company/hub'
+      path: '/hub'
+      fullPath: '/company/hub'
+      preLoaderRoute: typeof AuthenticatedCompanyHubRouteImport
+      parentRoute: typeof AuthenticatedCompanyRoute
+    }
     '/_authenticated/company/history': {
       id: '/_authenticated/company/history'
       path: '/history'
@@ -1631,6 +1696,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedBrokerPerformanceRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/broker/leads': {
+      id: '/_authenticated/broker/leads'
+      path: '/broker/leads'
+      fullPath: '/broker/leads'
+      preLoaderRoute: typeof AuthenticatedBrokerLeadsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/broker/dashboard': {
+      id: '/_authenticated/broker/dashboard'
+      path: '/broker/dashboard'
+      fullPath: '/broker/dashboard'
+      preLoaderRoute: typeof AuthenticatedBrokerDashboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/admin/users': {
       id: '/_authenticated/admin/users'
       path: '/admin/users'
@@ -1693,6 +1772,7 @@ interface AuthenticatedCompanyRouteChildren {
   AuthenticatedCompanyExpiredRoute: typeof AuthenticatedCompanyExpiredRoute
   AuthenticatedCompanyFinanceRoute: typeof AuthenticatedCompanyFinanceRoute
   AuthenticatedCompanyHistoryRoute: typeof AuthenticatedCompanyHistoryRoute
+  AuthenticatedCompanyHubRoute: typeof AuthenticatedCompanyHubRoute
   AuthenticatedCompanyInvoicesRoute: typeof AuthenticatedCompanyInvoicesRoute
   AuthenticatedCompanyJobsRoute: typeof AuthenticatedCompanyJobsRoute
   AuthenticatedCompanyLeadsRoute: typeof AuthenticatedCompanyLeadsRoute
@@ -1718,6 +1798,7 @@ const AuthenticatedCompanyRouteChildren: AuthenticatedCompanyRouteChildren = {
   AuthenticatedCompanyExpiredRoute: AuthenticatedCompanyExpiredRoute,
   AuthenticatedCompanyFinanceRoute: AuthenticatedCompanyFinanceRoute,
   AuthenticatedCompanyHistoryRoute: AuthenticatedCompanyHistoryRoute,
+  AuthenticatedCompanyHubRoute: AuthenticatedCompanyHubRoute,
   AuthenticatedCompanyInvoicesRoute: AuthenticatedCompanyInvoicesRoute,
   AuthenticatedCompanyJobsRoute: AuthenticatedCompanyJobsRoute,
   AuthenticatedCompanyLeadsRoute: AuthenticatedCompanyLeadsRoute,
@@ -1746,7 +1827,10 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminLeadsRoute: typeof AuthenticatedAdminLeadsRoute
   AuthenticatedAdminSettingsRoute: typeof AuthenticatedAdminSettingsRoute
   AuthenticatedAdminUsersRoute: typeof AuthenticatedAdminUsersRoute
+  AuthenticatedBrokerDashboardRoute: typeof AuthenticatedBrokerDashboardRoute
+  AuthenticatedBrokerLeadsRoute: typeof AuthenticatedBrokerLeadsRoute
   AuthenticatedBrokerPerformanceRoute: typeof AuthenticatedBrokerPerformanceRoute
+  AuthenticatedCustomerDashboardRoute: typeof AuthenticatedCustomerDashboardRoute
   AuthenticatedCustomerDocumentsRoute: typeof AuthenticatedCustomerDocumentsRoute
   AuthenticatedCustomerLibraryRoute: typeof AuthenticatedCustomerLibraryRoute
   AuthenticatedCustomerMessagesRoute: typeof AuthenticatedCustomerMessagesRoute
@@ -1769,7 +1853,10 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminLeadsRoute: AuthenticatedAdminLeadsRoute,
   AuthenticatedAdminSettingsRoute: AuthenticatedAdminSettingsRoute,
   AuthenticatedAdminUsersRoute: AuthenticatedAdminUsersRoute,
+  AuthenticatedBrokerDashboardRoute: AuthenticatedBrokerDashboardRoute,
+  AuthenticatedBrokerLeadsRoute: AuthenticatedBrokerLeadsRoute,
   AuthenticatedBrokerPerformanceRoute: AuthenticatedBrokerPerformanceRoute,
+  AuthenticatedCustomerDashboardRoute: AuthenticatedCustomerDashboardRoute,
   AuthenticatedCustomerDocumentsRoute: AuthenticatedCustomerDocumentsRoute,
   AuthenticatedCustomerLibraryRoute: AuthenticatedCustomerLibraryRoute,
   AuthenticatedCustomerMessagesRoute: AuthenticatedCustomerMessagesRoute,

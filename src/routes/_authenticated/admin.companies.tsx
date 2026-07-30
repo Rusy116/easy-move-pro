@@ -187,7 +187,7 @@ function CompaniesAdmin() {
           </div>
           <div className="flex gap-2">
             <Button asChild variant="outline">
-              <Link to="/admin">← Quotes</Link>
+              <Link to="/admin/leads">← Leads</Link>
             </Button>
             <Dialog open={createOpen} onOpenChange={setCreateOpen}>
               <DialogTrigger asChild>

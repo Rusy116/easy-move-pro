@@ -1,8 +1,7 @@
-import { createFileRoute, redirect } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
+import { AdminLeadsWorkspace } from "@/components/admin/AdminLeadsWorkspace";
 
-// /admin/leads is an alias for the existing quotes/leads CRM at /admin.
 export const Route = createFileRoute("/_authenticated/admin/leads")({
-  beforeLoad: () => {
-    throw redirect({ to: "/admin" });
-  },
+  head: () => ({ meta: [{ title: "Leads — Easy Moving" }] }),
+  component: AdminLeadsWorkspace,
 });

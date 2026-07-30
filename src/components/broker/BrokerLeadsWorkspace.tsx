@@ -1,4 +1,3 @@
-import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { Inbox, Search, MapPin, ArrowRight, Phone, Mail, Calendar } from "lucide-react";
 import { BrokerShell } from "@/components/broker/BrokerShell";
@@ -26,11 +25,6 @@ import {
 } from "@/lib/lead-status";
 import { toast } from "sonner";
 
-export const Route = createFileRoute("/_authenticated/broker/")({
-  head: () => ({ meta: [{ title: "Broker leads — Easy Move Pro" }] }),
-  component: BrokerLeadsPage,
-});
-
 type Lead = {
   [key: string]: unknown;
   id: string;
@@ -52,7 +46,7 @@ type Lead = {
 const STATUSES = ["all", ...ALL_LEAD_STATUSES];
 const MOVE_TYPES = ["all", "local", "long_distance", "interstate"];
 
-function BrokerLeadsPage() {
+export function BrokerLeadsWorkspace() {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
   const [q, setQ] = useState("");

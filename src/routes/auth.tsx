@@ -135,6 +135,35 @@ function AuthPage() {
             </Button>
           </form>
 
+          {DEV_LOGIN_ENABLED && (
+            <div className="mt-6 rounded-xl border border-dashed border-border bg-muted/40 p-4">
+              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                Development login — QA only
+              </p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                One-click access to seeded demo accounts. Hidden in production.
+              </p>
+              <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                {DEV_ACCOUNTS.map((a) => (
+                  <Button
+                    key={a.role}
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="justify-start rounded-full"
+                    disabled={devBusy !== null || busy}
+                    onClick={() => onDevLogin(a.role as DevRole)}
+                  >
+                    {devBusy === a.role && <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />}
+                    Login as {a.label}
+                  </Button>
+                ))}
+              </div>
+            </div>
+          )}
+
+
+
           <div className="mt-6 space-y-2 border-t border-border pt-5 text-sm text-muted-foreground">
             <p>
               Moving company?{" "}

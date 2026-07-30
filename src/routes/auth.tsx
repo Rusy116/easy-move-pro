@@ -38,7 +38,9 @@ export const Route = createFileRoute("/auth")({
 function AuthPage() {
   const navigate = useNavigate();
   const signIn = useServerFn(signInWithIdentifier);
+  const devSignIn = useServerFn(devQuickSignIn);
   const [busy, setBusy] = useState(false);
+  const [devBusy, setDevBusy] = useState<DevRole | null>(null);
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
 
@@ -50,24 +52,46 @@ function AuthPage() {
     });
   }, [navigate]);
 
+  async function applySession(result: {
+    access_token: string;
+    refresh_token: string;
+    roles: string[];
+  }) {
+    const { error } = await supabase.auth.setSession({
+      access_token: result.access_token,
+      refresh_token: result.refresh_token,
+    });
+    if (error) throw new Error(error.message);
+    navigate({ to: homeForRoles(result.roles as PlatformRole[]) as never });
+  }
+
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setBusy(true);
     try {
       const result = await signIn({ data: { identifier, password } });
-      const { error } = await supabase.auth.setSession({
-        access_token: result.access_token,
-        refresh_token: result.refresh_token,
-      });
-      if (error) throw new Error(error.message);
       toast.success("Welcome back.");
-      navigate({ to: homeForRoles(result.roles as PlatformRole[]) as never });
+      await applySession(result);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Could not sign you in");
     } finally {
       setBusy(false);
     }
   }
+
+  async function onDevLogin(role: DevRole) {
+    setDevBusy(role);
+    try {
+      const result = await devSignIn({ data: { role } });
+      toast.success("Signed in with a demo account.");
+      await applySession(result);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Demo sign-in failed");
+    } finally {
+      setDevBusy(null);
+    }
+  }
+
 
   return (
     <SiteLayout>

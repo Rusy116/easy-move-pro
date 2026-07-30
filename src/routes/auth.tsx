@@ -8,8 +8,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { signInWithIdentifier } from "@/lib/auth.functions";
+import { devQuickSignIn } from "@/lib/dev-login.functions";
+import { DEV_ACCOUNTS, DEV_LOGIN_ENABLED, type DevRole } from "@/lib/dev-login";
 import { homeForRoles, loadRoleContext, type PlatformRole } from "@/lib/roles";
 import { toast } from "sonner";
+
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
@@ -35,7 +38,9 @@ export const Route = createFileRoute("/auth")({
 function AuthPage() {
   const navigate = useNavigate();
   const signIn = useServerFn(signInWithIdentifier);
+  const devSignIn = useServerFn(devQuickSignIn);
   const [busy, setBusy] = useState(false);
+  const [devBusy, setDevBusy] = useState<DevRole | null>(null);
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
 
@@ -47,24 +52,46 @@ function AuthPage() {
     });
   }, [navigate]);
 
+  async function applySession(result: {
+    access_token: string;
+    refresh_token: string;
+    roles: string[];
+  }) {
+    const { error } = await supabase.auth.setSession({
+      access_token: result.access_token,
+      refresh_token: result.refresh_token,
+    });
+    if (error) throw new Error(error.message);
+    navigate({ to: homeForRoles(result.roles as PlatformRole[]) as never });
+  }
+
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setBusy(true);
     try {
       const result = await signIn({ data: { identifier, password } });
-      const { error } = await supabase.auth.setSession({
-        access_token: result.access_token,
-        refresh_token: result.refresh_token,
-      });
-      if (error) throw new Error(error.message);
       toast.success("Welcome back.");
-      navigate({ to: homeForRoles(result.roles as PlatformRole[]) as never });
+      await applySession(result);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Could not sign you in");
     } finally {
       setBusy(false);
     }
   }
+
+  async function onDevLogin(role: DevRole) {
+    setDevBusy(role);
+    try {
+      const result = await devSignIn({ data: { role } });
+      toast.success("Signed in with a demo account.");
+      await applySession(result);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Demo sign-in failed");
+    } finally {
+      setDevBusy(null);
+    }
+  }
+
 
   return (
     <SiteLayout>
@@ -107,6 +134,35 @@ function AuthPage() {
               Sign in
             </Button>
           </form>
+
+          {DEV_LOGIN_ENABLED && (
+            <div className="mt-6 rounded-xl border border-dashed border-border bg-muted/40 p-4">
+              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                Development login — QA only
+              </p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                One-click access to seeded demo accounts. Hidden in production.
+              </p>
+              <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                {DEV_ACCOUNTS.map((a) => (
+                  <Button
+                    key={a.role}
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="justify-start rounded-full"
+                    disabled={devBusy !== null || busy}
+                    onClick={() => onDevLogin(a.role as DevRole)}
+                  >
+                    {devBusy === a.role && <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />}
+                    Login as {a.label}
+                  </Button>
+                ))}
+              </div>
+            </div>
+          )}
+
+
 
           <div className="mt-6 space-y-2 border-t border-border pt-5 text-sm text-muted-foreground">
             <p>

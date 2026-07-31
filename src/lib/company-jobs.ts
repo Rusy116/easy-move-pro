@@ -131,6 +131,101 @@ export function countdown(iso?: string | null) {
 }
 
 /* ------------------------------------------------------------------ */
+/*                 Marketplace card value + priority                   */
+/* ------------------------------------------------------------------ */
+
+/** Platform commission taken from the job value. */
+export const COMMISSION_RATE = 0.25;
+
+/** Company payout range after platform commission. */
+export function payoutRange(low?: number | null, high?: number | null) {
+  const k = 1 - COMMISSION_RATE;
+  const lo = typeof low === "number" ? low * k : null;
+  const hi = typeof high === "number" ? high * k : null;
+  if (lo == null && hi == null) return "—";
+  if (lo != null && hi != null && Math.round(lo) !== Math.round(hi))
+    return `${money(lo)}–${money(hi)}`;
+  return money(hi ?? lo);
+}
+
+export function revenueRange(low?: number | null, high?: number | null) {
+  if (low == null && high == null) return "—";
+  if (low != null && high != null && Math.round(low) !== Math.round(high))
+    return `${money(low)}–${money(high)}`;
+  return money(high ?? low);
+}
+
+export function distanceLabel(miles?: number | null) {
+  if (typeof miles !== "number" || Number.isNaN(miles)) return "—";
+  return `${Math.round(miles).toLocaleString("en-US")} miles`;
+}
+
+/** Human "Posted 19 minutes ago". */
+export function postedAgo(iso?: string | null) {
+  if (!iso) return "Just posted";
+  const mins = Math.floor((Date.now() - new Date(iso).getTime()) / 60000);
+  if (mins < 1) return "Posted just now";
+  if (mins < 60) return `Posted ${mins} minute${mins === 1 ? "" : "s"} ago`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `Posted ${hours} hour${hours === 1 ? "" : "s"} ago`;
+  const days = Math.floor(hours / 24);
+  return `Posted ${days} day${days === 1 ? "" : "s"} ago`;
+}
+
+/** 12-hour exclusive window measured from publish time. */
+export const EXCLUSIVE_WINDOW_HOURS = 12;
+
+export function exclusiveWindow(publishedAt?: string | null) {
+  if (!publishedAt) return { active: false, label: "Open to all partners" };
+  const end = new Date(publishedAt).getTime() + EXCLUSIVE_WINDOW_HOURS * 3_600_000;
+  const ms = end - Date.now();
+  if (ms <= 0) return { active: false, label: "Open to all partners" };
+  const h = Math.floor(ms / 3_600_000);
+  const m = Math.floor((ms % 3_600_000) / 60000);
+  return {
+    active: true,
+    urgent: ms < 2 * 3_600_000,
+    label: `Exclusive expires in ${h > 0 ? `${h}h ${m}m` : `${m}m`}`,
+  };
+}
+
+export type LeadPriority = "standard" | "exclusive" | "priority" | "hot";
+
+export const LEAD_PRIORITY_LABEL: Record<LeadPriority, string> = {
+  standard: "Standard",
+  exclusive: "Exclusive",
+  priority: "Priority",
+  hot: "Hot Lead",
+};
+
+export const LEAD_PRIORITY_TONE: Record<LeadPriority, string> = {
+  standard: "border-border bg-muted text-muted-foreground",
+  exclusive: "border-indigo-500/30 bg-indigo-500/10 text-indigo-700",
+  priority: "border-amber-500/30 bg-amber-500/10 text-amber-800",
+  hot: "border-rose-500/30 bg-rose-500/10 text-rose-700",
+};
+
+/** Derives a marketplace priority badge from value, urgency and freshness. */
+export function leadPriority(job: {
+  estimated_high?: number | null;
+  estimated_low?: number | null;
+  move_date?: string | null;
+  published_at?: string | null;
+}): LeadPriority {
+  const value = job.estimated_high ?? job.estimated_low ?? 0;
+  const soon = job.move_date
+    ? (new Date(`${job.move_date}T00:00:00`).getTime() - Date.now()) / 86_400_000
+    : Infinity;
+  const fresh = job.published_at
+    ? Date.now() - new Date(job.published_at).getTime() < 2 * 3_600_000
+    : false;
+  if (value >= 6000 && (fresh || soon <= 14)) return "hot";
+  if (value >= 3500 || soon <= 7) return "priority";
+  if (exclusiveWindow(job.published_at).active) return "exclusive";
+  return "standard";
+}
+
+/* ------------------------------------------------------------------ */
 /*                          Data access hook                           */
 /* ------------------------------------------------------------------ */
 

@@ -100,6 +100,12 @@ export function AvailableJobCard({
   claiming: boolean;
   onClaim: (job: AvailableJob) => void;
 }) {
+  // keeps the exclusive countdown live
+  const [, tick] = useState(0);
+  useEffect(() => {
+    const id = window.setInterval(() => tick((n) => n + 1), 30_000);
+    return () => window.clearInterval(id);
+  }, []);
   const priority = leadPriority(job);
   const exclusive = exclusiveWindow(job.published_at);
 

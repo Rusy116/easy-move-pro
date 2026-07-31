@@ -14,12 +14,18 @@ import {
 } from "lucide-react";
 import {
   countdown,
+  distanceLabel,
+  exclusiveWindow,
   formatDate,
-  money,
+  leadPriority,
+  payoutRange,
   place,
-  timeAgo,
+  postedAgo,
+  revenueRange,
   JOB_STATUS_LABEL,
   JOB_STATUS_TONE,
+  LEAD_PRIORITY_LABEL,
+  LEAD_PRIORITY_TONE,
   type AvailableJob,
   type JobStatus,
   type MyJob,
@@ -94,6 +100,15 @@ export function AvailableJobCard({
   claiming: boolean;
   onClaim: (job: AvailableJob) => void;
 }) {
+  // keeps the exclusive countdown live
+  const [, tick] = useState(0);
+  useEffect(() => {
+    const id = window.setInterval(() => tick((n) => n + 1), 30_000);
+    return () => window.clearInterval(id);
+  }, []);
+  const priority = leadPriority(job);
+  const exclusive = exclusiveWindow(job.published_at);
+
   return (
     <article className="rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5">
       <div className="flex flex-wrap items-start justify-between gap-2">
@@ -105,9 +120,46 @@ export function AvailableJobCard({
             {job.quote_number ?? job.id.slice(0, 8)}
           </h3>
         </div>
-        <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-2.5 py-1 text-[11px] font-medium text-muted-foreground">
-          <Clock className="h-3 w-3" /> {timeAgo(job.published_at)}
-        </span>
+        <div className="flex flex-col items-end gap-1.5">
+          <span
+            className={`inline-flex items-center rounded-full border px-2.5 py-1 text-[11px] font-semibold ${LEAD_PRIORITY_TONE[priority]}`}
+          >
+            {LEAD_PRIORITY_LABEL[priority]}
+          </span>
+          <span className="text-[11px] font-medium text-muted-foreground">
+            {postedAgo(job.published_at)}
+          </span>
+          <span
+            className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-semibold ${
+              exclusive.active
+                ? exclusive.urgent
+                  ? "border-rose-500/30 bg-rose-500/10 text-rose-700"
+                  : "border-emerald-500/30 bg-emerald-500/10 text-emerald-700"
+                : "border-border bg-background text-muted-foreground"
+            }`}
+          >
+            <Clock className="h-3 w-3" /> {exclusive.label}
+          </span>
+        </div>
+      </div>
+
+      <div className="mt-4 flex flex-wrap items-end justify-between gap-3 rounded-xl border border-border bg-muted/40 px-3 py-2.5">
+        <div className="min-w-0">
+          <div className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+            Estimated revenue
+          </div>
+          <div className="mt-0.5 truncate text-xl font-semibold">
+            {revenueRange(job.estimated_low, job.estimated_high)}
+          </div>
+        </div>
+        <div className="min-w-0 text-right">
+          <div className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+            Your payout
+          </div>
+          <div className="mt-0.5 truncate text-sm font-medium">
+            {payoutRange(job.estimated_low, job.estimated_high)}
+          </div>
+        </div>
       </div>
 
       <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
@@ -120,6 +172,11 @@ export function AvailableJobCard({
           icon={<MapPin className="h-3 w-3" />}
           label="Destination"
           value={place(job.destination_city, job.destination_state)}
+        />
+        <Fact
+          icon={<RouteIcon className="h-3 w-3" />}
+          label="Distance"
+          value={distanceLabel(job.distance_miles)}
         />
         <Fact
           icon={<Calendar className="h-3 w-3" />}
@@ -144,6 +201,7 @@ export function AvailableJobCard({
           value={job.estimated_cubic_feet ? `${Math.round(job.estimated_cubic_feet)} cu ft` : "—"}
         />
       </div>
+
 
       {job.services && job.services.length > 0 && (
         <div className="mt-4 flex flex-wrap gap-1.5">

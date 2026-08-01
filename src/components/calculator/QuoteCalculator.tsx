@@ -247,11 +247,10 @@ function isEmptyDraft(form: FormState): boolean {
   );
 }
 
-export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
-  const navigate = useNavigate();
+export function QuoteCalculator(_props: { compact?: boolean } = {}) {
   const [form, setForm] = useState<FormState>(() => createInitialForm());
   const hasUserEditedRef = useRef(false);
-  const handedOffRef = useRef(false);
+
 
   // Restore any saved draft after hydration (avoids SSR mismatch).
   useEffect(() => {

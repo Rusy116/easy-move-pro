@@ -3439,6 +3439,10 @@ export type Database = {
         Returns: Json
       }
       fn_customer_confirm_move: { Args: { _quote_id: string }; Returns: Json }
+      fn_customer_name: {
+        Args: { _q: Database["public"]["Tables"]["quotes"]["Row"] }
+        Returns: string
+      }
       fn_customer_notify: {
         Args: {
           _body: string

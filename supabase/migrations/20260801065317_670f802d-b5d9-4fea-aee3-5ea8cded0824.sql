@@ -1,0 +1,2 @@
+ALTER TABLE public.quotes DROP CONSTRAINT IF EXISTS quotes_job_status_chk;
+ALTER TABLE public.quotes ADD CONSTRAINT quotes_job_status_chk CHECK (job_status = ANY (ARRAY['new','qualified','open_market','claimed','contacted','final_quote_sent','accepted','scheduled','rejected','booked','completed','cancelled','expired']));

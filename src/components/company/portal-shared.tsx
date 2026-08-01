@@ -1058,11 +1058,13 @@ const BREAKDOWN_FIELDS: Array<{ key: BreakdownKey; label: string; sign: 1 | -1 }
 export function EstimateBuilderDialog({
   merged,
   companyId,
+  companyName,
   onClose,
   onSubmitted,
 }: {
   merged: MergedLead;
   companyId: string;
+  companyName?: string;
   onClose: () => void;
   onSubmitted: () => void;
 }) {
@@ -1084,7 +1086,28 @@ export function EstimateBuilderDialog({
   });
   const [notes, setNotes] = useState("");
   const [validUntil, setValidUntil] = useState("");
-  const [saving, setSaving] = useState(false);
+  const [busy, setBusy] = useState<null | "draft" | "send" | "email">(null);
+  const [preview, setPreview] = useState(false);
+  const [draftId, setDraftId] = useState<string | null>(null);
+  const [history, setHistory] = useState<EstimateRevision[]>([]);
+
+  const loadHistory = useCallback(async () => {
+    if (!a) return;
+    try {
+      const rows = await listEstimateRevisions(a.id);
+      setHistory(rows);
+      const draft = rows.find((r) => r.status === "draft");
+      if (draft) {
+        setDraftId((prev) => prev ?? draft.id);
+      }
+    } catch {
+      /* history is non-critical */
+    }
+  }, [a]);
+
+  useEffect(() => {
+    void loadHistory();
+  }, [loadHistory]);
 
   const total = useMemo(() => {
     let t = 0;
@@ -1095,135 +1118,280 @@ export function EstimateBuilderDialog({
     return Math.max(0, t);
   }, [values]);
 
-  async function submit() {
-    if (!a) return;
+  const commission = Math.round(total * 0.25);
+  const grossProfit = total - commission;
+
+  const breakdown = useMemo(() => {
+    const b: Record<string, number> = {};
+    for (const f of BREAKDOWN_FIELDS) b[f.key] = (Number(values[f.key]) || 0) * f.sign;
+    return b;
+  }, [values]);
+
+  function validate(): boolean {
+    if (!a) {
+      toast.error("No assignment for this lead");
+      return false;
+    }
     if (!Number.isFinite(total) || total <= 0 || total > 1_000_000) {
       toast.error("Total must be between $1 and $1,000,000");
-      return;
+      return false;
     }
-    setSaving(true);
-    const { data: last } = await supabase
-      .from("estimate_revisions")
-      .select("revision")
-      .eq("assignment_id", a.id)
-      .order("revision", { ascending: false })
-      .limit(1)
-      .maybeSingle();
-    const nextRev = (last?.revision ?? 0) + 1;
-    if (nextRev > 1) {
-      await supabase
-        .from("estimate_revisions")
-        .update({ is_current: false })
-        .eq("assignment_id", a.id)
-        .eq("is_current", true);
-    }
-    const breakdown: Record<string, number> = {};
-    for (const f of BREAKDOWN_FIELDS) breakdown[f.key] = Number(values[f.key]) || 0;
+    return true;
+  }
 
-    const { error } = await supabase.from("estimate_revisions").insert({
-      assignment_id: a.id,
-      quote_id: l.id,
-      company_id: companyId,
-      revision: nextRev,
+  async function persistDraft(): Promise<string | null> {
+    if (!a) return null;
+    const rev = await saveEstimateDraft({
+      assignmentId: a.id,
       amount: total,
-      currency: "USD",
-      valid_until: validUntil ? new Date(validUntil).toISOString() : null,
-      notes: notes.trim() || null,
       breakdown,
-      is_current: true,
+      notes: notes.trim() || null,
+      validUntil: validUntil || null,
+      revisionId: draftId,
     });
-    if (error) {
-      setSaving(false);
-      toast.error(error.message);
-      return;
+    setDraftId(rev.id);
+    await loadHistory();
+    return rev.id;
+  }
+
+  async function handleSaveDraft() {
+    if (!validate()) return;
+    setBusy("draft");
+    try {
+      await persistDraft();
+      toast.success("Draft saved");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Could not save draft");
     }
+    setBusy(null);
+  }
 
-    await supabase
-      .from("quote_assignments")
-      .update({
-        state: "quoted",
-        quoted_at: new Date().toISOString(),
-        quoted_amount: total,
-      })
-      .eq("id", a.id);
+  function buildPdf() {
+    return generateCompanyEstimatePdf({
+      companyName: companyName ?? "Moving estimate",
+      quoteNumber: l.quote_number ?? l.id.slice(0, 8),
+      revision: (history[0]?.revision ?? 0) + (draftId ? 0 : 1) || 1,
+      validUntil: validUntil || null,
+      customer: { name: l.full_name, email: l.contact_email, phone: l.contact_phone },
+      origin: l.origin_address ?? `${l.origin_city ?? ""} ${l.origin_zip}`,
+      destination: l.destination_address ?? `${l.destination_city ?? ""} ${l.destination_zip}`,
+      moveDate: l.move_date,
+      crewSize: l.num_movers,
+      truckSize: l.truck_size,
+      cubicFeet: l.estimated_cubic_feet,
+      breakdown: BREAKDOWN_FIELDS.map((f) => ({
+        label: f.label,
+        amount: (Number(values[f.key]) || 0) * f.sign,
+      })),
+      total,
+      notes: notes.trim() || null,
+      portalUrl: l.quote_number
+        ? `${typeof window !== "undefined" ? window.location.origin : ""}/portal/${l.quote_number}`
+        : null,
+    });
+  }
 
-    setSaving(false);
-    toast.success(`Estimate v${nextRev} submitted`);
-    onSubmitted();
+  function handleGeneratePdf() {
+    if (!validate()) return;
+    buildPdf().save(`estimate-${l.quote_number ?? l.id.slice(0, 8)}.pdf`);
+    toast.success("PDF generated");
+  }
+
+  async function handleSend(alsoEmail: boolean) {
+    if (!validate()) return;
+    setBusy(alsoEmail ? "email" : "send");
+    try {
+      const id = draftId ?? (await persistDraft());
+      if (!id) throw new Error("Could not save the estimate");
+      await persistDraft();
+      await sendEstimate(id, l.contact_email);
+      setDraftId(null);
+      await loadHistory();
+      if (alsoEmail && l.contact_email) {
+        const portal = l.quote_number
+          ? `${window.location.origin}/portal/${l.quote_number}`
+          : window.location.origin;
+        const subject = encodeURIComponent(
+          `Your moving estimate ${l.quote_number ?? ""} — $${total.toLocaleString()}`,
+        );
+        const body = encodeURIComponent(
+          `Hi ${l.full_name ?? "there"},\n\nYour moving estimate is ready: $${total.toLocaleString()}.\n\nReview and accept online: ${portal}\n\n— ${companyName ?? "Your moving company"}`,
+        );
+        window.open(`mailto:${l.contact_email}?subject=${subject}&body=${body}`, "_blank");
+      }
+      toast.success(alsoEmail ? "Estimate sent & email drafted" : "Estimate sent to customer");
+      onSubmitted();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Could not send the estimate");
+    }
+    setBusy(null);
   }
 
   return (
     <Dialog open onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="max-w-2xl max-h-[92vh] overflow-y-auto">
+      <DialogContent className="max-w-3xl max-h-[92vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Estimate builder — {l.quote_number ?? l.id.slice(0, 8)}</DialogTitle>
         </DialogHeader>
-        <div className="space-y-4">
-          <div className="rounded-lg bg-muted/50 p-3 text-sm">
-            Broker estimate:{" "}
-            <b>
-              ${Number(l.estimated_low).toLocaleString()} – $
-              {Number(l.estimated_high).toLocaleString()}
-            </b>
+
+        {preview ? (
+          <div className="space-y-4">
+            <div className="rounded-xl border border-border p-5">
+              <div className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+                {companyName ?? "Estimate"} · preview
+              </div>
+              <div className="mt-1 font-serif text-3xl">${total.toLocaleString()}</div>
+              <div className="mt-1 text-sm text-muted-foreground">
+                {l.full_name ?? "Customer"} · {l.origin_zip} → {l.destination_zip}
+                {l.move_date ? ` · ${l.move_date}` : ""}
+              </div>
+              <div className="mt-4 space-y-1.5 text-sm">
+                {BREAKDOWN_FIELDS.filter((f) => Number(values[f.key])).map((f) => (
+                  <div key={f.key} className="flex justify-between border-b border-border/60 pb-1">
+                    <span>{f.label}</span>
+                    <span>
+                      {f.sign < 0 ? "–" : ""}${(Number(values[f.key]) || 0).toLocaleString()}
+                    </span>
+                  </div>
+                ))}
+                <div className="flex justify-between pt-2 font-semibold">
+                  <span>Total</span>
+                  <span>${total.toLocaleString()}</span>
+                </div>
+              </div>
+              {validUntil && (
+                <p className="mt-3 text-xs text-muted-foreground">
+                  Valid until {new Date(validUntil).toLocaleDateString()}
+                </p>
+              )}
+              {notes.trim() && <p className="mt-3 whitespace-pre-line text-sm">{notes}</p>}
+            </div>
+            <Button variant="outline" onClick={() => setPreview(false)}>
+              ← Back to editor
+            </Button>
           </div>
-          <div className="grid grid-cols-2 gap-3">
-            {BREAKDOWN_FIELDS.map((f) => (
-              <div key={f.key} className="space-y-1">
-                <Label htmlFor={`est-${f.key}`} className="text-xs">
-                  {f.label} {f.sign < 0 && <span className="text-rose-700">(–)</span>}
-                </Label>
+        ) : (
+          <div className="space-y-4">
+            <div className="rounded-lg bg-muted/50 p-3 text-sm">
+              Broker estimate:{" "}
+              <b>
+                ${Number(l.estimated_low).toLocaleString()} – $
+                {Number(l.estimated_high).toLocaleString()}
+              </b>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              {BREAKDOWN_FIELDS.map((f) => (
+                <div key={f.key} className="space-y-1">
+                  <Label htmlFor={`est-${f.key}`} className="text-xs">
+                    {f.label} {f.sign < 0 && <span className="text-rose-700">(–)</span>}
+                  </Label>
+                  <Input
+                    id={`est-${f.key}`}
+                    type="number"
+                    min={0}
+                    step={1}
+                    value={values[f.key]}
+                    onChange={(e) => setValues((v) => ({ ...v, [f.key]: e.target.value }))}
+                  />
+                </div>
+              ))}
+            </div>
+            <div className="rounded-xl bg-gradient-to-br from-emerald-50 to-blue-50 border border-emerald-200 p-4">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-semibold uppercase tracking-widest text-emerald-800">
+                  Company estimate
+                </span>
+                <span className="font-serif text-2xl">${total.toLocaleString()}</span>
+              </div>
+              <div className="mt-2 flex flex-wrap gap-4 text-xs text-emerald-900/80">
+                <span>Broker commission (25%): ${commission.toLocaleString()}</span>
+                <span>Gross profit: ${grossProfit.toLocaleString()}</span>
+              </div>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="space-y-1.5">
+                <Label htmlFor="est-valid">Valid until (optional)</Label>
                 <Input
-                  id={`est-${f.key}`}
-                  type="number"
-                  min={0}
-                  step={1}
-                  value={values[f.key]}
-                  onChange={(e) => setValues((v) => ({ ...v, [f.key]: e.target.value }))}
+                  id="est-valid"
+                  type="date"
+                  value={validUntil}
+                  onChange={(e) => setValidUntil(e.target.value)}
                 />
               </div>
-            ))}
-          </div>
-          <div className="rounded-xl bg-gradient-to-br from-emerald-50 to-blue-50 border border-emerald-200 p-4 flex items-center justify-between">
-            <span className="text-xs font-semibold uppercase tracking-widest text-emerald-800">
-              Total
-            </span>
-            <span className="font-serif text-2xl">${total.toLocaleString()}</span>
-          </div>
-          <div className="grid gap-3 sm:grid-cols-2">
+            </div>
             <div className="space-y-1.5">
-              <Label htmlFor="est-valid">Valid until (optional)</Label>
-              <Input
-                id="est-valid"
-                type="date"
-                value={validUntil}
-                onChange={(e) => setValidUntil(e.target.value)}
+              <Label htmlFor="est-notes">Notes for the customer (optional)</Label>
+              <Textarea
+                id="est-notes"
+                rows={3}
+                maxLength={2000}
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                placeholder="Scope assumptions, add-ons, availability…"
               />
             </div>
+
+            {history.length > 0 && (
+              <div className="rounded-xl border border-border p-3">
+                <div className="mb-2 flex items-center gap-2 text-sm font-semibold">
+                  <History className="h-4 w-4 text-primary" /> Revision history
+                </div>
+                <div className="space-y-1.5">
+                  {history.map((r) => (
+                    <div
+                      key={r.id}
+                      className="flex flex-wrap items-center justify-between gap-2 rounded-lg bg-muted/40 px-3 py-2 text-xs"
+                    >
+                      <span className="font-semibold">v{r.revision}</span>
+                      <Badge variant="outline" className={ESTIMATE_STATUS_STYLE[r.status]}>
+                        {ESTIMATE_STATUS_LABEL[r.status]}
+                      </Badge>
+                      <span className="text-muted-foreground">
+                        {new Date(r.sent_at ?? r.submitted_at).toLocaleString()}
+                      </span>
+                      <span className="font-medium">${Number(r.amount).toLocaleString()}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="est-notes">Notes for broker (optional)</Label>
-            <Textarea
-              id="est-notes"
-              rows={3}
-              maxLength={2000}
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              placeholder="Scope assumptions, add-ons, availability…"
-            />
-          </div>
-        </div>
-        <DialogFooter>
-          <Button variant="outline" onClick={onClose} disabled={saving}>
+        )}
+
+        <DialogFooter className="flex-col gap-2 sm:flex-row sm:flex-wrap sm:justify-end">
+          <Button variant="ghost" onClick={onClose} disabled={!!busy}>
             Cancel
           </Button>
-          <Button onClick={() => void submit()} disabled={saving}>
-            {saving ? "Submitting…" : "Submit estimate"}
+          <Button variant="outline" onClick={() => setPreview((p) => !p)} disabled={!!busy}>
+            <Eye className="mr-1.5 h-4 w-4" />
+            {preview ? "Edit" : "Preview estimate"}
+          </Button>
+          <Button variant="outline" onClick={handleGeneratePdf} disabled={!!busy}>
+            <FileDown className="mr-1.5 h-4 w-4" />
+            Generate PDF
+          </Button>
+          <Button variant="outline" onClick={() => void handleSaveDraft()} disabled={!!busy}>
+            <Save className="mr-1.5 h-4 w-4" />
+            {busy === "draft" ? "Saving…" : "Save draft"}
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => void handleSend(true)}
+            disabled={!!busy || !l.contact_email}
+          >
+            <Mail className="mr-1.5 h-4 w-4" />
+            {busy === "email" ? "Sending…" : "Email estimate"}
+          </Button>
+          <Button onClick={() => void handleSend(false)} disabled={!!busy}>
+            <Send className="mr-1.5 h-4 w-4" />
+            {busy === "send" ? "Sending…" : "Send to customer"}
           </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
   );
 }
+
 
 /* ================================================================== */
 /*                        NoCompany fallback                            */

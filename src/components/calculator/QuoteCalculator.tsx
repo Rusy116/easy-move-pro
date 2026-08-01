@@ -147,6 +147,7 @@ interface FormState {
   contactMethod: "phone" | "sms" | "email";
   contactTime: "morning" | "midday" | "afternoon" | "evening" | "anytime";
   notes: string;
+  termsAccepted: boolean;
 }
 
 const DEFAULT: FormState = {
@@ -173,6 +174,7 @@ const DEFAULT: FormState = {
   contactMethod: "phone",
   contactTime: "anytime",
   notes: "",
+  termsAccepted: false,
 };
 
 function createInitialForm(): FormState {
@@ -569,6 +571,16 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
     };
   }
 
+  const missingFields: string[] = [];
+  if (!canEstimate) missingFields.push("move details");
+  if (!form.fullName.trim()) missingFields.push("full name");
+  if (!isValidUsPhone(form.phone)) missingFields.push("phone number");
+  if (!isValidEmail(form.email)) missingFields.push("email address");
+  if (!form.termsAccepted) missingFields.push("terms agreement");
+  const submitDisabled = missingFields.length > 0 || saving || stage !== "form";
+
+
+
   async function handleSubmit() {
     if (saving || stage !== "form") return;
     if (
@@ -578,6 +590,10 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
       !isValidEmail(form.email)
     ) {
       toast.error("Please complete all required fields.");
+      return;
+    }
+    if (!form.termsAccepted) {
+      toast.error("Please accept the Terms of Service and Privacy Policy.");
       return;
     }
     setSubmitError(null);
@@ -1157,16 +1173,45 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
           </div>
 
           <div className="mt-5 flex flex-col items-stretch gap-3">
+            <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-border bg-card p-3 text-left text-xs leading-relaxed text-muted-foreground">
+              <span
+                className={cn(
+                  "mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded border transition-colors",
+                  form.termsAccepted
+                    ? "border-primary bg-primary text-primary-foreground"
+                    : "border-border bg-background",
+                )}
+              >
+                {form.termsAccepted && <Check className="h-3 w-3" />}
+              </span>
+              <input
+                type="checkbox"
+                className="sr-only"
+                checked={form.termsAccepted}
+                onChange={(e) => set("termsAccepted", e.target.checked)}
+              />
+              <span>
+                I agree to the{" "}
+                <a
+                  href="/terms"
+                  className="font-medium text-primary underline-offset-2 hover:underline"
+                >
+                  Terms of Service
+                </a>{" "}
+                and{" "}
+                <a
+                  href="/privacy"
+                  className="font-medium text-primary underline-offset-2 hover:underline"
+                >
+                  Privacy Policy
+                </a>
+                , and consent to be contacted about my move.
+              </span>
+            </label>
+
             <Button
               onClick={handleSubmit}
-              disabled={
-                !canEstimate ||
-                !form.fullName.trim() ||
-                !isValidUsPhone(form.phone) ||
-                !isValidEmail(form.email) ||
-                saving ||
-                stage !== "form"
-              }
+              disabled={submitDisabled}
               size="lg"
               className="w-full rounded-full bg-primary py-6 text-base font-semibold uppercase tracking-wide text-primary-foreground shadow-lg transition-transform hover:scale-[1.01] hover:bg-primary/90 disabled:opacity-70"
             >
@@ -1182,23 +1227,11 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
                 </>
               )}
             </Button>
-            <p className="text-center text-[11px] leading-relaxed text-muted-foreground">
-              By clicking Get My Free Moving Quote, you agree to our{" "}
-              <a
-                href="/privacy"
-                className="font-medium text-primary underline-offset-2 hover:underline"
-              >
-                Privacy Policy
-              </a>{" "}
-              and{" "}
-              <a
-                href="/terms"
-                className="font-medium text-primary underline-offset-2 hover:underline"
-              >
-                Terms of Service
-              </a>
-              .
-            </p>
+            {missingFields.length > 0 && (
+              <p className="text-center text-[11px] text-muted-foreground">
+                Still needed: {missingFields.join(" · ")}
+              </p>
+            )}
             {submitError && (
               <div
                 className="rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-center text-sm font-medium text-destructive"
@@ -1207,7 +1240,30 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
                 {submitError}
               </div>
             )}
+            {/* Spacer so the mobile sticky bar never covers the last element. */}
+            <div className="h-16 sm:hidden" aria-hidden />
           </div>
+        </div>
+      )}
+
+      {/* Mobile sticky submit bar */}
+      {stage === "form" && !compact && (
+        <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/95 px-4 py-3 backdrop-blur sm:hidden">
+          <Button
+            onClick={handleSubmit}
+            disabled={submitDisabled}
+            size="lg"
+            className="w-full rounded-full bg-primary py-5 text-sm font-semibold uppercase tracking-wide text-primary-foreground shadow-lg"
+          >
+            {saving ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Submitting…
+              </>
+            ) : (
+              "Get My Quotes"
+            )}
+          </Button>
         </div>
       )}
       {stage === "form" && quote && compact && handedOffRef.current && (

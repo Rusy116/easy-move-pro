@@ -702,7 +702,8 @@ export function LeadDetailDialog({
     }
   }
 
-  const showFullContact = a && !!(l.full_name || l.contact_phone || l.contact_email);
+  const claimed = isClaimedByMe(merged);
+  const showFullContact = claimed && !!(l.full_name || l.contact_phone || l.contact_email);
   const TABS: Array<{ id: typeof tab; label: string }> = [
     { id: "profile", label: "Profile" },
     { id: "inventory", label: "Inventory" },

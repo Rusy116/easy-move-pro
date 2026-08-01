@@ -140,6 +140,9 @@ function JobDetailsPage() {
     );
   }
 
+  // Customer PII, portal access and the final quote unlock only after a claim.
+  const unlocked = Boolean(job.claimed_at && job.assigned_company_id);
+
   const set = (k: keyof Form) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
     setForm({ ...form, [k]: e.target.value });
 

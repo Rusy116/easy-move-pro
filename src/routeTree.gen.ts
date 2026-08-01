@@ -67,6 +67,7 @@ import { Route as AuthenticatedCustomerDocumentsRouteImport } from './routes/_au
 import { Route as AuthenticatedCustomerDashboardRouteImport } from './routes/_authenticated/customer.dashboard'
 import { Route as AuthenticatedCompanySupportRouteImport } from './routes/_authenticated/company.support'
 import { Route as AuthenticatedCompanySettingsRouteImport } from './routes/_authenticated/company.settings'
+import { Route as AuthenticatedCompanyScheduledRouteImport } from './routes/_authenticated/company.scheduled'
 import { Route as AuthenticatedCompanyScheduleRouteImport } from './routes/_authenticated/company.schedule'
 import { Route as AuthenticatedCompanyProfileRouteImport } from './routes/_authenticated/company.profile'
 import { Route as AuthenticatedCompanyNotificationsRouteImport } from './routes/_authenticated/company.notifications'
@@ -400,6 +401,12 @@ const AuthenticatedCompanySettingsRoute =
     path: '/settings',
     getParentRoute: () => AuthenticatedCompanyRoute,
   } as any)
+const AuthenticatedCompanyScheduledRoute =
+  AuthenticatedCompanyScheduledRouteImport.update({
+    id: '/scheduled',
+    path: '/scheduled',
+    getParentRoute: () => AuthenticatedCompanyRoute,
+  } as any)
 const AuthenticatedCompanyScheduleRoute =
   AuthenticatedCompanyScheduleRouteImport.update({
     id: '/schedule',
@@ -642,6 +649,7 @@ export interface FileRoutesByFullPath {
   '/company/notifications': typeof AuthenticatedCompanyNotificationsRoute
   '/company/profile': typeof AuthenticatedCompanyProfileRoute
   '/company/schedule': typeof AuthenticatedCompanyScheduleRoute
+  '/company/scheduled': typeof AuthenticatedCompanyScheduledRoute
   '/company/settings': typeof AuthenticatedCompanySettingsRoute
   '/company/support': typeof AuthenticatedCompanySupportRoute
   '/customer/dashboard': typeof AuthenticatedCustomerDashboardRoute
@@ -729,6 +737,7 @@ export interface FileRoutesByTo {
   '/company/notifications': typeof AuthenticatedCompanyNotificationsRoute
   '/company/profile': typeof AuthenticatedCompanyProfileRoute
   '/company/schedule': typeof AuthenticatedCompanyScheduleRoute
+  '/company/scheduled': typeof AuthenticatedCompanyScheduledRoute
   '/company/settings': typeof AuthenticatedCompanySettingsRoute
   '/company/support': typeof AuthenticatedCompanySupportRoute
   '/customer/dashboard': typeof AuthenticatedCustomerDashboardRoute
@@ -819,6 +828,7 @@ export interface FileRoutesById {
   '/_authenticated/company/notifications': typeof AuthenticatedCompanyNotificationsRoute
   '/_authenticated/company/profile': typeof AuthenticatedCompanyProfileRoute
   '/_authenticated/company/schedule': typeof AuthenticatedCompanyScheduleRoute
+  '/_authenticated/company/scheduled': typeof AuthenticatedCompanyScheduledRoute
   '/_authenticated/company/settings': typeof AuthenticatedCompanySettingsRoute
   '/_authenticated/company/support': typeof AuthenticatedCompanySupportRoute
   '/_authenticated/customer/dashboard': typeof AuthenticatedCustomerDashboardRoute
@@ -909,6 +919,7 @@ export interface FileRouteTypes {
     | '/company/notifications'
     | '/company/profile'
     | '/company/schedule'
+    | '/company/scheduled'
     | '/company/settings'
     | '/company/support'
     | '/customer/dashboard'
@@ -996,6 +1007,7 @@ export interface FileRouteTypes {
     | '/company/notifications'
     | '/company/profile'
     | '/company/schedule'
+    | '/company/scheduled'
     | '/company/settings'
     | '/company/support'
     | '/customer/dashboard'
@@ -1085,6 +1097,7 @@ export interface FileRouteTypes {
     | '/_authenticated/company/notifications'
     | '/_authenticated/company/profile'
     | '/_authenticated/company/schedule'
+    | '/_authenticated/company/scheduled'
     | '/_authenticated/company/settings'
     | '/_authenticated/company/support'
     | '/_authenticated/customer/dashboard'
@@ -1556,6 +1569,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCompanySettingsRouteImport
       parentRoute: typeof AuthenticatedCompanyRoute
     }
+    '/_authenticated/company/scheduled': {
+      id: '/_authenticated/company/scheduled'
+      path: '/scheduled'
+      fullPath: '/company/scheduled'
+      preLoaderRoute: typeof AuthenticatedCompanyScheduledRouteImport
+      parentRoute: typeof AuthenticatedCompanyRoute
+    }
     '/_authenticated/company/schedule': {
       id: '/_authenticated/company/schedule'
       path: '/schedule'
@@ -1782,6 +1802,7 @@ interface AuthenticatedCompanyRouteChildren {
   AuthenticatedCompanyNotificationsRoute: typeof AuthenticatedCompanyNotificationsRoute
   AuthenticatedCompanyProfileRoute: typeof AuthenticatedCompanyProfileRoute
   AuthenticatedCompanyScheduleRoute: typeof AuthenticatedCompanyScheduleRoute
+  AuthenticatedCompanyScheduledRoute: typeof AuthenticatedCompanyScheduledRoute
   AuthenticatedCompanySettingsRoute: typeof AuthenticatedCompanySettingsRoute
   AuthenticatedCompanySupportRoute: typeof AuthenticatedCompanySupportRoute
   AuthenticatedCompanyIndexRoute: typeof AuthenticatedCompanyIndexRoute
@@ -1809,6 +1830,7 @@ const AuthenticatedCompanyRouteChildren: AuthenticatedCompanyRouteChildren = {
     AuthenticatedCompanyNotificationsRoute,
   AuthenticatedCompanyProfileRoute: AuthenticatedCompanyProfileRoute,
   AuthenticatedCompanyScheduleRoute: AuthenticatedCompanyScheduleRoute,
+  AuthenticatedCompanyScheduledRoute: AuthenticatedCompanyScheduledRoute,
   AuthenticatedCompanySettingsRoute: AuthenticatedCompanySettingsRoute,
   AuthenticatedCompanySupportRoute: AuthenticatedCompanySupportRoute,
   AuthenticatedCompanyIndexRoute: AuthenticatedCompanyIndexRoute,

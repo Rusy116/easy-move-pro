@@ -116,6 +116,74 @@ export type Database = {
           },
         ]
       }
+      bills_of_lading: {
+        Row: {
+          company_id: string
+          created_at: string
+          id: string
+          issued_at: string
+          job_id: string
+          number: string
+          payload: Json
+          quote_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          id?: string
+          issued_at?: string
+          job_id: string
+          number: string
+          payload?: Json
+          quote_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          id?: string
+          issued_at?: string
+          job_id?: string
+          number?: string
+          payload?: Json
+          quote_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bills_of_lading_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "moving_companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bills_of_lading_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "jobs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bills_of_lading_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "mover_lead_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bills_of_lading_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "quotes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       blog_posts: {
         Row: {
           author_id: string | null
@@ -1433,6 +1501,73 @@ export type Database = {
           },
         ]
       }
+      customers: {
+        Row: {
+          company_id: string
+          created_at: string
+          destination_address: string | null
+          email: string | null
+          full_name: string | null
+          id: string
+          notes: string | null
+          origin_address: string | null
+          phone: string | null
+          quote_id: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          destination_address?: string | null
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          notes?: string | null
+          origin_address?: string | null
+          phone?: string | null
+          quote_id?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          destination_address?: string | null
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          notes?: string | null
+          origin_address?: string | null
+          phone?: string | null
+          quote_id?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "customers_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "moving_companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "customers_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "mover_lead_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "customers_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "quotes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       digital_products: {
         Row: {
           cover_url: string | null
@@ -1471,49 +1606,94 @@ export type Database = {
       }
       estimate_revisions: {
         Row: {
+          accepted_at: string | null
           amount: number
           assignment_id: string
           breakdown: Json
+          broker_commission: number | null
+          broker_estimate_high: number | null
+          broker_estimate_low: number | null
+          commission_rate: number
+          company_estimate: number | null
           company_id: string
           currency: string
+          final_accepted_price: number | null
+          gross_profit: number | null
           id: string
           is_current: boolean
           notes: string | null
           quote_id: string
+          rejected_at: string | null
+          rejection_reason: string | null
           revision: number
+          sent_at: string | null
+          sent_to_email: string | null
+          status: string
           submitted_at: string
           submitted_by: string | null
+          updated_at: string
           valid_until: string | null
+          viewed_at: string | null
         }
         Insert: {
+          accepted_at?: string | null
           amount: number
           assignment_id: string
           breakdown?: Json
+          broker_commission?: number | null
+          broker_estimate_high?: number | null
+          broker_estimate_low?: number | null
+          commission_rate?: number
+          company_estimate?: number | null
           company_id: string
           currency?: string
+          final_accepted_price?: number | null
+          gross_profit?: number | null
           id?: string
           is_current?: boolean
           notes?: string | null
           quote_id: string
+          rejected_at?: string | null
+          rejection_reason?: string | null
           revision?: number
+          sent_at?: string | null
+          sent_to_email?: string | null
+          status?: string
           submitted_at?: string
           submitted_by?: string | null
+          updated_at?: string
           valid_until?: string | null
+          viewed_at?: string | null
         }
         Update: {
+          accepted_at?: string | null
           amount?: number
           assignment_id?: string
           breakdown?: Json
+          broker_commission?: number | null
+          broker_estimate_high?: number | null
+          broker_estimate_low?: number | null
+          commission_rate?: number
+          company_estimate?: number | null
           company_id?: string
           currency?: string
+          final_accepted_price?: number | null
+          gross_profit?: number | null
           id?: string
           is_current?: boolean
           notes?: string | null
           quote_id?: string
+          rejected_at?: string | null
+          rejection_reason?: string | null
           revision?: number
+          sent_at?: string | null
+          sent_to_email?: string | null
+          status?: string
           submitted_at?: string
           submitted_by?: string | null
+          updated_at?: string
           valid_until?: string | null
+          viewed_at?: string | null
         }
         Relationships: [
           {
@@ -1539,6 +1719,102 @@ export type Database = {
           },
           {
             foreignKeyName: "estimate_revisions_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "quotes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      jobs: {
+        Row: {
+          arrival_window: string | null
+          broker_commission: number
+          company_id: string
+          created_at: string
+          crew_size: number | null
+          customer_id: string | null
+          estimate_revision_id: string | null
+          final_price: number
+          gross_profit: number
+          id: string
+          job_number: string
+          notes: string | null
+          quote_id: string
+          scheduled_date: string | null
+          status: string
+          truck_size: string | null
+          updated_at: string
+        }
+        Insert: {
+          arrival_window?: string | null
+          broker_commission?: number
+          company_id: string
+          created_at?: string
+          crew_size?: number | null
+          customer_id?: string | null
+          estimate_revision_id?: string | null
+          final_price?: number
+          gross_profit?: number
+          id?: string
+          job_number: string
+          notes?: string | null
+          quote_id: string
+          scheduled_date?: string | null
+          status?: string
+          truck_size?: string | null
+          updated_at?: string
+        }
+        Update: {
+          arrival_window?: string | null
+          broker_commission?: number
+          company_id?: string
+          created_at?: string
+          crew_size?: number | null
+          customer_id?: string | null
+          estimate_revision_id?: string | null
+          final_price?: number
+          gross_profit?: number
+          id?: string
+          job_number?: string
+          notes?: string | null
+          quote_id?: string
+          scheduled_date?: string | null
+          status?: string
+          truck_size?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "jobs_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "moving_companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "jobs_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "jobs_estimate_revision_id_fkey"
+            columns: ["estimate_revision_id"]
+            isOneToOne: false
+            referencedRelation: "estimate_revisions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "jobs_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "mover_lead_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "jobs_quote_id_fkey"
             columns: ["quote_id"]
             isOneToOne: false
             referencedRelation: "quotes"
@@ -2114,6 +2390,7 @@ export type Database = {
       quotes: {
         Row: {
           accepted_at: string | null
+          accepted_estimate_id: string | null
           appliances: boolean
           arrival_window: string | null
           assembly: boolean
@@ -2122,6 +2399,7 @@ export type Database = {
           assigned_company_id: string | null
           bedrooms: number
           breakdown: Json
+          broker_commission: number | null
           cancellation_note: string | null
           cancellation_reason: string | null
           cancelled_at: string | null
@@ -2168,6 +2446,7 @@ export type Database = {
           exclusive_pause_reason: string | null
           exclusive_paused_at: string | null
           exclusive_started_at: string | null
+          final_accepted_price: number | null
           final_move_date: string | null
           final_price: number | null
           final_quote_sent_at: string | null
@@ -2175,6 +2454,7 @@ export type Database = {
           flexible_date: boolean
           floor: number
           fragile_items: boolean
+          gross_profit: number | null
           gym_equipment: boolean
           heavy_items: boolean
           id: string
@@ -2232,6 +2512,7 @@ export type Database = {
         }
         Insert: {
           accepted_at?: string | null
+          accepted_estimate_id?: string | null
           appliances?: boolean
           arrival_window?: string | null
           assembly?: boolean
@@ -2240,6 +2521,7 @@ export type Database = {
           assigned_company_id?: string | null
           bedrooms?: number
           breakdown?: Json
+          broker_commission?: number | null
           cancellation_note?: string | null
           cancellation_reason?: string | null
           cancelled_at?: string | null
@@ -2286,6 +2568,7 @@ export type Database = {
           exclusive_pause_reason?: string | null
           exclusive_paused_at?: string | null
           exclusive_started_at?: string | null
+          final_accepted_price?: number | null
           final_move_date?: string | null
           final_price?: number | null
           final_quote_sent_at?: string | null
@@ -2293,6 +2576,7 @@ export type Database = {
           flexible_date?: boolean
           floor?: number
           fragile_items?: boolean
+          gross_profit?: number | null
           gym_equipment?: boolean
           heavy_items?: boolean
           id?: string
@@ -2350,6 +2634,7 @@ export type Database = {
         }
         Update: {
           accepted_at?: string | null
+          accepted_estimate_id?: string | null
           appliances?: boolean
           arrival_window?: string | null
           assembly?: boolean
@@ -2358,6 +2643,7 @@ export type Database = {
           assigned_company_id?: string | null
           bedrooms?: number
           breakdown?: Json
+          broker_commission?: number | null
           cancellation_note?: string | null
           cancellation_reason?: string | null
           cancelled_at?: string | null
@@ -2404,6 +2690,7 @@ export type Database = {
           exclusive_pause_reason?: string | null
           exclusive_paused_at?: string | null
           exclusive_started_at?: string | null
+          final_accepted_price?: number | null
           final_move_date?: string | null
           final_price?: number | null
           final_quote_sent_at?: string | null
@@ -2411,6 +2698,7 @@ export type Database = {
           flexible_date?: boolean
           floor?: number
           fragile_items?: boolean
+          gross_profit?: number | null
           gym_equipment?: boolean
           heavy_items?: boolean
           id?: string
@@ -2908,6 +3196,7 @@ export type Database = {
         Args: { _company_id: string }
         Returns: {
           accepted_at: string | null
+          accepted_estimate_id: string | null
           appliances: boolean
           arrival_window: string | null
           assembly: boolean
@@ -2916,6 +3205,7 @@ export type Database = {
           assigned_company_id: string | null
           bedrooms: number
           breakdown: Json
+          broker_commission: number | null
           cancellation_note: string | null
           cancellation_reason: string | null
           cancelled_at: string | null
@@ -2962,6 +3252,7 @@ export type Database = {
           exclusive_pause_reason: string | null
           exclusive_paused_at: string | null
           exclusive_started_at: string | null
+          final_accepted_price: number | null
           final_move_date: string | null
           final_price: number | null
           final_quote_sent_at: string | null
@@ -2969,6 +3260,7 @@ export type Database = {
           flexible_date: boolean
           floor: number
           fragile_items: boolean
+          gross_profit: number | null
           gym_equipment: boolean
           heavy_items: boolean
           id: string
@@ -3085,6 +3377,61 @@ export type Database = {
       fn_distribute_lead: {
         Args: { _quote_id: string; _reason?: string }
         Returns: number
+      }
+      fn_estimate_mark_viewed: { Args: { _revision_id: string }; Returns: Json }
+      fn_estimate_respond: {
+        Args: { _accept: boolean; _reason?: string; _revision_id: string }
+        Returns: Json
+      }
+      fn_estimate_save_draft: {
+        Args: {
+          _amount: number
+          _assignment_id: string
+          _breakdown?: Json
+          _notes?: string
+          _revision_id?: string
+          _valid_until?: string
+        }
+        Returns: {
+          accepted_at: string | null
+          amount: number
+          assignment_id: string
+          breakdown: Json
+          broker_commission: number | null
+          broker_estimate_high: number | null
+          broker_estimate_low: number | null
+          commission_rate: number
+          company_estimate: number | null
+          company_id: string
+          currency: string
+          final_accepted_price: number | null
+          gross_profit: number | null
+          id: string
+          is_current: boolean
+          notes: string | null
+          quote_id: string
+          rejected_at: string | null
+          rejection_reason: string | null
+          revision: number
+          sent_at: string | null
+          sent_to_email: string | null
+          status: string
+          submitted_at: string
+          submitted_by: string | null
+          updated_at: string
+          valid_until: string | null
+          viewed_at: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "estimate_revisions"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      fn_estimate_send: {
+        Args: { _email?: string; _revision_id: string }
+        Returns: Json
       }
       fn_expire_stale_claims: { Args: never; Returns: number }
       fn_extend_sla: {
@@ -3289,6 +3636,10 @@ export type Database = {
       fn_my_account_status: { Args: never; Returns: string }
       fn_my_company_ids: { Args: never; Returns: string[] }
       fn_my_primary_role: { Args: never; Returns: string }
+      fn_notify_broker: {
+        Args: { _message: string; _quote_id: string; _type: string }
+        Returns: undefined
+      }
       fn_notify_marketplace: {
         Args: {
           _body: string
@@ -3303,6 +3654,19 @@ export type Database = {
       fn_pause_sla: {
         Args: { _quote_id: string; _reason: string }
         Returns: undefined
+      }
+      fn_portal_current_estimate: {
+        Args: { _quote_number: string; _token: string }
+        Returns: Json
+      }
+      fn_portal_respond_estimate: {
+        Args: {
+          _accept: boolean
+          _quote_number: string
+          _reason?: string
+          _token: string
+        }
+        Returns: Json
       }
       fn_reassign_exclusive: {
         Args: {
@@ -3360,6 +3724,7 @@ export type Database = {
         }
         Returns: {
           accepted_at: string | null
+          accepted_estimate_id: string | null
           appliances: boolean
           arrival_window: string | null
           assembly: boolean
@@ -3368,6 +3733,7 @@ export type Database = {
           assigned_company_id: string | null
           bedrooms: number
           breakdown: Json
+          broker_commission: number | null
           cancellation_note: string | null
           cancellation_reason: string | null
           cancelled_at: string | null
@@ -3414,6 +3780,7 @@ export type Database = {
           exclusive_pause_reason: string | null
           exclusive_paused_at: string | null
           exclusive_started_at: string | null
+          final_accepted_price: number | null
           final_move_date: string | null
           final_price: number | null
           final_quote_sent_at: string | null
@@ -3421,6 +3788,7 @@ export type Database = {
           flexible_date: boolean
           floor: number
           fragile_items: boolean
+          gross_profit: number | null
           gym_equipment: boolean
           heavy_items: boolean
           id: string

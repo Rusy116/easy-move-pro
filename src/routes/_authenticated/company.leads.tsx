@@ -282,6 +282,7 @@ function LeadsPage() {
         <EstimateBuilderDialog
           merged={estimateFor}
           companyId={company.id}
+          companyName={company.name}
           onClose={() => setEstimateFor(null)}
           onSubmitted={() => {
             setEstimateFor(null);

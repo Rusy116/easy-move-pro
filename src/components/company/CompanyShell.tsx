@@ -5,6 +5,8 @@ import {
   Globe,
   FileText,
   Calendar,
+  CalendarCheck,
+
   Users,
   MessageSquare,
   Receipt,
@@ -27,6 +29,8 @@ const FULL_NAV = [
   { to: "/company/leads", label: "Leads", icon: <Inbox className="h-4 w-4" /> },
   { to: "/company/jobs", label: "Jobs", icon: <Truck className="h-4 w-4" /> },
   { to: "/company/estimates", label: "Estimates", icon: <FileText className="h-4 w-4" /> },
+  { to: "/company/scheduled", label: "Scheduled", icon: <CalendarCheck className="h-4 w-4" /> },
+
   { to: "/company/customers", label: "Customers", icon: <Users className="h-4 w-4" /> },
   { to: "/company/invoices", label: "Invoices", icon: <Receipt className="h-4 w-4" /> },
   { to: "/company/finance", label: "Finance", icon: <Wallet className="h-4 w-4" /> },

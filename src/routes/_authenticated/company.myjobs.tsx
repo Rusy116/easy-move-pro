@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { SkeletonRows } from "@/components/shell/Chrome";
 import { EmptyState, MyJobCard } from "@/components/company/JobsUI";
-import { useCompanyJobs, useMyCompany, JOB_STATUS_LABEL, type JobStatus } from "@/lib/company-jobs";
+import { useCompanyJobs, useMyCompany, type JobStatus } from "@/lib/company-jobs";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/_authenticated/company/myjobs")({
@@ -20,15 +20,18 @@ export const Route = createFileRoute("/_authenticated/company/myjobs")({
 
 const FILTERS: Array<{ key: string; label: string }> = [
   { key: "active", label: "Active" },
+  { key: "claimed", label: "Claimed" },
+  { key: "contacted", label: "Contacted" },
+  { key: "final_quote_sent", label: "Estimate sent" },
+  { key: "booked", label: "Booked" },
+  { key: "completed", label: "Completed" },
+  { key: "cancelled", label: "Cancelled" },
   { key: "all", label: "All" },
-  { key: "claimed", label: JOB_STATUS_LABEL.claimed },
-  { key: "contacted", label: JOB_STATUS_LABEL.contacted },
-  { key: "final_quote_sent", label: JOB_STATUS_LABEL.final_quote_sent },
-  { key: "booked", label: JOB_STATUS_LABEL.booked },
-  { key: "completed", label: JOB_STATUS_LABEL.completed },
 ];
 
 const CLOSED: JobStatus[] = ["completed", "cancelled", "rejected", "expired"];
+const CANCELLED: JobStatus[] = ["cancelled", "rejected", "expired"];
+
 
 function MyJobsPage() {
   const { company, loading: loadingCompany } = useMyCompany();
@@ -39,8 +42,13 @@ function MyJobsPage() {
     if (filter === "all") return myJobs;
     if (filter === "active")
       return myJobs.filter((j) => !CLOSED.includes(j.job_status as JobStatus));
+    if (filter === "booked")
+      return myJobs.filter((j) => ["booked", "accepted", "scheduled"].includes(j.job_status ?? ""));
+    if (filter === "cancelled")
+      return myJobs.filter((j) => CANCELLED.includes(j.job_status as JobStatus));
     return myJobs.filter((j) => j.job_status === filter);
   }, [myJobs, filter]);
+
 
   if (loadingCompany || (loading && !myJobs.length)) return <SkeletonRows n={4} />;
   if (!company) {

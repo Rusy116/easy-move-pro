@@ -196,8 +196,13 @@ export function useMoverPortal() {
       return;
     }
 
-    const { data: companies } = await supabase.from("moving_companies").select("*").limit(1);
+    const { data: myCompanyId } = await supabase.rpc("fn_current_mover_company");
+    const companyQuery = supabase.from("moving_companies").select("*");
+    const { data: companies } = myCompanyId
+      ? await companyQuery.eq("id", myCompanyId as string).limit(1)
+      : await companyQuery.limit(1);
     const co = (companies?.[0] as Company) ?? null;
+
     setCompany(co);
     if (!co) {
       setLeads([]);

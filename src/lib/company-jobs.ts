@@ -232,6 +232,12 @@ export function leadPriority(job: {
 /*                          Data access hook                           */
 /* ------------------------------------------------------------------ */
 
+/** Resolves the company id the signed-in user (or impersonated user) belongs to. */
+export async function resolveMyCompanyId(): Promise<string | null> {
+  const { data } = await supabase.rpc("fn_current_mover_company");
+  return (data as string | null) ?? null;
+}
+
 /** Resolves the moving company the signed-in user belongs to. */
 export function useMyCompany() {
   const [company, setCompany] = useState<JobCompany | null>(null);
@@ -240,10 +246,9 @@ export function useMyCompany() {
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      const { data } = await supabase
-        .from("moving_companies")
-        .select("id, name, status, suspended")
-        .limit(1);
+      const id = await resolveMyCompanyId();
+      const query = supabase.from("moving_companies").select("id, name, status, suspended");
+      const { data } = id ? await query.eq("id", id).limit(1) : await query.limit(1);
       if (cancelled) return;
       setCompany((data?.[0] as JobCompany | undefined) ?? null);
       setLoading(false);
@@ -256,6 +261,7 @@ export function useMyCompany() {
   return { company, loading };
 }
 
+
 /**
  * Loads the open marketplace + owned jobs for a company and keeps both lists
  * live through Supabase realtime (claims, activity and quote changes).
@@ -265,9 +271,14 @@ export function useCompanyJobs(companyId: string | null) {
   const [myJobs, setMyJobs] = useState<MyJob[]>([]);
   const [loading, setLoading] = useState(true);
   const busy = useRef(false);
+  const queued = useRef(false);
 
   const reload = useCallback(async () => {
-    if (!companyId || busy.current) return;
+    if (!companyId) return;
+    if (busy.current) {
+      queued.current = true;
+      return;
+    }
     busy.current = true;
     const [av, mine] = await Promise.all([
       supabase.rpc("fn_company_available_jobs", { _company_id: companyId }),
@@ -277,7 +288,12 @@ export function useCompanyJobs(companyId: string | null) {
     setMyJobs((mine.data ?? []) as MyJob[]);
     setLoading(false);
     busy.current = false;
+    if (queued.current) {
+      queued.current = false;
+      void reload();
+    }
   }, [companyId]);
+
 
   useEffect(() => {
     if (!companyId) return;
@@ -297,7 +313,11 @@ export function useCompanyJobs(companyId: string | null) {
       .on("postgres_changes", { event: "*", schema: "public", table: "quotes" }, () => {
         void reload();
       })
+      .on("postgres_changes", { event: "*", schema: "public", table: "quote_assignments" }, () => {
+        void reload();
+      })
       .subscribe();
+
     return () => {
       void supabase.removeChannel(channel);
     };

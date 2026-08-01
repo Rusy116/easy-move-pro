@@ -3655,6 +3655,19 @@ export type Database = {
         Args: { _quote_id: string; _reason: string }
         Returns: undefined
       }
+      fn_portal_current_estimate: {
+        Args: { _quote_number: string; _token: string }
+        Returns: Json
+      }
+      fn_portal_respond_estimate: {
+        Args: {
+          _accept: boolean
+          _quote_number: string
+          _reason?: string
+          _token: string
+        }
+        Returns: Json
+      }
       fn_reassign_exclusive: {
         Args: {
           _new_company_id: string

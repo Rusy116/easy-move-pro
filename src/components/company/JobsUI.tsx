@@ -202,7 +202,6 @@ export function AvailableJobCard({
         />
       </div>
 
-
       {job.services && job.services.length > 0 && (
         <div className="mt-4 flex flex-wrap gap-1.5">
           {job.services.map((s) => (
@@ -236,7 +235,9 @@ export function AvailableJobCard({
 /* ----------------------------- my job card --------------------------- */
 
 export function MyJobCard({ job }: { job: MyJob }) {
-  const canPortal = Boolean(job.quote_number && job.portal_token);
+  // Customer data stays sealed until this company has actually claimed the job.
+  const unlocked = Boolean(job.claimed_at && job.assigned_company_id);
+  const canPortal = unlocked && Boolean(job.quote_number && job.portal_token);
 
   return (
     <article className="rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5">
@@ -267,33 +268,46 @@ export function MyJobCard({ job }: { job: MyJob }) {
           label="Distance"
           value={job.distance_miles ? `${Math.round(job.distance_miles)} mi` : "—"}
         />
-        <Fact icon={<Phone className="h-3 w-3" />} label="Phone" value={job.contact_phone ?? "—"} />
-        <Fact icon={<Mail className="h-3 w-3" />} label="Email" value={job.contact_email ?? "—"} />
+        <Fact
+          icon={<Phone className="h-3 w-3" />}
+          label="Phone"
+          value={unlocked ? (job.contact_phone ?? "—") : "Locked"}
+        />
+        <Fact
+          icon={<Mail className="h-3 w-3" />}
+          label="Email"
+          value={unlocked ? (job.contact_email ?? "—") : "Locked"}
+        />
       </div>
 
       <div className="mt-5 flex flex-wrap gap-2">
-        <Button
-          asChild
-          variant="outline"
-          size="sm"
-          className="rounded-full"
-          disabled={!job.contact_phone}
-        >
-          <a href={`tel:${job.contact_phone ?? ""}`}>
-            <Phone className="mr-1.5 h-3.5 w-3.5" /> Call
-          </a>
-        </Button>
-        <Button
-          asChild
-          variant="outline"
-          size="sm"
-          className="rounded-full"
-          disabled={!job.contact_email}
-        >
-          <a href={`mailto:${job.contact_email ?? ""}`}>
-            <Mail className="mr-1.5 h-3.5 w-3.5" /> Email
-          </a>
-        </Button>
+        {unlocked && (
+          <>
+            <Button
+              asChild
+              variant="outline"
+              size="sm"
+              className="rounded-full"
+              disabled={!job.contact_phone}
+            >
+              <a href={`tel:${job.contact_phone ?? ""}`}>
+                <Phone className="mr-1.5 h-3.5 w-3.5" /> Call
+              </a>
+            </Button>
+            <Button
+              asChild
+              variant="outline"
+              size="sm"
+              className="rounded-full"
+              disabled={!job.contact_email}
+            >
+              <a href={`mailto:${job.contact_email ?? ""}`}>
+                <Mail className="mr-1.5 h-3.5 w-3.5" /> Email
+              </a>
+            </Button>
+          </>
+        )}
+
         {canPortal && (
           <Button asChild variant="outline" size="sm" className="rounded-full">
             <Link

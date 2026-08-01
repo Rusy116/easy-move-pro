@@ -207,40 +207,48 @@ function JobDetailsPage() {
           <Fact
             icon={<CheckCircle2 className="h-3 w-3" />}
             label="Pickup"
-            value={job.origin_address ?? "—"}
+            value={unlocked ? (job.origin_address ?? "—") : "Locked until claimed"}
           />
           <Fact
             icon={<CheckCircle2 className="h-3 w-3" />}
             label="Delivery"
-            value={job.destination_address ?? "—"}
+            value={unlocked ? (job.destination_address ?? "—") : "Locked until claimed"}
           />
         </div>
-        <div className="mt-4 flex flex-wrap gap-2">
-          <Button asChild variant="outline" size="sm" className="rounded-full">
-            <a href={`tel:${job.contact_phone ?? ""}`}>
-              <Phone className="mr-1.5 h-3.5 w-3.5" /> Call customer
-            </a>
-          </Button>
-          <Button asChild variant="outline" size="sm" className="rounded-full">
-            <a href={`mailto:${job.contact_email ?? ""}`}>
-              <Mail className="mr-1.5 h-3.5 w-3.5" /> Email customer
-            </a>
-          </Button>
-          {job.quote_number && job.portal_token && (
+        {unlocked ? (
+          <div className="mt-4 flex flex-wrap gap-2">
             <Button asChild variant="outline" size="sm" className="rounded-full">
-              <Link
-                to="/portal/$quoteNumber"
-                params={{ quoteNumber: job.quote_number }}
-                search={{ token: job.portal_token }}
-              >
-                <ExternalLink className="mr-1.5 h-3.5 w-3.5" /> Customer portal
-              </Link>
+              <a href={`tel:${job.contact_phone ?? ""}`}>
+                <Phone className="mr-1.5 h-3.5 w-3.5" /> Call customer
+              </a>
             </Button>
-          )}
-        </div>
+            <Button asChild variant="outline" size="sm" className="rounded-full">
+              <a href={`mailto:${job.contact_email ?? ""}`}>
+                <Mail className="mr-1.5 h-3.5 w-3.5" /> Email customer
+              </a>
+            </Button>
+            {job.quote_number && job.portal_token && (
+              <Button asChild variant="outline" size="sm" className="rounded-full">
+                <Link
+                  to="/portal/$quoteNumber"
+                  params={{ quoteNumber: job.quote_number }}
+                  search={{ token: job.portal_token }}
+                >
+                  <ExternalLink className="mr-1.5 h-3.5 w-3.5" /> Customer portal
+                </Link>
+              </Button>
+            )}
+          </div>
+        ) : (
+          <p className="mt-4 text-sm text-muted-foreground">
+            Customer name, phone, email, addresses and portal access unlock as soon as you claim
+            this job.
+          </p>
+        )}
       </section>
 
       {/* Final quote builder */}
+      {unlocked && (
       <section className="rounded-2xl border border-border bg-card p-4 sm:p-5">
         <h2 className="text-base font-semibold">Final quote</h2>
         <div className="mt-4 grid gap-4 sm:grid-cols-2">

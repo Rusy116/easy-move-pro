@@ -1,30 +1,57 @@
 // Lazy loader for the Google Maps JavaScript API (Places library).
 // Loaded asynchronously via `loading=async` + a global callback.
 
+import { getMapsBrowserConfig } from "./maps-config.functions";
+
 let loaderPromise: Promise<typeof google> | null = null;
 
 declare const __EASY_MOVE_GOOGLE_MAPS_BROWSER_KEY__: string | undefined;
 declare const __EASY_MOVE_GOOGLE_MAPS_TRACKING_ID__: string | undefined;
 
-export function hasPublicBrowserPlacesKey(): boolean {
-  if (typeof window === "undefined") return false;
-  return Boolean(resolveBrowserKey(window.location.hostname.toLowerCase()));
+function buildTimeBrowserKey(): string | undefined {
+  return (
+    (import.meta.env.VITE_GOOGLE_MAPS_BROWSER_KEY as string | undefined) ||
+    (typeof __EASY_MOVE_GOOGLE_MAPS_BROWSER_KEY__ !== "undefined"
+      ? __EASY_MOVE_GOOGLE_MAPS_BROWSER_KEY__
+      : undefined) ||
+    (import.meta.env.VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_BROWSER_KEY as string | undefined) ||
+    undefined
+  );
 }
 
-function resolveBrowserKey(host: string): string | undefined {
-  const explicitBrowserKey =
-    (import.meta.env.VITE_GOOGLE_MAPS_BROWSER_KEY as string | undefined) ||
-    __EASY_MOVE_GOOGLE_MAPS_BROWSER_KEY__;
-  const previewBrowserKey = import.meta.env.VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_BROWSER_KEY as
-    | string
-    | undefined;
+function buildTimeChannel(): string | undefined {
+  return (
+    (import.meta.env.VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_TRACKING_ID as string | undefined) ||
+    (typeof __EASY_MOVE_GOOGLE_MAPS_TRACKING_ID__ !== "undefined"
+      ? __EASY_MOVE_GOOGLE_MAPS_TRACKING_ID__
+      : undefined) ||
+    undefined
+  );
+}
 
-  // Prefer a customer-owned public browser key when configured, otherwise use
-  // the connector-provided browser key. Do not gate by hostname here: the key's
-  // Google Cloud referrer restrictions are the source of truth, and if Google
-  // rejects the browser load the address component falls back to the server
-  // connector gateway without changing the UI.
-  return explicitBrowserKey || previewBrowserKey || undefined;
+let runtimeConfigPromise: Promise<{ key?: string; channel?: string }> | null = null;
+
+/**
+ * Resolve the public browser key. Prefers the build-time inlined value, and
+ * falls back to a runtime lookup on the server so a deployment that received
+ * its Google Maps credentials *after* the build (or through non-VITE env vars)
+ * still gets working autocomplete without a rebuild.
+ */
+async function resolveBrowserConfig(): Promise<{ key?: string; channel?: string }> {
+  const key = buildTimeBrowserKey();
+  if (key) return { key, channel: buildTimeChannel() };
+  if (!runtimeConfigPromise) {
+    runtimeConfigPromise = getMapsBrowserConfig()
+      .then((c) => ({ key: c.key || undefined, channel: c.channel || undefined }))
+      .catch(() => ({}));
+  }
+  return runtimeConfigPromise;
+}
+
+/** True when a public browser Places key is available (build-time or runtime). */
+export async function hasPublicBrowserPlacesKey(): Promise<boolean> {
+  if (typeof window === "undefined") return false;
+  return Boolean((await resolveBrowserConfig()).key);
 }
 
 declare global {
@@ -43,48 +70,44 @@ export function loadGoogleMaps(): Promise<typeof google> {
 
   const host = window.location.hostname.toLowerCase();
 
-  // Production domains must use the customer-owned key whose HTTP referrers include:
-  // https://easymove.pro/* and https://www.easymove.pro/*.
-  // Never fall back to the Lovable-managed key on production/custom domains: that key
-  // is intentionally restricted to Lovable preview/published hosts and causes 403s.
-  const key = resolveBrowserKey(host);
+  loaderPromise = (async () => {
+    const { key, channel } = await resolveBrowserConfig();
+    if (!key) throw new Error(`google-maps: browser key missing for ${host}`);
 
-  const channel =
-    (import.meta.env.VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_TRACKING_ID as string | undefined) ||
-    __EASY_MOVE_GOOGLE_MAPS_TRACKING_ID__;
-  if (!key) {
-    return Promise.reject(new Error(`google-maps: browser key missing for ${host}`));
-  }
-
-  loaderPromise = new Promise<typeof google>((resolve, reject) => {
-    // Without this, a blocked/hanging script leaves the promise pending forever
-    // and every consumer stays in its "still loading" state indefinitely.
-    const timer = window.setTimeout(() => {
-      loaderPromise = null;
-      reject(new Error("google-maps: script load timed out"));
-    }, 8000);
-    window.__easyMoveGmapsInit = () => {
-      window.clearTimeout(timer);
-      resolve(window.google);
-    };
-    const s = document.createElement("script");
-    const params = new URLSearchParams({
-      key,
-      v: "weekly",
-      libraries: "places",
-      loading: "async",
-      callback: "__easyMoveGmapsInit",
+    return new Promise<typeof google>((resolve, reject) => {
+      // Without this, a blocked/hanging script leaves the promise pending forever
+      // and every consumer stays in its "still loading" state indefinitely.
+      const timer = window.setTimeout(() => {
+        loaderPromise = null;
+        reject(new Error("google-maps: script load timed out"));
+      }, 8000);
+      window.__easyMoveGmapsInit = () => {
+        window.clearTimeout(timer);
+        resolve(window.google);
+      };
+      const s = document.createElement("script");
+      const params = new URLSearchParams({
+        key,
+        v: "weekly",
+        libraries: "places",
+        loading: "async",
+        callback: "__easyMoveGmapsInit",
+      });
+      if (channel) params.set("channel", channel);
+      s.src = `https://maps.googleapis.com/maps/api/js?${params.toString()}`;
+      s.async = true;
+      s.defer = true;
+      s.onerror = () => {
+        window.clearTimeout(timer);
+        loaderPromise = null;
+        reject(new Error("google-maps: script failed to load"));
+      };
+      document.head.appendChild(s);
     });
-    if (channel) params.set("channel", channel);
-    s.src = `https://maps.googleapis.com/maps/api/js?${params.toString()}`;
-    s.async = true;
-    s.defer = true;
-    s.onerror = () => {
-      window.clearTimeout(timer);
-      loaderPromise = null;
-      reject(new Error("google-maps: script failed to load"));
-    };
-    document.head.appendChild(s);
+  })().catch((e) => {
+    loaderPromise = null;
+    throw e;
   });
+
   return loaderPromise;
 }

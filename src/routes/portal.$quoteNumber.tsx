@@ -18,6 +18,11 @@ import {
 import { SiteLayout } from "@/components/site/SiteLayout";
 import type { EstimatePdfInput } from "@/lib/estimate-pdf";
 import { INVENTORY_CATALOG } from "@/lib/inventory";
+import {
+  fetchPortalEstimate,
+  respondToPortalEstimate,
+  type PortalEstimate,
+} from "@/lib/estimates";
 
 interface PortalSearch {
   token?: string;
@@ -91,6 +96,7 @@ function PortalPage() {
   const [error, setError] = useState<string | null>(null);
   const [accepting, setAccepting] = useState(false);
   const [responding, setResponding] = useState(false);
+  const [estimate, setEstimate] = useState<PortalEstimate | null>(null);
 
   useEffect(() => {
     let cancelled = false;

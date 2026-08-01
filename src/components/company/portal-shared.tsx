@@ -717,7 +717,7 @@ export function LeadDetailDialog({
       <DialogContent className="max-w-3xl max-h-[92vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-3 flex-wrap">
-            <span>{customerName(l)}</span>
+            <span>{claimed ? customerName(l) : "Customer (contact hidden)"}</span>
             <span className="font-mono text-xs text-muted-foreground">
               {l.quote_number ?? l.id.slice(0, 8)}
             </span>

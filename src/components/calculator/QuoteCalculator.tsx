@@ -147,6 +147,7 @@ interface FormState {
   contactMethod: "phone" | "sms" | "email";
   contactTime: "morning" | "midday" | "afternoon" | "evening" | "anytime";
   notes: string;
+  termsAccepted: boolean;
 }
 
 const DEFAULT: FormState = {
@@ -173,6 +174,7 @@ const DEFAULT: FormState = {
   contactMethod: "phone",
   contactTime: "anytime",
   notes: "",
+  termsAccepted: false,
 };
 
 function createInitialForm(): FormState {

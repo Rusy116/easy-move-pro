@@ -89,6 +89,53 @@ export function AddressAutocomplete({
     };
   }
 
+  /**
+   * Browser fallback used when the deployment has no server-side Google Maps
+   * credential (e.g. a self-hosted/Vercel build without GOOGLE_MAPS_SERVER_KEY).
+   * Keeps street autocomplete working exactly like the Lovable preview.
+   */
+  async function fetchViaBrowser(q: string): Promise<Row[]> {
+    if (!hasPublicBrowserPlacesKey()) return [];
+    const g = await loadGoogleMaps();
+    const places = (g.maps as unknown as { places?: Record<string, unknown> }).places;
+    const Suggestion = places?.["AutocompleteSuggestion"] as
+      | {
+          fetchAutocompleteSuggestions: (req: Record<string, unknown>) => Promise<{
+            suggestions: Array<{
+              placePrediction?: {
+                placeId: string;
+                mainText?: { text?: string };
+                secondaryText?: { text?: string };
+                text?: { text?: string };
+              };
+            }>;
+          }>;
+        }
+      | undefined;
+    if (!Suggestion) return [];
+    const request: Record<string, unknown> = {
+      input: q,
+      includedRegionCodes: ["us"],
+    };
+    if (bias) {
+      request.locationBias = {
+        center: { lat: bias.lat, lng: bias.lng },
+        radius: bias.radiusMeters ?? 15000,
+      };
+    }
+    const { suggestions } = await Suggestion.fetchAutocompleteSuggestions(request);
+    return suggestions
+      .map((s) => s.placePrediction)
+      .filter((p): p is NonNullable<typeof p> => !!p?.placeId)
+      .slice(0, 6)
+      .map((p) => ({
+        placeId: p.placeId,
+        main: p.mainText?.text ?? p.text?.text ?? "",
+        secondary: p.secondaryText?.text ?? "",
+      }));
+  }
+
+
   // Debounced fetch of suggestions. The server gateway is intentionally the
   // only provider: ZIP/city/state biasing, credentials, and error messaging all
   // live in one place instead of racing duplicate browser/server lookups.

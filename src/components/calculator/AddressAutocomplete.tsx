@@ -199,6 +199,39 @@ export function AddressAutocomplete({
   }, [value, bias?.lat, bias?.lng, bias?.radiusMeters, normalizedBiasZip]);
 
 
+  async function detailsViaBrowser(placeId: string): Promise<PlaceSelection | null> {
+    if (!hasPublicBrowserPlacesKey()) return null;
+    const g = await loadGoogleMaps();
+    const PlaceCtor = (g.maps as unknown as { places?: Record<string, unknown> }).places?.[
+      "Place"
+    ] as
+      | (new (o: { id: string }) => {
+          fetchFields: (o: { fields: string[] }) => Promise<unknown>;
+          formattedAddress?: string | null;
+          addressComponents?: Array<{ longText?: string; shortText?: string; types: string[] }>;
+          location?: { lat: () => number; lng: () => number } | null;
+        })
+      | undefined;
+    if (!PlaceCtor) return null;
+    const place = new PlaceCtor({ id: placeId });
+    await place.fetchFields({ fields: ["formattedAddress", "addressComponents", "location"] });
+    const comps = place.addressComponents ?? [];
+    const short = (t: string) => comps.find((c) => c.types.includes(t))?.shortText ?? "";
+    const long = (t: string) => comps.find((c) => c.types.includes(t))?.longText ?? "";
+    const formattedAddress = place.formattedAddress ?? "";
+    const street = [short("street_number"), long("route")].filter(Boolean).join(" ");
+    return {
+      formattedAddress,
+      streetAddress: street || formattedAddress,
+      city: long("locality") || long("sublocality") || long("administrative_area_level_2"),
+      state: short("administrative_area_level_1"),
+      zip: short("postal_code"),
+      lat: place.location?.lat() ?? 0,
+      lng: place.location?.lng() ?? 0,
+      placeId,
+    };
+  }
+
   async function pick(row: Row) {
     if (!row) return;
     setOpen(false);
@@ -211,10 +244,15 @@ export function AddressAutocomplete({
         if (d) selection = d;
       }
 
+      if (!selection && row.placeId) {
+        selection = await detailsViaBrowser(row.placeId).catch(() => null);
+      }
+
       if (!selection) {
         setError("Couldn't load that address — try another suggestion");
         return;
       }
+
 
       onChangeText(selection.formattedAddress || row.main);
       onSelect(selection);

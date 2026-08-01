@@ -3,6 +3,8 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { AdminShell } from "@/components/admin/AdminShell";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
+import { ViewAsUserButton } from "@/components/admin/ViewAsUserButton";
+import { adminCompanyPrimaryUser } from "@/lib/impersonation.functions";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -317,6 +319,12 @@ function CompaniesAdmin() {
               </div>
 
               <div className="mt-4 flex flex-wrap gap-2">
+                <ViewAsUserButton
+                  onResolveUserId={async () => {
+                    const owner = await adminCompanyPrimaryUser({ data: { companyId: c.id } });
+                    return owner?.id ?? null;
+                  }}
+                />
                 <Button size="sm" variant="outline" onClick={() => setReviewing(c)}>
                   <FileCheck2 className="mr-1.5 h-4 w-4" />
                   Review documents

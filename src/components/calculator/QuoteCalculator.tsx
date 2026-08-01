@@ -417,6 +417,25 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
     });
   }, [form, distance]);
 
+  // Compact (mini) calculator: once the essentials are done, flow straight into
+  // the full calculator — no extra click, the draft carries over.
+  useEffect(() => {
+    if (!compact || handedOffRef.current) return;
+    if (!quote || !form.moveDate || !hasUserEditedRef.current) return;
+    handedOffRef.current = true;
+    try {
+      window.localStorage.setItem(DRAFT_KEY, JSON.stringify({ savedAt: Date.now(), form }));
+    } catch {
+      /* storage unavailable */
+    }
+    const t = window.setTimeout(() => {
+      void navigate({ to: "/calculator" });
+    }, 600);
+    return () => window.clearTimeout(t);
+  }, [compact, quote, form, navigate]);
+
+
+
   function resetCalculatorForm() {
     try {
       window.localStorage.removeItem(DRAFT_KEY);

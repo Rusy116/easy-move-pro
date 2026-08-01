@@ -582,6 +582,10 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
       toast.error("Please complete all required fields.");
       return;
     }
+    if (!form.termsAccepted) {
+      toast.error("Please accept the Terms of Service and Privacy Policy.");
+      return;
+    }
     setSubmitError(null);
     setSaving(true);
     setStage("submitting");

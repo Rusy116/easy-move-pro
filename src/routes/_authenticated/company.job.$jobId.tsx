@@ -177,12 +177,12 @@ function JobDetailsPage() {
           <Fact
             icon={<Phone className="h-3 w-3" />}
             label="Phone"
-            value={job.contact_phone ?? "—"}
+            value={unlocked ? (job.contact_phone ?? "—") : "Locked until claimed"}
           />
           <Fact
             icon={<Mail className="h-3 w-3" />}
             label="Email"
-            value={job.contact_email ?? "—"}
+            value={unlocked ? (job.contact_email ?? "—") : "Locked until claimed"}
           />
           <Fact
             icon={<CalendarCheck className="h-3 w-3" />}

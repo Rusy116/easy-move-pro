@@ -30,6 +30,9 @@ import {
   Eye,
   Send,
   ShieldAlert,
+  FileDown,
+  Save,
+  History as HistoryIcon,
 } from "lucide-react";
 import { SlaCountdown } from "@/components/admin/SlaCountdown";
 import { LeadPhaseBadge } from "@/components/admin/LeadPhaseBadge";
@@ -39,6 +42,16 @@ import {
   moverDecline,
   moverClaimOpenMarket,
 } from "@/lib/mover.functions";
+import {
+  listEstimateRevisions,
+  saveEstimateDraft,
+  sendEstimate,
+  ESTIMATE_STATUS_LABEL,
+  ESTIMATE_STATUS_STYLE,
+  type EstimateRevision,
+} from "@/lib/estimates";
+import { generateCompanyEstimatePdf } from "@/lib/company-estimate-pdf";
+
 
 /* ================================================================== */
 /*                              Types                                  */

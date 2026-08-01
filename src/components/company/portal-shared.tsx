@@ -521,7 +521,7 @@ export function LeadCard({
               {claiming ? "Claiming…" : "Claim lead"}
             </Button>
           )}
-          {a && (bucket === "exclusive" || bucket === "active") && (
+          {claimed && (bucket === "exclusive" || bucket === "active" || bucket === "won") && (
             <Button size="sm" variant="outline" onClick={onEstimate}>
               <Send className="mr-1.5 h-4 w-4" />
               Send estimate

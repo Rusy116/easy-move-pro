@@ -419,22 +419,9 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
     });
   }, [form, distance]);
 
-  // Compact (mini) calculator: once the essentials are done, flow straight into
-  // the full calculator — no extra click, the draft carries over.
-  useEffect(() => {
-    if (!compact || handedOffRef.current) return;
-    if (!quote || !form.moveDate || !hasUserEditedRef.current) return;
-    handedOffRef.current = true;
-    try {
-      window.localStorage.setItem(DRAFT_KEY, JSON.stringify({ savedAt: Date.now(), form }));
-    } catch {
-      /* storage unavailable */
-    }
-    const t = window.setTimeout(() => {
-      void navigate({ to: "/calculator" });
-    }, 600);
-    return () => window.clearTimeout(t);
-  }, [compact, quote, form, navigate]);
+  // The submission section (contact + terms + submit) renders in every variant,
+  // including the compact embed, so no deployment can end the flow at step 09.
+
 
 
 
@@ -983,7 +970,7 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
             </div>
           </SectionCard>
 
-          {!compact && (
+          {(
             <>
               <SectionCard step="10" label="Contact" className="md:col-span-2">
                 <div className="grid gap-3">
@@ -1136,7 +1123,7 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
       )}
 
       {/* Stage: form → trust section + final CTA */}
-      {stage === "form" && !compact && (
+      {stage === "form" && (
         <div className="border-t border-border bg-muted/40 px-5 py-6 sm:px-8 sm:py-8">
           {/* Trust section */}
           <div className="rounded-2xl border border-border bg-card p-5 sm:p-6">
@@ -1247,7 +1234,7 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
       )}
 
       {/* Mobile sticky submit bar */}
-      {stage === "form" && !compact && (
+      {stage === "form" && (
         <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/95 px-4 py-3 backdrop-blur sm:hidden">
           <Button
             onClick={handleSubmit}
@@ -1264,12 +1251,6 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
               "Get My Quotes"
             )}
           </Button>
-        </div>
-      )}
-      {stage === "form" && quote && compact && handedOffRef.current && (
-        <div className="flex items-center gap-2 border-t border-border bg-muted/40 px-5 py-4 text-xs text-muted-foreground sm:px-8">
-          <Loader2 className="h-3.5 w-3.5 animate-spin" />
-          Taking you to the full quote…
         </div>
       )}
 

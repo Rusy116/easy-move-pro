@@ -236,7 +236,9 @@ export function AvailableJobCard({
 /* ----------------------------- my job card --------------------------- */
 
 export function MyJobCard({ job }: { job: MyJob }) {
-  const canPortal = Boolean(job.quote_number && job.portal_token);
+  // Customer data stays sealed until this company has actually claimed the job.
+  const unlocked = Boolean(job.claimed_at && job.assigned_company_id);
+  const canPortal = unlocked && Boolean(job.quote_number && job.portal_token);
 
   return (
     <article className="rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5">

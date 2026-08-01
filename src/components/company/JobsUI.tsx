@@ -202,7 +202,6 @@ export function AvailableJobCard({
         />
       </div>
 
-
       {job.services && job.services.length > 0 && (
         <div className="mt-4 flex flex-wrap gap-1.5">
           {job.services.map((s) => (

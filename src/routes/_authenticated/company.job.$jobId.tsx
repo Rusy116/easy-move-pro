@@ -249,141 +249,141 @@ function JobDetailsPage() {
 
       {/* Final quote builder */}
       {unlocked && (
-      <section className="rounded-2xl border border-border bg-card p-4 sm:p-5">
-        <h2 className="text-base font-semibold">Final quote</h2>
-        <div className="mt-4 grid gap-4 sm:grid-cols-2">
-          <div>
-            <Label htmlFor="final_price">Final price ($)</Label>
-            <Input
-              id="final_price"
-              inputMode="decimal"
-              value={form.final_price}
-              onChange={set("final_price")}
-              className="mt-1.5"
-            />
+        <section className="rounded-2xl border border-border bg-card p-4 sm:p-5">
+          <h2 className="text-base font-semibold">Final quote</h2>
+          <div className="mt-4 grid gap-4 sm:grid-cols-2">
+            <div>
+              <Label htmlFor="final_price">Final price ($)</Label>
+              <Input
+                id="final_price"
+                inputMode="decimal"
+                value={form.final_price}
+                onChange={set("final_price")}
+                className="mt-1.5"
+              />
+            </div>
+            <div>
+              <Label htmlFor="final_move_date">Confirmed move date</Label>
+              <Input
+                id="final_move_date"
+                type="date"
+                value={form.final_move_date}
+                onChange={set("final_move_date")}
+                className="mt-1.5"
+              />
+            </div>
+            <div>
+              <Label htmlFor="arrival_window">Arrival time window</Label>
+              <Input
+                id="arrival_window"
+                placeholder="8:00 AM – 10:00 AM"
+                value={form.arrival_window}
+                onChange={set("arrival_window")}
+                className="mt-1.5"
+              />
+            </div>
+            <div>
+              <Label htmlFor="crew_size">Crew size</Label>
+              <Input
+                id="crew_size"
+                inputMode="numeric"
+                value={form.crew_size}
+                onChange={set("crew_size")}
+                className="mt-1.5"
+              />
+            </div>
+            <div>
+              <Label htmlFor="final_truck_size">Truck size</Label>
+              <Input
+                id="final_truck_size"
+                placeholder="26 ft box truck"
+                value={form.final_truck_size}
+                onChange={set("final_truck_size")}
+                className="mt-1.5"
+              />
+            </div>
+            <div className="sm:col-span-2">
+              <Label htmlFor="company_notes">Notes for the customer</Label>
+              <Textarea
+                id="company_notes"
+                rows={4}
+                value={form.company_notes}
+                onChange={set("company_notes")}
+                className="mt-1.5"
+              />
+            </div>
           </div>
-          <div>
-            <Label htmlFor="final_move_date">Confirmed move date</Label>
-            <Input
-              id="final_move_date"
-              type="date"
-              value={form.final_move_date}
-              onChange={set("final_move_date")}
-              className="mt-1.5"
-            />
-          </div>
-          <div>
-            <Label htmlFor="arrival_window">Arrival time window</Label>
-            <Input
-              id="arrival_window"
-              placeholder="8:00 AM – 10:00 AM"
-              value={form.arrival_window}
-              onChange={set("arrival_window")}
-              className="mt-1.5"
-            />
-          </div>
-          <div>
-            <Label htmlFor="crew_size">Crew size</Label>
-            <Input
-              id="crew_size"
-              inputMode="numeric"
-              value={form.crew_size}
-              onChange={set("crew_size")}
-              className="mt-1.5"
-            />
-          </div>
-          <div>
-            <Label htmlFor="final_truck_size">Truck size</Label>
-            <Input
-              id="final_truck_size"
-              placeholder="26 ft box truck"
-              value={form.final_truck_size}
-              onChange={set("final_truck_size")}
-              className="mt-1.5"
-            />
-          </div>
-          <div className="sm:col-span-2">
-            <Label htmlFor="company_notes">Notes for the customer</Label>
-            <Textarea
-              id="company_notes"
-              rows={4}
-              value={form.company_notes}
-              onChange={set("company_notes")}
-              className="mt-1.5"
-            />
-          </div>
-        </div>
 
-        <div className="mt-5 flex flex-wrap gap-2">
-          <Button
-            variant="outline"
-            className="rounded-full"
-            disabled={pending !== null}
-            onClick={() => run("save_details")}
-          >
-            {pending === "save_details" ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            ) : (
-              <Save className="mr-2 h-4 w-4" />
-            )}
-            Save details
-          </Button>
-          <Button
-            variant="outline"
-            className="rounded-full"
-            disabled={pending !== null}
-            onClick={() => run("contacted")}
-          >
-            {pending === "contacted" ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            ) : (
-              <CheckCircle2 className="mr-2 h-4 w-4" />
-            )}
-            Mark customer contacted
-          </Button>
-          <Button
-            className="rounded-full"
-            disabled={pending !== null || !form.final_price}
-            onClick={() => run("send_final_quote")}
-          >
-            {pending === "send_final_quote" ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            ) : (
-              <Send className="mr-2 h-4 w-4" />
-            )}
-            Send final quote
-          </Button>
-          <Button
-            variant="outline"
-            className="rounded-full"
-            disabled={pending !== null}
-            onClick={() => run("schedule")}
-          >
-            {pending === "schedule" ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            ) : (
-              <CalendarCheck className="mr-2 h-4 w-4" />
-            )}
-            Schedule move
-          </Button>
-          <Button
-            variant="outline"
-            className="rounded-full"
-            disabled={pending !== null}
-            onClick={() => run("complete")}
-          >
-            Mark completed
-          </Button>
-          <Button
-            variant="outline"
-            className="rounded-full border-rose-300 text-rose-700 hover:bg-rose-50"
-            disabled={pending !== null}
-            onClick={() => run("cancel")}
-          >
-            <XCircle className="mr-2 h-4 w-4" /> Cancel job
-          </Button>
-        </div>
-      </section>
+          <div className="mt-5 flex flex-wrap gap-2">
+            <Button
+              variant="outline"
+              className="rounded-full"
+              disabled={pending !== null}
+              onClick={() => run("save_details")}
+            >
+              {pending === "save_details" ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <Save className="mr-2 h-4 w-4" />
+              )}
+              Save details
+            </Button>
+            <Button
+              variant="outline"
+              className="rounded-full"
+              disabled={pending !== null}
+              onClick={() => run("contacted")}
+            >
+              {pending === "contacted" ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <CheckCircle2 className="mr-2 h-4 w-4" />
+              )}
+              Mark customer contacted
+            </Button>
+            <Button
+              className="rounded-full"
+              disabled={pending !== null || !form.final_price}
+              onClick={() => run("send_final_quote")}
+            >
+              {pending === "send_final_quote" ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <Send className="mr-2 h-4 w-4" />
+              )}
+              Send final quote
+            </Button>
+            <Button
+              variant="outline"
+              className="rounded-full"
+              disabled={pending !== null}
+              onClick={() => run("schedule")}
+            >
+              {pending === "schedule" ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <CalendarCheck className="mr-2 h-4 w-4" />
+              )}
+              Schedule move
+            </Button>
+            <Button
+              variant="outline"
+              className="rounded-full"
+              disabled={pending !== null}
+              onClick={() => run("complete")}
+            >
+              Mark completed
+            </Button>
+            <Button
+              variant="outline"
+              className="rounded-full border-rose-300 text-rose-700 hover:bg-rose-50"
+              disabled={pending !== null}
+              onClick={() => run("cancel")}
+            >
+              <XCircle className="mr-2 h-4 w-4" /> Cancel job
+            </Button>
+          </div>
+        </section>
       )}
 
       {/* Phase 4 — final price lock, revision history and internal notes */}

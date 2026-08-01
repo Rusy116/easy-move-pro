@@ -363,7 +363,44 @@ function PortalPage() {
               </div>
             )}
 
-            {quote.job_status === "final_quote_sent" ? (
+            {estimate && (
+              <div className="mt-4 rounded-2xl border border-border bg-card p-4 text-sm">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
+                    Estimate v{estimate.revision}
+                    {estimate.company_name ? ` · ${estimate.company_name}` : ""}
+                  </div>
+                  <span className="rounded-full border border-border px-2.5 py-0.5 text-xs capitalize">
+                    {estimate.status}
+                  </span>
+                </div>
+                {estimate.breakdown && (
+                  <div className="mt-3 space-y-1">
+                    {Object.entries(estimate.breakdown)
+                      .filter(([, v]) => Number(v))
+                      .map(([k, v]) => (
+                        <div
+                          key={k}
+                          className="flex justify-between border-b border-border/60 pb-1 capitalize"
+                        >
+                          <span>{k.replace(/_/g, " ")}</span>
+                          <span>{money(Number(v))}</span>
+                        </div>
+                      ))}
+                  </div>
+                )}
+                {estimate.valid_until && (
+                  <p className="mt-3 text-xs text-muted-foreground">
+                    Valid until {new Date(estimate.valid_until).toLocaleDateString()}
+                  </p>
+                )}
+                {estimate.notes && <p className="mt-2 whitespace-pre-line">{estimate.notes}</p>}
+              </div>
+            )}
+
+            {quote.job_status === "final_quote_sent" ||
+            estimate?.status === "sent" ||
+            estimate?.status === "viewed" ? (
               <div className="mt-6 flex flex-col gap-3 sm:flex-row">
                 <Button
                   onClick={() => void handleFinalResponse(true)}
@@ -390,13 +427,16 @@ function PortalPage() {
               </div>
             ) : (
               <div className="mt-6 inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-2 text-sm font-medium">
-                {quote.job_status === "rejected"
-                  ? "You rejected this final quote."
-                  : quote.job_status === "accepted"
-                    ? "You accepted this final quote."
+                {quote.job_status === "rejected" || estimate?.status === "rejected"
+                  ? "You rejected this estimate."
+                  : quote.job_status === "scheduled" ||
+                      quote.job_status === "accepted" ||
+                      estimate?.status === "accepted"
+                    ? "You accepted this estimate — your move is booked."
                     : `Status: ${quote.job_status ?? "—"}`}
               </div>
             )}
+
           </section>
         )}
 

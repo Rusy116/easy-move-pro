@@ -1726,6 +1726,101 @@ export type Database = {
           },
         ]
       }
+      impersonation_events: {
+        Row: {
+          action: string
+          admin_user_id: string
+          created_at: string
+          detail: Json
+          id: string
+          ip_address: string | null
+          session_id: string
+          target_role: string
+          target_user_id: string
+          user_agent: string | null
+        }
+        Insert: {
+          action: string
+          admin_user_id: string
+          created_at?: string
+          detail?: Json
+          id?: string
+          ip_address?: string | null
+          session_id: string
+          target_role: string
+          target_user_id: string
+          user_agent?: string | null
+        }
+        Update: {
+          action?: string
+          admin_user_id?: string
+          created_at?: string
+          detail?: Json
+          id?: string
+          ip_address?: string | null
+          session_id?: string
+          target_role?: string
+          target_user_id?: string
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "impersonation_events_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "impersonation_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      impersonation_sessions: {
+        Row: {
+          admin_email: string | null
+          admin_user_id: string
+          created_at: string
+          ended_at: string | null
+          id: string
+          ip_address: string | null
+          started_at: string
+          target_email: string | null
+          target_name: string | null
+          target_role: string
+          target_user_id: string
+          updated_at: string
+          user_agent: string | null
+        }
+        Insert: {
+          admin_email?: string | null
+          admin_user_id: string
+          created_at?: string
+          ended_at?: string | null
+          id?: string
+          ip_address?: string | null
+          started_at?: string
+          target_email?: string | null
+          target_name?: string | null
+          target_role: string
+          target_user_id: string
+          updated_at?: string
+          user_agent?: string | null
+        }
+        Update: {
+          admin_email?: string | null
+          admin_user_id?: string
+          created_at?: string
+          ended_at?: string | null
+          id?: string
+          ip_address?: string | null
+          started_at?: string
+          target_email?: string | null
+          target_name?: string | null
+          target_role?: string
+          target_user_id?: string
+          updated_at?: string
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
       jobs: {
         Row: {
           arrival_window: string | null

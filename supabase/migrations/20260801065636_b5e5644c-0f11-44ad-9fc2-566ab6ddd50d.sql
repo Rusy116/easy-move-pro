@@ -1,0 +1,1 @@
+DELETE FROM public.quotes WHERE id IN ('481d9ead-47fe-4638-a733-751fcbca2119','cd491f6b-257e-4168-84bc-c781730f0fdb');

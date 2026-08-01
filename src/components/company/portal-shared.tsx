@@ -1347,7 +1347,7 @@ export function EstimateBuilderDialog({
             {history.length > 0 && (
               <div className="rounded-xl border border-border p-3">
                 <div className="mb-2 flex items-center gap-2 text-sm font-semibold">
-                  <History className="h-4 w-4 text-primary" /> Revision history
+                  <HistoryIcon className="h-4 w-4 text-primary" /> Revision history
                 </div>
                 <div className="space-y-1.5">
                   {history.map((r) => (

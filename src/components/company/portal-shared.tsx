@@ -431,7 +431,8 @@ export function LeadCard({
     }
   }
 
-  const showPii = !!l.full_name || !!l.contact_phone || !!l.contact_email;
+  const claimed = isClaimedByMe(merged);
+  const showPii = claimed && (!!l.full_name || !!l.contact_phone || !!l.contact_email);
 
   return (
     <div className="card-premium card-premium-hover p-4 md:p-5 animate-fade-in-soft">

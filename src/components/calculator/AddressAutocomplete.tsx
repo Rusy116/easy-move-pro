@@ -136,7 +136,6 @@ export function AddressAutocomplete({
       }));
   }
 
-
   // Debounced fetch of suggestions. The server gateway is intentionally the
   // only provider: ZIP/city/state biasing, credentials, and error messaging all
   // live in one place instead of racing duplicate browser/server lookups.
@@ -184,7 +183,6 @@ export function AddressAutocomplete({
         }
       }
 
-
       if (reqId !== reqIdRef.current) return;
       setRows(next);
       setError(next.length > 0 ? null : message);
@@ -197,7 +195,6 @@ export function AddressAutocomplete({
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value, bias?.lat, bias?.lng, bias?.radiusMeters, normalizedBiasZip]);
-
 
   async function detailsViaBrowser(placeId: string): Promise<PlaceSelection | null> {
     if (!hasPublicBrowserPlacesKey()) return null;
@@ -252,7 +249,6 @@ export function AddressAutocomplete({
         setError("Couldn't load that address — try another suggestion");
         return;
       }
-
 
       onChangeText(selection.formattedAddress || row.main);
       onSelect(selection);

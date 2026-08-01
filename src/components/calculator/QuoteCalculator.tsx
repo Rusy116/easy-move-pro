@@ -251,7 +251,6 @@ export function QuoteCalculator(_props: { compact?: boolean } = {}) {
   const [form, setForm] = useState<FormState>(() => createInitialForm());
   const hasUserEditedRef = useRef(false);
 
-
   // Restore any saved draft after hydration (avoids SSR mismatch).
   useEffect(() => {
     const draft = loadDraftForm();
@@ -421,9 +420,6 @@ export function QuoteCalculator(_props: { compact?: boolean } = {}) {
   // The submission section (contact + terms + submit) renders in every variant,
   // including the compact embed, so no deployment can end the flow at step 09.
 
-
-
-
   function resetCalculatorForm() {
     try {
       window.localStorage.removeItem(DRAFT_KEY);
@@ -564,8 +560,6 @@ export function QuoteCalculator(_props: { compact?: boolean } = {}) {
   if (!isValidEmail(form.email)) missingFields.push("email address");
   if (!form.termsAccepted) missingFields.push("terms agreement");
   const submitDisabled = missingFields.length > 0 || saving || stage !== "form";
-
-
 
   async function handleSubmit() {
     if (saving || stage !== "form") return;
@@ -969,7 +963,7 @@ export function QuoteCalculator(_props: { compact?: boolean } = {}) {
             </div>
           </SectionCard>
 
-          {(
+          {
             <>
               <SectionCard step="10" label="Contact" className="md:col-span-2">
                 <div className="grid gap-3">
@@ -1117,7 +1111,7 @@ export function QuoteCalculator(_props: { compact?: boolean } = {}) {
                 </p>
               </SectionCard>
             </>
-          )}
+          }
         </div>
       )}
 

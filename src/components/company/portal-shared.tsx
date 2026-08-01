@@ -783,8 +783,8 @@ export function LeadDetailDialog({
                 <div>
                   <div className="font-medium">Contact details are hidden</div>
                   <div className="text-slate-600">
-                    Customer name, phone, email and street address are revealed once you have an
-                    active assignment.
+                    Customer name, phone, email, street addresses and the quote form unlock only
+                    after you successfully claim this lead.
                   </div>
                 </div>
               </div>

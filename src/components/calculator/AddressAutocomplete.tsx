@@ -170,6 +170,21 @@ export function AddressAutocomplete({
         message = "Address lookup is temporarily unavailable — please type the address manually.";
       }
 
+      // Server path unavailable (no server credential in this deployment):
+      // fall back to the browser Places API so production behaves like preview.
+      if (next.length === 0) {
+        try {
+          const fromBrowser = await fetchViaBrowser(q);
+          if (fromBrowser.length > 0) {
+            next = fromBrowser;
+            message = null;
+          }
+        } catch (e) {
+          console.error("[places] browser autocomplete fallback failed", e);
+        }
+      }
+
+
       if (reqId !== reqIdRef.current) return;
       setRows(next);
       setError(next.length > 0 ? null : message);

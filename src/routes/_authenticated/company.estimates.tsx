@@ -5,6 +5,12 @@ import { CompanyHeader, NoCompanyScreen, useMoverPortal } from "@/components/com
 import { SkeletonRows } from "@/components/shell/Chrome";
 import { Badge } from "@/components/ui/badge";
 import { FileText } from "lucide-react";
+import {
+  ESTIMATE_STATUS_LABEL,
+  ESTIMATE_STATUS_STYLE,
+  type EstimateRevision,
+} from "@/lib/estimates";
+
 
 export const Route = createFileRoute("/_authenticated/company/estimates")({
   head: () => ({ meta: [{ title: "Estimates — Company Portal" }] }),

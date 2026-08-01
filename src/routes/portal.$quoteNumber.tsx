@@ -143,27 +143,53 @@ function PortalPage() {
     };
   }, [quote?.id]);
 
+  // Load the current company estimate (also marks it viewed and alerts the broker).
+  useEffect(() => {
+    if (!quote?.quote_number || !token) return;
+    let cancelled = false;
+    void fetchPortalEstimate(quote.quote_number, token)
+      .then((est) => {
+        if (!cancelled) setEstimate(est);
+      })
+      .catch(() => undefined);
+    return () => {
+      cancelled = true;
+    };
+  }, [quote?.quote_number, token]);
+
   async function handleFinalResponse(accept: boolean) {
     if (!quote || !token) return;
     setResponding(true);
-    const { error } = await supabase.rpc("fn_customer_respond_final_quote", {
-      _quote_number: quote.quote_number,
-      _token: token,
-      _accept: accept,
-    });
-    setResponding(false);
-    if (error) {
-      toast.error(error.message || "Could not submit your response.");
-      return;
+    try {
+      if (estimate && (estimate.status === "sent" || estimate.status === "viewed")) {
+        const res = await respondToPortalEstimate(quote.quote_number, token, accept);
+        setEstimate({ ...estimate, status: accept ? "accepted" : "rejected" });
+        toast.success(
+          accept
+            ? `Estimate accepted — your move is booked${res.job_number ? ` (${res.job_number})` : ""}.`
+            : "Estimate rejected.",
+        );
+      } else {
+        const { error } = await supabase.rpc("fn_customer_respond_final_quote", {
+          _quote_number: quote.quote_number,
+          _token: token,
+          _accept: accept,
+        });
+        if (error) throw new Error(error.message);
+        toast.success(accept ? "Final quote accepted." : "Final quote rejected.");
+      }
+      setQuote({
+        ...quote,
+        job_status: accept ? "scheduled" : "rejected",
+        customer_response_at: new Date().toISOString(),
+        accepted_at: accept ? new Date().toISOString() : quote.accepted_at,
+      });
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Could not submit your response.");
     }
-    setQuote({
-      ...quote,
-      job_status: accept ? "accepted" : "rejected",
-      customer_response_at: new Date().toISOString(),
-      accepted_at: accept ? new Date().toISOString() : quote.accepted_at,
-    });
-    toast.success(accept ? "Final quote accepted." : "Final quote rejected.");
+    setResponding(false);
   }
+
 
   async function handleAccept() {
     if (!quote || !token) return;

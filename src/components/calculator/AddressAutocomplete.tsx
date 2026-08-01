@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Loader2, MapPin, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { placeDetails, placesAutocomplete } from "@/lib/places.functions";
+import { hasPublicBrowserPlacesKey, loadGoogleMaps } from "@/lib/google-maps-loader";
 import { cn } from "@/lib/utils";
 
 export interface PlaceSelection {
@@ -89,6 +90,52 @@ export function AddressAutocomplete({
     };
   }
 
+  /**
+   * Browser fallback used when the deployment has no server-side Google Maps
+   * credential (e.g. a self-hosted/Vercel build without GOOGLE_MAPS_SERVER_KEY).
+   * Keeps street autocomplete working exactly like the Lovable preview.
+   */
+  async function fetchViaBrowser(q: string): Promise<Row[]> {
+    if (!hasPublicBrowserPlacesKey()) return [];
+    const g = await loadGoogleMaps();
+    const places = (g.maps as unknown as { places?: Record<string, unknown> }).places;
+    const Suggestion = places?.["AutocompleteSuggestion"] as
+      | {
+          fetchAutocompleteSuggestions: (req: Record<string, unknown>) => Promise<{
+            suggestions: Array<{
+              placePrediction?: {
+                placeId: string;
+                mainText?: { text?: string };
+                secondaryText?: { text?: string };
+                text?: { text?: string };
+              };
+            }>;
+          }>;
+        }
+      | undefined;
+    if (!Suggestion) return [];
+    const request: Record<string, unknown> = {
+      input: q,
+      includedRegionCodes: ["us"],
+    };
+    if (bias) {
+      request.locationBias = {
+        center: { lat: bias.lat, lng: bias.lng },
+        radius: bias.radiusMeters ?? 15000,
+      };
+    }
+    const { suggestions } = await Suggestion.fetchAutocompleteSuggestions(request);
+    return suggestions
+      .map((s) => s.placePrediction)
+      .filter((p): p is NonNullable<typeof p> => !!p?.placeId)
+      .slice(0, 6)
+      .map((p) => ({
+        placeId: p.placeId,
+        main: p.mainText?.text ?? p.text?.text ?? "",
+        secondary: p.secondaryText?.text ?? "",
+      }));
+  }
+
   // Debounced fetch of suggestions. The server gateway is intentionally the
   // only provider: ZIP/city/state biasing, credentials, and error messaging all
   // live in one place instead of racing duplicate browser/server lookups.
@@ -122,6 +169,20 @@ export function AddressAutocomplete({
         message = "Address lookup is temporarily unavailable — please type the address manually.";
       }
 
+      // Server path unavailable (no server credential in this deployment):
+      // fall back to the browser Places API so production behaves like preview.
+      if (next.length === 0) {
+        try {
+          const fromBrowser = await fetchViaBrowser(q);
+          if (fromBrowser.length > 0) {
+            next = fromBrowser;
+            message = null;
+          }
+        } catch (e) {
+          console.error("[places] browser autocomplete fallback failed", e);
+        }
+      }
+
       if (reqId !== reqIdRef.current) return;
       setRows(next);
       setError(next.length > 0 ? null : message);
@@ -135,6 +196,38 @@ export function AddressAutocomplete({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value, bias?.lat, bias?.lng, bias?.radiusMeters, normalizedBiasZip]);
 
+  async function detailsViaBrowser(placeId: string): Promise<PlaceSelection | null> {
+    if (!hasPublicBrowserPlacesKey()) return null;
+    const g = await loadGoogleMaps();
+    const PlaceCtor = (g.maps as unknown as { places?: Record<string, unknown> }).places?.[
+      "Place"
+    ] as
+      | (new (o: { id: string }) => {
+          fetchFields: (o: { fields: string[] }) => Promise<unknown>;
+          formattedAddress?: string | null;
+          addressComponents?: Array<{ longText?: string; shortText?: string; types: string[] }>;
+          location?: { lat: () => number; lng: () => number } | null;
+        })
+      | undefined;
+    if (!PlaceCtor) return null;
+    const place = new PlaceCtor({ id: placeId });
+    await place.fetchFields({ fields: ["formattedAddress", "addressComponents", "location"] });
+    const comps = place.addressComponents ?? [];
+    const short = (t: string) => comps.find((c) => c.types.includes(t))?.shortText ?? "";
+    const long = (t: string) => comps.find((c) => c.types.includes(t))?.longText ?? "";
+    const formattedAddress = place.formattedAddress ?? "";
+    const street = [short("street_number"), long("route")].filter(Boolean).join(" ");
+    return {
+      formattedAddress,
+      streetAddress: street || formattedAddress,
+      city: long("locality") || long("sublocality") || long("administrative_area_level_2"),
+      state: short("administrative_area_level_1"),
+      zip: short("postal_code"),
+      lat: place.location?.lat() ?? 0,
+      lng: place.location?.lng() ?? 0,
+      placeId,
+    };
+  }
 
   async function pick(row: Row) {
     if (!row) return;
@@ -146,6 +239,10 @@ export function AddressAutocomplete({
       if (!selection && row.placeId) {
         const d = await placeDetails({ data: { placeId: row.placeId } });
         if (d) selection = d;
+      }
+
+      if (!selection && row.placeId) {
+        selection = await detailsViaBrowser(row.placeId).catch(() => null);
       }
 
       if (!selection) {

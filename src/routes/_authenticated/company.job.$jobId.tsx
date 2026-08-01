@@ -384,9 +384,10 @@ function JobDetailsPage() {
           </Button>
         </div>
       </section>
+      )}
 
       {/* Phase 4 — final price lock, revision history and internal notes */}
-      {company && (
+      {unlocked && company && (
         <>
           <FinalPriceCard job={job} companyId={company.id} onChanged={() => void reload()} />
           <InternalNotesCard quoteId={job.id} companyId={company.id} />

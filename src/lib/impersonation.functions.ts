@@ -394,7 +394,7 @@ export const adminListImpersonationSessions = createServerFn({ method: "GET" })
 export type ImpersonationEventRow = {
   id: string;
   action: string;
-  detail: Record<string, unknown>;
+  detail: string;
   ip_address: string | null;
   user_agent: string | null;
   created_at: string;
@@ -418,5 +418,12 @@ export const adminListImpersonationEvents = createServerFn({ method: "POST" })
       .order("created_at", { ascending: false })
       .limit(500);
 
-    return (rows ?? []) as unknown as ImpersonationEventRow[];
+    return (rows ?? []).map((r: any) => ({
+      id: r.id as string,
+      action: r.action as string,
+      detail: JSON.stringify(r.detail ?? {}),
+      ip_address: r.ip_address ?? null,
+      user_agent: r.user_agent ?? null,
+      created_at: r.created_at as string,
+    }));
   });

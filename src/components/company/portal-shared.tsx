@@ -105,7 +105,16 @@ export type MoverLead = {
   contact_email: string | null;
   origin_address: string | null;
   destination_address: string | null;
+  /** True only when this company has successfully claimed the lead (backend-computed). */
+  unlocked?: boolean | null;
 };
+
+/** Single source of truth for post-claim reveal: PII, portal, contact + final quote. */
+export function isClaimedByMe(merged: MergedLead): boolean {
+  const { lead: l, assignment: a } = merged;
+  if (l.unlocked === true) return true;
+  return !!a && ["accepted", "quoted", "won"].includes(a.state);
+}
 
 export type AssignmentState =
   | "invited"

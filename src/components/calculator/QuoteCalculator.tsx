@@ -571,6 +571,16 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
     };
   }
 
+  const missingFields: string[] = [];
+  if (!canEstimate) missingFields.push("move details");
+  if (!form.fullName.trim()) missingFields.push("full name");
+  if (!isValidUsPhone(form.phone)) missingFields.push("phone number");
+  if (!isValidEmail(form.email)) missingFields.push("email address");
+  if (!form.termsAccepted) missingFields.push("terms agreement");
+  const submitDisabled = missingFields.length > 0 || saving || stage !== "form";
+
+
+
   async function handleSubmit() {
     if (saving || stage !== "form") return;
     if (

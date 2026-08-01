@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { ViewAsUserButton } from "@/components/admin/ViewAsUserButton";
+import { AccountDirectory } from "@/components/admin/AccountDirectory";
 import {
   Dialog,
   DialogContent,
@@ -215,6 +217,9 @@ function AdminUsersPage() {
                     {row.phone ? ` · ${row.phone}` : ""}
                   </div>
                 </div>
+                <div className="flex flex-wrap gap-2">
+                  <ViewAsUserButton userId={row.id} disabled={row.status === "disabled"} />
+                </div>
                 {row.role === "broker" && (
                   <div className="flex flex-wrap gap-2">
                     <Button
@@ -246,6 +251,15 @@ function AdminUsersPage() {
               </article>
             ))
           )}
+        </div>
+
+        <h2 className="mt-12 font-serif text-2xl">All platform accounts</h2>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Search every customer, broker, moving company and administrator, and open their
+          workspace with View as User.
+        </p>
+        <div className="mt-4">
+          <AccountDirectory />
         </div>
       </section>
     </AdminShell>

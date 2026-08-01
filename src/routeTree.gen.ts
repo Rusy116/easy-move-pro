@@ -93,6 +93,7 @@ import { Route as AuthenticatedBrokerDashboardRouteImport } from './routes/_auth
 import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin.users'
 import { Route as AuthenticatedAdminSettingsRouteImport } from './routes/_authenticated/admin.settings'
 import { Route as AuthenticatedAdminLeadsRouteImport } from './routes/_authenticated/admin.leads'
+import { Route as AuthenticatedAdminImpersonationRouteImport } from './routes/_authenticated/admin.impersonation'
 import { Route as AuthenticatedAdminFinanceRouteImport } from './routes/_authenticated/admin.finance'
 import { Route as AuthenticatedAdminDashboardRouteImport } from './routes/_authenticated/admin.dashboard'
 import { Route as AuthenticatedAdminCompaniesRouteImport } from './routes/_authenticated/admin.companies'
@@ -554,6 +555,12 @@ const AuthenticatedAdminLeadsRoute = AuthenticatedAdminLeadsRouteImport.update({
   path: '/admin/leads',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAdminImpersonationRoute =
+  AuthenticatedAdminImpersonationRouteImport.update({
+    id: '/admin/impersonation',
+    path: '/admin/impersonation',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAdminFinanceRoute =
   AuthenticatedAdminFinanceRouteImport.update({
     id: '/admin/finance',
@@ -624,6 +631,7 @@ export interface FileRoutesByFullPath {
   '/admin/companies': typeof AuthenticatedAdminCompaniesRoute
   '/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
   '/admin/finance': typeof AuthenticatedAdminFinanceRoute
+  '/admin/impersonation': typeof AuthenticatedAdminImpersonationRoute
   '/admin/leads': typeof AuthenticatedAdminLeadsRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
@@ -712,6 +720,7 @@ export interface FileRoutesByTo {
   '/admin/companies': typeof AuthenticatedAdminCompaniesRoute
   '/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
   '/admin/finance': typeof AuthenticatedAdminFinanceRoute
+  '/admin/impersonation': typeof AuthenticatedAdminImpersonationRoute
   '/admin/leads': typeof AuthenticatedAdminLeadsRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
@@ -803,6 +812,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/companies': typeof AuthenticatedAdminCompaniesRoute
   '/_authenticated/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
   '/_authenticated/admin/finance': typeof AuthenticatedAdminFinanceRoute
+  '/_authenticated/admin/impersonation': typeof AuthenticatedAdminImpersonationRoute
   '/_authenticated/admin/leads': typeof AuthenticatedAdminLeadsRoute
   '/_authenticated/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
@@ -894,6 +904,7 @@ export interface FileRouteTypes {
     | '/admin/companies'
     | '/admin/dashboard'
     | '/admin/finance'
+    | '/admin/impersonation'
     | '/admin/leads'
     | '/admin/settings'
     | '/admin/users'
@@ -982,6 +993,7 @@ export interface FileRouteTypes {
     | '/admin/companies'
     | '/admin/dashboard'
     | '/admin/finance'
+    | '/admin/impersonation'
     | '/admin/leads'
     | '/admin/settings'
     | '/admin/users'
@@ -1072,6 +1084,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/companies'
     | '/_authenticated/admin/dashboard'
     | '/_authenticated/admin/finance'
+    | '/_authenticated/admin/impersonation'
     | '/_authenticated/admin/leads'
     | '/_authenticated/admin/settings'
     | '/_authenticated/admin/users'
@@ -1751,6 +1764,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminLeadsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin/impersonation': {
+      id: '/_authenticated/admin/impersonation'
+      path: '/admin/impersonation'
+      fullPath: '/admin/impersonation'
+      preLoaderRoute: typeof AuthenticatedAdminImpersonationRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/admin/finance': {
       id: '/_authenticated/admin/finance'
       path: '/admin/finance'
@@ -1846,6 +1866,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminCompaniesRoute: typeof AuthenticatedAdminCompaniesRoute
   AuthenticatedAdminDashboardRoute: typeof AuthenticatedAdminDashboardRoute
   AuthenticatedAdminFinanceRoute: typeof AuthenticatedAdminFinanceRoute
+  AuthenticatedAdminImpersonationRoute: typeof AuthenticatedAdminImpersonationRoute
   AuthenticatedAdminLeadsRoute: typeof AuthenticatedAdminLeadsRoute
   AuthenticatedAdminSettingsRoute: typeof AuthenticatedAdminSettingsRoute
   AuthenticatedAdminUsersRoute: typeof AuthenticatedAdminUsersRoute
@@ -1872,6 +1893,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminCompaniesRoute: AuthenticatedAdminCompaniesRoute,
   AuthenticatedAdminDashboardRoute: AuthenticatedAdminDashboardRoute,
   AuthenticatedAdminFinanceRoute: AuthenticatedAdminFinanceRoute,
+  AuthenticatedAdminImpersonationRoute: AuthenticatedAdminImpersonationRoute,
   AuthenticatedAdminLeadsRoute: AuthenticatedAdminLeadsRoute,
   AuthenticatedAdminSettingsRoute: AuthenticatedAdminSettingsRoute,
   AuthenticatedAdminUsersRoute: AuthenticatedAdminUsersRoute,

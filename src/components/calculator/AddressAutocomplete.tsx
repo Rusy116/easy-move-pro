@@ -320,7 +320,7 @@ export function AddressAutocomplete({
         </div>
       )}
 
-      {error && <div className="mt-1 text-xs text-destructive">{error}</div>}
+      {error && <div className="mt-1 text-xs text-muted-foreground">{error}</div>}
     </div>
   );
 }

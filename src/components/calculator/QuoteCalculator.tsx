@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useNavigate } from "@tanstack/react-router";
 import {
   Loader2,
   MapPin,
@@ -245,8 +246,10 @@ function isEmptyDraft(form: FormState): boolean {
 }
 
 export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
+  const navigate = useNavigate();
   const [form, setForm] = useState<FormState>(() => createInitialForm());
   const hasUserEditedRef = useRef(false);
+  const handedOffRef = useRef(false);
 
   // Restore any saved draft after hydration (avoids SSR mismatch).
   useEffect(() => {
@@ -413,6 +416,25 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
       flexibleDate: form.flexibleDate,
     });
   }, [form, distance]);
+
+  // Compact (mini) calculator: once the essentials are done, flow straight into
+  // the full calculator — no extra click, the draft carries over.
+  useEffect(() => {
+    if (!compact || handedOffRef.current) return;
+    if (!quote || !form.moveDate || !hasUserEditedRef.current) return;
+    handedOffRef.current = true;
+    try {
+      window.localStorage.setItem(DRAFT_KEY, JSON.stringify({ savedAt: Date.now(), form }));
+    } catch {
+      /* storage unavailable */
+    }
+    const t = window.setTimeout(() => {
+      void navigate({ to: "/calculator" });
+    }, 600);
+    return () => window.clearTimeout(t);
+  }, [compact, quote, form, navigate]);
+
+
 
   function resetCalculatorForm() {
     try {
@@ -1188,9 +1210,10 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
           </div>
         </div>
       )}
-      {stage === "form" && quote && compact && (
-        <div className="border-t border-border bg-muted/40 px-5 py-4 text-xs text-muted-foreground sm:px-8">
-          Open the full calculator to book
+      {stage === "form" && quote && compact && handedOffRef.current && (
+        <div className="flex items-center gap-2 border-t border-border bg-muted/40 px-5 py-4 text-xs text-muted-foreground sm:px-8">
+          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+          Taking you to the full quote…
         </div>
       )}
 

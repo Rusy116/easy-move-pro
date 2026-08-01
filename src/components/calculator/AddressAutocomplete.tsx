@@ -96,7 +96,7 @@ export function AddressAutocomplete({
    * Keeps street autocomplete working exactly like the Lovable preview.
    */
   async function fetchViaBrowser(q: string): Promise<Row[]> {
-    if (!hasPublicBrowserPlacesKey()) return [];
+    if (!(await hasPublicBrowserPlacesKey())) return [];
     const g = await loadGoogleMaps();
     const places = (g.maps as unknown as { places?: Record<string, unknown> }).places;
     const Suggestion = places?.["AutocompleteSuggestion"] as
@@ -158,15 +158,14 @@ export function AddressAutocomplete({
         const fromServer = await fetchViaServer(q);
         next = fromServer.rows;
         if (next.length === 0 && fromServer.error) {
+          // Never surface configuration details to visitors — the browser
+          // fallback below may still succeed, and typing must stay unblocked.
           console.error(`[places] autocomplete unavailable: ${fromServer.error}`);
-          message =
-            fromServer.error === "not_configured"
-              ? "Address lookup isn't configured — add a Google Maps credential to enable suggestions."
-              : "Address lookup is temporarily unavailable — please type the address manually.";
+          message = "Keep typing your address — suggestions are unavailable right now.";
         }
       } catch (e) {
         console.error("[places] autocomplete request failed", e);
-        message = "Address lookup is temporarily unavailable — please type the address manually.";
+        message = "Keep typing your address — suggestions are unavailable right now.";
       }
 
       // Server path unavailable (no server credential in this deployment):
@@ -197,7 +196,7 @@ export function AddressAutocomplete({
   }, [value, bias?.lat, bias?.lng, bias?.radiusMeters, normalizedBiasZip]);
 
   async function detailsViaBrowser(placeId: string): Promise<PlaceSelection | null> {
-    if (!hasPublicBrowserPlacesKey()) return null;
+    if (!(await hasPublicBrowserPlacesKey())) return null;
     const g = await loadGoogleMaps();
     const PlaceCtor = (g.maps as unknown as { places?: Record<string, unknown> }).places?.[
       "Place"

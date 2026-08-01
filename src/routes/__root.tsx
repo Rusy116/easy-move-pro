@@ -14,6 +14,8 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { ROBOTS_META } from "../lib/seo-config";
 import { SiteLayout } from "../components/site/SiteLayout";
+import { ImpersonationBanner } from "../components/admin/ImpersonationBanner";
+
 
 function NotFoundComponent() {
   return (

@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { Inbox, Building2, BarChart3, Users, Banknote, Settings } from "lucide-react";
+import { Inbox, Building2, BarChart3, Users, Banknote, Settings , Eye } from "lucide-react";
 import { RoleShell } from "@/components/shell/RoleShell";
 import { RoleGuard } from "@/components/auth/RoleGuard";
 
@@ -8,6 +8,7 @@ const NAV = [
   { to: "/admin/leads", label: "Leads", icon: <Inbox className="h-4 w-4" /> },
   { to: "/admin/companies", label: "Companies", icon: <Building2 className="h-4 w-4" /> },
   { to: "/admin/users", label: "Users", icon: <Users className="h-4 w-4" /> },
+  { to: "/admin/impersonation", label: "View as", icon: <Eye className="h-4 w-4" /> },
   { to: "/admin/finance", label: "Finance", icon: <Banknote className="h-4 w-4" /> },
   { to: "/admin/settings", label: "Settings", icon: <Settings className="h-4 w-4" /> },
 ];

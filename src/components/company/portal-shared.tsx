@@ -837,7 +837,13 @@ export function LeadDetailDialog({
             </div>
           ))}
 
-        {tab === "estimate" && (
+        {tab === "estimate" && !claimed && (
+          <div className="rounded-xl border border-slate-200 bg-slate-50 p-6 text-center text-sm text-slate-700">
+            Claim this lead to build and send a quote.
+          </div>
+        )}
+
+        {tab === "estimate" && claimed && (
           <div className="space-y-3">
             {revisions.length === 0 && (
               <div className="text-sm text-muted-foreground p-6 text-center">
@@ -866,7 +872,7 @@ export function LeadDetailDialog({
                 {r.notes && <div className="mt-1.5 text-sm">{r.notes}</div>}
               </div>
             ))}
-            {a && (
+            {claimed && (
               <Button size="sm" onClick={onEstimate} className="w-full">
                 <Send className="mr-1.5 h-4 w-4" />
                 New estimate revision

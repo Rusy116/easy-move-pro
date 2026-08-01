@@ -3220,6 +3220,40 @@ export type Database = {
           quote_id: string
         }[]
       }
+      fn_claim_lead_core: {
+        Args: { _company_id: string; _quote_id: string }
+        Returns: {
+          accepted_at: string | null
+          assigned_by: string | null
+          closed_at: string | null
+          company_id: string
+          contacted_at: string | null
+          created_at: string
+          decline_reason: string | null
+          declined_at: string | null
+          id: string
+          invited_at: string
+          is_exclusive: boolean
+          lost_at: string | null
+          notes: string | null
+          override_mask: Json
+          quote_id: string
+          quoted_amount: number | null
+          quoted_at: string | null
+          sla_due_at: string | null
+          state: Database["public"]["Enums"]["assignment_state_enum"]
+          status: string
+          updated_at: string
+          viewed_at: string | null
+          won_at: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "quote_assignments"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       fn_close_lead: {
         Args: { _quote_id: string; _reason: string }
         Returns: undefined
@@ -3589,6 +3623,7 @@ export type Database = {
         Args: { _quote_id: string; _reason?: string }
         Returns: undefined
       }
+      fn_fulfill_accepted_quote: { Args: { _quote_id: string }; Returns: Json }
       fn_generate_commission_invoice: {
         Args: { _commission_id: string }
         Returns: {

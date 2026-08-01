@@ -1210,9 +1210,10 @@ export function QuoteCalculator({ compact = false }: { compact?: boolean }) {
           </div>
         </div>
       )}
-      {stage === "form" && quote && compact && (
-        <div className="border-t border-border bg-muted/40 px-5 py-4 text-xs text-muted-foreground sm:px-8">
-          Open the full calculator to book
+      {stage === "form" && quote && compact && handedOffRef.current && (
+        <div className="flex items-center gap-2 border-t border-border bg-muted/40 px-5 py-4 text-xs text-muted-foreground sm:px-8">
+          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+          Taking you to the full quote…
         </div>
       )}
 

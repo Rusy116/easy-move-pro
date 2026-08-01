@@ -135,6 +135,7 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
+      <ImpersonationBanner />
       <Outlet />
       <Toaster richColors position="top-right" />
     </QueryClientProvider>

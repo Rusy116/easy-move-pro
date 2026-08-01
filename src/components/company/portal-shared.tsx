@@ -105,7 +105,16 @@ export type MoverLead = {
   contact_email: string | null;
   origin_address: string | null;
   destination_address: string | null;
+  /** True only when this company has successfully claimed the lead (backend-computed). */
+  unlocked?: boolean | null;
 };
+
+/** Single source of truth for post-claim reveal: PII, portal, contact + final quote. */
+export function isClaimedByMe(merged: MergedLead): boolean {
+  const { lead: l, assignment: a } = merged;
+  if (l.unlocked === true) return true;
+  return !!a && ["accepted", "quoted", "won"].includes(a.state);
+}
 
 export type AssignmentState =
   | "invited"
@@ -422,14 +431,17 @@ export function LeadCard({
     }
   }
 
-  const showPii = !!l.full_name || !!l.contact_phone || !!l.contact_email;
+  const claimed = isClaimedByMe(merged);
+  const showPii = claimed && (!!l.full_name || !!l.contact_phone || !!l.contact_email);
 
   return (
     <div className="card-premium card-premium-hover p-4 md:p-5 animate-fade-in-soft">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="font-serif text-lg font-medium">{customerName(l)}</span>
+            <span className="font-serif text-lg font-medium">
+              {claimed ? customerName(l) : "Customer (contact hidden)"}
+            </span>
             <span className="font-mono text-xs text-muted-foreground">
               {l.quote_number ?? l.id.slice(0, 8)}
             </span>
@@ -509,7 +521,7 @@ export function LeadCard({
               {claiming ? "Claiming…" : "Claim lead"}
             </Button>
           )}
-          {a && (bucket === "exclusive" || bucket === "active") && (
+          {claimed && (bucket === "exclusive" || bucket === "active" || bucket === "won") && (
             <Button size="sm" variant="outline" onClick={onEstimate}>
               <Send className="mr-1.5 h-4 w-4" />
               Send estimate
@@ -690,7 +702,8 @@ export function LeadDetailDialog({
     }
   }
 
-  const showFullContact = a && !!(l.full_name || l.contact_phone || l.contact_email);
+  const claimed = isClaimedByMe(merged);
+  const showFullContact = claimed && !!(l.full_name || l.contact_phone || l.contact_email);
   const TABS: Array<{ id: typeof tab; label: string }> = [
     { id: "profile", label: "Profile" },
     { id: "inventory", label: "Inventory" },
@@ -704,7 +717,7 @@ export function LeadDetailDialog({
       <DialogContent className="max-w-3xl max-h-[92vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-3 flex-wrap">
-            <span>{customerName(l)}</span>
+            <span>{claimed ? customerName(l) : "Customer (contact hidden)"}</span>
             <span className="font-mono text-xs text-muted-foreground">
               {l.quote_number ?? l.id.slice(0, 8)}
             </span>
@@ -770,8 +783,8 @@ export function LeadDetailDialog({
                 <div>
                   <div className="font-medium">Contact details are hidden</div>
                   <div className="text-slate-600">
-                    Customer name, phone, email and street address are revealed once you have an
-                    active assignment.
+                    Customer name, phone, email, street addresses and the quote form unlock only
+                    after you successfully claim this lead.
                   </div>
                 </div>
               </div>
@@ -824,7 +837,13 @@ export function LeadDetailDialog({
             </div>
           ))}
 
-        {tab === "estimate" && (
+        {tab === "estimate" && !claimed && (
+          <div className="rounded-xl border border-slate-200 bg-slate-50 p-6 text-center text-sm text-slate-700">
+            Claim this lead to build and send a quote.
+          </div>
+        )}
+
+        {tab === "estimate" && claimed && (
           <div className="space-y-3">
             {revisions.length === 0 && (
               <div className="text-sm text-muted-foreground p-6 text-center">
@@ -853,7 +872,7 @@ export function LeadDetailDialog({
                 {r.notes && <div className="mt-1.5 text-sm">{r.notes}</div>}
               </div>
             ))}
-            {a && (
+            {claimed && (
               <Button size="sm" onClick={onEstimate} className="w-full">
                 <Send className="mr-1.5 h-4 w-4" />
                 New estimate revision

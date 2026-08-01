@@ -3185,6 +3185,10 @@ export type Database = {
         }
         Returns: undefined
       }
+      fn_lead_claimed_by_company: {
+        Args: { _company_id: string; _quote_id: string }
+        Returns: boolean
+      }
       fn_lead_expiry_tick: {
         Args: never
         Returns: {

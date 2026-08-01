@@ -160,11 +160,6 @@ function HomePage() {
 
           <div className="mx-auto mt-12 max-w-5xl sm:mt-16">
             <QuoteCalculator compact />
-            <div className="mt-4 text-center">
-              <Link to="/calculator" className="text-sm font-medium text-primary hover:underline">
-                Open the full calculator →
-              </Link>
-            </div>
           </div>
         </div>
       </section>

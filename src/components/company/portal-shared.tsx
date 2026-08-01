@@ -439,7 +439,9 @@ export function LeadCard({
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="font-serif text-lg font-medium">{customerName(l)}</span>
+            <span className="font-serif text-lg font-medium">
+              {claimed ? customerName(l) : "Customer (contact hidden)"}
+            </span>
             <span className="font-mono text-xs text-muted-foreground">
               {l.quote_number ?? l.id.slice(0, 8)}
             </span>

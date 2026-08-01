@@ -269,33 +269,46 @@ export function MyJobCard({ job }: { job: MyJob }) {
           label="Distance"
           value={job.distance_miles ? `${Math.round(job.distance_miles)} mi` : "—"}
         />
-        <Fact icon={<Phone className="h-3 w-3" />} label="Phone" value={job.contact_phone ?? "—"} />
-        <Fact icon={<Mail className="h-3 w-3" />} label="Email" value={job.contact_email ?? "—"} />
+        <Fact
+          icon={<Phone className="h-3 w-3" />}
+          label="Phone"
+          value={unlocked ? (job.contact_phone ?? "—") : "Locked"}
+        />
+        <Fact
+          icon={<Mail className="h-3 w-3" />}
+          label="Email"
+          value={unlocked ? (job.contact_email ?? "—") : "Locked"}
+        />
       </div>
 
       <div className="mt-5 flex flex-wrap gap-2">
-        <Button
-          asChild
-          variant="outline"
-          size="sm"
-          className="rounded-full"
-          disabled={!job.contact_phone}
-        >
-          <a href={`tel:${job.contact_phone ?? ""}`}>
-            <Phone className="mr-1.5 h-3.5 w-3.5" /> Call
-          </a>
-        </Button>
-        <Button
-          asChild
-          variant="outline"
-          size="sm"
-          className="rounded-full"
-          disabled={!job.contact_email}
-        >
-          <a href={`mailto:${job.contact_email ?? ""}`}>
-            <Mail className="mr-1.5 h-3.5 w-3.5" /> Email
-          </a>
-        </Button>
+        {unlocked && (
+          <>
+            <Button
+              asChild
+              variant="outline"
+              size="sm"
+              className="rounded-full"
+              disabled={!job.contact_phone}
+            >
+              <a href={`tel:${job.contact_phone ?? ""}`}>
+                <Phone className="mr-1.5 h-3.5 w-3.5" /> Call
+              </a>
+            </Button>
+            <Button
+              asChild
+              variant="outline"
+              size="sm"
+              className="rounded-full"
+              disabled={!job.contact_email}
+            >
+              <a href={`mailto:${job.contact_email ?? ""}`}>
+                <Mail className="mr-1.5 h-3.5 w-3.5" /> Email
+              </a>
+            </Button>
+          </>
+        )}
+
         {canPortal && (
           <Button asChild variant="outline" size="sm" className="rounded-full">
             <Link

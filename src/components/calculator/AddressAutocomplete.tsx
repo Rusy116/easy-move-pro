@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Loader2, MapPin, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { placeDetails, placesAutocomplete } from "@/lib/places.functions";
+import { hasPublicBrowserPlacesKey, loadGoogleMaps } from "@/lib/google-maps-loader";
 import { cn } from "@/lib/utils";
 
 export interface PlaceSelection {

@@ -103,6 +103,13 @@ export function BrokerLeadsWorkspace() {
 
   const brokers = useBrokers();
 
+  // Single source of truth: quotes.assigned_broker_id — same field the Admin CRM writes.
+  const brokerLabel = (id: unknown) => {
+    if (typeof id !== "string" || !id) return null;
+    const b = brokers.find((x) => x.id === id);
+    return b?.full_name || b?.email || id.slice(0, 8);
+  };
+
   const stateOptions = useMemo(() => {
     const set = new Set<string>();
     leads.forEach((l) => {

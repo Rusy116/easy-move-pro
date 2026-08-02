@@ -20,6 +20,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { SkeletonRows } from "@/components/shell/Chrome";
 import { EmptyState, Fact, JobStatusBadge, ResponseCountdown } from "@/components/company/JobsUI";
+import { ReleaseJobButton } from "@/components/marketplace/JobOwnership";
 import { FinalPriceCard } from "@/components/company/FinalPriceCard";
 import { InternalNotesCard } from "@/components/company/InternalNotesCard";
 

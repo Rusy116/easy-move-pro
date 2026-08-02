@@ -46,7 +46,7 @@ function AvailableJobsPage() {
       void reload();
       return;
     }
-    toast.success(`${job.quote_number ?? "Job"} claimed — you have 12 hours to respond.`);
+    toast.success(`${job.quote_number ?? "Job"} claimed — open Current Jobs, you have 12 hours to contact the customer.`);
     void reload();
   }
 

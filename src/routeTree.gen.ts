@@ -98,6 +98,7 @@ import { Route as AuthenticatedAdminImpersonationRouteImport } from './routes/_a
 import { Route as AuthenticatedAdminFinanceRouteImport } from './routes/_authenticated/admin.finance'
 import { Route as AuthenticatedAdminDashboardRouteImport } from './routes/_authenticated/admin.dashboard'
 import { Route as AuthenticatedAdminCompaniesRouteImport } from './routes/_authenticated/admin.companies'
+import { Route as AuthenticatedAdminBrokersRouteImport } from './routes/_authenticated/admin.brokers'
 import { Route as AuthenticatedCompanyJobJobIdRouteImport } from './routes/_authenticated/company.job.$jobId'
 
 const StoreRoute = StoreRouteImport.update({
@@ -586,6 +587,12 @@ const AuthenticatedAdminCompaniesRoute =
     path: '/admin/companies',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedAdminBrokersRoute =
+  AuthenticatedAdminBrokersRouteImport.update({
+    id: '/admin/brokers',
+    path: '/admin/brokers',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedCompanyJobJobIdRoute =
   AuthenticatedCompanyJobJobIdRouteImport.update({
     id: '/job/$jobId',
@@ -635,6 +642,7 @@ export interface FileRoutesByFullPath {
   '/partners/': typeof PartnersIndexRoute
   '/routes/': typeof RoutesIndexRoute
   '/states/': typeof StatesIndexRoute
+  '/admin/brokers': typeof AuthenticatedAdminBrokersRoute
   '/admin/companies': typeof AuthenticatedAdminCompaniesRoute
   '/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
   '/admin/finance': typeof AuthenticatedAdminFinanceRoute
@@ -725,6 +733,7 @@ export interface FileRoutesByTo {
   '/partners': typeof PartnersIndexRoute
   '/routes': typeof RoutesIndexRoute
   '/states': typeof StatesIndexRoute
+  '/admin/brokers': typeof AuthenticatedAdminBrokersRoute
   '/admin/companies': typeof AuthenticatedAdminCompaniesRoute
   '/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
   '/admin/finance': typeof AuthenticatedAdminFinanceRoute
@@ -818,6 +827,7 @@ export interface FileRoutesById {
   '/partners/': typeof PartnersIndexRoute
   '/routes/': typeof RoutesIndexRoute
   '/states/': typeof StatesIndexRoute
+  '/_authenticated/admin/brokers': typeof AuthenticatedAdminBrokersRoute
   '/_authenticated/admin/companies': typeof AuthenticatedAdminCompaniesRoute
   '/_authenticated/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
   '/_authenticated/admin/finance': typeof AuthenticatedAdminFinanceRoute
@@ -911,6 +921,7 @@ export interface FileRouteTypes {
     | '/partners/'
     | '/routes/'
     | '/states/'
+    | '/admin/brokers'
     | '/admin/companies'
     | '/admin/dashboard'
     | '/admin/finance'
@@ -1001,6 +1012,7 @@ export interface FileRouteTypes {
     | '/partners'
     | '/routes'
     | '/states'
+    | '/admin/brokers'
     | '/admin/companies'
     | '/admin/dashboard'
     | '/admin/finance'
@@ -1093,6 +1105,7 @@ export interface FileRouteTypes {
     | '/partners/'
     | '/routes/'
     | '/states/'
+    | '/_authenticated/admin/brokers'
     | '/_authenticated/admin/companies'
     | '/_authenticated/admin/dashboard'
     | '/_authenticated/admin/finance'
@@ -1812,6 +1825,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminCompaniesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin/brokers': {
+      id: '/_authenticated/admin/brokers'
+      path: '/admin/brokers'
+      fullPath: '/admin/brokers'
+      preLoaderRoute: typeof AuthenticatedAdminBrokersRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/company/job/$jobId': {
       id: '/_authenticated/company/job/$jobId'
       path: '/job/$jobId'
@@ -1883,6 +1903,7 @@ const AuthenticatedCompanyRouteWithChildren =
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedCompanyRoute: typeof AuthenticatedCompanyRouteWithChildren
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedAdminBrokersRoute: typeof AuthenticatedAdminBrokersRoute
   AuthenticatedAdminCompaniesRoute: typeof AuthenticatedAdminCompaniesRoute
   AuthenticatedAdminDashboardRoute: typeof AuthenticatedAdminDashboardRoute
   AuthenticatedAdminFinanceRoute: typeof AuthenticatedAdminFinanceRoute
@@ -1911,6 +1932,7 @@ interface AuthenticatedRouteRouteChildren {
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedCompanyRoute: AuthenticatedCompanyRouteWithChildren,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedAdminBrokersRoute: AuthenticatedAdminBrokersRoute,
   AuthenticatedAdminCompaniesRoute: AuthenticatedAdminCompaniesRoute,
   AuthenticatedAdminDashboardRoute: AuthenticatedAdminDashboardRoute,
   AuthenticatedAdminFinanceRoute: AuthenticatedAdminFinanceRoute,
@@ -1986,13 +2008,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

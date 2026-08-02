@@ -85,8 +85,9 @@ export function CurrentJobCard({ job, companyName }: { job: MyJob; companyName: 
         <Cell
           icon={<User className="h-3 w-3" />}
           label="Customer"
-          value={job.customer_name ?? job.contact_email ?? "—"}
+          value={customerName(job)}
         />
+
         <Cell
           icon={<MapPin className="h-3 w-3" />}
           label="Origin"

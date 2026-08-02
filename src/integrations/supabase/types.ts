@@ -3687,6 +3687,7 @@ export type Database = {
         Args: { _company_id: string; _quote_id: string }
         Returns: Json
       }
+      fn_company_complete_job: { Args: { _quote_id: string }; Returns: Json }
       fn_company_complete_move: {
         Args: { _company_id: string; _notes?: string; _quote_id: string }
         Returns: Json

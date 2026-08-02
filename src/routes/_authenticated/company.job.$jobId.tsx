@@ -353,6 +353,12 @@ function JobDetailsPage() {
             </div>
           </div>
 
+          {missingRequired.length > 0 && (
+            <p className="mt-4 text-sm font-medium text-rose-700">
+              Required before sending or scheduling: {missingRequired.join(", ")}.
+            </p>
+          )}
+
           <div className="mt-5 flex flex-wrap gap-2">
             <Button
               variant="outline"
@@ -378,11 +384,27 @@ function JobDetailsPage() {
               ) : (
                 <CheckCircle2 className="mr-2 h-4 w-4" />
               )}
-              Mark customer contacted
+              Customer contacted
+            </Button>
+            <Button
+              variant="outline"
+              className="rounded-full"
+              disabled={pending !== null}
+              onClick={() => run("survey_scheduled")}
+            >
+              Survey scheduled
+            </Button>
+            <Button
+              variant="outline"
+              className="rounded-full"
+              disabled={pending !== null}
+              onClick={() => run("survey_completed")}
+            >
+              Survey completed
             </Button>
             <Button
               className="rounded-full"
-              disabled={pending !== null || !form.final_price}
+              disabled={pending !== null || missingRequired.length > 0}
               onClick={() => run("send_final_quote")}
             >
               {pending === "send_final_quote" ? (
@@ -390,12 +412,20 @@ function JobDetailsPage() {
               ) : (
                 <Send className="mr-2 h-4 w-4" />
               )}
-              Send final quote
+              Send estimate
             </Button>
             <Button
               variant="outline"
               className="rounded-full"
               disabled={pending !== null}
+              onClick={() => run("estimate_accepted")}
+            >
+              Estimate accepted
+            </Button>
+            <Button
+              variant="outline"
+              className="rounded-full"
+              disabled={pending !== null || missingRequired.length > 0}
               onClick={() => run("schedule")}
             >
               {pending === "schedule" ? (
@@ -409,21 +439,28 @@ function JobDetailsPage() {
               variant="outline"
               className="rounded-full"
               disabled={pending !== null}
-              onClick={() => run("complete")}
+              onClick={() => run("start_move")}
             >
-              Mark completed
-            </Button>
-            <Button
-              variant="outline"
-              className="rounded-full border-rose-300 text-rose-700 hover:bg-rose-50"
-              disabled={pending !== null}
-              onClick={() => run("cancel")}
-            >
-              <XCircle className="mr-2 h-4 w-4" /> Cancel job
+              Move in progress
             </Button>
           </div>
         </section>
       )}
+
+      {/* Additional services, contact history and internal tasks */}
+      {unlocked && company && (
+        <>
+          <AdditionalServicesCard
+            value={services}
+            onChange={setServices}
+            saving={pending === "save_details"}
+            onSave={() => run("save_details")}
+          />
+          <ContactHistoryCard quoteId={job.id} companyId={company.id} />
+          <TasksCard quoteId={job.id} companyId={company.id} />
+        </>
+      )}
+
 
       {/* Phase 4 — final price lock, revision history and internal notes */}
       {unlocked && company && (

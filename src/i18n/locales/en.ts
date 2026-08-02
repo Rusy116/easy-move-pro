@@ -146,6 +146,110 @@ export const en = {
   "validation.phone": "Enter a valid phone number.",
   "validation.zip": "Enter a valid ZIP code.",
   "validation.terms": "Please accept the terms to continue.",
+
+  // ------------------------------------------------------------------- home
+  "home.badge": "AI-powered moving marketplace",
+  "home.hero.title1": "Moving,",
+  "home.hero.title2": "made simple.",
+  "home.hero.subtitle":
+    "Compare vetted moving companies, get an honest instant quote, and plan your move with AI — nationwide, no sales calls, no surprises.",
+  "home.cta.explore": "Explore Services",
+  "home.trust.noSignup": "No signup required",
+  "home.trust.insured": "Licensed & insured",
+  "home.trust.locked": "Locked-in rates",
+  "home.stat.households": "Households moved",
+  "home.stat.rating": "Average rating",
+  "home.stat.coverage": "Coverage",
+  "home.stat.coverageValue": "48 states",
+  "home.stat.speed": "To your quote",
+  "home.stat.speedValue": "< 60s",
+  "home.band.eyebrow": "Move-day precision",
+  "home.band.title": "Every box, tracked. Every rate, transparent.",
+  "home.band.alt": "Modern living room being packed with labeled moving boxes",
+  "home.steps.eyebrow": "How it works",
+  "home.steps.title": "A move, in three unhurried steps.",
+  "home.steps.1.title": "Tell us your move",
+  "home.steps.1.copy": "ZIP to ZIP, bedrooms, dates. It takes 30 seconds.",
+  "home.steps.2.title": "Compare vetted movers",
+  "home.steps.2.copy": "We match you with 3 crews with real prices and reviews.",
+  "home.steps.3.title": "Book with confidence",
+  "home.steps.3.copy": "Locked-in rates, licensed & insured, AI-tracked timeline.",
+  "home.why.eyebrow": "Why Easy Moving",
+  "home.why.title": "Built for the way people actually move.",
+  "home.why.copy":
+    "Old-school brokers hide behind sales calls. We show you the price, the crew, and the reviews — before you talk to anyone.",
+  "home.why.link": "Our story",
+  "home.feature.pricing.title": "Instant, honest pricing",
+  "home.feature.pricing.copy":
+    "Live carrier rates, distance math, and inventory averages — no sales calls to get a number.",
+  "home.feature.vetted.title": "Vetted, insured crews",
+  "home.feature.vetted.copy":
+    "Every mover is DOT-registered, background-checked, and $100k liability insured.",
+  "home.feature.ai.title": "AI-assisted planning",
+  "home.feature.ai.copy":
+    "Auto-generated timelines, packing checklists, and inventory recognition from a phone photo.",
+  "home.feature.concierge.title": "Concierge on move day",
+  "home.feature.concierge.copy":
+    "A real human coordinator on call from load-in to the last box unpacked.",
+  "home.cities.eyebrow": "Nationwide coverage",
+  "home.cities.title": "Every major US metro.",
+  "home.testimonials.eyebrow": "Real customers",
+  "home.testimonials.title": "People move once. They remember how it felt.",
+  "home.testimonial.1.quote":
+    "The instant quote was exactly what we paid. It felt more like booking a flight than moving a house.",
+  "home.testimonial.1.detail": "NYC → LA · 2BR apartment",
+  "home.testimonial.2.quote":
+    "Three vetted crews, real prices, no phone tag. We picked the one with the best reviews and were done.",
+  "home.testimonial.2.detail": "Austin → Seattle · 3BR house",
+  "home.testimonial.3.quote":
+    "The AI packing checklist alone saved us a weekend. Everything landed labeled and unbroken.",
+  "home.testimonial.3.detail": "Chicago → Denver · Studio",
+  "home.finalCta.badge": "Quote in under 60 seconds",
+  "home.finalCta.title": "Ready when you are.",
+  "home.finalCta.copy": "No signup required. See real pricing before anyone calls you.",
+
+  // ----------------------------------------------------------------- footer
+  "footer.tagline":
+    "The AI-powered moving marketplace. Instant quotes, vetted movers, and a calmer relocation.",
+  "footer.col.platform": "Platform",
+  "footer.col.locations": "Locations",
+  "footer.col.forMovers": "For Movers",
+  "footer.col.company": "Company",
+  "footer.link.aiTools": "AI Tools",
+  "footer.link.store": "Digital Store",
+  "footer.link.states": "Movers by state",
+  "footer.link.routes": "Popular Routes",
+  "footer.link.join": "Join Easy Moving",
+  "footer.link.apply": "Apply now",
+  "footer.link.movingLeads": "Moving Leads",
+  "footer.link.exclusiveLeads": "Exclusive Leads",
+  "footer.link.crm": "CRM",
+  "footer.link.partners": "Partners",
+  "footer.link.resources": "Resources",
+  "footer.rights": "© {{year}} Easy Moving Logistics. All rights reserved.",
+  "footer.coverage": "Serving all 50 states.",
+
+  // ------------------------------------------------------------ auth screen
+  "auth.backHome": "Back home",
+  "auth.heading": "Sign in",
+  "auth.intro":
+    "One sign-in for customers, moving companies, brokers and administrators. We send you to the right workspace automatically.",
+  "auth.identifier": "Email or phone number",
+  "auth.identifierPlaceholder": "you@company.com or (555) 123-4567",
+  "auth.welcome": "Welcome back.",
+  "auth.error": "Could not sign you in",
+  "auth.dev.title": "Development login — QA only",
+  "auth.dev.copy": "One-click access to seeded demo accounts. Hidden in production.",
+  "auth.dev.loginAs": "Login as {{role}}",
+  "auth.company.question": "Moving company?",
+  "auth.company.apply": "Apply to join the network",
+  "auth.customer.question": "Customer without an account? Start with an",
+  "auth.customer.quote": "instant moving quote",
+  "auth.customer.tail": "— we create your account for you.",
+  "auth.adminNote": "Broker and administrator accounts are issued by the platform administrator only.",
+
+  // ----------------------------------------------------------- common extra
+  "common.viewAll": "View all",
 } as const;
 
 export type TranslationKey = keyof typeof en;

@@ -40,6 +40,7 @@ export const Route = createFileRoute("/_authenticated/customer/dashboard")({
 });
 
 function CustomerDashboard() {
+  const statusLabel = useStatusLabel();
   const { activeMove, moves, loading } = useMyMoves();
   const { company } = useAssignedCompany(activeMove?.assigned_company_id);
   const { entries } = useMoveTimeline(activeMove?.id ?? null);

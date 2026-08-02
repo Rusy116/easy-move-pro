@@ -23,6 +23,7 @@ import {
   type LeadStatus,
 } from "@/lib/lead-status";
 import { toast } from "sonner";
+import { useI18n, useStatusLabel } from "@/i18n";
 
 type Lead = {
   [key: string]: unknown;
@@ -46,6 +47,8 @@ const STATUSES = ["all", ...ALL_LEAD_STATUSES];
 const MOVE_TYPES = ["all", "local", "long_distance", "interstate"];
 
 export function BrokerLeadsWorkspace() {
+  const { t } = useI18n();
+  const statusLabel = useStatusLabel();
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
   const [q, setQ] = useState("");

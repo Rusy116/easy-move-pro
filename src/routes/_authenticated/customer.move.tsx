@@ -28,6 +28,7 @@ export const Route = createFileRoute("/_authenticated/customer/move")({
 });
 
 function MyMovePage() {
+  const statusLabel = useStatusLabel();
   const { activeMove: move, loading, reload } = useMyMoves();
   const { company } = useAssignedCompany(move?.assigned_company_id);
   const { entries } = useMoveTimeline(move?.id ?? null);

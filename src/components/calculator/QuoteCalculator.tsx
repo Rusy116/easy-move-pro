@@ -580,6 +580,7 @@ export function QuoteCalculator(_props: { compact?: boolean } = {}) {
     setSaving(true);
     setStage("submitting");
     const start = Date.now();
+    let confirmation: { quoteNumber: string; token: string };
     try {
       const saved = await saveQuote();
       const inventoryArray = Object.entries(form.inventory)

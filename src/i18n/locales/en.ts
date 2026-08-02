@@ -23,6 +23,7 @@ export const en = {
   "common.name": "Name",
   "common.menu": "Menu",
   "common.profile": "Profile",
+  "common.allStatuses": "All statuses",
   "common.none": "None",
   "common.yes": "Yes",
   "common.no": "No",

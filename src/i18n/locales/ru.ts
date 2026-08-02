@@ -20,6 +20,7 @@ export const ru: Dictionary = {
   "common.name": "Имя",
   "common.menu": "Меню",
   "common.profile": "Профиль",
+  "common.allStatuses": "Все статусы",
   "common.none": "Нет",
   "common.yes": "Да",
   "common.no": "Нет",

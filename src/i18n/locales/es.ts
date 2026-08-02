@@ -20,6 +20,7 @@ export const es: Dictionary = {
   "common.name": "Nombre",
   "common.menu": "Menú",
   "common.profile": "Perfil",
+  "common.allStatuses": "Todos los estados",
   "common.none": "Ninguno",
   "common.yes": "Sí",
   "common.no": "No",

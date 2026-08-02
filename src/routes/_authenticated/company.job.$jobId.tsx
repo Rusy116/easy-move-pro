@@ -168,6 +168,28 @@ function JobDetailsPage() {
   const set = (k: keyof Form) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
     setForm({ ...form, [k]: e.target.value });
 
+  // Move date, move time and final agreed price are mandatory.
+  const missingRequired = [
+    !form.final_move_date ? "move date" : null,
+    !form.arrival_window ? "move time" : null,
+    !form.final_price ? "final agreed price" : null,
+  ].filter((v): v is string => v !== null);
+
+  async function decline() {
+    if (!job?.assigned_company_id) return;
+    setPending("decline");
+    try {
+      await declineJob(job.id, job.assigned_company_id, "declined by company");
+      toast.success("Job declined and returned to the marketplace.");
+      void navigate({ to: "/company/current" });
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Could not decline this job.");
+    }
+    setPending(null);
+  }
+
+
+
   return (
     <div className="space-y-5">
       <Link

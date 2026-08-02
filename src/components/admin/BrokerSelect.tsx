@@ -80,7 +80,7 @@ export async function assignBroker(quoteId: string, brokerId: string | null) {
   // notification stay in sync with the assignment.
   const { error } = await supabase.rpc("fn_assign_broker", {
     _quote_id: quoteId,
-    _broker_id: brokerId,
+    _broker_id: brokerId as string,
   });
   if (error) toast.error(error.message);
   else toast.success(brokerId ? "Broker assigned" : "Broker cleared");

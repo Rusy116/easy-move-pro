@@ -87,6 +87,7 @@ import { Route as AuthenticatedCompanyEstimatesRouteImport } from './routes/_aut
 import { Route as AuthenticatedCompanyDocumentsRouteImport } from './routes/_authenticated/company.documents'
 import { Route as AuthenticatedCompanyDashboardRouteImport } from './routes/_authenticated/company.dashboard'
 import { Route as AuthenticatedCompanyCustomersRouteImport } from './routes/_authenticated/company.customers'
+import { Route as AuthenticatedCompanyCurrentRouteImport } from './routes/_authenticated/company.current'
 import { Route as AuthenticatedCompanyAnalyticsRouteImport } from './routes/_authenticated/company.analytics'
 import { Route as AuthenticatedBrokerPerformanceRouteImport } from './routes/_authenticated/broker.performance'
 import { Route as AuthenticatedBrokerLeadsRouteImport } from './routes/_authenticated/broker.leads'
@@ -525,6 +526,12 @@ const AuthenticatedCompanyCustomersRoute =
     path: '/customers',
     getParentRoute: () => AuthenticatedCompanyRoute,
   } as any)
+const AuthenticatedCompanyCurrentRoute =
+  AuthenticatedCompanyCurrentRouteImport.update({
+    id: '/current',
+    path: '/current',
+    getParentRoute: () => AuthenticatedCompanyRoute,
+  } as any)
 const AuthenticatedCompanyAnalyticsRoute =
   AuthenticatedCompanyAnalyticsRouteImport.update({
     id: '/analytics',
@@ -678,6 +685,7 @@ export interface FileRoutesByFullPath {
   '/broker/leads': typeof AuthenticatedBrokerLeadsRoute
   '/broker/performance': typeof AuthenticatedBrokerPerformanceRoute
   '/company/analytics': typeof AuthenticatedCompanyAnalyticsRoute
+  '/company/current': typeof AuthenticatedCompanyCurrentRoute
   '/company/customers': typeof AuthenticatedCompanyCustomersRoute
   '/company/dashboard': typeof AuthenticatedCompanyDashboardRoute
   '/company/documents': typeof AuthenticatedCompanyDocumentsRoute
@@ -772,6 +780,7 @@ export interface FileRoutesByTo {
   '/broker/leads': typeof AuthenticatedBrokerLeadsRoute
   '/broker/performance': typeof AuthenticatedBrokerPerformanceRoute
   '/company/analytics': typeof AuthenticatedCompanyAnalyticsRoute
+  '/company/current': typeof AuthenticatedCompanyCurrentRoute
   '/company/customers': typeof AuthenticatedCompanyCustomersRoute
   '/company/dashboard': typeof AuthenticatedCompanyDashboardRoute
   '/company/documents': typeof AuthenticatedCompanyDocumentsRoute
@@ -869,6 +878,7 @@ export interface FileRoutesById {
   '/_authenticated/broker/leads': typeof AuthenticatedBrokerLeadsRoute
   '/_authenticated/broker/performance': typeof AuthenticatedBrokerPerformanceRoute
   '/_authenticated/company/analytics': typeof AuthenticatedCompanyAnalyticsRoute
+  '/_authenticated/company/current': typeof AuthenticatedCompanyCurrentRoute
   '/_authenticated/company/customers': typeof AuthenticatedCompanyCustomersRoute
   '/_authenticated/company/dashboard': typeof AuthenticatedCompanyDashboardRoute
   '/_authenticated/company/documents': typeof AuthenticatedCompanyDocumentsRoute
@@ -966,6 +976,7 @@ export interface FileRouteTypes {
     | '/broker/leads'
     | '/broker/performance'
     | '/company/analytics'
+    | '/company/current'
     | '/company/customers'
     | '/company/dashboard'
     | '/company/documents'
@@ -1060,6 +1071,7 @@ export interface FileRouteTypes {
     | '/broker/leads'
     | '/broker/performance'
     | '/company/analytics'
+    | '/company/current'
     | '/company/customers'
     | '/company/dashboard'
     | '/company/documents'
@@ -1156,6 +1168,7 @@ export interface FileRouteTypes {
     | '/_authenticated/broker/leads'
     | '/_authenticated/broker/performance'
     | '/_authenticated/company/analytics'
+    | '/_authenticated/company/current'
     | '/_authenticated/company/customers'
     | '/_authenticated/company/dashboard'
     | '/_authenticated/company/documents'
@@ -1787,6 +1800,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCompanyCustomersRouteImport
       parentRoute: typeof AuthenticatedCompanyRoute
     }
+    '/_authenticated/company/current': {
+      id: '/_authenticated/company/current'
+      path: '/current'
+      fullPath: '/company/current'
+      preLoaderRoute: typeof AuthenticatedCompanyCurrentRouteImport
+      parentRoute: typeof AuthenticatedCompanyRoute
+    }
     '/_authenticated/company/analytics': {
       id: '/_authenticated/company/analytics'
       path: '/analytics'
@@ -1904,6 +1924,7 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedCompanyRouteChildren {
   AuthenticatedCompanyAnalyticsRoute: typeof AuthenticatedCompanyAnalyticsRoute
+  AuthenticatedCompanyCurrentRoute: typeof AuthenticatedCompanyCurrentRoute
   AuthenticatedCompanyCustomersRoute: typeof AuthenticatedCompanyCustomersRoute
   AuthenticatedCompanyDashboardRoute: typeof AuthenticatedCompanyDashboardRoute
   AuthenticatedCompanyDocumentsRoute: typeof AuthenticatedCompanyDocumentsRoute
@@ -1931,6 +1952,7 @@ interface AuthenticatedCompanyRouteChildren {
 
 const AuthenticatedCompanyRouteChildren: AuthenticatedCompanyRouteChildren = {
   AuthenticatedCompanyAnalyticsRoute: AuthenticatedCompanyAnalyticsRoute,
+  AuthenticatedCompanyCurrentRoute: AuthenticatedCompanyCurrentRoute,
   AuthenticatedCompanyCustomersRoute: AuthenticatedCompanyCustomersRoute,
   AuthenticatedCompanyDashboardRoute: AuthenticatedCompanyDashboardRoute,
   AuthenticatedCompanyDocumentsRoute: AuthenticatedCompanyDocumentsRoute,

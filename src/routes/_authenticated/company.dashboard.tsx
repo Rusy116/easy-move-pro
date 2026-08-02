@@ -9,6 +9,7 @@ import {
 import { StatCard, SkeletonRows } from "@/components/shell/Chrome";
 import { Button } from "@/components/ui/button";
 import { useCompanyJobs, type JobStatus } from "@/lib/company-jobs";
+import { CompanyWarningsBanner } from "@/components/marketplace/JobOwnership";
 import {
   Inbox,
   Lock,

@@ -18,6 +18,7 @@ import {
   ShieldAlert,
   Clock,
   Truck,
+  CheckCircle2,
 } from "lucide-react";
 import { RoleShell } from "@/components/shell/RoleShell";
 import { RoleGuard } from "@/components/auth/RoleGuard";
@@ -27,7 +28,8 @@ const FULL_NAV = [
   { to: "/company/dashboard", label: "Dashboard", icon: <LayoutDashboard className="h-4 w-4" /> },
   { to: "/company/marketplace", label: "Marketplace", icon: <Globe className="h-4 w-4" /> },
   { to: "/company/leads", label: "Leads", icon: <Inbox className="h-4 w-4" /> },
-  { to: "/company/jobs", label: "Jobs", icon: <Truck className="h-4 w-4" /> },
+  { to: "/company/current", label: "Current Jobs", icon: <Truck className="h-4 w-4" /> },
+  { to: "/company/completed", label: "Completed Jobs", icon: <CheckCircle2 className="h-4 w-4" /> },
   { to: "/company/estimates", label: "Estimates", icon: <FileText className="h-4 w-4" /> },
   { to: "/company/scheduled", label: "Scheduled", icon: <CalendarCheck className="h-4 w-4" /> },
 

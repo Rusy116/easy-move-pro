@@ -124,11 +124,30 @@ function JobDetailsPage() {
       company_notes: form.company_notes || null,
       ...extra,
     };
-    const { error } = await supabase.rpc("fn_company_update_job", {
-      _quote_id: job.id,
-      _action: action,
-      _payload: payload as never,
-    });
+    let error: { message?: string } | null = null;
+    if (action === "complete") {
+      // Save the edited fields, then run the completion pipeline
+      // (invoice + commission + payment tracking).
+      const saved = await supabase.rpc("fn_company_update_job", {
+        _quote_id: job.id,
+        _action: "save_details",
+        _payload: payload as never,
+      });
+      error = saved.error;
+      if (!error) {
+        const done = await supabase.rpc("fn_company_complete_job", {
+          _quote_id: job.id,
+        } as never);
+        error = done.error;
+      }
+    } else {
+      const res = await supabase.rpc("fn_company_update_job", {
+        _quote_id: job.id,
+        _action: action,
+        _payload: payload as never,
+      });
+      error = res.error;
+    }
     setPending(null);
     if (error) {
       toast.error(error.message || "Action failed.");
@@ -143,6 +162,11 @@ function JobDetailsPage() {
       cancel: "cancelled",
     };
     if (nextStatus[action]) patchJob(job.id, { job_status: nextStatus[action] } as Partial<MyJob>);
+    if (action === "complete") {
+      toast.success("Job completed — invoice generated and moved to Completed Jobs.");
+      void navigate({ to: "/company/completed" });
+      return;
+    }
     toast.success(
       action === "save_details"
         ? "Job details saved."

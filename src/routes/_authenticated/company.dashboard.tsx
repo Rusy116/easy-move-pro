@@ -95,6 +95,7 @@ function DashboardPage() {
     <div className="space-y-6">
       <CompanyHeader company={company} onRefresh={reload} />
       <StatusBanner company={company} />
+      <CompanyWarningsBanner companyId={company.id} />
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <StatCard

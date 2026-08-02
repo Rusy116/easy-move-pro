@@ -89,7 +89,7 @@ export function RoleShell({ brand, eyebrow, accent, nav, children }: RoleShellPr
               </div>
               <div className="min-w-0 leading-tight">
                 <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                  {eyebrow}
+                  {eyebrowLabel}
                 </div>
                 <div className="truncate font-serif text-base font-medium">{brand}</div>
               </div>
@@ -115,22 +115,27 @@ export function RoleShell({ brand, eyebrow, accent, nav, children }: RoleShellPr
             </nav>
           </div>
           <div className="hidden md:flex items-center gap-3">
+            <LanguageSwitcher />
             {email && (
               <span className="max-w-[180px] truncate text-xs text-muted-foreground" title={email}>
                 {email}
               </span>
             )}
             <Button variant="outline" size="sm" className="rounded-full" onClick={signOut}>
-              <LogOut className="mr-1.5 h-3.5 w-3.5" /> Sign out
+              <LogOut className="mr-1.5 h-3.5 w-3.5" /> {t("common.signOut")}
             </Button>
           </div>
-          <button
-            className="md:hidden rounded-md p-2 hover:bg-accent"
-            onClick={() => setOpen((v) => !v)}
-            aria-label="Toggle menu"
-          >
-            {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-          </button>
+          <div className="flex items-center gap-1 md:hidden">
+            <LanguageSwitcher compact />
+            <button
+              className="rounded-md p-2 hover:bg-accent"
+              onClick={() => setOpen((v) => !v)}
+              aria-label={t("shell.toggleMenu")}
+            >
+              {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            </button>
+          </div>
+
         </div>
         {open && (
           <div className="md:hidden border-t border-border bg-background">

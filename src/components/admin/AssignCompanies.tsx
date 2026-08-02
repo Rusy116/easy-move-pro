@@ -16,6 +16,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { withdrawAssignment, forceOpenMarket, assignCompanies } from "@/lib/leads.functions";
 import { SlaCountdown } from "./SlaCountdown";
 import { LeadPhaseBadge } from "./LeadPhaseBadge";
+import { JobOwnerPanel } from "@/components/marketplace/JobOwnership";
 
 type Company = {
   id: string;

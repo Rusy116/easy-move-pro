@@ -76,10 +76,12 @@ export function BrokerSelect({
 }
 
 export async function assignBroker(quoteId: string, brokerId: string | null) {
-  const { error } = await supabase
-    .from("quotes")
-    .update({ assigned_broker_id: brokerId })
-    .eq("id", quoteId);
+  // Goes through the workflow function so the timeline, audit log and broker
+  // notification stay in sync with the assignment.
+  const { error } = await supabase.rpc("fn_assign_broker", {
+    _quote_id: quoteId,
+    _broker_id: brokerId,
+  });
   if (error) toast.error(error.message);
   else toast.success(brokerId ? "Broker assigned" : "Broker cleared");
   return !error;

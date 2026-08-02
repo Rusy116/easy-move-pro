@@ -282,6 +282,7 @@ export function QuoteCalculator(_props: { compact?: boolean } = {}) {
   } | null>(null);
   const [saving, setSaving] = useState(false);
   const [insuranceModal, setInsuranceModal] = useState<InsuranceTier | null>(null);
+  const navigate = useNavigate();
   const [stage, setStage] = useState<"form" | "submitting" | "summary" | "done">("form");
   const [savedQuote, setSavedQuote] = useState<SavedQuoteSnapshot | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);

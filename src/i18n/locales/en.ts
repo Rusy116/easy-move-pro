@@ -250,6 +250,8 @@ export const en = {
 
   // ----------------------------------------------------------- common extra
   "common.viewAll": "View all",
+  "auth.dev.success": "Signed in with a demo account.",
+  "auth.dev.failed": "Demo sign-in failed",
 } as const;
 
 export type TranslationKey = keyof typeof en;

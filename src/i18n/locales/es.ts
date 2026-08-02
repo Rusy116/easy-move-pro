@@ -235,4 +235,6 @@ export const es: Dictionary = {
     "Las cuentas de agente y administrador solo las emite el administrador de la plataforma.",
 
   "common.viewAll": "Ver todo",
+  "auth.dev.success": "Sesión iniciada con una cuenta de demostración.",
+  "auth.dev.failed": "Error al iniciar sesión de demostración",
 };

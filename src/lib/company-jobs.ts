@@ -12,13 +12,18 @@ export const JOB_STATUSES = [
   "open_market",
   "claimed",
   "contacted",
+  "survey_scheduled",
+  "survey_completed",
   "final_quote_sent",
   "accepted",
+  "estimate_accepted",
   "scheduled",
+  "in_progress",
   "rejected",
   "booked",
   "completed",
   "cancelled",
+  "declined",
   "expired",
 ] as const;
 
@@ -30,13 +35,18 @@ export const JOB_STATUS_LABEL: Record<JobStatus, string> = {
   open_market: "Open market",
   claimed: "Claimed",
   contacted: "Customer contacted",
-  final_quote_sent: "Final quote sent",
+  survey_scheduled: "Survey scheduled",
+  survey_completed: "Survey completed",
+  final_quote_sent: "Estimate sent",
   accepted: "Customer accepted",
-  scheduled: "Scheduled",
+  estimate_accepted: "Estimate accepted",
+  scheduled: "Move scheduled",
+  in_progress: "Move in progress",
   rejected: "Rejected",
   booked: "Booked",
   completed: "Completed",
   cancelled: "Cancelled",
+  declined: "Declined",
   expired: "Expired",
 };
 
@@ -46,15 +56,21 @@ export const JOB_STATUS_TONE: Record<JobStatus, string> = {
   open_market: "border-amber-500/30 bg-amber-500/10 text-amber-700",
   claimed: "border-indigo-500/30 bg-indigo-500/10 text-indigo-700",
   contacted: "border-blue-500/30 bg-blue-500/10 text-blue-700",
+  survey_scheduled: "border-blue-500/30 bg-blue-500/10 text-blue-700",
+  survey_completed: "border-cyan-500/30 bg-cyan-500/10 text-cyan-700",
   final_quote_sent: "border-violet-500/30 bg-violet-500/10 text-violet-700",
   accepted: "border-emerald-500/30 bg-emerald-500/10 text-emerald-700",
+  estimate_accepted: "border-emerald-500/30 bg-emerald-500/10 text-emerald-700",
   scheduled: "border-emerald-600/30 bg-emerald-600/10 text-emerald-800",
+  in_progress: "border-amber-600/30 bg-amber-600/10 text-amber-800",
   rejected: "border-rose-500/30 bg-rose-500/10 text-rose-700",
   booked: "border-emerald-600/30 bg-emerald-600/10 text-emerald-800",
   completed: "border-emerald-700/30 bg-emerald-700/10 text-emerald-900",
   cancelled: "border-rose-500/30 bg-rose-500/10 text-rose-700",
+  declined: "border-rose-500/30 bg-rose-500/10 text-rose-700",
   expired: "border-border bg-muted text-muted-foreground",
 };
+
 
 /* ------------------------------------------------------------------ */
 /*                                Types                                */

@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import {
@@ -23,6 +23,20 @@ import { EmptyState, Fact, JobStatusBadge, ResponseCountdown } from "@/component
 import { ReleaseJobButton } from "@/components/marketplace/JobOwnership";
 import { FinalPriceCard } from "@/components/company/FinalPriceCard";
 import { InternalNotesCard } from "@/components/company/InternalNotesCard";
+import {
+  AdditionalServicesCard,
+  ContactHistoryCard,
+  JobPipeline,
+  TasksCard,
+} from "@/components/company/JobCrmSections";
+import { BigCountdown } from "@/components/company/CurrentJobCard";
+import {
+  customerName,
+  declineJob,
+  readServices,
+  useBrokerName,
+} from "@/lib/company-workflow";
+
 
 import {
   ACTIVITY_LABEL,
@@ -73,6 +87,7 @@ function toForm(job: MyJob): Form {
 
 function JobDetailsPage() {
   const { jobId } = Route.useParams();
+  const navigate = useNavigate();
   const { company, loading: loadingCompany } = useMyCompany();
   const { myJobs, loading, patchJob, reload } = useCompanyJobs(company?.id ?? null);
   const { activity } = useJobActivity(jobId);
@@ -80,9 +95,14 @@ function JobDetailsPage() {
   const job = useMemo(() => myJobs.find((j) => j.id === jobId) ?? null, [myJobs, jobId]);
   const [form, setForm] = useState<Form | null>(null);
   const [pending, setPending] = useState<string | null>(null);
+  const [services, setServices] = useState<string[]>([]);
+  const broker = useBrokerName(job?.assigned_broker_id ?? null);
 
   useEffect(() => {
-    if (job && !form) setForm(toForm(job));
+    if (job && !form) {
+      setForm(toForm(job));
+      setServices(readServices(job.job_services));
+    }
   }, [job, form]);
 
   // Audit log: record that this company opened the lead.
@@ -98,15 +118,36 @@ function JobDetailsPage() {
       final_move_date: form.final_move_date || null,
       arrival_window: form.arrival_window || null,
       crew_size: form.crew_size ? Number(form.crew_size) : null,
+      job_services: services,
+
       final_truck_size: form.final_truck_size || null,
       company_notes: form.company_notes || null,
       ...extra,
     };
-    const { error } = await supabase.rpc("fn_company_update_job", {
-      _quote_id: job.id,
-      _action: action,
-      _payload: payload as never,
-    });
+    let error: { message?: string } | null = null;
+    if (action === "complete") {
+      // Save the edited fields, then run the completion pipeline
+      // (invoice + commission + payment tracking).
+      const saved = await supabase.rpc("fn_company_update_job", {
+        _quote_id: job.id,
+        _action: "save_details",
+        _payload: payload as never,
+      });
+      error = saved.error;
+      if (!error) {
+        const done = await supabase.rpc("fn_company_complete_job", {
+          _quote_id: job.id,
+        } as never);
+        error = done.error;
+      }
+    } else {
+      const res = await supabase.rpc("fn_company_update_job", {
+        _quote_id: job.id,
+        _action: action,
+        _payload: payload as never,
+      });
+      error = res.error;
+    }
     setPending(null);
     if (error) {
       toast.error(error.message || "Action failed.");
@@ -121,6 +162,11 @@ function JobDetailsPage() {
       cancel: "cancelled",
     };
     if (nextStatus[action]) patchJob(job.id, { job_status: nextStatus[action] } as Partial<MyJob>);
+    if (action === "complete") {
+      toast.success("Job completed — invoice generated and moved to Completed Jobs.");
+      void navigate({ to: "/company/completed" });
+      return;
+    }
     toast.success(
       action === "save_details"
         ? "Job details saved."
@@ -147,30 +193,61 @@ function JobDetailsPage() {
   const set = (k: keyof Form) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
     setForm({ ...form, [k]: e.target.value });
 
+  // Move date, move time and final agreed price are mandatory.
+  const missingRequired = [
+    !form.final_move_date ? "move date" : null,
+    !form.arrival_window ? "move time" : null,
+    !form.final_price ? "final agreed price" : null,
+  ].filter((v): v is string => v !== null);
+
+  async function decline() {
+    if (!job?.assigned_company_id) return;
+    setPending("decline");
+    try {
+      await declineJob(job.id, job.assigned_company_id, "declined by company");
+      toast.success("Job declined and returned to the marketplace.");
+      void navigate({ to: "/company/current" });
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Could not decline this job.");
+    }
+    setPending(null);
+  }
+
+
+
   return (
     <div className="space-y-5">
       <Link
-        to="/company/myjobs"
+        to="/company/current"
         className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
       >
-        <ArrowLeft className="h-4 w-4" /> Back to my jobs
+        <ArrowLeft className="h-4 w-4" /> Back to current jobs
       </Link>
 
       <header className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
-          <div className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
+          <div className="font-mono text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
             {job.quote_number ?? "—"}
           </div>
           <h1 className="mt-0.5 text-2xl font-semibold tracking-tight">
             {place(job.origin_city, job.origin_state)} →{" "}
             {place(job.destination_city, job.destination_state)}
           </h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Customer: <span className="font-medium text-foreground">{customerName(job)}</span> ·
+            Broker: <span className="font-medium text-foreground">{broker}</span>
+          </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <JobStatusBadge status={job.job_status} />
-          {job.job_status === "claimed" && <ResponseCountdown deadline={job.claim_deadline_at} />}
+          {job.job_status === "claimed" ? (
+            <BigCountdown deadline={job.claim_deadline_at} />
+          ) : (
+            <ResponseCountdown deadline={job.claim_deadline_at} />
+          )}
         </div>
       </header>
+
 
       {/* Customer + move facts */}
       <section className="rounded-2xl border border-border bg-card p-4 sm:p-5">
@@ -323,6 +400,12 @@ function JobDetailsPage() {
             </div>
           </div>
 
+          {missingRequired.length > 0 && (
+            <p className="mt-4 text-sm font-medium text-rose-700">
+              Required before sending or scheduling: {missingRequired.join(", ")}.
+            </p>
+          )}
+
           <div className="mt-5 flex flex-wrap gap-2">
             <Button
               variant="outline"
@@ -348,11 +431,27 @@ function JobDetailsPage() {
               ) : (
                 <CheckCircle2 className="mr-2 h-4 w-4" />
               )}
-              Mark customer contacted
+              Customer contacted
+            </Button>
+            <Button
+              variant="outline"
+              className="rounded-full"
+              disabled={pending !== null}
+              onClick={() => run("survey_scheduled")}
+            >
+              Survey scheduled
+            </Button>
+            <Button
+              variant="outline"
+              className="rounded-full"
+              disabled={pending !== null}
+              onClick={() => run("survey_completed")}
+            >
+              Survey completed
             </Button>
             <Button
               className="rounded-full"
-              disabled={pending !== null || !form.final_price}
+              disabled={pending !== null || missingRequired.length > 0}
               onClick={() => run("send_final_quote")}
             >
               {pending === "send_final_quote" ? (
@@ -360,12 +459,20 @@ function JobDetailsPage() {
               ) : (
                 <Send className="mr-2 h-4 w-4" />
               )}
-              Send final quote
+              Send estimate
             </Button>
             <Button
               variant="outline"
               className="rounded-full"
               disabled={pending !== null}
+              onClick={() => run("estimate_accepted")}
+            >
+              Estimate accepted
+            </Button>
+            <Button
+              variant="outline"
+              className="rounded-full"
+              disabled={pending !== null || missingRequired.length > 0}
               onClick={() => run("schedule")}
             >
               {pending === "schedule" ? (
@@ -379,21 +486,64 @@ function JobDetailsPage() {
               variant="outline"
               className="rounded-full"
               disabled={pending !== null}
-              onClick={() => run("complete")}
+              onClick={() => run("start_move")}
             >
-              Mark completed
-            </Button>
-            <Button
-              variant="outline"
-              className="rounded-full border-rose-300 text-rose-700 hover:bg-rose-50"
-              disabled={pending !== null}
-              onClick={() => run("cancel")}
-            >
-              <XCircle className="mr-2 h-4 w-4" /> Cancel job
+              Move in progress
             </Button>
           </div>
         </section>
       )}
+
+      {/* Additional services, contact history and internal tasks */}
+      {unlocked && company && (
+        <>
+          <AdditionalServicesCard
+            value={services}
+            onChange={setServices}
+            saving={pending === "save_details"}
+            onSave={() => run("save_details")}
+          />
+          <ContactHistoryCard quoteId={job.id} companyId={company.id} />
+          <TasksCard quoteId={job.id} companyId={company.id} />
+        </>
+      )}
+
+      <JobPipeline status={job.job_status} />
+
+      {/* Bottom actions */}
+      {unlocked && job.job_status !== "completed" && (
+        <section className="rounded-2xl border border-border bg-card p-4 sm:p-5">
+          <Button
+            size="lg"
+            className="h-14 w-full rounded-xl bg-emerald-600 text-base font-bold text-white hover:bg-emerald-700"
+            disabled={pending !== null || missingRequired.length > 0}
+            onClick={() => run("complete")}
+          >
+            {pending === "complete" ? (
+              <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+            ) : (
+              <CheckCircle2 className="mr-2 h-5 w-5" />
+            )}
+            COMPLETE JOB
+          </Button>
+          <p className="mt-2 text-center text-xs text-muted-foreground">
+            Generates the invoice, calculates the platform commission, starts payment tracking and
+            moves this job to Completed Jobs.
+          </p>
+          <div className="mt-4 text-center">
+            <Button
+              size="sm"
+              variant="outline"
+              className="rounded-full border-rose-300 text-rose-700 hover:bg-rose-50"
+              disabled={pending !== null}
+              onClick={() => void decline()}
+            >
+              <XCircle className="mr-2 h-4 w-4" /> Decline job
+            </Button>
+          </div>
+        </section>
+      )}
+
 
       {/* Phase 4 — final price lock, revision history and internal notes */}
       {unlocked && company && (

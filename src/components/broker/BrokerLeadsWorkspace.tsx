@@ -103,6 +103,13 @@ export function BrokerLeadsWorkspace() {
 
   const brokers = useBrokers();
 
+  // Single source of truth: quotes.assigned_broker_id — same field the Admin CRM writes.
+  const brokerLabel = (id: unknown) => {
+    if (typeof id !== "string" || !id) return null;
+    const b = brokers.find((x) => x.id === id);
+    return b?.full_name || b?.email || id.slice(0, 8);
+  };
+
   const stateOptions = useMemo(() => {
     const set = new Set<string>();
     leads.forEach((l) => {
@@ -324,8 +331,14 @@ export function BrokerLeadsWorkspace() {
                       <span>{new Date(l.created_at).toLocaleDateString()}</span>
                       <LeadStatusBadge status={l.lead_status as string} />
                       <Badge variant="outline" className="capitalize">
-                        {l.lead_phase.replace("_", " ")}
+                        {brokerLabel(l.assigned_broker_id)
+                          ? `Broker: ${brokerLabel(l.assigned_broker_id)}`
+                          : "Broker: unassigned"}
                       </Badge>
+                      <Badge variant="outline" className="capitalize">
+                        Market: {l.lead_phase.replace("_", " ")}
+                      </Badge>
+
                     </div>
                     <div className="mt-1.5 flex items-center gap-2 font-serif text-lg font-medium">
                       <MapPin className="h-4 w-4 shrink-0 text-sage" />

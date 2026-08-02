@@ -516,6 +516,64 @@ export type Database = {
           },
         ]
       }
+      company_contact_log: {
+        Row: {
+          channel: string
+          company_id: string
+          created_at: string
+          created_by: string | null
+          direction: string
+          id: string
+          quote_id: string
+          summary: string | null
+          updated_at: string
+        }
+        Insert: {
+          channel: string
+          company_id: string
+          created_at?: string
+          created_by?: string | null
+          direction?: string
+          id?: string
+          quote_id: string
+          summary?: string | null
+          updated_at?: string
+        }
+        Update: {
+          channel?: string
+          company_id?: string
+          created_at?: string
+          created_by?: string | null
+          direction?: string
+          id?: string
+          quote_id?: string
+          summary?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_contact_log_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "moving_companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_contact_log_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "mover_lead_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_contact_log_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "quotes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       company_conversations: {
         Row: {
           company_id: string
@@ -849,6 +907,64 @@ export type Database = {
           },
           {
             foreignKeyName: "company_invoices_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "quotes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      company_job_tasks: {
+        Row: {
+          company_id: string
+          created_at: string
+          created_by: string | null
+          done: boolean
+          due_date: string | null
+          id: string
+          quote_id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          created_by?: string | null
+          done?: boolean
+          due_date?: string | null
+          id?: string
+          quote_id: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          created_by?: string | null
+          done?: boolean
+          due_date?: string | null
+          id?: string
+          quote_id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_job_tasks_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "moving_companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_job_tasks_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "mover_lead_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_job_tasks_quote_id_fkey"
             columns: ["quote_id"]
             isOneToOne: false
             referencedRelation: "quotes"
@@ -2756,6 +2872,7 @@ export type Database = {
             | Database["public"]["Enums"]["lead_closed_reason_enum"]
             | null
           company_notes: string | null
+          completed_at: string | null
           contact_email: string | null
           contact_phone: string | null
           contacted_at: string | null
@@ -2763,6 +2880,7 @@ export type Database = {
           crew_size: number | null
           customer_language: string | null
           customer_response_at: string | null
+          declined_at: string | null
           delivery_carry_distance: string | null
           delivery_elevator: boolean
           delivery_floor: number
@@ -2808,6 +2926,7 @@ export type Database = {
           insurance_tier: string | null
           inventory: Json
           inventory_notes: string | null
+          job_services: Json
           job_status: string
           junk_removal: boolean
           labor_hours: number | null
@@ -2850,6 +2969,7 @@ export type Database = {
           redistribution_count: number
           rejection_reason: string | null
           safe: boolean
+          scheduled_at: string | null
           service_type: string | null
           source: string | null
           status: string
@@ -2886,6 +3006,7 @@ export type Database = {
             | Database["public"]["Enums"]["lead_closed_reason_enum"]
             | null
           company_notes?: string | null
+          completed_at?: string | null
           contact_email?: string | null
           contact_phone?: string | null
           contacted_at?: string | null
@@ -2893,6 +3014,7 @@ export type Database = {
           crew_size?: number | null
           customer_language?: string | null
           customer_response_at?: string | null
+          declined_at?: string | null
           delivery_carry_distance?: string | null
           delivery_elevator?: boolean
           delivery_floor?: number
@@ -2938,6 +3060,7 @@ export type Database = {
           insurance_tier?: string | null
           inventory?: Json
           inventory_notes?: string | null
+          job_services?: Json
           job_status?: string
           junk_removal?: boolean
           labor_hours?: number | null
@@ -2980,6 +3103,7 @@ export type Database = {
           redistribution_count?: number
           rejection_reason?: string | null
           safe?: boolean
+          scheduled_at?: string | null
           service_type?: string | null
           source?: string | null
           status?: string
@@ -3016,6 +3140,7 @@ export type Database = {
             | Database["public"]["Enums"]["lead_closed_reason_enum"]
             | null
           company_notes?: string | null
+          completed_at?: string | null
           contact_email?: string | null
           contact_phone?: string | null
           contacted_at?: string | null
@@ -3023,6 +3148,7 @@ export type Database = {
           crew_size?: number | null
           customer_language?: string | null
           customer_response_at?: string | null
+          declined_at?: string | null
           delivery_carry_distance?: string | null
           delivery_elevator?: boolean
           delivery_floor?: number
@@ -3068,6 +3194,7 @@ export type Database = {
           insurance_tier?: string | null
           inventory?: Json
           inventory_notes?: string | null
+          job_services?: Json
           job_status?: string
           junk_removal?: boolean
           labor_hours?: number | null
@@ -3110,6 +3237,7 @@ export type Database = {
           redistribution_count?: number
           rejection_reason?: string | null
           safe?: boolean
+          scheduled_at?: string | null
           service_type?: string | null
           source?: string | null
           status?: string
@@ -3574,6 +3702,10 @@ export type Database = {
         }
         Returns: Json
       }
+      fn_company_decline_job: {
+        Args: { _company_id: string; _quote_id: string; _reason?: string }
+        Returns: Json
+      }
       fn_company_expired_claims: {
         Args: { _company_id: string }
         Returns: {
@@ -3625,6 +3757,7 @@ export type Database = {
             | Database["public"]["Enums"]["lead_closed_reason_enum"]
             | null
           company_notes: string | null
+          completed_at: string | null
           contact_email: string | null
           contact_phone: string | null
           contacted_at: string | null
@@ -3632,6 +3765,7 @@ export type Database = {
           crew_size: number | null
           customer_language: string | null
           customer_response_at: string | null
+          declined_at: string | null
           delivery_carry_distance: string | null
           delivery_elevator: boolean
           delivery_floor: number
@@ -3677,6 +3811,7 @@ export type Database = {
           insurance_tier: string | null
           inventory: Json
           inventory_notes: string | null
+          job_services: Json
           job_status: string
           junk_removal: boolean
           labor_hours: number | null
@@ -3719,6 +3854,7 @@ export type Database = {
           redistribution_count: number
           rejection_reason: string | null
           safe: boolean
+          scheduled_at: string | null
           service_type: string | null
           source: string | null
           status: string
@@ -4187,6 +4323,7 @@ export type Database = {
             | Database["public"]["Enums"]["lead_closed_reason_enum"]
             | null
           company_notes: string | null
+          completed_at: string | null
           contact_email: string | null
           contact_phone: string | null
           contacted_at: string | null
@@ -4194,6 +4331,7 @@ export type Database = {
           crew_size: number | null
           customer_language: string | null
           customer_response_at: string | null
+          declined_at: string | null
           delivery_carry_distance: string | null
           delivery_elevator: boolean
           delivery_floor: number
@@ -4239,6 +4377,7 @@ export type Database = {
           insurance_tier: string | null
           inventory: Json
           inventory_notes: string | null
+          job_services: Json
           job_status: string
           junk_removal: boolean
           labor_hours: number | null
@@ -4281,6 +4420,7 @@ export type Database = {
           redistribution_count: number
           rejection_reason: string | null
           safe: boolean
+          scheduled_at: string | null
           service_type: string | null
           source: string | null
           status: string

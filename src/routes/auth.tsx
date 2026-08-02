@@ -12,6 +12,7 @@ import { devQuickSignIn } from "@/lib/dev-login.functions";
 import { DEV_ACCOUNTS, DEV_LOGIN_ENABLED, type DevRole } from "@/lib/dev-login";
 import { homeForRoles, loadRoleContext, type PlatformRole } from "@/lib/roles";
 import { toast } from "sonner";
+import { useI18n } from "@/i18n";
 
 
 export const Route = createFileRoute("/auth")({
@@ -37,6 +38,7 @@ export const Route = createFileRoute("/auth")({
 
 function AuthPage() {
   const navigate = useNavigate();
+  const { t } = useI18n();
   const signIn = useServerFn(signInWithIdentifier);
   const devSignIn = useServerFn(devQuickSignIn);
   const [busy, setBusy] = useState(false);
@@ -70,10 +72,10 @@ function AuthPage() {
     setBusy(true);
     try {
       const result = await signIn({ data: { identifier, password } });
-      toast.success("Welcome back.");
+      toast.success(t("auth.welcome"));
       await applySession(result);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Could not sign you in");
+      toast.error(err instanceof Error ? err.message : t("auth.error"));
     } finally {
       setBusy(false);
     }
@@ -83,10 +85,10 @@ function AuthPage() {
     setDevBusy(role);
     try {
       const result = await devSignIn({ data: { role } });
-      toast.success("Signed in with a demo account.");
+      toast.success(t("auth.dev.success"));
       await applySession(result);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Demo sign-in failed");
+      toast.error(err instanceof Error ? err.message : t("auth.dev.failed"));
     } finally {
       setDevBusy(null);
     }
@@ -97,29 +99,28 @@ function AuthPage() {
     <SiteLayout>
       <section className="mx-auto flex max-w-md flex-col justify-center px-4 sm:px-6 py-16 sm:py-24">
         <Link to="/" className="mb-6 text-sm text-muted-foreground hover:text-foreground">
-          ← Back home
+          ← {t("auth.backHome")}
         </Link>
         <div className="rounded-2xl border border-border bg-card p-8">
-          <h1 className="font-serif text-3xl font-medium">Sign in</h1>
+          <h1 className="font-serif text-3xl font-medium">{t("auth.heading")}</h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            One sign-in for customers, moving companies, brokers and administrators. We send you to
-            the right workspace automatically.
+            {t("auth.intro")}
           </p>
 
           <form onSubmit={onSubmit} className="mt-6 space-y-4">
             <div>
-              <Label htmlFor="identifier">Email or phone number</Label>
+              <Label htmlFor="identifier">{t("auth.identifier")}</Label>
               <Input
                 id="identifier"
                 autoComplete="username"
                 required
                 value={identifier}
                 onChange={(e) => setIdentifier(e.target.value)}
-                placeholder="you@company.com or (555) 123-4567"
+                placeholder={t("auth.identifierPlaceholder")}
               />
             </div>
             <div>
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">{t("common.password")}</Label>
               <Input
                 id="password"
                 type="password"
@@ -131,17 +132,17 @@ function AuthPage() {
             </div>
             <Button type="submit" disabled={busy} className="w-full rounded-full">
               {busy && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Sign in
+              {t("common.signIn")}
             </Button>
           </form>
 
           {DEV_LOGIN_ENABLED && (
             <div className="mt-6 rounded-xl border border-dashed border-border bg-muted/40 p-4">
               <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                Development login — QA only
+                {t("auth.dev.title")}
               </p>
               <p className="mt-1 text-xs text-muted-foreground">
-                One-click access to seeded demo accounts. Hidden in production.
+                {t("auth.dev.copy")}
               </p>
               <div className="mt-3 grid gap-2 sm:grid-cols-2">
                 {DEV_ACCOUNTS.map((a) => (
@@ -155,7 +156,7 @@ function AuthPage() {
                     onClick={() => onDevLogin(a.role as DevRole)}
                   >
                     {devBusy === a.role && <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />}
-                    Login as {a.label}
+                    {t("auth.dev.loginAs", { role: a.label })}
                   </Button>
                 ))}
               </div>
@@ -166,21 +167,21 @@ function AuthPage() {
 
           <div className="mt-6 space-y-2 border-t border-border pt-5 text-sm text-muted-foreground">
             <p>
-              Moving company?{" "}
+              {t("auth.company.question")}{" "}
               <Link to="/register-company" className="font-medium text-foreground underline">
-                Apply to join the network
+                {t("auth.company.apply")}
               </Link>
             </p>
             <p>
-              Customer without an account? Start with an{" "}
+              {t("auth.customer.question")}{" "}
               <Link to="/calculator" className="font-medium text-foreground underline">
-                instant moving quote
+                {t("auth.customer.quote")}
               </Link>{" "}
-              — we create your account for you.
+              {t("auth.customer.tail")}
             </p>
             <p className="flex items-start gap-2 pt-2 text-xs">
               <ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-              Broker and administrator accounts are issued by the platform administrator only.
+              {t("auth.adminNote")}
             </p>
           </div>
         </div>

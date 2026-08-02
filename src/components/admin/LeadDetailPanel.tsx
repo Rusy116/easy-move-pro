@@ -219,8 +219,23 @@ export function LeadDetailPanel({
     };
   }, [q?.id]);
 
-  const inventory = useMemo(() => q?.inventory ?? [], [q]);
-  const breakdown = useMemo(() => q?.breakdown ?? [], [q]);
+  const [noteQuery, setNoteQuery] = useState("");
+
+  const milestones = useMemo(() => {
+    const r = q as (Quote & Record<string, unknown>) | null;
+    return [
+      { label: "Lead created", at: r?.created_at ?? null },
+      { label: "Quote generated", at: r?.created_at ?? null },
+      { label: "Broker assigned", at: (r?.["qualified_at"] as string) ?? null },
+      { label: "Customer contacted", at: (r?.["contacted_at"] as string) ?? null },
+      { label: "Estimate sent", at: (r?.["final_quote_sent_at"] as string) ?? null },
+      { label: "Marketplace published", at: (r?.["published_at"] as string) ?? null },
+      { label: "Company claimed", at: (r?.["claimed_at"] as string) ?? null },
+      { label: "Booking accepted", at: r?.accepted_at ?? null },
+      { label: "Job completed", at: (r?.["closed_at"] as string) ?? null },
+    ];
+  }, [q]);
+
 
   const doPause = useServerFn(pauseSla);
   const doResume = useServerFn(resumeSla);

@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import {
@@ -87,6 +87,7 @@ function toForm(job: MyJob): Form {
 
 function JobDetailsPage() {
   const { jobId } = Route.useParams();
+  const navigate = useNavigate();
   const { company, loading: loadingCompany } = useMyCompany();
   const { myJobs, loading, patchJob, reload } = useCompanyJobs(company?.id ?? null);
   const { activity } = useJobActivity(jobId);

@@ -78,6 +78,8 @@ export const Route = createFileRoute("/")({
 });
 
 function HomePage() {
+  const { t } = useI18n();
+
   return (
     <SiteLayout>
       {/* Hero */}
@@ -96,37 +98,33 @@ function HomePage() {
           <div className="mx-auto max-w-3xl text-center animate-fade-up">
             <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card/80 px-3 py-1 text-xs font-medium text-muted-foreground backdrop-blur">
               <Sparkles className="h-3.5 w-3.5 text-ochre" />
-              AI-powered moving marketplace
+              {t("home.badge")}
             </span>
             <h1 className="mt-6 text-balance font-serif text-[2.75rem] font-medium leading-[1.02] tracking-tight sm:text-6xl md:text-[5rem]">
-              Moving, <span className="text-gradient-brand italic">made simple.</span>
+              {t("home.hero.title1")}{" "}
+              <span className="text-gradient-brand italic">{t("home.hero.title2")}</span>
             </h1>
             <p className="mx-auto mt-6 max-w-2xl text-pretty text-base leading-relaxed text-muted-foreground sm:text-lg">
-              Compare vetted moving companies, get an honest instant quote, and plan your move with
-              AI — nationwide, no sales calls, no surprises.
+              {t("home.hero.subtitle")}
             </p>
             <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:mt-10 sm:flex-row">
               <Link to="/calculator" className="w-full sm:w-auto">
                 <Button size="lg" className="w-full rounded-full sm:w-auto">
-                  Get Instant Quote <ArrowRight className="ml-1 h-4 w-4" />
+                  {t("site.cta.quote")} <ArrowRight className="ml-1 h-4 w-4" />
                 </Button>
               </Link>
               <Link to="/services" className="w-full sm:w-auto">
                 <Button size="lg" variant="outline" className="w-full rounded-full sm:w-auto">
-                  Explore Services
+                  {t("home.cta.explore")}
                 </Button>
               </Link>
             </div>
             <div className="mt-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs text-muted-foreground">
-              <span className="inline-flex items-center gap-1.5">
-                <CheckCircle2 className="h-3.5 w-3.5 text-sage" /> No signup required
-              </span>
-              <span className="inline-flex items-center gap-1.5">
-                <CheckCircle2 className="h-3.5 w-3.5 text-sage" /> Licensed & insured
-              </span>
-              <span className="inline-flex items-center gap-1.5">
-                <CheckCircle2 className="h-3.5 w-3.5 text-sage" /> Locked-in rates
-              </span>
+              {["home.trust.noSignup", "home.trust.insured", "home.trust.locked"].map((k) => (
+                <span key={k} className="inline-flex items-center gap-1.5">
+                  <CheckCircle2 className="h-3.5 w-3.5 text-sage" /> {t(k)}
+                </span>
+              ))}
             </div>
           </div>
 
@@ -140,17 +138,18 @@ function HomePage() {
       <section className="border-y border-border bg-card">
         <div className="mx-auto grid max-w-7xl grid-cols-2 gap-6 px-4 py-10 sm:grid-cols-4 sm:px-6">
           {STATS.map((s) => (
-            <div key={s.label} className="text-center sm:text-left">
+            <div key={s.labelKey} className="text-center sm:text-left">
               <div className="font-serif text-3xl font-medium text-foreground sm:text-4xl">
-                {s.value}
+                {"value" in s ? s.value : t(s.valueKey)}
               </div>
               <div className="mt-1 text-xs uppercase tracking-widest text-muted-foreground">
-                {s.label}
+                {t(s.labelKey)}
               </div>
             </div>
           ))}
         </div>
       </section>
+
 
       {/* Hero image band with overlay copy */}
       <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24">

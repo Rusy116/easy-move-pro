@@ -3427,6 +3427,7 @@ export type Database = {
         }
       }
       fn_broker_qualify_lead: { Args: { _quote_id: string }; Returns: Json }
+      fn_can_work_lead: { Args: { _quote_id: string }; Returns: boolean }
       fn_cancel_commission_for_quote: {
         Args: { _quote_id: string; _reason: string }
         Returns: undefined

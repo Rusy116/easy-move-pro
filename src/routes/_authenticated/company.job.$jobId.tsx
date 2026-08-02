@@ -23,6 +23,20 @@ import { EmptyState, Fact, JobStatusBadge, ResponseCountdown } from "@/component
 import { ReleaseJobButton } from "@/components/marketplace/JobOwnership";
 import { FinalPriceCard } from "@/components/company/FinalPriceCard";
 import { InternalNotesCard } from "@/components/company/InternalNotesCard";
+import {
+  AdditionalServicesCard,
+  ContactHistoryCard,
+  JobPipeline,
+  TasksCard,
+} from "@/components/company/JobCrmSections";
+import { BigCountdown } from "@/components/company/CurrentJobCard";
+import {
+  customerName,
+  declineJob,
+  readServices,
+  useBrokerName,
+} from "@/lib/company-workflow";
+
 
 import {
   ACTIVITY_LABEL,

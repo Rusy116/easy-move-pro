@@ -1,62 +1,64 @@
 import { Link } from "@tanstack/react-router";
+import { useI18n } from "@/i18n";
 
 export function Footer() {
+  const { t } = useI18n();
+
   return (
     <footer className="border-t border-border bg-muted/40">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 py-16">
         <div className="grid gap-12 md:grid-cols-5">
           <div className="md:col-span-1">
-            <span className="font-serif text-xl font-semibold text-primary">Easy Moving</span>
+            <span className="font-serif text-xl font-semibold text-primary">{t("site.brand")}</span>
             <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
-              The AI-powered moving marketplace. Instant quotes, vetted movers, and a calmer
-              relocation.
+              {t("footer.tagline")}
             </p>
           </div>
           <FooterCol
-            title="Platform"
+            title={t("footer.col.platform")}
             items={[
-              ["Calculator", "/calculator"],
-              ["Services", "/services"],
-              ["AI Tools", "/ai-tools"],
-              ["Digital Store", "/store"],
-              ["Search", "/search"],
+              [t("site.nav.calculator"), "/calculator"],
+              [t("site.nav.services"), "/services"],
+              [t("footer.link.aiTools"), "/ai-tools"],
+              [t("footer.link.store"), "/store"],
+              [t("common.search"), "/search"],
             ]}
           />
           <FooterCol
-            title="Locations"
+            title={t("footer.col.locations")}
             items={[
-              ["Movers by state", "/states"],
-              ["City Pages", "/cities"],
-              ["Popular Routes", "/routes"],
+              [t("footer.link.states"), "/states"],
+              [t("site.nav.cities"), "/cities"],
+              [t("footer.link.routes"), "/routes"],
             ]}
           />
           <FooterCol
-            title="For Movers"
+            title={t("footer.col.forMovers")}
             items={[
-              ["Join Easy Moving", "/for-movers"],
-              ["Apply now", "/partners/apply"],
-              ["Moving Leads", "/moving-leads"],
-              ["Exclusive Leads", "/exclusive-moving-leads"],
-              ["CRM", "/moving-company-crm"],
-              ["Partners", "/partners"],
+              [t("footer.link.join"), "/for-movers"],
+              [t("footer.link.apply"), "/partners/apply"],
+              [t("footer.link.movingLeads"), "/moving-leads"],
+              [t("footer.link.exclusiveLeads"), "/exclusive-moving-leads"],
+              [t("footer.link.crm"), "/moving-company-crm"],
+              [t("footer.link.partners"), "/partners"],
             ]}
           />
           <FooterCol
-            title="Company"
+            title={t("footer.col.company")}
             items={[
-              ["About", "/about"],
-              ["Blog", "/blog"],
-              ["Resources", "/resources"],
-              ["Contact", "/contact"],
+              [t("site.nav.about"), "/about"],
+              [t("site.nav.blog"), "/blog"],
+              [t("footer.link.resources"), "/resources"],
+              [t("site.nav.contact"), "/contact"],
             ]}
           />
         </div>
 
         <div className="mt-16 flex flex-col items-start justify-between gap-4 border-t border-border pt-8 sm:flex-row sm:items-center">
           <p className="text-xs text-muted-foreground">
-            © {new Date().getFullYear()} Easy Moving Logistics. All rights reserved.
+            {t("footer.rights", { year: new Date().getFullYear() })}
           </p>
-          <p className="text-xs text-muted-foreground">Serving all 50 states.</p>
+          <p className="text-xs text-muted-foreground">{t("footer.coverage")}</p>
         </div>
       </div>
     </footer>

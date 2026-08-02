@@ -260,7 +260,7 @@ export function JobOwnerPanel({ quoteId }: { quoteId: string }) {
           .limit(5),
       ]);
       setCompanyName((c as { name: string } | null)?.name ?? null);
-      setWarnings(((w ?? []) as unknown as WarningRow[]) ?? []);
+      setWarnings((w ?? []) as unknown as WarningRow[]);
     } else {
       setCompanyName(null);
       setWarnings([]);

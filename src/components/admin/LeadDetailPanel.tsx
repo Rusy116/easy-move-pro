@@ -342,6 +342,25 @@ export function LeadDetailPanel({
                 Email
               </a>
             </Button>
+            <Button asChild size="sm" variant="outline" disabled={!phone}>
+              <a href={phone ? `sms:${phone}` : undefined}>
+                <MessageSquare className="mr-2 h-4 w-4" />
+                SMS
+              </a>
+            </Button>
+            <Button size="sm" variant="outline" onClick={() => void downloadPdf()}>
+              <FileDown className="mr-2 h-4 w-4" />
+              PDF
+            </Button>
+            <Button size="sm" variant="outline" onClick={() => void duplicateLead()}>
+              <Copy className="mr-2 h-4 w-4" />
+              Duplicate
+            </Button>
+            <Button size="sm" variant="outline" onClick={() => void archiveLead()}>
+              <Archive className="mr-2 h-4 w-4" />
+              Archive
+            </Button>
+
             {q.quote_number && q.portal_token && (
               <Button asChild size="sm" variant="outline">
                 <Link

@@ -92,11 +92,15 @@ import { Route as AuthenticatedBrokerLeadsRouteImport } from './routes/_authenti
 import { Route as AuthenticatedBrokerDashboardRouteImport } from './routes/_authenticated/broker.dashboard'
 import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin.users'
 import { Route as AuthenticatedAdminSettingsRouteImport } from './routes/_authenticated/admin.settings'
+import { Route as AuthenticatedAdminReportsRouteImport } from './routes/_authenticated/admin.reports'
+import { Route as AuthenticatedAdminMarketplaceRouteImport } from './routes/_authenticated/admin.marketplace'
 import { Route as AuthenticatedAdminLeadsRouteImport } from './routes/_authenticated/admin.leads'
 import { Route as AuthenticatedAdminImpersonationRouteImport } from './routes/_authenticated/admin.impersonation'
 import { Route as AuthenticatedAdminFinanceRouteImport } from './routes/_authenticated/admin.finance'
 import { Route as AuthenticatedAdminDashboardRouteImport } from './routes/_authenticated/admin.dashboard'
+import { Route as AuthenticatedAdminCustomersRouteImport } from './routes/_authenticated/admin.customers'
 import { Route as AuthenticatedAdminCompaniesRouteImport } from './routes/_authenticated/admin.companies'
+import { Route as AuthenticatedAdminBrokersRouteImport } from './routes/_authenticated/admin.brokers'
 import { Route as AuthenticatedCompanyJobJobIdRouteImport } from './routes/_authenticated/company.job.$jobId'
 
 const StoreRoute = StoreRouteImport.update({
@@ -550,6 +554,18 @@ const AuthenticatedAdminSettingsRoute =
     path: '/admin/settings',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedAdminReportsRoute =
+  AuthenticatedAdminReportsRouteImport.update({
+    id: '/admin/reports',
+    path: '/admin/reports',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAdminMarketplaceRoute =
+  AuthenticatedAdminMarketplaceRouteImport.update({
+    id: '/admin/marketplace',
+    path: '/admin/marketplace',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAdminLeadsRoute = AuthenticatedAdminLeadsRouteImport.update({
   id: '/admin/leads',
   path: '/admin/leads',
@@ -573,10 +589,22 @@ const AuthenticatedAdminDashboardRoute =
     path: '/admin/dashboard',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedAdminCustomersRoute =
+  AuthenticatedAdminCustomersRouteImport.update({
+    id: '/admin/customers',
+    path: '/admin/customers',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAdminCompaniesRoute =
   AuthenticatedAdminCompaniesRouteImport.update({
     id: '/admin/companies',
     path: '/admin/companies',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAdminBrokersRoute =
+  AuthenticatedAdminBrokersRouteImport.update({
+    id: '/admin/brokers',
+    path: '/admin/brokers',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedCompanyJobJobIdRoute =
@@ -628,11 +656,15 @@ export interface FileRoutesByFullPath {
   '/partners/': typeof PartnersIndexRoute
   '/routes/': typeof RoutesIndexRoute
   '/states/': typeof StatesIndexRoute
+  '/admin/brokers': typeof AuthenticatedAdminBrokersRoute
   '/admin/companies': typeof AuthenticatedAdminCompaniesRoute
+  '/admin/customers': typeof AuthenticatedAdminCustomersRoute
   '/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
   '/admin/finance': typeof AuthenticatedAdminFinanceRoute
   '/admin/impersonation': typeof AuthenticatedAdminImpersonationRoute
   '/admin/leads': typeof AuthenticatedAdminLeadsRoute
+  '/admin/marketplace': typeof AuthenticatedAdminMarketplaceRoute
+  '/admin/reports': typeof AuthenticatedAdminReportsRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/broker/dashboard': typeof AuthenticatedBrokerDashboardRoute
@@ -717,11 +749,15 @@ export interface FileRoutesByTo {
   '/partners': typeof PartnersIndexRoute
   '/routes': typeof RoutesIndexRoute
   '/states': typeof StatesIndexRoute
+  '/admin/brokers': typeof AuthenticatedAdminBrokersRoute
   '/admin/companies': typeof AuthenticatedAdminCompaniesRoute
+  '/admin/customers': typeof AuthenticatedAdminCustomersRoute
   '/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
   '/admin/finance': typeof AuthenticatedAdminFinanceRoute
   '/admin/impersonation': typeof AuthenticatedAdminImpersonationRoute
   '/admin/leads': typeof AuthenticatedAdminLeadsRoute
+  '/admin/marketplace': typeof AuthenticatedAdminMarketplaceRoute
+  '/admin/reports': typeof AuthenticatedAdminReportsRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/broker/dashboard': typeof AuthenticatedBrokerDashboardRoute
@@ -809,11 +845,15 @@ export interface FileRoutesById {
   '/partners/': typeof PartnersIndexRoute
   '/routes/': typeof RoutesIndexRoute
   '/states/': typeof StatesIndexRoute
+  '/_authenticated/admin/brokers': typeof AuthenticatedAdminBrokersRoute
   '/_authenticated/admin/companies': typeof AuthenticatedAdminCompaniesRoute
+  '/_authenticated/admin/customers': typeof AuthenticatedAdminCustomersRoute
   '/_authenticated/admin/dashboard': typeof AuthenticatedAdminDashboardRoute
   '/_authenticated/admin/finance': typeof AuthenticatedAdminFinanceRoute
   '/_authenticated/admin/impersonation': typeof AuthenticatedAdminImpersonationRoute
   '/_authenticated/admin/leads': typeof AuthenticatedAdminLeadsRoute
+  '/_authenticated/admin/marketplace': typeof AuthenticatedAdminMarketplaceRoute
+  '/_authenticated/admin/reports': typeof AuthenticatedAdminReportsRoute
   '/_authenticated/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
   '/_authenticated/broker/dashboard': typeof AuthenticatedBrokerDashboardRoute
@@ -901,11 +941,15 @@ export interface FileRouteTypes {
     | '/partners/'
     | '/routes/'
     | '/states/'
+    | '/admin/brokers'
     | '/admin/companies'
+    | '/admin/customers'
     | '/admin/dashboard'
     | '/admin/finance'
     | '/admin/impersonation'
     | '/admin/leads'
+    | '/admin/marketplace'
+    | '/admin/reports'
     | '/admin/settings'
     | '/admin/users'
     | '/broker/dashboard'
@@ -990,11 +1034,15 @@ export interface FileRouteTypes {
     | '/partners'
     | '/routes'
     | '/states'
+    | '/admin/brokers'
     | '/admin/companies'
+    | '/admin/customers'
     | '/admin/dashboard'
     | '/admin/finance'
     | '/admin/impersonation'
     | '/admin/leads'
+    | '/admin/marketplace'
+    | '/admin/reports'
     | '/admin/settings'
     | '/admin/users'
     | '/broker/dashboard'
@@ -1081,11 +1129,15 @@ export interface FileRouteTypes {
     | '/partners/'
     | '/routes/'
     | '/states/'
+    | '/_authenticated/admin/brokers'
     | '/_authenticated/admin/companies'
+    | '/_authenticated/admin/customers'
     | '/_authenticated/admin/dashboard'
     | '/_authenticated/admin/finance'
     | '/_authenticated/admin/impersonation'
     | '/_authenticated/admin/leads'
+    | '/_authenticated/admin/marketplace'
+    | '/_authenticated/admin/reports'
     | '/_authenticated/admin/settings'
     | '/_authenticated/admin/users'
     | '/_authenticated/broker/dashboard'
@@ -1757,6 +1809,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminSettingsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin/reports': {
+      id: '/_authenticated/admin/reports'
+      path: '/admin/reports'
+      fullPath: '/admin/reports'
+      preLoaderRoute: typeof AuthenticatedAdminReportsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/marketplace': {
+      id: '/_authenticated/admin/marketplace'
+      path: '/admin/marketplace'
+      fullPath: '/admin/marketplace'
+      preLoaderRoute: typeof AuthenticatedAdminMarketplaceRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/admin/leads': {
       id: '/_authenticated/admin/leads'
       path: '/admin/leads'
@@ -1785,11 +1851,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminDashboardRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin/customers': {
+      id: '/_authenticated/admin/customers'
+      path: '/admin/customers'
+      fullPath: '/admin/customers'
+      preLoaderRoute: typeof AuthenticatedAdminCustomersRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/admin/companies': {
       id: '/_authenticated/admin/companies'
       path: '/admin/companies'
       fullPath: '/admin/companies'
       preLoaderRoute: typeof AuthenticatedAdminCompaniesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/brokers': {
+      id: '/_authenticated/admin/brokers'
+      path: '/admin/brokers'
+      fullPath: '/admin/brokers'
+      preLoaderRoute: typeof AuthenticatedAdminBrokersRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/company/job/$jobId': {
@@ -1863,11 +1943,15 @@ const AuthenticatedCompanyRouteWithChildren =
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedCompanyRoute: typeof AuthenticatedCompanyRouteWithChildren
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedAdminBrokersRoute: typeof AuthenticatedAdminBrokersRoute
   AuthenticatedAdminCompaniesRoute: typeof AuthenticatedAdminCompaniesRoute
+  AuthenticatedAdminCustomersRoute: typeof AuthenticatedAdminCustomersRoute
   AuthenticatedAdminDashboardRoute: typeof AuthenticatedAdminDashboardRoute
   AuthenticatedAdminFinanceRoute: typeof AuthenticatedAdminFinanceRoute
   AuthenticatedAdminImpersonationRoute: typeof AuthenticatedAdminImpersonationRoute
   AuthenticatedAdminLeadsRoute: typeof AuthenticatedAdminLeadsRoute
+  AuthenticatedAdminMarketplaceRoute: typeof AuthenticatedAdminMarketplaceRoute
+  AuthenticatedAdminReportsRoute: typeof AuthenticatedAdminReportsRoute
   AuthenticatedAdminSettingsRoute: typeof AuthenticatedAdminSettingsRoute
   AuthenticatedAdminUsersRoute: typeof AuthenticatedAdminUsersRoute
   AuthenticatedBrokerDashboardRoute: typeof AuthenticatedBrokerDashboardRoute
@@ -1890,11 +1974,15 @@ interface AuthenticatedRouteRouteChildren {
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedCompanyRoute: AuthenticatedCompanyRouteWithChildren,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedAdminBrokersRoute: AuthenticatedAdminBrokersRoute,
   AuthenticatedAdminCompaniesRoute: AuthenticatedAdminCompaniesRoute,
+  AuthenticatedAdminCustomersRoute: AuthenticatedAdminCustomersRoute,
   AuthenticatedAdminDashboardRoute: AuthenticatedAdminDashboardRoute,
   AuthenticatedAdminFinanceRoute: AuthenticatedAdminFinanceRoute,
   AuthenticatedAdminImpersonationRoute: AuthenticatedAdminImpersonationRoute,
   AuthenticatedAdminLeadsRoute: AuthenticatedAdminLeadsRoute,
+  AuthenticatedAdminMarketplaceRoute: AuthenticatedAdminMarketplaceRoute,
+  AuthenticatedAdminReportsRoute: AuthenticatedAdminReportsRoute,
   AuthenticatedAdminSettingsRoute: AuthenticatedAdminSettingsRoute,
   AuthenticatedAdminUsersRoute: AuthenticatedAdminUsersRoute,
   AuthenticatedBrokerDashboardRoute: AuthenticatedBrokerDashboardRoute,

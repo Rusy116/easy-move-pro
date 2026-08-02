@@ -484,6 +484,42 @@ function JobDetailsPage() {
         </>
       )}
 
+      <JobPipeline status={job.job_status} />
+
+      {/* Bottom actions */}
+      {unlocked && job.job_status !== "completed" && (
+        <section className="rounded-2xl border border-border bg-card p-4 sm:p-5">
+          <Button
+            size="lg"
+            className="h-14 w-full rounded-xl bg-emerald-600 text-base font-bold text-white hover:bg-emerald-700"
+            disabled={pending !== null || missingRequired.length > 0}
+            onClick={() => run("complete")}
+          >
+            {pending === "complete" ? (
+              <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+            ) : (
+              <CheckCircle2 className="mr-2 h-5 w-5" />
+            )}
+            COMPLETE JOB
+          </Button>
+          <p className="mt-2 text-center text-xs text-muted-foreground">
+            Generates the invoice, calculates the platform commission, starts payment tracking and
+            moves this job to Completed Jobs.
+          </p>
+          <div className="mt-4 text-center">
+            <Button
+              size="sm"
+              variant="outline"
+              className="rounded-full border-rose-300 text-rose-700 hover:bg-rose-50"
+              disabled={pending !== null}
+              onClick={() => void decline()}
+            >
+              <XCircle className="mr-2 h-4 w-4" /> Decline job
+            </Button>
+          </div>
+        </section>
+      )}
+
 
       {/* Phase 4 — final price lock, revision history and internal notes */}
       {unlocked && company && (

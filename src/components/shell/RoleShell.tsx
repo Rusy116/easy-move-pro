@@ -5,6 +5,15 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { isFeatureEnabled, readLocalOverrides, type FeatureFlag } from "@/lib/feature-flags";
 import { loadRoleContext, type PlatformRole } from "@/lib/roles";
+import { useI18n } from "@/i18n";
+import { LanguageSwitcher } from "@/components/i18n/LanguageSwitcher";
+
+/** "Available jobs" -> "nav.availableJobs" so nav labels localize automatically. */
+function navKey(label: string) {
+  const [first, ...rest] = label.trim().split(/\s+/);
+  return `nav.${first.toLowerCase()}${rest.map((w) => w[0].toUpperCase() + w.slice(1).toLowerCase()).join("")}`;
+}
+
 
 export type ShellNavItem = {
   to: string;

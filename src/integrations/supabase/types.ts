@@ -3354,6 +3354,10 @@ export type Database = {
         Args: { _commission_id: string; _note?: string; _status: string }
         Returns: Json
       }
+      fn_assign_broker: {
+        Args: { _broker_id: string; _quote_id: string }
+        Returns: undefined
+      }
       fn_assign_exclusive: {
         Args: { _company_id: string; _quote_id: string; _sla_hours?: number }
         Returns: {
@@ -3423,6 +3427,7 @@ export type Database = {
         }
       }
       fn_broker_qualify_lead: { Args: { _quote_id: string }; Returns: Json }
+      fn_can_work_lead: { Args: { _quote_id: string }; Returns: boolean }
       fn_cancel_commission_for_quote: {
         Args: { _quote_id: string; _reason: string }
         Returns: undefined

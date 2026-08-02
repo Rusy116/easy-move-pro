@@ -3974,6 +3974,10 @@ export type Database = {
         }[]
       }
       fn_lead_unlocked: { Args: { _quote_id: string }; Returns: boolean }
+      fn_marketplace_status: {
+        Args: { _assigned_company: string; _job_status: string }
+        Returns: string
+      }
       fn_matching_companies: { Args: { _quote_id: string }; Returns: string[] }
       fn_mover_accept_lead: {
         Args: { _ip?: string; _quote_id: string }

@@ -322,6 +322,10 @@ export function MyJobCard({ job }: { job: MyJob }) {
             Open job details
           </Link>
         </Button>
+
+        {["claimed", "contacted"].includes(job.job_status ?? "") && job.assigned_company_id && (
+          <ReleaseJobButton quoteId={job.id} companyId={job.assigned_company_id} />
+        )}
       </div>
     </article>
   );

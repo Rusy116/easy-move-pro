@@ -331,8 +331,14 @@ export function BrokerLeadsWorkspace() {
                       <span>{new Date(l.created_at).toLocaleDateString()}</span>
                       <LeadStatusBadge status={l.lead_status as string} />
                       <Badge variant="outline" className="capitalize">
-                        {l.lead_phase.replace("_", " ")}
+                        {brokerLabel(l.assigned_broker_id)
+                          ? `Broker: ${brokerLabel(l.assigned_broker_id)}`
+                          : "Broker: unassigned"}
                       </Badge>
+                      <Badge variant="outline" className="capitalize">
+                        Market: {l.lead_phase.replace("_", " ")}
+                      </Badge>
+
                     </div>
                     <div className="mt-1.5 flex items-center gap-2 font-serif text-lg font-medium">
                       <MapPin className="h-4 w-4 shrink-0 text-sage" />

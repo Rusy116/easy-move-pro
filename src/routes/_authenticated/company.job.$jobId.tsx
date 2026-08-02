@@ -238,6 +238,14 @@ function JobDetailsPage() {
                 </Link>
               </Button>
             )}
+            {["claimed", "contacted"].includes(job.job_status ?? "") &&
+              job.assigned_company_id && (
+                <ReleaseJobButton
+                  quoteId={job.id}
+                  companyId={job.assigned_company_id}
+                  onDone={() => void reload()}
+                />
+              )}
           </div>
         ) : (
           <p className="mt-4 text-sm text-muted-foreground">

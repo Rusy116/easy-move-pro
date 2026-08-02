@@ -163,7 +163,7 @@ export function RoleShell({ brand, eyebrow, accent, nav, children }: RoleShellPr
                   className="w-full rounded-full"
                   onClick={signOut}
                 >
-                  <LogOut className="mr-1.5 h-3.5 w-3.5" /> Sign out
+                  <LogOut className="mr-1.5 h-3.5 w-3.5" /> {t("common.signOut")}
                 </Button>
               </div>
             </div>

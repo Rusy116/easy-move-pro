@@ -92,6 +92,7 @@ import { Route as AuthenticatedBrokerLeadsRouteImport } from './routes/_authenti
 import { Route as AuthenticatedBrokerDashboardRouteImport } from './routes/_authenticated/broker.dashboard'
 import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin.users'
 import { Route as AuthenticatedAdminSettingsRouteImport } from './routes/_authenticated/admin.settings'
+import { Route as AuthenticatedAdminReportsRouteImport } from './routes/_authenticated/admin.reports'
 import { Route as AuthenticatedAdminMarketplaceRouteImport } from './routes/_authenticated/admin.marketplace'
 import { Route as AuthenticatedAdminLeadsRouteImport } from './routes/_authenticated/admin.leads'
 import { Route as AuthenticatedAdminImpersonationRouteImport } from './routes/_authenticated/admin.impersonation'
@@ -553,6 +554,12 @@ const AuthenticatedAdminSettingsRoute =
     path: '/admin/settings',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedAdminReportsRoute =
+  AuthenticatedAdminReportsRouteImport.update({
+    id: '/admin/reports',
+    path: '/admin/reports',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAdminMarketplaceRoute =
   AuthenticatedAdminMarketplaceRouteImport.update({
     id: '/admin/marketplace',
@@ -657,6 +664,7 @@ export interface FileRoutesByFullPath {
   '/admin/impersonation': typeof AuthenticatedAdminImpersonationRoute
   '/admin/leads': typeof AuthenticatedAdminLeadsRoute
   '/admin/marketplace': typeof AuthenticatedAdminMarketplaceRoute
+  '/admin/reports': typeof AuthenticatedAdminReportsRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/broker/dashboard': typeof AuthenticatedBrokerDashboardRoute
@@ -749,6 +757,7 @@ export interface FileRoutesByTo {
   '/admin/impersonation': typeof AuthenticatedAdminImpersonationRoute
   '/admin/leads': typeof AuthenticatedAdminLeadsRoute
   '/admin/marketplace': typeof AuthenticatedAdminMarketplaceRoute
+  '/admin/reports': typeof AuthenticatedAdminReportsRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/broker/dashboard': typeof AuthenticatedBrokerDashboardRoute
@@ -844,6 +853,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/impersonation': typeof AuthenticatedAdminImpersonationRoute
   '/_authenticated/admin/leads': typeof AuthenticatedAdminLeadsRoute
   '/_authenticated/admin/marketplace': typeof AuthenticatedAdminMarketplaceRoute
+  '/_authenticated/admin/reports': typeof AuthenticatedAdminReportsRoute
   '/_authenticated/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
   '/_authenticated/broker/dashboard': typeof AuthenticatedBrokerDashboardRoute
@@ -939,6 +949,7 @@ export interface FileRouteTypes {
     | '/admin/impersonation'
     | '/admin/leads'
     | '/admin/marketplace'
+    | '/admin/reports'
     | '/admin/settings'
     | '/admin/users'
     | '/broker/dashboard'
@@ -1031,6 +1042,7 @@ export interface FileRouteTypes {
     | '/admin/impersonation'
     | '/admin/leads'
     | '/admin/marketplace'
+    | '/admin/reports'
     | '/admin/settings'
     | '/admin/users'
     | '/broker/dashboard'
@@ -1125,6 +1137,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/impersonation'
     | '/_authenticated/admin/leads'
     | '/_authenticated/admin/marketplace'
+    | '/_authenticated/admin/reports'
     | '/_authenticated/admin/settings'
     | '/_authenticated/admin/users'
     | '/_authenticated/broker/dashboard'
@@ -1796,6 +1809,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminSettingsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin/reports': {
+      id: '/_authenticated/admin/reports'
+      path: '/admin/reports'
+      fullPath: '/admin/reports'
+      preLoaderRoute: typeof AuthenticatedAdminReportsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/admin/marketplace': {
       id: '/_authenticated/admin/marketplace'
       path: '/admin/marketplace'
@@ -1931,6 +1951,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminImpersonationRoute: typeof AuthenticatedAdminImpersonationRoute
   AuthenticatedAdminLeadsRoute: typeof AuthenticatedAdminLeadsRoute
   AuthenticatedAdminMarketplaceRoute: typeof AuthenticatedAdminMarketplaceRoute
+  AuthenticatedAdminReportsRoute: typeof AuthenticatedAdminReportsRoute
   AuthenticatedAdminSettingsRoute: typeof AuthenticatedAdminSettingsRoute
   AuthenticatedAdminUsersRoute: typeof AuthenticatedAdminUsersRoute
   AuthenticatedBrokerDashboardRoute: typeof AuthenticatedBrokerDashboardRoute
@@ -1961,6 +1982,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminImpersonationRoute: AuthenticatedAdminImpersonationRoute,
   AuthenticatedAdminLeadsRoute: AuthenticatedAdminLeadsRoute,
   AuthenticatedAdminMarketplaceRoute: AuthenticatedAdminMarketplaceRoute,
+  AuthenticatedAdminReportsRoute: AuthenticatedAdminReportsRoute,
   AuthenticatedAdminSettingsRoute: AuthenticatedAdminSettingsRoute,
   AuthenticatedAdminUsersRoute: AuthenticatedAdminUsersRoute,
   AuthenticatedBrokerDashboardRoute: AuthenticatedBrokerDashboardRoute,

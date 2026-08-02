@@ -15,6 +15,7 @@ import {
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { QuoteCalculator } from "@/components/calculator/QuoteCalculator";
 import { Button } from "@/components/ui/button";
+import { useI18n } from "@/i18n";
 import heroImage from "@/assets/hero-moving.jpg";
 
 const CITIES = [
@@ -32,56 +33,27 @@ const CITIES = [
   { slug: "portland", name: "Portland", state: "OR" },
 ];
 
+/** Values that are locale-independent stay literal; labels resolve through keys. */
 const STATS = [
-  { value: "50k+", label: "Households moved" },
-  { value: "4.9", label: "Average rating" },
-  { value: "48 states", label: "Coverage" },
-  { value: "< 60s", label: "To your quote" },
-];
+  { value: "50k+", labelKey: "home.stat.households" },
+  { value: "4.9", labelKey: "home.stat.rating" },
+  { valueKey: "home.stat.coverageValue", labelKey: "home.stat.coverage" },
+  { valueKey: "home.stat.speedValue", labelKey: "home.stat.speed" },
+] as const;
 
 const FEATURES = [
-  {
-    icon: Zap,
-    title: "Instant, honest pricing",
-    copy: "Live carrier rates, distance math, and inventory averages — no sales calls to get a number.",
-  },
-  {
-    icon: ShieldCheck,
-    title: "Vetted, insured crews",
-    copy: "Every mover is DOT-registered, background-checked, and $100k liability insured.",
-  },
-  {
-    icon: Sparkles,
-    title: "AI-assisted planning",
-    copy: "Auto-generated timelines, packing checklists, and inventory recognition from a phone photo.",
-  },
-  {
-    icon: HeartHandshake,
-    title: "Concierge on move day",
-    copy: "A real human coordinator on call from load-in to the last box unpacked.",
-  },
-];
+  { icon: Zap, id: "pricing" },
+  { icon: ShieldCheck, id: "vetted" },
+  { icon: Sparkles, id: "ai" },
+  { icon: HeartHandshake, id: "concierge" },
+] as const;
 
 const TESTIMONIALS = [
-  {
-    quote:
-      "The instant quote was exactly what we paid. It felt more like booking a flight than moving a house.",
-    name: "Sarah Jenkins",
-    detail: "NYC → LA · 2BR apartment",
-  },
-  {
-    quote:
-      "Three vetted crews, real prices, no phone tag. We picked the one with the best reviews and were done.",
-    name: "Marcus Chen",
-    detail: "Austin → Seattle · 3BR house",
-  },
-  {
-    quote:
-      "The AI packing checklist alone saved us a weekend. Everything landed labeled and unbroken.",
-    name: "Priya Patel",
-    detail: "Chicago → Denver · Studio",
-  },
-];
+  { id: "1", name: "Sarah Jenkins" },
+  { id: "2", name: "Marcus Chen" },
+  { id: "3", name: "Priya Patel" },
+] as const;
+
 
 export const Route = createFileRoute("/")({
   head: () => ({

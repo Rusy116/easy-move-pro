@@ -44,7 +44,7 @@ export function JobStatusBadge({ status }: { status: string }) {
   );
 }
 
-/** Live 12-hour response countdown. */
+/** Live 12-hour response countdown (green → orange under 2h → red expired). */
 export function ResponseCountdown({ deadline }: { deadline: string | null }) {
   const [, tick] = useState(0);
   useEffect(() => {
@@ -52,14 +52,10 @@ export function ResponseCountdown({ deadline }: { deadline: string | null }) {
     return () => window.clearInterval(id);
   }, []);
   if (!deadline) return null;
-  const c = countdown(deadline);
+  const c = timerTone(deadline);
   return (
     <span
-      className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-semibold ${
-        c.expired || c.urgent
-          ? "border-rose-500/30 bg-rose-500/10 text-rose-700"
-          : "border-emerald-500/30 bg-emerald-500/10 text-emerald-700"
-      }`}
+      className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-semibold ${c.tone}`}
     >
       <Clock className="h-3 w-3" />
       {c.expired ? "Response overdue" : `${c.label} to respond`}

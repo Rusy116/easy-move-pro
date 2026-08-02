@@ -282,6 +282,7 @@ export function QuoteCalculator(_props: { compact?: boolean } = {}) {
   } | null>(null);
   const [saving, setSaving] = useState(false);
   const [insuranceModal, setInsuranceModal] = useState<InsuranceTier | null>(null);
+  const navigate = useNavigate();
   const [stage, setStage] = useState<"form" | "submitting" | "summary" | "done">("form");
   const [savedQuote, setSavedQuote] = useState<SavedQuoteSnapshot | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -580,6 +581,7 @@ export function QuoteCalculator(_props: { compact?: boolean } = {}) {
     setSaving(true);
     setStage("submitting");
     const start = Date.now();
+    let confirmation: { quoteNumber: string; token: string };
     try {
       const saved = await saveQuote();
       const inventoryArray = Object.entries(form.inventory)
@@ -650,6 +652,11 @@ export function QuoteCalculator(_props: { compact?: boolean } = {}) {
         moveDate: form.moveDate,
         fullName: form.fullName,
       });
+      // Generate the PDF before we navigate — if this fails we stay put and
+      // surface the error instead of sending the customer anywhere.
+      const { generateEstimatePdf } = await import("@/lib/estimate-pdf");
+      generateEstimatePdf(snapshot.pdfInput);
+      confirmation = { quoteNumber: saved.quoteNumber, token: saved.portalToken };
       resetCalculatorForm();
       toast.success("Your moving quote request was submitted.");
     } catch (e) {
@@ -664,13 +671,20 @@ export function QuoteCalculator(_props: { compact?: boolean } = {}) {
       return;
     }
     const elapsed = Date.now() - start;
-    const remaining = Math.max(0, 2500 - elapsed);
+    const remaining = Math.max(0, 1200 - elapsed);
     if (remaining > 0) {
       await new Promise((resolve) => setTimeout(resolve, remaining));
     }
     setSaving(false);
-    setStage("summary");
+    // Everything succeeded: lead + quote + inventory + estimate + PDF.
+    // The customer goes to the Quote Confirmation page — never the home page.
+    void navigate({
+      to: "/quote/$quoteNumber",
+      params: { quoteNumber: confirmation.quoteNumber },
+      search: { token: confirmation.token },
+    });
   }
+
 
   // ---------- Render ---------------------------------------------------------
 

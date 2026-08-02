@@ -41,6 +41,7 @@ import { Route as CitiesIndexRouteImport } from './routes/cities.index'
 import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as StatesStateRouteImport } from './routes/states.$state'
 import { Route as RoutesRouteRouteImport } from './routes/routes.$route'
+import { Route as QuoteQuoteNumberRouteImport } from './routes/quote.$quoteNumber'
 import { Route as PortalQuoteNumberRouteImport } from './routes/portal.$quoteNumber'
 import { Route as PartnersApplyRouteImport } from './routes/partners.apply'
 import { Route as PartnersLocationRouteImport } from './routes/partners.$location'
@@ -260,6 +261,11 @@ const StatesStateRoute = StatesStateRouteImport.update({
 const RoutesRouteRoute = RoutesRouteRouteImport.update({
   id: '/routes/$route',
   path: '/routes/$route',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const QuoteQuoteNumberRoute = QuoteQuoteNumberRouteImport.update({
+  id: '/quote/$quoteNumber',
+  path: '/quote/$quoteNumber',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PortalQuoteNumberRoute = PortalQuoteNumberRouteImport.update({
@@ -649,6 +655,7 @@ export interface FileRoutesByFullPath {
   '/partners/$location': typeof PartnersLocationRoute
   '/partners/apply': typeof PartnersApplyRoute
   '/portal/$quoteNumber': typeof PortalQuoteNumberRoute
+  '/quote/$quoteNumber': typeof QuoteQuoteNumberRoute
   '/routes/$route': typeof RoutesRouteRoute
   '/states/$state': typeof StatesStateRoute
   '/blog/': typeof BlogIndexRoute
@@ -742,6 +749,7 @@ export interface FileRoutesByTo {
   '/partners/$location': typeof PartnersLocationRoute
   '/partners/apply': typeof PartnersApplyRoute
   '/portal/$quoteNumber': typeof PortalQuoteNumberRoute
+  '/quote/$quoteNumber': typeof QuoteQuoteNumberRoute
   '/routes/$route': typeof RoutesRouteRoute
   '/states/$state': typeof StatesStateRoute
   '/blog': typeof BlogIndexRoute
@@ -838,6 +846,7 @@ export interface FileRoutesById {
   '/partners/$location': typeof PartnersLocationRoute
   '/partners/apply': typeof PartnersApplyRoute
   '/portal/$quoteNumber': typeof PortalQuoteNumberRoute
+  '/quote/$quoteNumber': typeof QuoteQuoteNumberRoute
   '/routes/$route': typeof RoutesRouteRoute
   '/states/$state': typeof StatesStateRoute
   '/blog/': typeof BlogIndexRoute
@@ -934,6 +943,7 @@ export interface FileRouteTypes {
     | '/partners/$location'
     | '/partners/apply'
     | '/portal/$quoteNumber'
+    | '/quote/$quoteNumber'
     | '/routes/$route'
     | '/states/$state'
     | '/blog/'
@@ -1027,6 +1037,7 @@ export interface FileRouteTypes {
     | '/partners/$location'
     | '/partners/apply'
     | '/portal/$quoteNumber'
+    | '/quote/$quoteNumber'
     | '/routes/$route'
     | '/states/$state'
     | '/blog'
@@ -1122,6 +1133,7 @@ export interface FileRouteTypes {
     | '/partners/$location'
     | '/partners/apply'
     | '/portal/$quoteNumber'
+    | '/quote/$quoteNumber'
     | '/routes/$route'
     | '/states/$state'
     | '/blog/'
@@ -1216,6 +1228,7 @@ export interface RootRouteChildren {
   PartnersLocationRoute: typeof PartnersLocationRoute
   PartnersApplyRoute: typeof PartnersApplyRoute
   PortalQuoteNumberRoute: typeof PortalQuoteNumberRoute
+  QuoteQuoteNumberRoute: typeof QuoteQuoteNumberRoute
   RoutesRouteRoute: typeof RoutesRouteRoute
   StatesStateRoute: typeof StatesStateRoute
   BlogIndexRoute: typeof BlogIndexRoute
@@ -1450,6 +1463,13 @@ declare module '@tanstack/react-router' {
       path: '/routes/$route'
       fullPath: '/routes/$route'
       preLoaderRoute: typeof RoutesRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/quote/$quoteNumber': {
+      id: '/quote/$quoteNumber'
+      path: '/quote/$quoteNumber'
+      fullPath: '/quote/$quoteNumber'
+      preLoaderRoute: typeof QuoteQuoteNumberRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/portal/$quoteNumber': {
@@ -2040,6 +2060,7 @@ const rootRouteChildren: RootRouteChildren = {
   PartnersLocationRoute: PartnersLocationRoute,
   PartnersApplyRoute: PartnersApplyRoute,
   PortalQuoteNumberRoute: PortalQuoteNumberRoute,
+  QuoteQuoteNumberRoute: QuoteQuoteNumberRoute,
   RoutesRouteRoute: RoutesRouteRoute,
   StatesStateRoute: StatesStateRoute,
   BlogIndexRoute: BlogIndexRoute,

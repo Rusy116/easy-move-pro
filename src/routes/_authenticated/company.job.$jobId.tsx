@@ -171,27 +171,36 @@ function JobDetailsPage() {
   return (
     <div className="space-y-5">
       <Link
-        to="/company/myjobs"
+        to="/company/current"
         className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
       >
-        <ArrowLeft className="h-4 w-4" /> Back to my jobs
+        <ArrowLeft className="h-4 w-4" /> Back to current jobs
       </Link>
 
       <header className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
-          <div className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
+          <div className="font-mono text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
             {job.quote_number ?? "—"}
           </div>
           <h1 className="mt-0.5 text-2xl font-semibold tracking-tight">
             {place(job.origin_city, job.origin_state)} →{" "}
             {place(job.destination_city, job.destination_state)}
           </h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Customer: <span className="font-medium text-foreground">{customerName(job)}</span> ·
+            Broker: <span className="font-medium text-foreground">{broker}</span>
+          </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <JobStatusBadge status={job.job_status} />
-          {job.job_status === "claimed" && <ResponseCountdown deadline={job.claim_deadline_at} />}
+          {job.job_status === "claimed" ? (
+            <BigCountdown deadline={job.claim_deadline_at} />
+          ) : (
+            <ResponseCountdown deadline={job.claim_deadline_at} />
+          )}
         </div>
       </header>
+
 
       {/* Customer + move facts */}
       <section className="rounded-2xl border border-border bg-card p-4 sm:p-5">

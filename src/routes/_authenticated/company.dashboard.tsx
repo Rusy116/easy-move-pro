@@ -9,6 +9,7 @@ import {
 import { StatCard, SkeletonRows } from "@/components/shell/Chrome";
 import { Button } from "@/components/ui/button";
 import { useCompanyJobs, type JobStatus } from "@/lib/company-jobs";
+import { CompanyWarningsBanner } from "@/components/marketplace/JobOwnership";
 import {
   Inbox,
   Lock,
@@ -95,6 +96,7 @@ function DashboardPage() {
     <div className="space-y-6">
       <CompanyHeader company={company} onRefresh={reload} />
       <StatusBanner company={company} />
+      <CompanyWarningsBanner companyId={company.id} />
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <StatCard

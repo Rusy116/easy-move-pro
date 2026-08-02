@@ -16,6 +16,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { withdrawAssignment, forceOpenMarket, assignCompanies } from "@/lib/leads.functions";
 import { SlaCountdown } from "./SlaCountdown";
 import { LeadPhaseBadge } from "./LeadPhaseBadge";
+import { JobOwnerPanel } from "@/components/marketplace/JobOwnership";
 
 type Company = {
   id: string;
@@ -194,6 +195,9 @@ export function AssignCompanies({ quoteId }: { quoteId: string }) {
 
   return (
     <div className="space-y-4">
+      {/* Current job owner: company, 12-hour timer, warnings, recall */}
+      <JobOwnerPanel quoteId={quoteId} />
+
       {/* Phase header */}
       <div className="rounded-xl border border-border bg-card/50 p-4">
         <div className="flex flex-wrap items-center gap-2">

@@ -1303,6 +1303,61 @@ export type Database = {
           },
         ]
       }
+      company_warnings: {
+        Row: {
+          company_id: string
+          created_at: string
+          id: string
+          kind: string
+          level: number
+          quote_id: string | null
+          reason: string | null
+          updated_at: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          id?: string
+          kind?: string
+          level?: number
+          quote_id?: string | null
+          reason?: string | null
+          updated_at?: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          id?: string
+          kind?: string
+          level?: number
+          quote_id?: string | null
+          reason?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_warnings_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "moving_companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_warnings_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "mover_lead_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_warnings_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "quotes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       customer_notifications: {
         Row: {
           body: string | null
@@ -3681,6 +3736,10 @@ export type Database = {
           isSetofReturn: true
         }
       }
+      fn_company_release_job: {
+        Args: { _company_id: string; _quote_id: string; _reason?: string }
+        Returns: Json
+      }
       fn_company_request_price_revision: {
         Args: {
           _attachments?: Json
@@ -3884,6 +3943,15 @@ export type Database = {
         }
       }
       fn_is_company_member: { Args: { _company_id: string }; Returns: boolean }
+      fn_issue_company_warning: {
+        Args: {
+          _company_id: string
+          _kind: string
+          _quote_id: string
+          _reason: string
+        }
+        Returns: number
+      }
       fn_job_log: {
         Args: {
           _action: string
@@ -4079,6 +4147,10 @@ export type Database = {
         Returns: undefined
       }
       fn_resume_sla: { Args: { _quote_id: string }; Returns: undefined }
+      fn_return_job_to_market: {
+        Args: { _event: string; _quote_id: string; _reason: string }
+        Returns: string
+      }
       fn_set_lead_status: {
         Args: {
           _note?: string
@@ -4232,6 +4304,10 @@ export type Database = {
           assignment_id: string
           quote_id: string
         }[]
+      }
+      fn_staff_recall_job: {
+        Args: { _quote_id: string; _reason?: string; _warn?: boolean }
+        Returns: Json
       }
       fn_withdraw_assignment: {
         Args: { _assignment_id: string; _reason?: string }

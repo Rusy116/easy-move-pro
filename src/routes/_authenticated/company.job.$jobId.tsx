@@ -20,6 +20,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { SkeletonRows } from "@/components/shell/Chrome";
 import { EmptyState, Fact, JobStatusBadge, ResponseCountdown } from "@/components/company/JobsUI";
+import { ReleaseJobButton } from "@/components/marketplace/JobOwnership";
 import { FinalPriceCard } from "@/components/company/FinalPriceCard";
 import { InternalNotesCard } from "@/components/company/InternalNotesCard";
 
@@ -238,6 +239,14 @@ function JobDetailsPage() {
                 </Link>
               </Button>
             )}
+            {["claimed", "contacted"].includes(job.job_status ?? "") &&
+              job.assigned_company_id && (
+                <ReleaseJobButton
+                  quoteId={job.id}
+                  companyId={job.assigned_company_id}
+                  onDone={() => void reload()}
+                />
+              )}
           </div>
         ) : (
           <p className="mt-4 text-sm text-muted-foreground">

@@ -10,7 +10,8 @@ import { AssignedCompanyCard } from "@/components/customer/AssignedCompanyCard";
 import { FinalPriceCard } from "@/components/customer/FinalPriceCard";
 import { ReviewDialog } from "@/components/customer/ReviewDialog";
 import { routeLabel, useAssignedCompany, useMoveTimeline, useMyMoves } from "@/lib/customer-portal";
-import { LEAD_STATUS_LABEL, LEAD_STATUS_STYLE } from "@/lib/lead-status";
+import { LEAD_STATUS_STYLE } from "@/lib/lead-status";
+import { useStatusLabel } from "@/i18n";
 
 export const Route = createFileRoute("/_authenticated/customer/move")({
   head: () => ({
@@ -86,7 +87,7 @@ function MyMovePage() {
                     title="Lead information"
                     right={
                       <Badge variant="outline" className={LEAD_STATUS_STYLE[move.lead_status]}>
-                        {LEAD_STATUS_LABEL[move.lead_status]}
+                        {statusLabel("lead", move.lead_status)}
                       </Badge>
                     }
                   >

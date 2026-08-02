@@ -19,7 +19,6 @@ import {
   ALL_LEAD_STATUSES,
   BROKER_QUEUES,
   BROKER_QUEUE_LABEL,
-  LEAD_STATUS_LABEL,
   type BrokerQueue,
   type LeadStatus,
 } from "@/lib/lead-status";
@@ -222,7 +221,7 @@ export function BrokerLeadsWorkspace() {
             <SelectContent>
               {STATUSES.map((s) => (
                 <SelectItem key={s} value={s}>
-                  {s === "all" ? "All statuses" : LEAD_STATUS_LABEL[s as LeadStatus]}
+                  {s === "all" ? t("common.allStatuses") : statusLabel("lead", s)}
                 </SelectItem>
               ))}
             </SelectContent>

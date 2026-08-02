@@ -291,60 +291,8 @@ export function JobOwnerPanel({ quoteId }: { quoteId: string }) {
         No company owns this lead yet.
       </div>
     );
-}
+  }
 
-/** Warning strip shown to the moving company itself. */
-export function CompanyWarningsBanner({ companyId }: { companyId: string | null }) {
-  const [warnings, setWarnings] = useState<WarningRow[]>([]);
-
-  const load = useCallback(async () => {
-    if (!companyId) return;
-    const { data } = await supabase
-      .from("company_warnings" as never)
-      .select("id, level, kind, reason, created_at")
-      .eq("company_id", companyId)
-      .order("created_at", { ascending: false })
-      .limit(3);
-    setWarnings((data ?? []) as unknown as WarningRow[]);
-  }, [companyId]);
-
-  useEffect(() => {
-    void load();
-  }, [load]);
-
-  useEffect(() => {
-    if (!companyId) return;
-    const ch = supabase
-      .channel(`company-warnings-${companyId}`)
-      .on(
-        "postgres_changes",
-        { event: "INSERT", schema: "public", table: "company_warnings" },
-        () => void load(),
-      )
-      .subscribe();
-    return () => {
-      void supabase.removeChannel(ch);
-    };
-  }, [companyId, load]);
-
-  if (warnings.length === 0) return null;
-
-  return (
-    <div className="space-y-2">
-      {warnings.map((w) => (
-        <div
-          key={w.id}
-          className="flex items-start gap-2 rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-700"
-        >
-          <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
-          <span>
-            <strong>Warning #{w.level}</strong> — {w.reason ?? w.kind}
-          </span>
-        </div>
-      ))}
-    </div>
-  );
-}
 
   return (
     <div className="rounded-xl border border-border bg-card/50 p-4">

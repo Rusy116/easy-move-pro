@@ -1,5 +1,6 @@
 import { CheckCircle2, Circle, Clock } from "lucide-react";
-import { LEAD_STATUS_FLOW, LEAD_STATUS_LABEL, type LeadStatus } from "@/lib/lead-status";
+import { LEAD_STATUS_FLOW, type LeadStatus } from "@/lib/lead-status";
+import { useStatusLabel } from "@/i18n";
 import type { TimelineEntry } from "@/lib/customer-portal";
 
 /** Canonical customer-facing lifecycle steps. */
@@ -18,6 +19,7 @@ const STEP_COPY: Partial<Record<LeadStatus, string>> = {
 };
 
 export function MoveProgress({ status }: { status: LeadStatus }) {
+  const statusLabel = useStatusLabel();
   const cancelled = status === "cancelled" || status === "rejected";
   const index = STEPS.indexOf(status);
 
@@ -46,7 +48,7 @@ export function MoveProgress({ status }: { status: LeadStatus }) {
                     : "text-sm text-muted-foreground"
               }
             >
-              {STEP_COPY[step] ?? LEAD_STATUS_LABEL[step]}
+              {STEP_COPY[step] ?? statusLabel("lead", step)}
             </span>
           </li>
         );
@@ -56,7 +58,7 @@ export function MoveProgress({ status }: { status: LeadStatus }) {
           <span className="mt-0.5 shrink-0">
             <Circle className="h-4 w-4 text-rose-500" />
           </span>
-          <span className="text-sm font-medium text-rose-700">{LEAD_STATUS_LABEL[status]}</span>
+          <span className="text-sm font-medium text-rose-700">{statusLabel("lead", status)}</span>
         </li>
       )}
     </ol>

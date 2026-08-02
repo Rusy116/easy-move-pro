@@ -15,6 +15,7 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { ROBOTS_META } from "../lib/seo-config";
 import { SiteLayout } from "../components/site/SiteLayout";
 import { ImpersonationBanner } from "../components/admin/ImpersonationBanner";
+import { I18nProvider } from "../i18n";
 
 
 function NotFoundComponent() {
@@ -137,9 +138,11 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <ImpersonationBanner />
-      <Outlet />
-      <Toaster richColors position="top-right" />
+      <I18nProvider>
+        <ImpersonationBanner />
+        <Outlet />
+        <Toaster richColors position="top-right" />
+      </I18nProvider>
     </QueryClientProvider>
   );
 }

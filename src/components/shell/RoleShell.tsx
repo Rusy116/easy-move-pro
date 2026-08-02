@@ -5,6 +5,15 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { isFeatureEnabled, readLocalOverrides, type FeatureFlag } from "@/lib/feature-flags";
 import { loadRoleContext, type PlatformRole } from "@/lib/roles";
+import { useI18n } from "@/i18n";
+import { LanguageSwitcher } from "@/components/i18n/LanguageSwitcher";
+
+/** "Available jobs" -> "nav.availableJobs" so nav labels localize automatically. */
+function navKey(label: string) {
+  const [first, ...rest] = label.trim().split(/\s+/);
+  return `nav.${first.toLowerCase()}${rest.map((w) => w[0].toUpperCase() + w.slice(1).toLowerCase()).join("")}`;
+}
+
 
 export type ShellNavItem = {
   to: string;
@@ -31,6 +40,7 @@ const ACCENT: Record<RoleShellProps["accent"], string> = {
 
 export function RoleShell({ brand, eyebrow, accent, nav, children }: RoleShellProps) {
   const navigate = useNavigate();
+  const { t } = useI18n();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const [email, setEmail] = useState<string>("");
   const [open, setOpen] = useState(false);
@@ -44,9 +54,21 @@ export function RoleShell({ brand, eyebrow, accent, nav, children }: RoleShellPr
   }, []);
 
   const visibleNav = useMemo(
-    () => nav.filter((n) => !n.flag || isFeatureEnabled(n.flag, role, flagOverrides)),
-    [nav, role, flagOverrides],
+    () =>
+      nav
+        .filter((n) => !n.flag || isFeatureEnabled(n.flag, role, flagOverrides))
+        .map((n) => {
+          const translated = t(navKey(n.label));
+          return { ...n, label: translated.startsWith("nav.") ? n.label : translated };
+        }),
+    [nav, role, flagOverrides, t],
   );
+
+  const eyebrowLabel = (() => {
+    const translated = t(`shell.eyebrow.${accent}`);
+    return translated.startsWith("shell.") ? eyebrow : translated;
+  })();
+
 
   async function signOut() {
     await supabase.auth.signOut();
@@ -67,7 +89,7 @@ export function RoleShell({ brand, eyebrow, accent, nav, children }: RoleShellPr
               </div>
               <div className="min-w-0 leading-tight">
                 <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                  {eyebrow}
+                  {eyebrowLabel}
                 </div>
                 <div className="truncate font-serif text-base font-medium">{brand}</div>
               </div>
@@ -93,22 +115,27 @@ export function RoleShell({ brand, eyebrow, accent, nav, children }: RoleShellPr
             </nav>
           </div>
           <div className="hidden md:flex items-center gap-3">
+            <LanguageSwitcher />
             {email && (
               <span className="max-w-[180px] truncate text-xs text-muted-foreground" title={email}>
                 {email}
               </span>
             )}
             <Button variant="outline" size="sm" className="rounded-full" onClick={signOut}>
-              <LogOut className="mr-1.5 h-3.5 w-3.5" /> Sign out
+              <LogOut className="mr-1.5 h-3.5 w-3.5" /> {t("common.signOut")}
             </Button>
           </div>
-          <button
-            className="md:hidden rounded-md p-2 hover:bg-accent"
-            onClick={() => setOpen((v) => !v)}
-            aria-label="Toggle menu"
-          >
-            {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-          </button>
+          <div className="flex items-center gap-1 md:hidden">
+            <LanguageSwitcher compact />
+            <button
+              className="rounded-md p-2 hover:bg-accent"
+              onClick={() => setOpen((v) => !v)}
+              aria-label={t("shell.toggleMenu")}
+            >
+              {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            </button>
+          </div>
+
         </div>
         {open && (
           <div className="md:hidden border-t border-border bg-background">
@@ -136,7 +163,7 @@ export function RoleShell({ brand, eyebrow, accent, nav, children }: RoleShellPr
                   className="w-full rounded-full"
                   onClick={signOut}
                 >
-                  <LogOut className="mr-1.5 h-3.5 w-3.5" /> Sign out
+                  <LogOut className="mr-1.5 h-3.5 w-3.5" /> {t("common.signOut")}
                 </Button>
               </div>
             </div>

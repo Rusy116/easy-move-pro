@@ -23,7 +23,8 @@ import {
   useMoveTimeline,
   useMyMoves,
 } from "@/lib/customer-portal";
-import { LEAD_STATUS_LABEL, LEAD_STATUS_STYLE } from "@/lib/lead-status";
+import { LEAD_STATUS_STYLE } from "@/lib/lead-status";
+import { useStatusLabel } from "@/i18n";
 
 export const Route = createFileRoute("/_authenticated/customer/dashboard")({
   head: () => ({
@@ -39,6 +40,7 @@ export const Route = createFileRoute("/_authenticated/customer/dashboard")({
 });
 
 function CustomerDashboard() {
+  const statusLabel = useStatusLabel();
   const { activeMove, moves, loading } = useMyMoves();
   const { company } = useAssignedCompany(activeMove?.assigned_company_id);
   const { entries } = useMoveTimeline(activeMove?.id ?? null);
@@ -85,7 +87,7 @@ function CustomerDashboard() {
                 <StatCard
                   label="Move status"
                   value={
-                    <span className="text-xl">{LEAD_STATUS_LABEL[activeMove.lead_status]}</span>
+                    <span className="text-xl">{statusLabel("lead", activeMove.lead_status)}</span>
                   }
                   hint={new Date(activeMove.lead_status_updated_at).toLocaleDateString()}
                   icon={<CheckCircle2 className="h-4 w-4" />}
@@ -215,7 +217,7 @@ function CustomerDashboard() {
                           </div>
                         </div>
                         <Badge variant="outline" className={LEAD_STATUS_STYLE[m.lead_status]}>
-                          {LEAD_STATUS_LABEL[m.lead_status]}
+                          {statusLabel("lead", m.lead_status)}
                         </Badge>
                       </li>
                     ))}

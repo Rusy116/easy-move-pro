@@ -3,19 +3,22 @@ import { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
+import { useI18n } from "@/i18n";
+import { LanguageSwitcher } from "@/components/i18n/LanguageSwitcher";
 
 const nav = [
-  { to: "/calculator", label: "Calculator" },
-  { to: "/services", label: "Services" },
-  { to: "/cities", label: "City Pages" },
-  { to: "/store", label: "Store" },
-  { to: "/blog", label: "Blog" },
-  { to: "/partners", label: "For Movers" },
-  { to: "/about", label: "About" },
-  { to: "/contact", label: "Contact" },
+  { to: "/calculator", key: "site.nav.calculator" },
+  { to: "/services", key: "site.nav.services" },
+  { to: "/cities", key: "site.nav.cities" },
+  { to: "/store", key: "site.nav.store" },
+  { to: "/blog", key: "site.nav.blog" },
+  { to: "/partners", key: "site.nav.partners" },
+  { to: "/about", key: "site.nav.about" },
+  { to: "/contact", key: "site.nav.contact" },
 ] as const;
 
 export function Header() {
+  const { t } = useI18n();
   const [open, setOpen] = useState(false);
   const [authed, setAuthed] = useState<boolean | null>(null);
 
@@ -40,34 +43,38 @@ export function Header() {
                 className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
                 activeProps={{ className: "text-foreground" }}
               >
-                {n.label}
+                {t(n.key)}
               </Link>
             ))}
           </nav>
         </div>
         <div className="hidden md:flex items-center gap-3">
+          <LanguageSwitcher />
           {authed ? (
             <Link to="/dashboard">
               <Button variant="ghost" size="sm">
-                Dashboard
+                {t("common.dashboard")}
               </Button>
             </Link>
           ) : (
             <Link to="/auth">
               <Button variant="ghost" size="sm">
-                Sign in
+                {t("common.signIn")}
               </Button>
             </Link>
           )}
           <Link to="/calculator">
             <Button size="sm" className="rounded-full">
-              Get Instant Quote
+              {t("site.cta.quote")}
             </Button>
           </Link>
         </div>
-        <button className="md:hidden" onClick={() => setOpen((v) => !v)} aria-label="Toggle menu">
-          {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-        </button>
+        <div className="flex items-center gap-1 md:hidden">
+          <LanguageSwitcher compact />
+          <button onClick={() => setOpen((v) => !v)} aria-label={t("shell.toggleMenu")}>
+            {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </button>
+        </div>
       </div>
       {open && (
         <div className="md:hidden border-t border-border bg-background">
@@ -79,25 +86,25 @@ export function Header() {
                 onClick={() => setOpen(false)}
                 className="rounded-md px-3 py-2 text-sm font-medium text-foreground hover:bg-accent"
               >
-                {n.label}
+                {t(n.key)}
               </Link>
             ))}
             <div className="mt-2 flex gap-2">
               {authed ? (
                 <Link to="/dashboard" onClick={() => setOpen(false)} className="flex-1">
                   <Button variant="outline" className="w-full">
-                    Dashboard
+                    {t("common.dashboard")}
                   </Button>
                 </Link>
               ) : (
                 <Link to="/auth" onClick={() => setOpen(false)} className="flex-1">
                   <Button variant="outline" className="w-full">
-                    Sign in
+                    {t("common.signIn")}
                   </Button>
                 </Link>
               )}
               <Link to="/calculator" onClick={() => setOpen(false)} className="flex-1">
-                <Button className="w-full rounded-full">Get Quote</Button>
+                <Button className="w-full rounded-full">{t("site.cta.quoteShort")}</Button>
               </Link>
             </div>
           </div>

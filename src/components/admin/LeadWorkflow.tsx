@@ -11,8 +11,8 @@ import {
 } from "@/components/ui/dialog";
 import { CheckCircle2, HelpCircle, Megaphone, ThumbsDown } from "lucide-react";
 import { toast } from "sonner";
+import { useStatusLabel } from "@/i18n";
 import {
-  LEAD_STATUS_LABEL,
   LEAD_STATUS_STYLE,
   type LeadStatus,
   requestLeadInfo,
@@ -20,10 +20,11 @@ import {
 } from "@/lib/lead-status";
 
 export function LeadStatusBadge({ status }: { status: string | null | undefined }) {
+  const statusLabel = useStatusLabel();
   const s = (status ?? "submitted") as LeadStatus;
   return (
     <Badge variant="outline" className={LEAD_STATUS_STYLE[s] ?? ""}>
-      {LEAD_STATUS_LABEL[s] ?? s}
+      {statusLabel("lead", s)}
     </Badge>
   );
 }

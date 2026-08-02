@@ -1917,6 +1917,69 @@ export type Database = {
           },
         ]
       }
+      lead_communications: {
+        Row: {
+          actor_email: string | null
+          actor_id: string | null
+          body: string | null
+          channel: string
+          created_at: string
+          direction: string
+          duration_seconds: number | null
+          id: string
+          metadata: Json
+          occurred_at: string
+          quote_id: string
+          status: string
+          subject: string | null
+        }
+        Insert: {
+          actor_email?: string | null
+          actor_id?: string | null
+          body?: string | null
+          channel: string
+          created_at?: string
+          direction?: string
+          duration_seconds?: number | null
+          id?: string
+          metadata?: Json
+          occurred_at?: string
+          quote_id: string
+          status?: string
+          subject?: string | null
+        }
+        Update: {
+          actor_email?: string | null
+          actor_id?: string | null
+          body?: string | null
+          channel?: string
+          created_at?: string
+          direction?: string
+          duration_seconds?: number | null
+          id?: string
+          metadata?: Json
+          occurred_at?: string
+          quote_id?: string
+          status?: string
+          subject?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_communications_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "mover_lead_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lead_communications_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "quotes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lead_distributions: {
         Row: {
           company_id: string
@@ -1974,6 +2037,63 @@ export type Database = {
           },
           {
             foreignKeyName: "lead_distributions_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "quotes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lead_documents: {
+        Row: {
+          created_at: string
+          external_url: string | null
+          id: string
+          kind: string
+          mime: string | null
+          name: string
+          quote_id: string
+          size_bytes: number | null
+          storage_path: string | null
+          uploaded_by: string | null
+          uploaded_by_email: string | null
+        }
+        Insert: {
+          created_at?: string
+          external_url?: string | null
+          id?: string
+          kind?: string
+          mime?: string | null
+          name: string
+          quote_id: string
+          size_bytes?: number | null
+          storage_path?: string | null
+          uploaded_by?: string | null
+          uploaded_by_email?: string | null
+        }
+        Update: {
+          created_at?: string
+          external_url?: string | null
+          id?: string
+          kind?: string
+          mime?: string | null
+          name?: string
+          quote_id?: string
+          size_bytes?: number | null
+          storage_path?: string | null
+          uploaded_by?: string | null
+          uploaded_by_email?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_documents_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "mover_lead_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lead_documents_quote_id_fkey"
             columns: ["quote_id"]
             isOneToOne: false
             referencedRelation: "quotes"
@@ -2051,6 +2171,75 @@ export type Database = {
           },
           {
             foreignKeyName: "lead_events_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "quotes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lead_tasks: {
+        Row: {
+          completed_at: string | null
+          completed_by: string | null
+          created_at: string
+          created_by: string | null
+          created_by_email: string | null
+          due_at: string | null
+          id: string
+          kind: string
+          notes: string | null
+          owner_email: string | null
+          owner_id: string | null
+          priority: string
+          quote_id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          completed_at?: string | null
+          completed_by?: string | null
+          created_at?: string
+          created_by?: string | null
+          created_by_email?: string | null
+          due_at?: string | null
+          id?: string
+          kind?: string
+          notes?: string | null
+          owner_email?: string | null
+          owner_id?: string | null
+          priority?: string
+          quote_id: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          completed_at?: string | null
+          completed_by?: string | null
+          created_at?: string
+          created_by?: string | null
+          created_by_email?: string | null
+          due_at?: string | null
+          id?: string
+          kind?: string
+          notes?: string | null
+          owner_email?: string | null
+          owner_id?: string | null
+          priority?: string
+          quote_id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_tasks_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "mover_lead_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lead_tasks_quote_id_fkey"
             columns: ["quote_id"]
             isOneToOne: false
             referencedRelation: "quotes"
@@ -2486,7 +2675,10 @@ export type Database = {
         Row: {
           accepted_at: string | null
           accepted_estimate_id: string | null
+          ai_summary: Json | null
+          ai_summary_at: string | null
           appliances: boolean
+          archived_at: string | null
           arrival_window: string | null
           assembly: boolean
           assigned_at: string | null
@@ -2511,6 +2703,7 @@ export type Database = {
           contacted_at: string | null
           created_at: string
           crew_size: number | null
+          customer_language: string | null
           customer_response_at: string | null
           delivery_carry_distance: string | null
           delivery_elevator: boolean
@@ -2590,6 +2783,7 @@ export type Database = {
           pickup_property_type: string | null
           portal_token: string | null
           preferred_time: string | null
+          priority: string
           property_type: string
           published_at: string | null
           qualified_at: string | null
@@ -2598,8 +2792,11 @@ export type Database = {
           redistribution_count: number
           rejection_reason: string | null
           safe: boolean
+          service_type: string | null
+          source: string | null
           status: string
           storage: boolean
+          tags: string[]
           truck_size: string | null
           unpacking: boolean
           user_id: string | null
@@ -2608,7 +2805,10 @@ export type Database = {
         Insert: {
           accepted_at?: string | null
           accepted_estimate_id?: string | null
+          ai_summary?: Json | null
+          ai_summary_at?: string | null
           appliances?: boolean
+          archived_at?: string | null
           arrival_window?: string | null
           assembly?: boolean
           assigned_at?: string | null
@@ -2633,6 +2833,7 @@ export type Database = {
           contacted_at?: string | null
           created_at?: string
           crew_size?: number | null
+          customer_language?: string | null
           customer_response_at?: string | null
           delivery_carry_distance?: string | null
           delivery_elevator?: boolean
@@ -2712,6 +2913,7 @@ export type Database = {
           pickup_property_type?: string | null
           portal_token?: string | null
           preferred_time?: string | null
+          priority?: string
           property_type: string
           published_at?: string | null
           qualified_at?: string | null
@@ -2720,8 +2922,11 @@ export type Database = {
           redistribution_count?: number
           rejection_reason?: string | null
           safe?: boolean
+          service_type?: string | null
+          source?: string | null
           status?: string
           storage?: boolean
+          tags?: string[]
           truck_size?: string | null
           unpacking?: boolean
           user_id?: string | null
@@ -2730,7 +2935,10 @@ export type Database = {
         Update: {
           accepted_at?: string | null
           accepted_estimate_id?: string | null
+          ai_summary?: Json | null
+          ai_summary_at?: string | null
           appliances?: boolean
+          archived_at?: string | null
           arrival_window?: string | null
           assembly?: boolean
           assigned_at?: string | null
@@ -2755,6 +2963,7 @@ export type Database = {
           contacted_at?: string | null
           created_at?: string
           crew_size?: number | null
+          customer_language?: string | null
           customer_response_at?: string | null
           delivery_carry_distance?: string | null
           delivery_elevator?: boolean
@@ -2834,6 +3043,7 @@ export type Database = {
           pickup_property_type?: string | null
           portal_token?: string | null
           preferred_time?: string | null
+          priority?: string
           property_type?: string
           published_at?: string | null
           qualified_at?: string | null
@@ -2842,8 +3052,11 @@ export type Database = {
           redistribution_count?: number
           rejection_reason?: string | null
           safe?: boolean
+          service_type?: string | null
+          source?: string | null
           status?: string
           storage?: boolean
+          tags?: string[]
           truck_size?: string | null
           unpacking?: boolean
           user_id?: string | null
@@ -3326,7 +3539,10 @@ export type Database = {
         Returns: {
           accepted_at: string | null
           accepted_estimate_id: string | null
+          ai_summary: Json | null
+          ai_summary_at: string | null
           appliances: boolean
+          archived_at: string | null
           arrival_window: string | null
           assembly: boolean
           assigned_at: string | null
@@ -3351,6 +3567,7 @@ export type Database = {
           contacted_at: string | null
           created_at: string
           crew_size: number | null
+          customer_language: string | null
           customer_response_at: string | null
           delivery_carry_distance: string | null
           delivery_elevator: boolean
@@ -3430,6 +3647,7 @@ export type Database = {
           pickup_property_type: string | null
           portal_token: string | null
           preferred_time: string | null
+          priority: string
           property_type: string
           published_at: string | null
           qualified_at: string | null
@@ -3438,8 +3656,11 @@ export type Database = {
           redistribution_count: number
           rejection_reason: string | null
           safe: boolean
+          service_type: string | null
+          source: string | null
           status: string
           storage: boolean
+          tags: string[]
           truck_size: string | null
           unpacking: boolean
           user_id: string | null
@@ -3859,7 +4080,10 @@ export type Database = {
         Returns: {
           accepted_at: string | null
           accepted_estimate_id: string | null
+          ai_summary: Json | null
+          ai_summary_at: string | null
           appliances: boolean
+          archived_at: string | null
           arrival_window: string | null
           assembly: boolean
           assigned_at: string | null
@@ -3884,6 +4108,7 @@ export type Database = {
           contacted_at: string | null
           created_at: string
           crew_size: number | null
+          customer_language: string | null
           customer_response_at: string | null
           delivery_carry_distance: string | null
           delivery_elevator: boolean
@@ -3963,6 +4188,7 @@ export type Database = {
           pickup_property_type: string | null
           portal_token: string | null
           preferred_time: string | null
+          priority: string
           property_type: string
           published_at: string | null
           qualified_at: string | null
@@ -3971,8 +4197,11 @@ export type Database = {
           redistribution_count: number
           rejection_reason: string | null
           safe: boolean
+          service_type: string | null
+          source: string | null
           status: string
           storage: boolean
+          tags: string[]
           truck_size: string | null
           unpacking: boolean
           user_id: string | null

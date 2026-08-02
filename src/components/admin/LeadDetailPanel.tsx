@@ -11,6 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
 import {
   Phone,
   Mail,
@@ -27,6 +28,15 @@ import {
   XCircle,
   X,
   CheckCircle2,
+  DollarSign,
+  MessageSquare,
+  ListTodo,
+  FileText,
+  Activity,
+  Search,
+  Copy,
+  Archive,
+  FileDown,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useServerFn } from "@tanstack/react-start";
@@ -39,6 +49,16 @@ import { LeadPhaseBadge } from "./LeadPhaseBadge";
 import { LeadEventsTimeline } from "./LeadEventsTimeline";
 import { pauseSla, resumeSla, extendSla, closeLead } from "@/lib/leads.functions";
 import { LeadWorkflowActions } from "./LeadWorkflow";
+import type { LeadQuote } from "./lead/shared";
+import { OverviewSection } from "./lead/OverviewSection";
+import { InventorySection } from "./lead/InventorySection";
+import { PricingSection } from "./lead/PricingSection";
+import { CommunicationCenter } from "./lead/CommunicationCenter";
+import { TasksSection } from "./lead/TasksSection";
+import { DocumentsSection } from "./lead/DocumentsSection";
+import { ActivityFeed } from "./lead/ActivityFeed";
+import { AiSummarySection } from "./lead/AiSummarySection";
+
 
 export const LEAD_STATUSES = [
   "new",
@@ -199,8 +219,23 @@ export function LeadDetailPanel({
     };
   }, [q?.id]);
 
-  const inventory = useMemo(() => q?.inventory ?? [], [q]);
-  const breakdown = useMemo(() => q?.breakdown ?? [], [q]);
+  const [noteQuery, setNoteQuery] = useState("");
+
+  const milestones = useMemo(() => {
+    const r = q as (Quote & Record<string, unknown>) | null;
+    return [
+      { label: "Lead created", at: r?.created_at ?? null },
+      { label: "Quote generated", at: r?.created_at ?? null },
+      { label: "Broker assigned", at: (r?.["qualified_at"] as string) ?? null },
+      { label: "Customer contacted", at: (r?.["contacted_at"] as string) ?? null },
+      { label: "Estimate sent", at: (r?.["final_quote_sent_at"] as string) ?? null },
+      { label: "Marketplace published", at: (r?.["published_at"] as string) ?? null },
+      { label: "Company claimed", at: (r?.["claimed_at"] as string) ?? null },
+      { label: "Booking accepted", at: r?.accepted_at ?? null },
+      { label: "Job completed", at: (r?.["closed_at"] as string) ?? null },
+    ];
+  }, [q]);
+
 
   const doPause = useServerFn(pauseSla);
   const doResume = useServerFn(resumeSla);
@@ -211,6 +246,89 @@ export function LeadDetailPanel({
   const details = q.details ?? {};
   const phone = q.contact_phone ?? "";
   const email = q.contact_email ?? "";
+
+  async function downloadPdf() {
+    try {
+      const { downloadEstimatePdf } = await import("@/lib/estimate-pdf");
+      downloadEstimatePdf({
+        quoteNumber: q!.quote_number ?? q!.id.slice(0, 8),
+        createdAtISO: q!.created_at,
+        customer: { fullName: getCustomerName(q!), email, phone },
+        origin: {
+          fullAddress: q!.origin_address ?? "",
+          city: q!.origin_city ?? "",
+          state: q!.origin_state ?? "",
+          zip: q!.origin_zip ?? "",
+        },
+        destination: {
+          fullAddress: q!.destination_address ?? "",
+          city: q!.destination_city ?? "",
+          state: q!.destination_state ?? "",
+          zip: q!.destination_zip ?? "",
+        },
+        moveDate: q!.move_date ?? null,
+        distanceMiles: Number(q!.distance_miles ?? 0),
+        numMovers: Number(q!.num_movers ?? 0),
+        laborHours: Number(q!.labor_hours ?? 0),
+        truckSize: q!.truck_size ?? "",
+        cubicFeet: Number(q!.estimated_cubic_feet ?? 0),
+        weightLbs: Number(q!.estimated_weight_lbs ?? 0),
+        estimatedLow: Number(q!.estimated_low ?? 0),
+        estimatedHigh: Number(q!.estimated_high ?? 0),
+        inventory: (q!.inventory ?? []) as { id: string; quantity: number }[],
+        breakdown: (q!.breakdown ?? []) as { label: string; amount: number }[],
+        insurance: q!.insurance_tier ?? "basic",
+      });
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Could not build PDF");
+    }
+  }
+
+  async function duplicateLead() {
+    const src = q as unknown as Record<string, unknown>;
+    const skip = new Set([
+      "id",
+      "quote_number",
+      "portal_token",
+      "created_at",
+      "accepted_at",
+      "claimed_at",
+      "published_at",
+      "qualified_at",
+      "contacted_at",
+      "closed_at",
+      "assigned_company_id",
+      "assigned_at",
+      "exclusive_assignment_id",
+      "exclusive_started_at",
+      "exclusive_expires_at",
+      "final_quote_sent_at",
+      "last_activity_at",
+      "archived_at",
+    ]);
+    const payload: Record<string, unknown> = {};
+    for (const [k, v] of Object.entries(src)) if (!skip.has(k) && v !== null) payload[k] = v;
+    payload.status = "new";
+    payload.job_status = "new";
+    payload.lead_status = "submitted";
+    payload.lead_phase = "open_market";
+    const { error } = await supabase.from("quotes").insert(payload as never);
+    if (error) toast.error(error.message);
+    else toast.success("Lead duplicated");
+  }
+
+  async function archiveLead() {
+    const { error } = await supabase
+      .from("quotes")
+      .update({ archived_at: new Date().toISOString() } as never)
+      .eq("id", q!.id);
+    if (error) toast.error(error.message);
+    else {
+      toast.success("Lead archived");
+      onClose();
+    }
+  }
+
 
   async function addNote() {
     if (!q || !newNote.trim()) return;
@@ -307,6 +425,25 @@ export function LeadDetailPanel({
                 Email
               </a>
             </Button>
+            <Button asChild size="sm" variant="outline" disabled={!phone}>
+              <a href={phone ? `sms:${phone}` : undefined}>
+                <MessageSquare className="mr-2 h-4 w-4" />
+                SMS
+              </a>
+            </Button>
+            <Button size="sm" variant="outline" onClick={() => void downloadPdf()}>
+              <FileDown className="mr-2 h-4 w-4" />
+              PDF
+            </Button>
+            <Button size="sm" variant="outline" onClick={() => void duplicateLead()}>
+              <Copy className="mr-2 h-4 w-4" />
+              Duplicate
+            </Button>
+            <Button size="sm" variant="outline" onClick={() => void archiveLead()}>
+              <Archive className="mr-2 h-4 w-4" />
+              Archive
+            </Button>
+
             {q.quote_number && q.portal_token && (
               <Button asChild size="sm" variant="outline">
                 <Link
@@ -473,126 +610,101 @@ export function LeadDetailPanel({
           </div>
         </div>
 
-        <Tabs defaultValue="profile" className="w-full">
-          <TabsList className="mx-6 mt-4 grid w-[calc(100%-3rem)] grid-cols-5">
-            <TabsTrigger value="profile">
-              <User className="h-3.5 w-3.5 mr-1 hidden sm:inline" />
-              Profile
-            </TabsTrigger>
-            <TabsTrigger value="inventory">
-              <Package className="h-3.5 w-3.5 mr-1 hidden sm:inline" />
-              Inventory
-            </TabsTrigger>
-            <TabsTrigger value="assign">
-              <Building2 className="h-3.5 w-3.5 mr-1 hidden sm:inline" />
-              Movers
-            </TabsTrigger>
-            <TabsTrigger value="notes">
-              <StickyNote className="h-3.5 w-3.5 mr-1 hidden sm:inline" />
-              Notes
-            </TabsTrigger>
-            <TabsTrigger value="timeline">
-              <Clock className="h-3.5 w-3.5 mr-1 hidden sm:inline" />
-              Timeline
-            </TabsTrigger>
-          </TabsList>
+        <Tabs defaultValue="overview" className="w-full">
+          <div className="sticky top-[var(--lead-tabs-top,0px)] z-[5] -mx-0 overflow-x-auto border-b border-border bg-card px-6 py-2">
+            <TabsList className="inline-flex w-max gap-1">
+              <TabsTrigger value="overview">
+                <User className="mr-1 hidden h-3.5 w-3.5 sm:inline" />
+                Overview
+              </TabsTrigger>
+              <TabsTrigger value="inventory">
+                <Package className="mr-1 hidden h-3.5 w-3.5 sm:inline" />
+                Inventory
+              </TabsTrigger>
+              <TabsTrigger value="pricing">
+                <DollarSign className="mr-1 hidden h-3.5 w-3.5 sm:inline" />
+                Pricing
+              </TabsTrigger>
+              <TabsTrigger value="comms">
+                <MessageSquare className="mr-1 hidden h-3.5 w-3.5 sm:inline" />
+                Comms
+              </TabsTrigger>
+              <TabsTrigger value="tasks">
+                <ListTodo className="mr-1 hidden h-3.5 w-3.5 sm:inline" />
+                Tasks
+              </TabsTrigger>
+              <TabsTrigger value="timeline">
+                <Clock className="mr-1 hidden h-3.5 w-3.5 sm:inline" />
+                Timeline
+              </TabsTrigger>
+              <TabsTrigger value="notes">
+                <StickyNote className="mr-1 hidden h-3.5 w-3.5 sm:inline" />
+                Notes
+              </TabsTrigger>
+              <TabsTrigger value="documents">
+                <FileText className="mr-1 hidden h-3.5 w-3.5 sm:inline" />
+                Docs
+              </TabsTrigger>
+              <TabsTrigger value="activity">
+                <Activity className="mr-1 hidden h-3.5 w-3.5 sm:inline" />
+                Activity
+              </TabsTrigger>
+              <TabsTrigger value="assign">
+                <Building2 className="mr-1 hidden h-3.5 w-3.5 sm:inline" />
+                Movers
+              </TabsTrigger>
+            </TabsList>
+          </div>
 
-          <TabsContent value="profile" className="px-6 py-4 space-y-4">
-            <div className="grid gap-4 md:grid-cols-2">
-              <Section title="Customer">
-                <Row label="Name" value={getCustomerName(q)} />
-                <Row label="Email" value={email} />
-                <Row label="Phone" value={phone} />
-                <Row
-                  label="Contact method"
-                  value={(details as { contactMethod?: string }).contactMethod}
-                />
-                <Row label="Best time" value={(details as { contactTime?: string }).contactTime} />
-              </Section>
-              <Section title="Move">
-                <Row label="Date" value={q.move_date} />
-                <Row label="Time" value={q.preferred_time} />
-                <Row label="Property" value={q.property_type} />
-                <Row label="Type" value={q.move_type} />
-                <Row label="Distance" value={q.distance_miles ? `${q.distance_miles} mi` : null} />
-                <Row label="Insurance" value={q.insurance_tier} />
-              </Section>
-              <Section
-                title={
-                  <span className="inline-flex items-center gap-1">
-                    <MapPin className="h-3 w-3" />
-                    Origin
-                  </span>
-                }
-              >
-                <Row label="Address" value={q.origin_address} />
-                <Row label="City" value={q.origin_city} />
-                <Row label="ZIP" value={q.origin_zip} />
-                <Row label="Floor" value={q.origin_stairs} />
-                <Row label="Elevator" value={q.origin_elevator ? "Yes" : "No"} />
-              </Section>
-              <Section
-                title={
-                  <span className="inline-flex items-center gap-1">
-                    <MapPin className="h-3 w-3" />
-                    Destination
-                  </span>
-                }
-              >
-                <Row label="Address" value={q.destination_address} />
-                <Row label="City" value={q.destination_city} />
-                <Row label="ZIP" value={q.destination_zip} />
-                <Row label="Floor" value={q.destination_stairs} />
-                <Row label="Elevator" value={q.destination_elevator ? "Yes" : "No"} />
-              </Section>
-              <Section title="Logistics">
-                <Row label="Cubic feet" value={q.estimated_cubic_feet} />
-                <Row label="Weight (lbs)" value={q.estimated_weight_lbs} />
-                <Row label="Truck size" value={q.truck_size} />
-                <Row label="Movers" value={q.num_movers} />
-                <Row label="Labor hours" value={q.labor_hours} />
-              </Section>
-              {breakdown.length > 0 && (
-                <Section title="Price breakdown">
-                  <ul className="text-sm">
-                    {breakdown.map((b, i) => (
-                      <li
-                        key={i}
-                        className="flex justify-between border-b border-border py-1.5 last:border-0"
-                      >
-                        <span>{b.label}</span>
-                        <span className="font-mono">${Number(b.amount).toLocaleString()}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </Section>
-              )}
-            </div>
+          <TabsContent value="overview" className="space-y-4 px-4 py-4 sm:px-6">
+            <AiSummarySection q={q as unknown as LeadQuote} />
+            <OverviewSection
+              q={q as unknown as LeadQuote}
+              brokerSlot={
+                <BrokerSelect value={brokerId} onChange={(v) => void onBrokerChange(v)} size="sm" />
+              }
+              workflowSlot={<LeadWorkflowActions quoteId={q.id} status={q.lead_status} />}
+            />
           </TabsContent>
 
-          <TabsContent value="inventory" className="px-6 py-4">
-            {inventory.length === 0 ? (
-              <p className="text-sm text-muted-foreground">No inventory recorded.</p>
-            ) : (
-              <ul className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 text-sm">
-                {inventory.map((it, i) => (
-                  <li
-                    key={i}
-                    className="flex items-center gap-2 rounded-md border border-border bg-card/50 px-3 py-1.5"
-                  >
-                    <span className="font-semibold text-foreground">{it.quantity}×</span>
-                    <span className="text-muted-foreground">{it.id}</span>
-                  </li>
-                ))}
-              </ul>
-            )}
+          <TabsContent value="inventory" className="px-4 py-4 sm:px-6">
+            <InventorySection q={q as unknown as LeadQuote} />
           </TabsContent>
 
-          <TabsContent value="assign" className="px-6 py-4">
+          <TabsContent value="pricing" className="px-4 py-4 sm:px-6">
+            <PricingSection q={q as unknown as LeadQuote} />
+          </TabsContent>
+
+          <TabsContent value="comms" className="px-4 py-4 sm:px-6">
+            <CommunicationCenter q={q as unknown as LeadQuote} />
+          </TabsContent>
+
+          <TabsContent value="tasks" className="px-4 py-4 sm:px-6">
+            <TasksSection q={q as unknown as LeadQuote} />
+          </TabsContent>
+
+          <TabsContent value="documents" className="px-4 py-4 sm:px-6">
+            <DocumentsSection q={q as unknown as LeadQuote} />
+          </TabsContent>
+
+          <TabsContent value="activity" className="px-4 py-4 sm:px-6">
+            <ActivityFeed quoteId={q.id} />
+          </TabsContent>
+
+          <TabsContent value="assign" className="px-4 py-4 sm:px-6">
             <AssignCompanies quoteId={q.id} />
           </TabsContent>
 
-          <TabsContent value="notes" className="px-6 py-4 space-y-3">
+          <TabsContent value="notes" className="space-y-3 px-4 py-4 sm:px-6">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                className="pl-9"
+                placeholder="Search notes…"
+                value={noteQuery}
+                onChange={(e) => setNoteQuery(e.target.value)}
+              />
+            </div>
             <Textarea
               placeholder="Internal note about this lead…"
               value={newNote}
@@ -609,23 +721,49 @@ export function LeadDetailPanel({
               </Button>
             </div>
             <div className="space-y-2">
-              {notes.map((n) => (
-                <div
-                  key={n.id}
-                  className="rounded-lg border border-border bg-background p-3 text-sm"
-                >
-                  <div className="text-xs text-muted-foreground flex justify-between">
-                    <span>{n.author_email ?? "admin"}</span>
-                    <span>{new Date(n.created_at).toLocaleString()}</span>
+              {notes
+                .filter((n) =>
+                  noteQuery.trim()
+                    ? `${n.body} ${n.author_email ?? ""}`
+                        .toLowerCase()
+                        .includes(noteQuery.toLowerCase())
+                    : true,
+                )
+                .map((n) => (
+                  <div
+                    key={n.id}
+                    className="rounded-lg border border-border bg-background p-3 text-sm"
+                  >
+                    <div className="flex justify-between text-xs text-muted-foreground">
+                      <span>{n.author_email ?? "admin"}</span>
+                      <span>{new Date(n.created_at).toLocaleString()}</span>
+                    </div>
+                    <p className="mt-1 whitespace-pre-wrap">{n.body}</p>
                   </div>
-                  <p className="mt-1 whitespace-pre-wrap">{n.body}</p>
-                </div>
-              ))}
+                ))}
               {notes.length === 0 && <p className="text-sm text-muted-foreground">No notes yet.</p>}
             </div>
           </TabsContent>
 
-          <TabsContent value="timeline" className="px-6 py-4 space-y-6">
+          <TabsContent value="timeline" className="space-y-6 px-4 py-4 sm:px-6">
+            <div>
+              <div className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                Milestones
+              </div>
+              <ol className="ml-2 space-y-3 border-l border-border">
+                {milestones.map((m) => (
+                  <li key={m.label} className="relative ml-4">
+                    <div
+                      className={`absolute -left-[1.35rem] mt-1.5 h-3 w-3 rounded-full border border-background ${m.at ? "bg-primary" : "bg-muted"}`}
+                    />
+                    <div className="text-sm font-medium">{m.label}</div>
+                    <div className="text-xs text-muted-foreground">
+                      {m.at ? new Date(m.at).toLocaleString() : "Pending"}
+                    </div>
+                  </li>
+                ))}
+              </ol>
+            </div>
             <div>
               <div className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                 Lead events
@@ -637,12 +775,12 @@ export function LeadDetailPanel({
                 <div className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                   Status changes
                 </div>
-                <ol className="relative border-l border-border ml-2 space-y-3">
+                <ol className="ml-2 space-y-3 border-l border-border">
                   {history.map((h) => (
-                    <li key={h.id} className="ml-4 relative">
-                      <div className="absolute -left-[1.35rem] mt-1.5 h-3 w-3 rounded-full bg-primary border border-background" />
+                    <li key={h.id} className="relative ml-4">
+                      <div className="absolute -left-[1.35rem] mt-1.5 h-3 w-3 rounded-full border border-background bg-primary" />
                       <div className="text-sm">
-                        <span className="capitalize font-medium">{h.to_status}</span>
+                        <span className="font-medium capitalize">{h.to_status}</span>
                         {h.from_status && (
                           <span className="text-muted-foreground"> ← {h.from_status}</span>
                         )}
@@ -658,6 +796,7 @@ export function LeadDetailPanel({
             )}
           </TabsContent>
         </Tabs>
+
       </SheetContent>
     </Sheet>
   );

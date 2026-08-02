@@ -11,6 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
 import {
   Phone,
   Mail,
@@ -27,6 +28,15 @@ import {
   XCircle,
   X,
   CheckCircle2,
+  DollarSign,
+  MessageSquare,
+  ListTodo,
+  FileText,
+  Activity,
+  Search,
+  Copy,
+  Archive,
+  FileDown,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useServerFn } from "@tanstack/react-start";
@@ -39,6 +49,16 @@ import { LeadPhaseBadge } from "./LeadPhaseBadge";
 import { LeadEventsTimeline } from "./LeadEventsTimeline";
 import { pauseSla, resumeSla, extendSla, closeLead } from "@/lib/leads.functions";
 import { LeadWorkflowActions } from "./LeadWorkflow";
+import type { LeadQuote } from "./lead/shared";
+import { OverviewSection } from "./lead/OverviewSection";
+import { InventorySection } from "./lead/InventorySection";
+import { PricingSection } from "./lead/PricingSection";
+import { CommunicationCenter } from "./lead/CommunicationCenter";
+import { TasksSection } from "./lead/TasksSection";
+import { DocumentsSection } from "./lead/DocumentsSection";
+import { ActivityFeed } from "./lead/ActivityFeed";
+import { AiSummarySection } from "./lead/AiSummarySection";
+
 
 export const LEAD_STATUSES = [
   "new",

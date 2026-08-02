@@ -247,6 +247,89 @@ export function LeadDetailPanel({
   const phone = q.contact_phone ?? "";
   const email = q.contact_email ?? "";
 
+  async function downloadPdf() {
+    try {
+      const { downloadEstimatePdf } = await import("@/lib/estimate-pdf");
+      downloadEstimatePdf({
+        quoteNumber: q!.quote_number ?? q!.id.slice(0, 8),
+        createdAtISO: q!.created_at,
+        customer: { fullName: getCustomerName(q!), email, phone },
+        origin: {
+          fullAddress: q!.origin_address ?? "",
+          city: q!.origin_city ?? "",
+          state: q!.origin_state ?? "",
+          zip: q!.origin_zip ?? "",
+        },
+        destination: {
+          fullAddress: q!.destination_address ?? "",
+          city: q!.destination_city ?? "",
+          state: q!.destination_state ?? "",
+          zip: q!.destination_zip ?? "",
+        },
+        moveDate: q!.move_date ?? null,
+        distanceMiles: Number(q!.distance_miles ?? 0),
+        numMovers: Number(q!.num_movers ?? 0),
+        laborHours: Number(q!.labor_hours ?? 0),
+        truckSize: q!.truck_size ?? "",
+        cubicFeet: Number(q!.estimated_cubic_feet ?? 0),
+        weightLbs: Number(q!.estimated_weight_lbs ?? 0),
+        estimatedLow: Number(q!.estimated_low ?? 0),
+        estimatedHigh: Number(q!.estimated_high ?? 0),
+        inventory: (q!.inventory ?? []) as { id: string; quantity: number }[],
+        breakdown: (q!.breakdown ?? []) as { label: string; amount: number }[],
+        insurance: q!.insurance_tier ?? "basic",
+      });
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Could not build PDF");
+    }
+  }
+
+  async function duplicateLead() {
+    const src = q as unknown as Record<string, unknown>;
+    const skip = new Set([
+      "id",
+      "quote_number",
+      "portal_token",
+      "created_at",
+      "accepted_at",
+      "claimed_at",
+      "published_at",
+      "qualified_at",
+      "contacted_at",
+      "closed_at",
+      "assigned_company_id",
+      "assigned_at",
+      "exclusive_assignment_id",
+      "exclusive_started_at",
+      "exclusive_expires_at",
+      "final_quote_sent_at",
+      "last_activity_at",
+      "archived_at",
+    ]);
+    const payload: Record<string, unknown> = {};
+    for (const [k, v] of Object.entries(src)) if (!skip.has(k) && v !== null) payload[k] = v;
+    payload.status = "new";
+    payload.job_status = "new";
+    payload.lead_status = "submitted";
+    payload.lead_phase = "open_market";
+    const { error } = await supabase.from("quotes").insert(payload as never);
+    if (error) toast.error(error.message);
+    else toast.success("Lead duplicated");
+  }
+
+  async function archiveLead() {
+    const { error } = await supabase
+      .from("quotes")
+      .update({ archived_at: new Date().toISOString() } as never)
+      .eq("id", q!.id);
+    if (error) toast.error(error.message);
+    else {
+      toast.success("Lead archived");
+      onClose();
+    }
+  }
+
+
   async function addNote() {
     if (!q || !newNote.trim()) return;
     const currentQ = q;

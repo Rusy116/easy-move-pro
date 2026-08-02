@@ -2455,6 +2455,7 @@ export type Database = {
           first_name: string | null
           full_name: string | null
           id: string
+          language: string
           last_name: string | null
           phone: string | null
           status: string
@@ -2466,6 +2467,7 @@ export type Database = {
           first_name?: string | null
           full_name?: string | null
           id: string
+          language?: string
           last_name?: string | null
           phone?: string | null
           status?: string
@@ -2477,6 +2479,7 @@ export type Database = {
           first_name?: string | null
           full_name?: string | null
           id?: string
+          language?: string
           last_name?: string | null
           phone?: string | null
           status?: string

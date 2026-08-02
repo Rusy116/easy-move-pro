@@ -156,7 +156,7 @@ function HomePage() {
         <div className="relative overflow-hidden rounded-3xl ring-1 ring-black/5">
           <img
             src={heroImage}
-            alt="Modern living room being packed with labeled moving boxes"
+            alt={t("home.band.alt")}
             width={1600}
             height={1200}
             className="h-[320px] w-full object-cover sm:h-[480px]"
@@ -165,10 +165,10 @@ function HomePage() {
           <div className="absolute inset-x-0 bottom-0 p-6 text-white sm:p-10">
             <div className="max-w-lg">
               <span className="text-xs font-semibold uppercase tracking-widest opacity-80">
-                Move-day precision
+                {t("home.band.eyebrow")}
               </span>
               <h2 className="mt-2 font-serif text-2xl font-medium sm:text-4xl">
-                Every box, tracked. Every rate, transparent.
+                {t("home.band.title")}
               </h2>
             </div>
           </div>
@@ -179,35 +179,20 @@ function HomePage() {
       <section className="mx-auto max-w-7xl px-4 pb-16 sm:px-6 sm:pb-24">
         <div className="max-w-2xl">
           <span className="text-xs font-semibold uppercase tracking-widest text-ochre">
-            How it works
+            {t("home.steps.eyebrow")}
           </span>
           <h2 className="mt-3 font-serif text-3xl font-medium sm:text-4xl">
-            A move, in three unhurried steps.
+            {t("home.steps.title")}
           </h2>
         </div>
         <div className="mt-10 grid gap-4 sm:mt-12 sm:gap-6 md:grid-cols-3">
           {[
-            {
-              n: "01",
-              icon: PackageCheck,
-              title: "Tell us your move",
-              copy: "ZIP to ZIP, bedrooms, dates. It takes 30 seconds.",
-            },
-            {
-              n: "02",
-              icon: Truck,
-              title: "Compare vetted movers",
-              copy: "We match you with 3 crews with real prices and reviews.",
-            },
-            {
-              n: "03",
-              icon: ShieldCheck,
-              title: "Book with confidence",
-              copy: "Locked-in rates, licensed & insured, AI-tracked timeline.",
-            },
-          ].map(({ n, icon: Icon, title, copy }) => (
+            { n: "01", icon: PackageCheck },
+            { n: "02", icon: Truck },
+            { n: "03", icon: ShieldCheck },
+          ].map(({ n, icon: Icon }, idx) => (
             <div
-              key={title}
+              key={n}
               className="group relative rounded-2xl border border-border bg-card p-6 transition-all hover:-translate-y-1 hover:shadow-xl"
             >
               <div className="absolute right-5 top-5 font-serif text-xs text-muted-foreground/60">
@@ -216,8 +201,12 @@ function HomePage() {
               <div className="grid h-11 w-11 place-items-center rounded-xl bg-accent text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
                 <Icon className="h-5 w-5" />
               </div>
-              <h3 className="mt-5 font-serif text-xl font-medium">{title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{copy}</p>
+              <h3 className="mt-5 font-serif text-xl font-medium">
+                {t(`home.steps.${idx + 1}.title`)}
+              </h3>
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                {t(`home.steps.${idx + 1}.copy`)}
+              </p>
             </div>
           ))}
         </div>
@@ -229,30 +218,31 @@ function HomePage() {
           <div className="grid gap-10 md:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)] md:items-start md:gap-16">
             <div className="md:sticky md:top-24">
               <span className="text-xs font-semibold uppercase tracking-widest text-ochre">
-                Why Easy Move Pro
+                {t("home.why.eyebrow")}
               </span>
               <h2 className="mt-3 font-serif text-3xl font-medium sm:text-4xl">
-                Built for the way people actually move.
+                {t("home.why.title")}
               </h2>
-              <p className="mt-4 text-muted-foreground">
-                Old-school brokers hide behind sales calls. We show you the price, the crew, and the
-                reviews — before you talk to anyone.
-              </p>
+              <p className="mt-4 text-muted-foreground">{t("home.why.copy")}</p>
               <Link
                 to="/about"
                 className="mt-6 inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline"
               >
-                Our story <ArrowRight className="h-3.5 w-3.5" />
+                {t("home.why.link")} <ArrowRight className="h-3.5 w-3.5" />
               </Link>
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
-              {FEATURES.map(({ icon: Icon, title, copy }) => (
-                <div key={title} className="rounded-2xl border border-border bg-card p-6">
+              {FEATURES.map(({ icon: Icon, id }) => (
+                <div key={id} className="rounded-2xl border border-border bg-card p-6">
                   <div className="grid h-10 w-10 place-items-center rounded-lg bg-sage-soft text-primary">
                     <Icon className="h-5 w-5" />
                   </div>
-                  <h3 className="mt-4 font-serif text-lg font-medium">{title}</h3>
-                  <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{copy}</p>
+                  <h3 className="mt-4 font-serif text-lg font-medium">
+                    {t(`home.feature.${id}.title`)}
+                  </h3>
+                  <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
+                    {t(`home.feature.${id}.copy`)}
+                  </p>
                 </div>
               ))}
             </div>
@@ -265,14 +255,14 @@ function HomePage() {
         <div className="mb-8 grid grid-cols-[minmax(0,1fr)_auto] items-end gap-4 sm:mb-10">
           <div className="min-w-0">
             <span className="text-xs font-semibold uppercase tracking-widest text-ochre">
-              Nationwide coverage
+              {t("home.cities.eyebrow")}
             </span>
             <h2 className="mt-3 font-serif text-3xl font-medium sm:text-4xl">
-              Every major US metro.
+              {t("home.cities.title")}
             </h2>
           </div>
           <Link to="/cities" className="shrink-0 text-sm font-medium text-primary hover:underline">
-            View all →
+            {t("common.viewAll")} →
           </Link>
         </div>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
@@ -302,16 +292,16 @@ function HomePage() {
         <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24">
           <div className="max-w-2xl">
             <span className="text-xs font-semibold uppercase tracking-widest text-ochre">
-              Real customers
+              {t("home.testimonials.eyebrow")}
             </span>
             <h2 className="mt-3 font-serif text-3xl font-medium sm:text-4xl">
-              People move once. They remember how it felt.
+              {t("home.testimonials.title")}
             </h2>
           </div>
           <div className="mt-10 grid gap-4 sm:mt-12 md:grid-cols-3">
-            {TESTIMONIALS.map((t) => (
+            {TESTIMONIALS.map((item) => (
               <figure
-                key={t.name}
+                key={item.id}
                 className="flex flex-col justify-between rounded-2xl bg-primary-foreground/5 p-6 ring-1 ring-primary-foreground/10 backdrop-blur"
               >
                 <div className="flex gap-0.5 text-ochre">
@@ -320,11 +310,11 @@ function HomePage() {
                   ))}
                 </div>
                 <blockquote className="mt-4 font-serif text-lg leading-snug">
-                  "{t.quote}"
+                  “{t(`home.testimonial.${item.id}.quote`)}”
                 </blockquote>
                 <figcaption className="mt-6 border-t border-primary-foreground/10 pt-4 text-sm">
-                  <div className="font-medium">{t.name}</div>
-                  <div className="text-xs opacity-70">{t.detail}</div>
+                  <div className="font-medium">{item.name}</div>
+                  <div className="text-xs opacity-70">{t(`home.testimonial.${item.id}.detail`)}</div>
                 </figcaption>
               </figure>
             ))}
@@ -340,23 +330,24 @@ function HomePage() {
             aria-hidden
           />
           <span className="relative inline-flex items-center gap-1.5 rounded-full bg-sage-soft px-3 py-1 text-xs font-medium text-primary">
-            <Clock className="h-3.5 w-3.5" /> Quote in under 60 seconds
+            <Clock className="h-3.5 w-3.5" /> {t("home.finalCta.badge")}
           </span>
           <h2 className="relative mt-5 font-serif text-3xl font-medium sm:text-5xl">
-            Ready when you are.
+            {t("home.finalCta.title")}
           </h2>
           <p className="relative mx-auto mt-3 max-w-xl text-muted-foreground">
-            No signup required. See real pricing before anyone calls you.
+            {t("home.finalCta.copy")}
           </p>
           <div className="relative mt-8">
             <Link to="/calculator">
               <Button size="lg" className="rounded-full">
-                Get Instant Quote <ArrowRight className="ml-1 h-4 w-4" />
+                {t("site.cta.quote")} <ArrowRight className="ml-1 h-4 w-4" />
               </Button>
             </Link>
           </div>
         </div>
       </section>
+
     </SiteLayout>
   );
 }

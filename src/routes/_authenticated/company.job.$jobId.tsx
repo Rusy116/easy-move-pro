@@ -80,9 +80,14 @@ function JobDetailsPage() {
   const job = useMemo(() => myJobs.find((j) => j.id === jobId) ?? null, [myJobs, jobId]);
   const [form, setForm] = useState<Form | null>(null);
   const [pending, setPending] = useState<string | null>(null);
+  const [services, setServices] = useState<string[]>([]);
+  const broker = useBrokerName(job?.assigned_broker_id ?? null);
 
   useEffect(() => {
-    if (job && !form) setForm(toForm(job));
+    if (job && !form) {
+      setForm(toForm(job));
+      setServices(readServices(job.job_services));
+    }
   }, [job, form]);
 
   // Audit log: record that this company opened the lead.
@@ -98,6 +103,8 @@ function JobDetailsPage() {
       final_move_date: form.final_move_date || null,
       arrival_window: form.arrival_window || null,
       crew_size: form.crew_size ? Number(form.crew_size) : null,
+      job_services: services,
+
       final_truck_size: form.final_truck_size || null,
       company_notes: form.company_notes || null,
       ...extra,

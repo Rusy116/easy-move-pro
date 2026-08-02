@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { JobStatusBadge } from "@/components/company/JobsUI";
 import { timerTone } from "@/components/marketplace/JobOwnership";
 import { formatDate, money, place, type MyJob } from "@/lib/company-jobs";
-import { useBrokerName } from "@/lib/company-workflow";
+import { customerName, useBrokerName } from "@/lib/company-workflow";
 
 /** Large 12-hour countdown until first customer contact. */
 export function BigCountdown({ deadline }: { deadline: string | null }) {

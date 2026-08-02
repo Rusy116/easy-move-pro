@@ -263,3 +263,18 @@ export async function declineJob(quoteId: string, companyId: string, reason?: st
   } as never);
   if (error) throw new Error(error.message);
 }
+
+/* ------------------------------------------------------------------ */
+/*                          Customer name                              */
+/* ------------------------------------------------------------------ */
+
+/** Quotes store the customer name inside the details payload. */
+export function customerName(job: Pick<MyJob, "details" | "contact_email">): string {
+  const d = job.details as Record<string, unknown> | null;
+  const raw =
+    (typeof d?.["name"] === "string" && d["name"]) ||
+    (typeof d?.["full_name"] === "string" && d["full_name"]) ||
+    (typeof d?.["customer_name"] === "string" && d["customer_name"]) ||
+    "";
+  return (raw as string).trim() || job.contact_email || "—";
+}

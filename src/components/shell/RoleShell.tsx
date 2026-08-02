@@ -40,6 +40,7 @@ const ACCENT: Record<RoleShellProps["accent"], string> = {
 
 export function RoleShell({ brand, eyebrow, accent, nav, children }: RoleShellProps) {
   const navigate = useNavigate();
+  const { t } = useI18n();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const [email, setEmail] = useState<string>("");
   const [open, setOpen] = useState(false);
@@ -53,9 +54,21 @@ export function RoleShell({ brand, eyebrow, accent, nav, children }: RoleShellPr
   }, []);
 
   const visibleNav = useMemo(
-    () => nav.filter((n) => !n.flag || isFeatureEnabled(n.flag, role, flagOverrides)),
-    [nav, role, flagOverrides],
+    () =>
+      nav
+        .filter((n) => !n.flag || isFeatureEnabled(n.flag, role, flagOverrides))
+        .map((n) => {
+          const translated = t(navKey(n.label));
+          return { ...n, label: translated.startsWith("nav.") ? n.label : translated };
+        }),
+    [nav, role, flagOverrides, t],
   );
+
+  const eyebrowLabel = (() => {
+    const translated = t(`shell.eyebrow.${accent}`);
+    return translated.startsWith("shell.") ? eyebrow : translated;
+  })();
+
 
   async function signOut() {
     await supabase.auth.signOut();

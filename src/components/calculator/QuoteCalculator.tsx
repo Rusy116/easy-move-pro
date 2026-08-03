@@ -581,13 +581,16 @@ export function QuoteCalculator(_props: { compact?: boolean } = {}) {
     setSubmitError(null);
     setSaving(true);
     setStage("submitting");
+    setSubmitStep(0);
     const start = Date.now();
     let confirmation: { quoteNumber: string; token: string };
     try {
       const saved = await saveQuote();
+      setSubmitStep(1);
       const inventoryArray = Object.entries(form.inventory)
         .filter(([, n]) => n > 0)
         .map(([id, quantity]) => ({ id, quantity }));
+      setSubmitStep(2);
       const portalUrl =
         typeof window !== "undefined"
           ? `${window.location.origin}/portal/${saved.quoteNumber}?token=${saved.portalToken}`

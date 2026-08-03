@@ -117,13 +117,18 @@ function DashboardPage() {
     })();
   }, [isAdmin]);
 
+  const scoped = useMemo(
+    () => (period === "all" ? quotes : quotes.filter((q) => inPeriod(q.created_at, period))),
+    [quotes, period],
+  );
+
   const stats = useMemo(() => {
     const counts: Record<string, number> = Object.fromEntries(STATUS_KEYS.map((s) => [s, 0]));
     let revLow = 0;
     let revHigh = 0;
     let estSum = 0;
     let estN = 0;
-    for (const q of quotes) {
+    for (const q of scoped) {
       if (q.status in counts) counts[q.status]++;
       if (q.accepted_at) counts.accepted++;
       const mid = (Number(q.estimated_low) + Number(q.estimated_high)) / 2;
@@ -131,12 +136,21 @@ function DashboardPage() {
         estSum += mid;
         estN++;
       }
-      if (q.status === "won") {
-        revLow += Number(q.estimated_low || 0);
-        revHigh += Number(q.estimated_high || 0);
+      // Revenue counts anything actually won: status "won" or a completed move.
+      const isWon = q.status === "won" || Boolean(q.completed_at);
+      if (isWon) {
+        // Prefer the real contracted number when the company recorded one.
+        const firm = Number(q.final_accepted_price ?? q.final_price ?? 0);
+        if (firm > 0) {
+          revLow += firm;
+          revHigh += firm;
+        } else {
+          revLow += Number(q.estimated_low || 0);
+          revHigh += Number(q.estimated_high || 0);
+        }
       }
     }
-    const total = quotes.length;
+    const total = scoped.length;
     const closed = counts.won + counts.lost + counts.cancelled;
     const conversion = closed > 0 ? (counts.won / closed) * 100 : 0;
     return {
@@ -147,7 +161,8 @@ function DashboardPage() {
       avgEstimate: estN > 0 ? estSum / estN : 0,
       conversion,
     };
-  }, [quotes]);
+  }, [scoped]);
+
 
   const quotesByDay = useMemo(() => {
     const days = 30;

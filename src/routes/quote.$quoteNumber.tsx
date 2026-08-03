@@ -153,9 +153,25 @@ function QuoteConfirmationPage() {
   }, [quoteNumber, token]);
 
   async function handleDownload() {
+    if (!quote || downloading) return;
+    setDownloading(true);
+    try {
+      const { downloadEstimatePdf } = await import("@/lib/estimate-pdf");
+      downloadEstimatePdf(toPdfInput(quote));
+    } finally {
+      setDownloading(false);
+    }
+  }
+
+  async function handleCopy() {
     if (!quote) return;
-    const { downloadEstimatePdf } = await import("@/lib/estimate-pdf");
-    downloadEstimatePdf(toPdfInput(quote));
+    try {
+      await navigator.clipboard.writeText(quote.quote_number);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 2000);
+    } catch {
+      /* clipboard unavailable */
+    }
   }
 
   if (loading) {

@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useBrokers } from "@/components/admin/BrokerSelect";
 import { PipelineStrip } from "@/components/crm/PipelineStrip";
+import { UniversalTimeline } from "@/components/crm/UniversalTimeline";
 import {
   money,
   pct,

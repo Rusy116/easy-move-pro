@@ -9,6 +9,8 @@ import {
   Globe,
   Briefcase,
   LineChart,
+  FileText,
+
 } from "lucide-react";
 import { RoleShell } from "@/components/shell/RoleShell";
 import { RoleGuard } from "@/components/auth/RoleGuard";

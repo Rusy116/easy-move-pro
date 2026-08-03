@@ -157,7 +157,9 @@ function DashboardPage() {
         />
         <StatCard
           label="Completed revenue"
-          value={jobStats.completedRevenue > 0 ? `$${jobStats.completedRevenue.toLocaleString()}` : "—"}
+          value={
+            jobStats.completedRevenue > 0 ? `$${jobStats.completedRevenue.toLocaleString()}` : "—"
+          }
           hint="Final contracted price"
           tone="success"
           icon={<TrendingUp className="h-4 w-4" />}

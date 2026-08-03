@@ -692,7 +692,6 @@ export function QuoteCalculator(_props: { compact?: boolean } = {}) {
     });
   }
 
-
   // ---------- Render ---------------------------------------------------------
 
   if (stage === "done") {
@@ -2424,7 +2423,9 @@ const SUBMIT_STEPS = [
 ];
 
 function SubmittingScreen({ step }: { step: number }) {
-  const pct = Math.round(((Math.min(step, SUBMIT_STEPS.length - 1) + 1) / SUBMIT_STEPS.length) * 100);
+  const pct = Math.round(
+    ((Math.min(step, SUBMIT_STEPS.length - 1) + 1) / SUBMIT_STEPS.length) * 100,
+  );
   return (
     <div className="border-t border-border bg-muted/30 px-4 py-16 sm:px-8">
       <div className="mx-auto max-w-sm animate-fade-up text-center">

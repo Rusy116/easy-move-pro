@@ -169,7 +169,10 @@ function AdminJobRecordPage() {
 
         <SectionShell title="Move details">
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <Fact label="Pickup address" value={str(quote.origin_address) ?? str(quote.origin_zip)} />
+            <Fact
+              label="Pickup address"
+              value={str(quote.origin_address) ?? str(quote.origin_zip)}
+            />
             <Fact
               label="Delivery address"
               value={str(quote.destination_address) ?? str(quote.destination_zip)}
@@ -181,9 +184,7 @@ function AdminJobRecordPage() {
             <Fact
               label="Volume"
               value={
-                num(quote.estimated_cubic_feet)
-                  ? `${num(quote.estimated_cubic_feet)} cu ft`
-                  : null
+                num(quote.estimated_cubic_feet) ? `${num(quote.estimated_cubic_feet)} cu ft` : null
               }
             />
             <Fact

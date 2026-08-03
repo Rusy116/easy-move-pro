@@ -26,11 +26,7 @@ export function useRealtimeTables(
 
     let channel = supabase.channel(`rt-${channelKey}`);
     for (const table of key.split(",")) {
-      channel = channel.on(
-        "postgres_changes",
-        { event: "*", schema: "public", table },
-        fire,
-      );
+      channel = channel.on("postgres_changes", { event: "*", schema: "public", table }, fire);
     }
     channel.subscribe();
 

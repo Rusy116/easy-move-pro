@@ -138,7 +138,6 @@ function DashboardPage() {
     Boolean(isAdmin),
   );
 
-
   const scoped = useMemo(
     () => (period === "all" ? quotes : quotes.filter((q) => inPeriod(q.created_at, period))),
     [quotes, period],
@@ -184,7 +183,6 @@ function DashboardPage() {
       conversion,
     };
   }, [scoped]);
-
 
   const quotesByDay = useMemo(() => {
     const days = 30;

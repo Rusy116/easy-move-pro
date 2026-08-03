@@ -253,9 +253,7 @@ export function UniversalTimeline({ quoteId }: { quoteId: string }) {
                     </span>
                   </div>
                 )}
-                {e.detail && (
-                  <div className="mt-0.5 text-xs text-muted-foreground">{e.detail}</div>
-                )}
+                {e.detail && <div className="mt-0.5 text-xs text-muted-foreground">{e.detail}</div>}
                 <div className="mt-0.5 text-xs text-muted-foreground">
                   {new Date(e.at).toLocaleString()}
                   {e.actor && ` · ${e.actor}`}

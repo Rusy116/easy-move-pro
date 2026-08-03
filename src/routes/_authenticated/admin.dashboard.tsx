@@ -95,27 +95,38 @@ function DashboardPage() {
     })();
   }, []);
 
+  const load = useCallback(async (showSpinner = false) => {
+    if (showSpinner) setLoading(true);
+    const [q, a, c] = await Promise.all([
+      supabase
+        .from("quotes")
+        .select(
+          "id,created_at,status,accepted_at,completed_at,final_price,final_accepted_price,estimated_low,estimated_high,origin_state,destination_state",
+        )
+        .order("created_at", { ascending: false })
+        .limit(5000),
+      supabase.from("quote_assignments").select("quote_id,company_id"),
+      supabase.from("moving_companies").select("id,name"),
+    ]);
+    setQuotes((q.data ?? []) as QuoteLite[]);
+    setAssignments((a.data ?? []) as Assignment[]);
+    setCompanies((c.data ?? []) as Company[]);
+    setLoading(false);
+  }, []);
+
   useEffect(() => {
     if (!isAdmin) return;
-    (async () => {
-      setLoading(true);
-      const [q, a, c] = await Promise.all([
-        supabase
-          .from("quotes")
-          .select(
-            "id,created_at,status,accepted_at,estimated_low,estimated_high,origin_state,destination_state",
-          )
-          .order("created_at", { ascending: false })
-          .limit(5000),
-        supabase.from("quote_assignments").select("quote_id,company_id"),
-        supabase.from("moving_companies").select("id,name"),
-      ]);
-      setQuotes((q.data ?? []) as QuoteLite[]);
-      setAssignments((a.data ?? []) as Assignment[]);
-      setCompanies((c.data ?? []) as Company[]);
-      setLoading(false);
-    })();
-  }, [isAdmin]);
+    void load(true);
+  }, [isAdmin, load]);
+
+  // Live counters: any change to a lead, assignment or company re-reads the KPIs.
+  useRealtimeTables(
+    "admin-dashboard",
+    ["quotes", "quote_assignments", "moving_companies"],
+    () => void load(),
+    Boolean(isAdmin),
+  );
+
 
   const scoped = useMemo(
     () => (period === "all" ? quotes : quotes.filter((q) => inPeriod(q.created_at, period))),

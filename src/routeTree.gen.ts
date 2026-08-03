@@ -93,6 +93,7 @@ import { Route as AuthenticatedCompanyAnalyticsRouteImport } from './routes/_aut
 import { Route as AuthenticatedBrokerPerformanceRouteImport } from './routes/_authenticated/broker.performance'
 import { Route as AuthenticatedBrokerLeadsRouteImport } from './routes/_authenticated/broker.leads'
 import { Route as AuthenticatedBrokerDashboardRouteImport } from './routes/_authenticated/broker.dashboard'
+import { Route as AuthenticatedBrokerCompletedRouteImport } from './routes/_authenticated/broker.completed'
 import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin.users'
 import { Route as AuthenticatedAdminSettingsRouteImport } from './routes/_authenticated/admin.settings'
 import { Route as AuthenticatedAdminReportsRouteImport } from './routes/_authenticated/admin.reports'
@@ -565,6 +566,12 @@ const AuthenticatedBrokerDashboardRoute =
     path: '/broker/dashboard',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedBrokerCompletedRoute =
+  AuthenticatedBrokerCompletedRouteImport.update({
+    id: '/broker/completed',
+    path: '/broker/completed',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAdminUsersRoute = AuthenticatedAdminUsersRouteImport.update({
   id: '/admin/users',
   path: '/admin/users',
@@ -703,6 +710,7 @@ export interface FileRoutesByFullPath {
   '/admin/reports': typeof AuthenticatedAdminReportsRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
+  '/broker/completed': typeof AuthenticatedBrokerCompletedRoute
   '/broker/dashboard': typeof AuthenticatedBrokerDashboardRoute
   '/broker/leads': typeof AuthenticatedBrokerLeadsRoute
   '/broker/performance': typeof AuthenticatedBrokerPerformanceRoute
@@ -801,6 +809,7 @@ export interface FileRoutesByTo {
   '/admin/reports': typeof AuthenticatedAdminReportsRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
+  '/broker/completed': typeof AuthenticatedBrokerCompletedRoute
   '/broker/dashboard': typeof AuthenticatedBrokerDashboardRoute
   '/broker/leads': typeof AuthenticatedBrokerLeadsRoute
   '/broker/performance': typeof AuthenticatedBrokerPerformanceRoute
@@ -902,6 +911,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/reports': typeof AuthenticatedAdminReportsRoute
   '/_authenticated/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
+  '/_authenticated/broker/completed': typeof AuthenticatedBrokerCompletedRoute
   '/_authenticated/broker/dashboard': typeof AuthenticatedBrokerDashboardRoute
   '/_authenticated/broker/leads': typeof AuthenticatedBrokerLeadsRoute
   '/_authenticated/broker/performance': typeof AuthenticatedBrokerPerformanceRoute
@@ -1003,6 +1013,7 @@ export interface FileRouteTypes {
     | '/admin/reports'
     | '/admin/settings'
     | '/admin/users'
+    | '/broker/completed'
     | '/broker/dashboard'
     | '/broker/leads'
     | '/broker/performance'
@@ -1101,6 +1112,7 @@ export interface FileRouteTypes {
     | '/admin/reports'
     | '/admin/settings'
     | '/admin/users'
+    | '/broker/completed'
     | '/broker/dashboard'
     | '/broker/leads'
     | '/broker/performance'
@@ -1201,6 +1213,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/reports'
     | '/_authenticated/admin/settings'
     | '/_authenticated/admin/users'
+    | '/_authenticated/broker/completed'
     | '/_authenticated/broker/dashboard'
     | '/_authenticated/broker/leads'
     | '/_authenticated/broker/performance'
@@ -1881,6 +1894,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedBrokerDashboardRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/broker/completed': {
+      id: '/_authenticated/broker/completed'
+      path: '/broker/completed'
+      fullPath: '/broker/completed'
+      preLoaderRoute: typeof AuthenticatedBrokerCompletedRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/admin/users': {
       id: '/_authenticated/admin/users'
       path: '/admin/users'
@@ -2059,6 +2079,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminReportsRoute: typeof AuthenticatedAdminReportsRoute
   AuthenticatedAdminSettingsRoute: typeof AuthenticatedAdminSettingsRoute
   AuthenticatedAdminUsersRoute: typeof AuthenticatedAdminUsersRoute
+  AuthenticatedBrokerCompletedRoute: typeof AuthenticatedBrokerCompletedRoute
   AuthenticatedBrokerDashboardRoute: typeof AuthenticatedBrokerDashboardRoute
   AuthenticatedBrokerLeadsRoute: typeof AuthenticatedBrokerLeadsRoute
   AuthenticatedBrokerPerformanceRoute: typeof AuthenticatedBrokerPerformanceRoute
@@ -2092,6 +2113,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminReportsRoute: AuthenticatedAdminReportsRoute,
   AuthenticatedAdminSettingsRoute: AuthenticatedAdminSettingsRoute,
   AuthenticatedAdminUsersRoute: AuthenticatedAdminUsersRoute,
+  AuthenticatedBrokerCompletedRoute: AuthenticatedBrokerCompletedRoute,
   AuthenticatedBrokerDashboardRoute: AuthenticatedBrokerDashboardRoute,
   AuthenticatedBrokerLeadsRoute: AuthenticatedBrokerLeadsRoute,
   AuthenticatedBrokerPerformanceRoute: AuthenticatedBrokerPerformanceRoute,

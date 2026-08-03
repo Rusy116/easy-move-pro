@@ -155,8 +155,8 @@ function InvoicesPage() {
     if (inv.customer_email) doc.text(inv.customer_email, 14, 58);
     if (inv.customer_phone) doc.text(inv.customer_phone, 14, 64);
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (doc as any).autoTable({
+    autoTable(doc, {
+
       startY: 74,
       head: [["Description", "Qty", "Unit price", "Amount"]],
       body: ((items as Item[] | null) ?? []).map((it) => [

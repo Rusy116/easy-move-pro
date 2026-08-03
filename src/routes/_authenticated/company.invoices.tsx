@@ -19,7 +19,8 @@ import {
 import { toast } from "sonner";
 import { Receipt, Plus, Download, Trash2, DollarSign } from "lucide-react";
 import jsPDF from "jspdf";
-import "jspdf-autotable";
+import autoTable from "jspdf-autotable";
+
 
 export const Route = createFileRoute("/_authenticated/company/invoices")({
   head: () => ({ meta: [{ title: "Invoices — Company Portal" }] }),

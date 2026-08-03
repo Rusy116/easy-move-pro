@@ -671,6 +671,7 @@ export function QuoteCalculator(_props: { compact?: boolean } = {}) {
           ? e.message
           : "We couldn't submit your quote. Please try again.";
       setSubmitError(message);
+      setSubmitStep(0);
       setStage("form");
       toast.error(message);
       setSaving(false);

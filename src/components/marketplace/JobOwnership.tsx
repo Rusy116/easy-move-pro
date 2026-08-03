@@ -149,10 +149,10 @@ export function ReleaseJobButton({
       <ReasonDialog
         open={open}
         busy={busy}
-        required={false}
+        required
         title="Release this job?"
-        description="The job returns to the open marketplace immediately and every eligible company can claim it again."
-        confirmLabel={busy ? "Releasing…" : "Release job"}
+        description="This cannot be undone. You lose ownership immediately, the job returns to the open marketplace and any eligible company can claim it before you do. A reason is required and is recorded in the lead timeline."
+        confirmLabel={busy ? "Releasing…" : "Yes, release job"}
         onCancel={() => setOpen(false)}
         onConfirm={(r) => void release(r)}
       />

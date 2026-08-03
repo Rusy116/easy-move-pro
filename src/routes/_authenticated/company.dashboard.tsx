@@ -30,16 +30,31 @@ export const Route = createFileRoute("/_authenticated/company/dashboard")({
 function DashboardPage() {
   const { loading, company, merged, reload } = useMoverPortal();
   const { available, myJobs } = useCompanyJobs(company?.id ?? null);
+  const [period, setPeriod] = useState<DashboardPeriod>("all");
+
+  // Jobs this company claimed inside the selected window.
+  const scopedJobs = useMemo(
+    () => myJobs.filter((j) => inPeriod(j.claimed_at ?? j.created_at, period)),
+    [myJobs, period],
+  );
 
   const jobStats = useMemo(() => {
     const closed: JobStatus[] = ["completed", "cancelled", "rejected", "expired"];
+    const completed = scopedJobs.filter((j) => j.job_status === "completed");
     return {
       available: available.length,
-      active: myJobs.filter((j) => !closed.includes(j.job_status as JobStatus)).length,
-      awaitingResponse: myJobs.filter((j) => j.job_status === "claimed").length,
-      booked: myJobs.filter((j) => j.job_status === "booked").length,
+      active: scopedJobs.filter((j) => !closed.includes(j.job_status as JobStatus)).length,
+      awaitingResponse: scopedJobs.filter((j) => j.job_status === "claimed").length,
+      booked: scopedJobs.filter((j) =>
+        ["booked", "accepted", "scheduled"].includes(j.job_status ?? ""),
+      ).length,
+      completed: completed.length,
+      completedRevenue: completed.reduce(
+        (s, j) => s + Number(j.final_accepted_price ?? j.final_price ?? 0),
+        0,
+      ),
     };
-  }, [available, myJobs]);
+  }, [available, scopedJobs]);
 
   const stats = useMemo(() => {
     const total = merged.length;

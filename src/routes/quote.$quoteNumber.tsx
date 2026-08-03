@@ -125,6 +125,8 @@ function QuoteConfirmationPage() {
   const [quote, setQuote] = useState<QuoteRow | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [downloading, setDownloading] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     let cancelled = false;

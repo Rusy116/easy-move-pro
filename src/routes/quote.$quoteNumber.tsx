@@ -199,18 +199,36 @@ function QuoteConfirmationPage() {
           </p>
         </div>
 
-        <div className="mt-8 grid gap-4 sm:grid-cols-2">
-          <div className="rounded-2xl border border-border bg-card p-5 text-center">
-            <div className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
-              Quote number
+        <div className="mt-8 overflow-hidden rounded-3xl border-2 border-primary/30 bg-primary/5">
+          <div className="px-6 py-7 text-center">
+            <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary">
+              Your quote number
             </div>
-            <div className="mt-1 font-mono text-lg font-semibold">{quote.quote_number}</div>
+            <div className="mt-2 font-mono text-3xl font-bold tracking-tight sm:text-5xl">
+              {quote.quote_number}
+            </div>
+            <div className="mt-3 flex justify-center">
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                className="rounded-full"
+                onClick={handleCopy}
+              >
+                {copied ? (
+                  <Check className="mr-2 h-3.5 w-3.5" />
+                ) : (
+                  <Copy className="mr-2 h-3.5 w-3.5" />
+                )}
+                {copied ? "Copied" : "Copy quote number"}
+              </Button>
+            </div>
           </div>
-          <div className="rounded-2xl border border-border bg-card p-5 text-center">
+          <div className="border-t border-primary/20 bg-card px-6 py-5 text-center">
             <div className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
               Estimated price range
             </div>
-            <div className="mt-1 text-lg font-semibold">
+            <div className="mt-1 text-2xl font-semibold">
               {money(quote.estimated_low)} – {money(quote.estimated_high)}
             </div>
           </div>

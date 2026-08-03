@@ -658,8 +658,10 @@ export function QuoteCalculator(_props: { compact?: boolean } = {}) {
       });
       // Generate the PDF before we navigate — if this fails we stay put and
       // surface the error instead of sending the customer anywhere.
+      setSubmitStep(3);
       const { generateEstimatePdf } = await import("@/lib/estimate-pdf");
       generateEstimatePdf(snapshot.pdfInput);
+      setSubmitStep(4);
       confirmation = { quoteNumber: saved.quoteNumber, token: saved.portalToken };
       resetCalculatorForm();
       toast.success("Your moving quote request was submitted.");

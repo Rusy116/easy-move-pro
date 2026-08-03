@@ -1,5 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
+import {
+  PeriodFilter,
+  PERIOD_LABEL,
+  inPeriod,
+  type DashboardPeriod,
+} from "@/components/shell/PeriodFilter";
 import {
   CompanyHeader,
   NoCompanyScreen,
@@ -30,16 +36,31 @@ export const Route = createFileRoute("/_authenticated/company/dashboard")({
 function DashboardPage() {
   const { loading, company, merged, reload } = useMoverPortal();
   const { available, myJobs } = useCompanyJobs(company?.id ?? null);
+  const [period, setPeriod] = useState<DashboardPeriod>("all");
+
+  // Jobs this company claimed inside the selected window.
+  const scopedJobs = useMemo(
+    () => myJobs.filter((j) => inPeriod(j.claimed_at ?? j.created_at, period)),
+    [myJobs, period],
+  );
 
   const jobStats = useMemo(() => {
     const closed: JobStatus[] = ["completed", "cancelled", "rejected", "expired"];
+    const completed = scopedJobs.filter((j) => j.job_status === "completed");
     return {
       available: available.length,
-      active: myJobs.filter((j) => !closed.includes(j.job_status as JobStatus)).length,
-      awaitingResponse: myJobs.filter((j) => j.job_status === "claimed").length,
-      booked: myJobs.filter((j) => j.job_status === "booked").length,
+      active: scopedJobs.filter((j) => !closed.includes(j.job_status as JobStatus)).length,
+      awaitingResponse: scopedJobs.filter((j) => j.job_status === "claimed").length,
+      booked: scopedJobs.filter((j) =>
+        ["booked", "accepted", "scheduled"].includes(j.job_status ?? ""),
+      ).length,
+      completed: completed.length,
+      completedRevenue: completed.reduce(
+        (s, j) => s + Number(j.final_accepted_price ?? j.final_price ?? 0),
+        0,
+      ),
     };
-  }, [available, myJobs]);
+  }, [available, scopedJobs]);
 
   const stats = useMemo(() => {
     const total = merged.length;
@@ -98,10 +119,18 @@ function DashboardPage() {
       <StatusBanner company={company} />
       <CompanyWarningsBanner companyId={company.id} />
 
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h2 className="font-serif text-lg font-medium tracking-tight">
+          Job activity · {PERIOD_LABEL[period]}
+        </h2>
+        <PeriodFilter value={period} onChange={setPeriod} />
+      </div>
+
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
         <StatCard
           label="Available jobs"
           value={jobStats.available}
+          hint="Live marketplace"
           icon={<Globe className="h-4 w-4" />}
         />
         <StatCard
@@ -112,12 +141,28 @@ function DashboardPage() {
         <StatCard
           label="Awaiting contact"
           value={jobStats.awaitingResponse}
+          tone="warning"
           icon={<Clock className="h-4 w-4" />}
         />
         <StatCard
           label="Booked"
           value={jobStats.booked}
           icon={<CheckCircle2 className="h-4 w-4" />}
+        />
+        <StatCard
+          label="Completed"
+          value={jobStats.completed}
+          tone="success"
+          icon={<CheckCircle2 className="h-4 w-4" />}
+        />
+        <StatCard
+          label="Completed revenue"
+          value={
+            jobStats.completedRevenue > 0 ? `$${jobStats.completedRevenue.toLocaleString()}` : "—"
+          }
+          hint="Final contracted price"
+          tone="success"
+          icon={<TrendingUp className="h-4 w-4" />}
         />
       </div>
       <div className="flex flex-wrap gap-2">

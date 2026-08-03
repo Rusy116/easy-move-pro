@@ -284,6 +284,7 @@ export function QuoteCalculator(_props: { compact?: boolean } = {}) {
   const [insuranceModal, setInsuranceModal] = useState<InsuranceTier | null>(null);
   const navigate = useNavigate();
   const [stage, setStage] = useState<"form" | "submitting" | "summary" | "done">("form");
+  const [submitStep, setSubmitStep] = useState(0);
   const [savedQuote, setSavedQuote] = useState<SavedQuoteSnapshot | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [summarySnapshot, setSummarySnapshot] = useState<{
@@ -580,13 +581,16 @@ export function QuoteCalculator(_props: { compact?: boolean } = {}) {
     setSubmitError(null);
     setSaving(true);
     setStage("submitting");
+    setSubmitStep(0);
     const start = Date.now();
     let confirmation: { quoteNumber: string; token: string };
     try {
       const saved = await saveQuote();
+      setSubmitStep(1);
       const inventoryArray = Object.entries(form.inventory)
         .filter(([, n]) => n > 0)
         .map(([id, quantity]) => ({ id, quantity }));
+      setSubmitStep(2);
       const portalUrl =
         typeof window !== "undefined"
           ? `${window.location.origin}/portal/${saved.quoteNumber}?token=${saved.portalToken}`
@@ -654,8 +658,10 @@ export function QuoteCalculator(_props: { compact?: boolean } = {}) {
       });
       // Generate the PDF before we navigate — if this fails we stay put and
       // surface the error instead of sending the customer anywhere.
+      setSubmitStep(3);
       const { generateEstimatePdf } = await import("@/lib/estimate-pdf");
       generateEstimatePdf(snapshot.pdfInput);
+      setSubmitStep(4);
       confirmation = { quoteNumber: saved.quoteNumber, token: saved.portalToken };
       resetCalculatorForm();
       toast.success("Your moving quote request was submitted.");
@@ -665,6 +671,7 @@ export function QuoteCalculator(_props: { compact?: boolean } = {}) {
           ? e.message
           : "We couldn't submit your quote. Please try again.";
       setSubmitError(message);
+      setSubmitStep(0);
       setStage("form");
       toast.error(message);
       setSaving(false);
@@ -684,7 +691,6 @@ export function QuoteCalculator(_props: { compact?: boolean } = {}) {
       search: { token: confirmation.token },
     });
   }
-
 
   // ---------- Render ---------------------------------------------------------
 
@@ -1262,7 +1268,7 @@ export function QuoteCalculator(_props: { compact?: boolean } = {}) {
       )}
 
       {/* Stage: submitting */}
-      {stage === "submitting" && <SubmittingScreen />}
+      {stage === "submitting" && <SubmittingScreen step={submitStep} />}
     </div>
   );
 }
@@ -2408,17 +2414,73 @@ function ReviewScreen({
   );
 }
 
-function SubmittingScreen() {
+const SUBMIT_STEPS = [
+  "Saving your move request",
+  "Recording your inventory",
+  "Building your estimate",
+  "Generating your PDF estimate",
+  "Opening your confirmation page",
+];
+
+function SubmittingScreen({ step }: { step: number }) {
+  const pct = Math.round(
+    ((Math.min(step, SUBMIT_STEPS.length - 1) + 1) / SUBMIT_STEPS.length) * 100,
+  );
   return (
-    <div className="border-t border-border bg-muted/30 px-4 py-20 sm:px-8">
-      <div className="mx-auto max-w-sm text-center animate-fade-up">
+    <div className="border-t border-border bg-muted/30 px-4 py-16 sm:px-8">
+      <div className="mx-auto max-w-sm animate-fade-up text-center">
         <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary">
           <Loader2 className="h-8 w-8 animate-spin" />
         </div>
         <h3 className="font-serif text-2xl font-medium tracking-tight">Preparing your quote…</h3>
         <p className="mt-2 text-sm text-muted-foreground">
-          Please wait while our logistics engine calculates your final estimate.
+          Please don’t close this page — we’re finalising your estimate.
         </p>
+
+        <div
+          className="mt-6 h-1.5 w-full overflow-hidden rounded-full bg-border"
+          role="progressbar"
+          aria-valuenow={pct}
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-label="Quote generation progress"
+        >
+          <div
+            className="h-full rounded-full bg-primary transition-all duration-500"
+            style={{ width: `${pct}%` }}
+          />
+        </div>
+
+        <ol className="mt-6 space-y-2.5 text-left">
+          {SUBMIT_STEPS.map((label, i) => {
+            const done = i < step;
+            const active = i === step;
+            return (
+              <li key={label} className="flex items-center gap-2.5">
+                <span className="shrink-0">
+                  {done ? (
+                    <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+                  ) : active ? (
+                    <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                  ) : (
+                    <span className="block h-4 w-4 rounded-full border border-border" />
+                  )}
+                </span>
+                <span
+                  className={
+                    active
+                      ? "text-sm font-medium"
+                      : done
+                        ? "text-sm text-foreground/70"
+                        : "text-sm text-muted-foreground"
+                  }
+                >
+                  {label}
+                </span>
+              </li>
+            );
+          })}
+        </ol>
       </div>
     </div>
   );

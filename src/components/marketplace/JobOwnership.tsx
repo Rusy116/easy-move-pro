@@ -120,11 +120,14 @@ export function ReleaseJobButton({
 
   async function release(reason: string) {
     setBusy(true);
-    const { error } = await supabase.rpc("fn_company_release_job" as never, {
-      _quote_id: quoteId,
-      _company_id: companyId,
-      _reason: reason || null,
-    } as never);
+    const { error } = await supabase.rpc(
+      "fn_company_release_job" as never,
+      {
+        _quote_id: quoteId,
+        _company_id: companyId,
+        _reason: reason || null,
+      } as never,
+    );
     setBusy(false);
     if (error) {
       toast.error(error.message || "Could not release this job");
@@ -149,10 +152,10 @@ export function ReleaseJobButton({
       <ReasonDialog
         open={open}
         busy={busy}
-        required={false}
+        required
         title="Release this job?"
-        description="The job returns to the open marketplace immediately and every eligible company can claim it again."
-        confirmLabel={busy ? "Releasing…" : "Release job"}
+        description="This cannot be undone. You lose ownership immediately, the job returns to the open marketplace and any eligible company can claim it before you do. A reason is required and is recorded in the lead timeline."
+        confirmLabel={busy ? "Releasing…" : "Yes, release job"}
         onCancel={() => setOpen(false)}
         onConfirm={(r) => void release(r)}
       />
@@ -175,11 +178,14 @@ export function RecallJobButton({
 
   async function recall(reason: string) {
     setBusy(true);
-    const { error } = await supabase.rpc("fn_staff_recall_job" as never, {
-      _quote_id: quoteId,
-      _reason: reason,
-      _warn: true,
-    } as never);
+    const { error } = await supabase.rpc(
+      "fn_staff_recall_job" as never,
+      {
+        _quote_id: quoteId,
+        _reason: reason,
+        _warn: true,
+      } as never,
+    );
     setBusy(false);
     if (error) {
       toast.error(error.message || "Could not recall this job");
@@ -251,7 +257,11 @@ export function JobOwnerPanel({ quoteId }: { quoteId: string }) {
 
     if (q?.assigned_company_id) {
       const [{ data: c }, { data: w }] = await Promise.all([
-        supabase.from("moving_companies").select("name").eq("id", q.assigned_company_id).maybeSingle(),
+        supabase
+          .from("moving_companies")
+          .select("name")
+          .eq("id", q.assigned_company_id)
+          .maybeSingle(),
         supabase
           .from("company_warnings" as never)
           .select("id, level, kind, reason, created_at")
@@ -292,7 +302,6 @@ export function JobOwnerPanel({ quoteId }: { quoteId: string }) {
       </div>
     );
   }
-
 
   return (
     <div className="rounded-xl border border-border bg-card/50 p-4">

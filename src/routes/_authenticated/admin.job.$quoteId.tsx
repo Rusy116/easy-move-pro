@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useBrokers } from "@/components/admin/BrokerSelect";
 import { PipelineStrip } from "@/components/crm/PipelineStrip";
+import { UniversalTimeline } from "@/components/crm/UniversalTimeline";
 import {
   money,
   pct,
@@ -59,9 +60,6 @@ function AdminJobRecordPage() {
   const [quote, setQuote] = useState<Row | null>(null);
   const [company, setCompany] = useState<{ name: string; email: string | null } | null>(null);
   const [invoice, setInvoice] = useState<CommissionInvoice | null>(null);
-  const [events, setEvents] = useState<
-    Array<{ id: string; event_type: string; created_at: string; actor_role: string | null }>
-  >([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -83,13 +81,6 @@ function AdminJobRecordPage() {
         .order("created_at", { ascending: false })
         .limit(1);
       setInvoice(((inv ?? [])[0] ?? null) as unknown as CommissionInvoice | null);
-      const { data: ev } = await supabase
-        .from("lead_events")
-        .select("id,event_type,created_at,actor_role")
-        .eq("quote_id", quoteId)
-        .order("created_at", { ascending: false })
-        .limit(200);
-      setEvents((ev ?? []) as typeof events);
       setLoading(false);
     })();
   }, [quoteId]);
@@ -168,7 +159,10 @@ function AdminJobRecordPage() {
 
         <SectionShell title="Move details">
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <Fact label="Pickup address" value={str(quote.origin_address) ?? str(quote.origin_zip)} />
+            <Fact
+              label="Pickup address"
+              value={str(quote.origin_address) ?? str(quote.origin_zip)}
+            />
             <Fact
               label="Delivery address"
               value={str(quote.destination_address) ?? str(quote.destination_zip)}
@@ -180,9 +174,7 @@ function AdminJobRecordPage() {
             <Fact
               label="Volume"
               value={
-                num(quote.estimated_cubic_feet)
-                  ? `${num(quote.estimated_cubic_feet)} cu ft`
-                  : null
+                num(quote.estimated_cubic_feet) ? `${num(quote.estimated_cubic_feet)} cu ft` : null
               }
             />
             <Fact
@@ -259,20 +251,7 @@ function AdminJobRecordPage() {
         </SectionShell>
 
         <SectionShell title="Audit timeline">
-          {events.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No audit entries yet.</p>
-          ) : (
-            <ul className="space-y-2">
-              {events.map((e) => (
-                <li key={e.id} className="flex items-center justify-between gap-3 text-sm">
-                  <span className="capitalize">{e.event_type.replace(/_/g, " ")}</span>
-                  <span className="text-xs text-muted-foreground">
-                    {e.actor_role ?? "system"} · {new Date(e.created_at).toLocaleString()}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          )}
+          <UniversalTimeline quoteId={quoteId} />
         </SectionShell>
       </div>
     </AdminShell>

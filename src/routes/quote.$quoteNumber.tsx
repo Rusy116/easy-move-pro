@@ -1,6 +1,6 @@
 import { createFileRoute, useSearch, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { CheckCircle2, Download, FileText, Loader2, Pencil } from "lucide-react";
+import { Check, CheckCircle2, Copy, Download, FileText, Loader2, Pencil } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { SiteLayout } from "@/components/site/SiteLayout";
@@ -125,6 +125,8 @@ function QuoteConfirmationPage() {
   const [quote, setQuote] = useState<QuoteRow | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [downloading, setDownloading] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -153,9 +155,25 @@ function QuoteConfirmationPage() {
   }, [quoteNumber, token]);
 
   async function handleDownload() {
+    if (!quote || downloading) return;
+    setDownloading(true);
+    try {
+      const { downloadEstimatePdf } = await import("@/lib/estimate-pdf");
+      downloadEstimatePdf(toPdfInput(quote));
+    } finally {
+      setDownloading(false);
+    }
+  }
+
+  async function handleCopy() {
     if (!quote) return;
-    const { downloadEstimatePdf } = await import("@/lib/estimate-pdf");
-    downloadEstimatePdf(toPdfInput(quote));
+    try {
+      await navigator.clipboard.writeText(quote.quote_number);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 2000);
+    } catch {
+      /* clipboard unavailable */
+    }
   }
 
   if (loading) {
@@ -199,18 +217,36 @@ function QuoteConfirmationPage() {
           </p>
         </div>
 
-        <div className="mt-8 grid gap-4 sm:grid-cols-2">
-          <div className="rounded-2xl border border-border bg-card p-5 text-center">
-            <div className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
-              Quote number
+        <div className="mt-8 overflow-hidden rounded-3xl border-2 border-primary/30 bg-primary/5">
+          <div className="px-6 py-7 text-center">
+            <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary">
+              Your quote number
             </div>
-            <div className="mt-1 font-mono text-lg font-semibold">{quote.quote_number}</div>
+            <div className="mt-2 font-mono text-3xl font-bold tracking-tight sm:text-5xl">
+              {quote.quote_number}
+            </div>
+            <div className="mt-3 flex justify-center">
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                className="rounded-full"
+                onClick={handleCopy}
+              >
+                {copied ? (
+                  <Check className="mr-2 h-3.5 w-3.5" />
+                ) : (
+                  <Copy className="mr-2 h-3.5 w-3.5" />
+                )}
+                {copied ? "Copied" : "Copy quote number"}
+              </Button>
+            </div>
           </div>
-          <div className="rounded-2xl border border-border bg-card p-5 text-center">
+          <div className="border-t border-primary/20 bg-card px-6 py-5 text-center">
             <div className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
               Estimated price range
             </div>
-            <div className="mt-1 text-lg font-semibold">
+            <div className="mt-1 text-2xl font-semibold">
               {money(quote.estimated_low)} – {money(quote.estimated_high)}
             </div>
           </div>
@@ -223,10 +259,7 @@ function QuoteConfirmationPage() {
           <dl className="mt-4 grid gap-3 sm:grid-cols-2">
             {[
               ["From", place(quote.origin_city, quote.origin_state, quote.origin_zip)],
-              [
-                "To",
-                place(quote.destination_city, quote.destination_state, quote.destination_zip),
-              ],
+              ["To", place(quote.destination_city, quote.destination_state, quote.destination_zip)],
               [
                 "Move date",
                 quote.move_date ? new Date(quote.move_date).toLocaleDateString() : "Flexible",
@@ -237,10 +270,7 @@ function QuoteConfirmationPage() {
               ],
               ["Crew", quote.num_movers ? `${quote.num_movers} movers` : "—"],
               ["Truck", quote.truck_size || "—"],
-              [
-                "Volume",
-                quote.estimated_cubic_feet ? `${quote.estimated_cubic_feet} cu ft` : "—",
-              ],
+              ["Volume", quote.estimated_cubic_feet ? `${quote.estimated_cubic_feet} cu ft` : "—"],
               ["Weight", quote.estimated_weight_lbs ? `${quote.estimated_weight_lbs} lbs` : "—"],
             ].map(([label, value]) => (
               <div key={label} className="flex justify-between gap-4 text-sm">
@@ -270,9 +300,18 @@ function QuoteConfirmationPage() {
         </div>
 
         <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
-          <Button size="lg" className="rounded-full" onClick={handleDownload}>
-            <Download className="mr-2 h-4 w-4" />
-            Download PDF
+          <Button
+            size="lg"
+            className="rounded-full"
+            onClick={handleDownload}
+            disabled={downloading}
+          >
+            {downloading ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <Download className="mr-2 h-4 w-4" />
+            )}
+            {downloading ? "Preparing PDF…" : "Download PDF"}
           </Button>
           <Button asChild size="lg" variant="outline" className="rounded-full">
             <a href={`/portal/${quote.quote_number}?token=${quote.portal_token}`}>

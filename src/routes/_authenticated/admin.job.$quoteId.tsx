@@ -259,20 +259,7 @@ function AdminJobRecordPage() {
         </SectionShell>
 
         <SectionShell title="Audit timeline">
-          {events.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No audit entries yet.</p>
-          ) : (
-            <ul className="space-y-2">
-              {events.map((e) => (
-                <li key={e.id} className="flex items-center justify-between gap-3 text-sm">
-                  <span className="capitalize">{e.event_type.replace(/_/g, " ")}</span>
-                  <span className="text-xs text-muted-foreground">
-                    {e.actor_role ?? "system"} · {new Date(e.created_at).toLocaleString()}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          )}
+          <UniversalTimeline quoteId={quoteId} />
         </SectionShell>
       </div>
     </AdminShell>

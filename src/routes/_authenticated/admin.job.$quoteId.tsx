@@ -60,9 +60,6 @@ function AdminJobRecordPage() {
   const [quote, setQuote] = useState<Row | null>(null);
   const [company, setCompany] = useState<{ name: string; email: string | null } | null>(null);
   const [invoice, setInvoice] = useState<CommissionInvoice | null>(null);
-  const [events, setEvents] = useState<
-    Array<{ id: string; event_type: string; created_at: string; actor_role: string | null }>
-  >([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -84,13 +81,6 @@ function AdminJobRecordPage() {
         .order("created_at", { ascending: false })
         .limit(1);
       setInvoice(((inv ?? [])[0] ?? null) as unknown as CommissionInvoice | null);
-      const { data: ev } = await supabase
-        .from("lead_events")
-        .select("id,event_type,created_at,actor_role")
-        .eq("quote_id", quoteId)
-        .order("created_at", { ascending: false })
-        .limit(200);
-      setEvents((ev ?? []) as typeof events);
       setLoading(false);
     })();
   }, [quoteId]);

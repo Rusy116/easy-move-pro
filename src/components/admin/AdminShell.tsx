@@ -21,6 +21,8 @@ const NAV = [
   { to: "/admin/brokers", label: "Brokers", icon: <Briefcase className="h-4 w-4" /> },
   { to: "/admin/customers", label: "Customers", icon: <Users className="h-4 w-4" /> },
   { to: "/admin/finance", label: "Finance", icon: <Banknote className="h-4 w-4" /> },
+  { to: "/admin/invoices", label: "Invoices", icon: <FileText className="h-4 w-4" /> },
+
   { to: "/admin/reports", label: "Reports", icon: <LineChart className="h-4 w-4" /> },
   { to: "/admin/settings", label: "Settings", icon: <Settings className="h-4 w-4" /> },
 ];

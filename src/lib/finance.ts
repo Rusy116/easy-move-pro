@@ -114,13 +114,19 @@ export const money = (n: number | null | undefined, currency = "USD") =>
 
 export const pct = (rate: number | null | undefined) => `${Math.round(Number(rate ?? 0) * 100)}%`;
 
-export const STATUS_STYLES: Record<CommissionStatus, string> = {
+export const STATUS_STYLES: Record<string, string> = {
   pending: "bg-muted text-muted-foreground border-border",
+  draft: "bg-muted text-muted-foreground border-border",
+  sent: "bg-blue-50 text-blue-800 border-blue-300",
+  viewed: "bg-indigo-50 text-indigo-800 border-indigo-300",
   invoiced: "bg-sky-50 text-sky-800 border-sky-300",
+  partial: "bg-amber-50 text-amber-800 border-amber-300",
   paid: "bg-emerald-50 text-emerald-800 border-emerald-300",
   overdue: "bg-rose-50 text-rose-800 border-rose-300",
+  void: "bg-muted text-muted-foreground border-border line-through",
   cancelled: "bg-muted text-muted-foreground border-border line-through",
 };
+
 
 /* ================================================================== */
 /*                              Filters                                */

@@ -211,7 +211,7 @@ function DashboardPage() {
 
   const byState = useMemo(() => {
     const m = new Map<string, number>();
-    for (const q of quotes) {
+    for (const q of scoped) {
       const s = (q.origin_state || "—").toUpperCase();
       m.set(s, (m.get(s) ?? 0) + 1);
     }
@@ -219,7 +219,7 @@ function DashboardPage() {
       .map(([state, count]) => ({ state, count }))
       .sort((a, b) => b.count - a.count)
       .slice(0, 10);
-  }, [quotes]);
+  }, [scoped]);
 
   const revenueByMonth = useMemo(() => {
     const months: { key: string; label: string; revenue: number }[] = [];

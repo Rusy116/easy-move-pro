@@ -234,11 +234,14 @@ function DashboardPage() {
     }
     const idx = new Map(months.map((m, i) => [m.key, i]));
     for (const q of quotes) {
-      if (q.status !== "won") continue;
-      const key = q.created_at.slice(0, 7);
+      const isWon = q.status === "won" || Boolean(q.completed_at);
+      if (!isWon) continue;
+      const key = (q.completed_at ?? q.created_at).slice(0, 7);
       const i = idx.get(key);
       if (i !== undefined) {
-        months[i].revenue += (Number(q.estimated_low) + Number(q.estimated_high)) / 2;
+        const firm = Number(q.final_accepted_price ?? q.final_price ?? 0);
+        months[i].revenue +=
+          firm > 0 ? firm : (Number(q.estimated_low) + Number(q.estimated_high)) / 2;
       }
     }
     return months;

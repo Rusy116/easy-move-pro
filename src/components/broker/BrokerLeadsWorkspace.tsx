@@ -366,7 +366,11 @@ export function BrokerLeadsWorkspace() {
                         </span>
                       )}
                     </div>
+                    <div className="mt-3">
+                      <PipelineStrip quote={l as never} />
+                    </div>
                   </div>
+
                   <div className="text-right">
                     <div className="font-serif text-xl font-medium tabular-nums">
                       ${Number(l.estimated_low).toLocaleString()} – $

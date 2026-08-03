@@ -46,7 +46,7 @@ import { AssignCompanies } from "./AssignCompanies";
 import { BrokerSelect, assignBroker } from "./BrokerSelect";
 import { SlaCountdown } from "./SlaCountdown";
 import { LeadPhaseBadge } from "./LeadPhaseBadge";
-import { LeadEventsTimeline } from "./LeadEventsTimeline";
+import { UniversalTimeline } from "@/components/crm/UniversalTimeline";
 import { pauseSla, resumeSla, extendSla, closeLead } from "@/lib/leads.functions";
 import { LeadWorkflowActions } from "./LeadWorkflow";
 import type { LeadQuote } from "./lead/shared";
@@ -768,7 +768,7 @@ export function LeadDetailPanel({
               <div className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                 Lead events
               </div>
-              <LeadEventsTimeline quoteId={q.id} />
+              <UniversalTimeline quoteId={q.id} />
             </div>
             {history.length > 0 && (
               <div>

@@ -92,6 +92,7 @@ function DashboardPage() {
   const [quotes, setQuotes] = useState<QuoteLite[]>([]);
   const [assignments, setAssignments] = useState<Assignment[]>([]);
   const [companies, setCompanies] = useState<Company[]>([]);
+  const [period, setPeriod] = useState<DashboardPeriod>("all");
 
   useEffect(() => {
     (async () => {

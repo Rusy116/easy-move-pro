@@ -1263,7 +1263,7 @@ export function QuoteCalculator(_props: { compact?: boolean } = {}) {
       )}
 
       {/* Stage: submitting */}
-      {stage === "submitting" && <SubmittingScreen />}
+      {stage === "submitting" && <SubmittingScreen step={submitStep} />}
     </div>
   );
 }

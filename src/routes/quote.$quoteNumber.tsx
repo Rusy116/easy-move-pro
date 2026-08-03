@@ -259,10 +259,7 @@ function QuoteConfirmationPage() {
           <dl className="mt-4 grid gap-3 sm:grid-cols-2">
             {[
               ["From", place(quote.origin_city, quote.origin_state, quote.origin_zip)],
-              [
-                "To",
-                place(quote.destination_city, quote.destination_state, quote.destination_zip),
-              ],
+              ["To", place(quote.destination_city, quote.destination_state, quote.destination_zip)],
               [
                 "Move date",
                 quote.move_date ? new Date(quote.move_date).toLocaleDateString() : "Flexible",
@@ -273,10 +270,7 @@ function QuoteConfirmationPage() {
               ],
               ["Crew", quote.num_movers ? `${quote.num_movers} movers` : "—"],
               ["Truck", quote.truck_size || "—"],
-              [
-                "Volume",
-                quote.estimated_cubic_feet ? `${quote.estimated_cubic_feet} cu ft` : "—",
-              ],
+              ["Volume", quote.estimated_cubic_feet ? `${quote.estimated_cubic_feet} cu ft` : "—"],
               ["Weight", quote.estimated_weight_lbs ? `${quote.estimated_weight_lbs} lbs` : "—"],
             ].map(([label, value]) => (
               <div key={label} className="flex justify-between gap-4 text-sm">

@@ -229,7 +229,10 @@ export type Database = {
       commission_invoices: {
         Row: {
           amount: number
+          amount_paid: number
+          broker_amount: number
           broker_id: string | null
+          broker_rate: number
           cancelled_at: string | null
           commission_id: string
           company_id: string
@@ -245,12 +248,18 @@ export type Database = {
           paid_at: string | null
           quote_id: string
           rate: number
+          sent_at: string | null
           status: string
           updated_at: string
+          viewed_at: string | null
+          voided_at: string | null
         }
         Insert: {
           amount: number
+          amount_paid?: number
+          broker_amount?: number
           broker_id?: string | null
+          broker_rate?: number
           cancelled_at?: string | null
           commission_id: string
           company_id: string
@@ -266,12 +275,18 @@ export type Database = {
           paid_at?: string | null
           quote_id: string
           rate: number
+          sent_at?: string | null
           status?: string
           updated_at?: string
+          viewed_at?: string | null
+          voided_at?: string | null
         }
         Update: {
           amount?: number
+          amount_paid?: number
+          broker_amount?: number
           broker_id?: string | null
+          broker_rate?: number
           cancelled_at?: string | null
           commission_id?: string
           company_id?: string
@@ -287,8 +302,11 @@ export type Database = {
           paid_at?: string | null
           quote_id?: string
           rate?: number
+          sent_at?: string | null
           status?: string
           updated_at?: string
+          viewed_at?: string | null
+          voided_at?: string | null
         }
         Relationships: [
           {
@@ -317,6 +335,62 @@ export type Database = {
             columns: ["quote_id"]
             isOneToOne: false
             referencedRelation: "quotes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      commission_payments: {
+        Row: {
+          amount: number
+          commission_id: string | null
+          company_id: string | null
+          created_at: string
+          currency: string
+          id: string
+          invoice_id: string
+          method: string
+          note: string | null
+          paid_at: string
+          recorded_by: string | null
+          reference: string | null
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          commission_id?: string | null
+          company_id?: string | null
+          created_at?: string
+          currency?: string
+          id?: string
+          invoice_id: string
+          method?: string
+          note?: string | null
+          paid_at?: string
+          recorded_by?: string | null
+          reference?: string | null
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          commission_id?: string | null
+          company_id?: string | null
+          created_at?: string
+          currency?: string
+          id?: string
+          invoice_id?: string
+          method?: string
+          note?: string | null
+          paid_at?: string
+          recorded_by?: string | null
+          reference?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "commission_payments_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "commission_invoices"
             referencedColumns: ["id"]
           },
         ]
@@ -438,7 +512,9 @@ export type Database = {
         Row: {
           amount: number
           base_price: number
+          broker_amount: number
           broker_id: string | null
+          broker_rate: number
           cancelled_at: string | null
           company_id: string
           created_at: string
@@ -457,7 +533,9 @@ export type Database = {
         Insert: {
           amount: number
           base_price: number
+          broker_amount?: number
           broker_id?: string | null
+          broker_rate?: number
           cancelled_at?: string | null
           company_id: string
           created_at?: string
@@ -476,7 +554,9 @@ export type Database = {
         Update: {
           amount?: number
           base_price?: number
+          broker_amount?: number
           broker_id?: string | null
+          broker_rate?: number
           cancelled_at?: string | null
           company_id?: string
           created_at?: string
@@ -2849,6 +2929,7 @@ export type Database = {
         Row: {
           accepted_at: string | null
           accepted_estimate_id: string | null
+          additional_charges: number
           ai_summary: Json | null
           ai_summary_at: string | null
           appliances: boolean
@@ -2887,6 +2968,7 @@ export type Database = {
           delivery_notes: string | null
           delivery_parking_distance: string | null
           delivery_property_type: string | null
+          deposit_amount: number
           destination_address: string | null
           destination_city: string | null
           destination_elevator: boolean
@@ -2983,6 +3065,7 @@ export type Database = {
         Insert: {
           accepted_at?: string | null
           accepted_estimate_id?: string | null
+          additional_charges?: number
           ai_summary?: Json | null
           ai_summary_at?: string | null
           appliances?: boolean
@@ -3021,6 +3104,7 @@ export type Database = {
           delivery_notes?: string | null
           delivery_parking_distance?: string | null
           delivery_property_type?: string | null
+          deposit_amount?: number
           destination_address?: string | null
           destination_city?: string | null
           destination_elevator?: boolean
@@ -3117,6 +3201,7 @@ export type Database = {
         Update: {
           accepted_at?: string | null
           accepted_estimate_id?: string | null
+          additional_charges?: number
           ai_summary?: Json | null
           ai_summary_at?: string | null
           appliances?: boolean
@@ -3155,6 +3240,7 @@ export type Database = {
           delivery_notes?: string | null
           delivery_parking_distance?: string | null
           delivery_property_type?: string | null
+          deposit_amount?: number
           destination_address?: string | null
           destination_city?: string | null
           destination_elevator?: boolean
@@ -3532,6 +3618,16 @@ export type Database = {
         Args: { _company_id: string; _quote_id: string }
         Returns: undefined
       }
+      fn_admin_invoice_action: {
+        Args: {
+          _action: string
+          _amount?: number
+          _invoice_id: string
+          _note?: string
+          _reference?: string
+        }
+        Returns: Json
+      }
       fn_admin_redistribute_lead: {
         Args: { _quote_id: string }
         Returns: number
@@ -3735,6 +3831,7 @@ export type Database = {
         Returns: {
           accepted_at: string | null
           accepted_estimate_id: string | null
+          additional_charges: number
           ai_summary: Json | null
           ai_summary_at: string | null
           appliances: boolean
@@ -3773,6 +3870,7 @@ export type Database = {
           delivery_notes: string | null
           delivery_parking_distance: string | null
           delivery_property_type: string | null
+          deposit_amount: number
           destination_address: string | null
           destination_city: string | null
           destination_elevator: boolean
@@ -4053,7 +4151,10 @@ export type Database = {
         Args: { _commission_id: string }
         Returns: {
           amount: number
+          amount_paid: number
+          broker_amount: number
           broker_id: string | null
+          broker_rate: number
           cancelled_at: string | null
           commission_id: string
           company_id: string
@@ -4069,8 +4170,11 @@ export type Database = {
           paid_at: string | null
           quote_id: string
           rate: number
+          sent_at: string | null
           status: string
           updated_at: string
+          viewed_at: string | null
+          voided_at: string | null
         }
         SetofOptions: {
           from: "*"
@@ -4301,6 +4405,7 @@ export type Database = {
         Returns: {
           accepted_at: string | null
           accepted_estimate_id: string | null
+          additional_charges: number
           ai_summary: Json | null
           ai_summary_at: string | null
           appliances: boolean
@@ -4339,6 +4444,7 @@ export type Database = {
           delivery_notes: string | null
           delivery_parking_distance: string | null
           delivery_property_type: string | null
+          deposit_amount: number
           destination_address: string | null
           destination_city: string | null
           destination_elevator: boolean

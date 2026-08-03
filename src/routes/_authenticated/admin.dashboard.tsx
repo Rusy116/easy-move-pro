@@ -1,7 +1,14 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { AdminShell } from "@/components/admin/AdminShell";
 import { PageHeader, StatCard, SkeletonRows } from "@/components/shell/Chrome";
+import {
+  PeriodFilter,
+  PERIOD_LABEL,
+  inPeriod,
+  type DashboardPeriod,
+} from "@/components/shell/PeriodFilter";
+import { useRealtimeTables } from "@/lib/use-realtime";
 import { supabase } from "@/integrations/supabase/client";
 import {
   BarChart3,

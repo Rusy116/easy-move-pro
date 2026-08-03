@@ -297,17 +297,21 @@ function DashboardPage() {
               {/* KPI row */}
               <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
                 <StatCard
-                  label="Total quotes"
+                  label="Quotes"
                   value={stats.total.toLocaleString()}
+                  hint={PERIOD_LABEL[period]}
                   icon={<Inbox className="h-4 w-4" />}
                 />
                 <StatCard
                   label="Revenue (won)"
                   value={
-                    stats.counts.won === 0
+                    stats.revHigh === 0
                       ? "—"
-                      : `$${Math.round(stats.revLow / 1000)}k–$${Math.round(stats.revHigh / 1000)}k`
+                      : stats.revLow === stats.revHigh
+                        ? `$${Math.round(stats.revLow).toLocaleString()}`
+                        : `$${Math.round(stats.revLow / 1000)}k–$${Math.round(stats.revHigh / 1000)}k`
                   }
+                  hint="Contracted price when known, otherwise estimate range"
                   tone="success"
                   icon={<DollarSign className="h-4 w-4" />}
                 />

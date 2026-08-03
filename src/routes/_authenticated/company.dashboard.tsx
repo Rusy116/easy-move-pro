@@ -119,10 +119,18 @@ function DashboardPage() {
       <StatusBanner company={company} />
       <CompanyWarningsBanner companyId={company.id} />
 
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h2 className="font-serif text-lg font-medium tracking-tight">
+          Job activity · {PERIOD_LABEL[period]}
+        </h2>
+        <PeriodFilter value={period} onChange={setPeriod} />
+      </div>
+
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
         <StatCard
           label="Available jobs"
           value={jobStats.available}
+          hint="Live marketplace"
           icon={<Globe className="h-4 w-4" />}
         />
         <StatCard
@@ -133,12 +141,26 @@ function DashboardPage() {
         <StatCard
           label="Awaiting contact"
           value={jobStats.awaitingResponse}
+          tone="warning"
           icon={<Clock className="h-4 w-4" />}
         />
         <StatCard
           label="Booked"
           value={jobStats.booked}
           icon={<CheckCircle2 className="h-4 w-4" />}
+        />
+        <StatCard
+          label="Completed"
+          value={jobStats.completed}
+          tone="success"
+          icon={<CheckCircle2 className="h-4 w-4" />}
+        />
+        <StatCard
+          label="Completed revenue"
+          value={jobStats.completedRevenue > 0 ? `$${jobStats.completedRevenue.toLocaleString()}` : "—"}
+          hint="Final contracted price"
+          tone="success"
+          icon={<TrendingUp className="h-4 w-4" />}
         />
       </div>
       <div className="flex flex-wrap gap-2">

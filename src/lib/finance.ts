@@ -89,7 +89,15 @@ export type CommissionInvoice = {
   cancelled_at: string | null;
   notes: string | null;
   created_at: string;
+  /** Broker share of the platform commission. */
+  broker_rate?: number;
+  broker_amount?: number;
+  amount_paid?: number;
+  sent_at?: string | null;
+  viewed_at?: string | null;
+  voided_at?: string | null;
 };
+
 
 export type FinanceTotals = {
   total: number;

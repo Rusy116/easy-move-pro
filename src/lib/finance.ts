@@ -505,3 +505,155 @@ export const PAYMENT_PROVIDERS: PaymentProvider[] = [manualProvider, stripeProvi
 export function activePaymentProvider(): PaymentProvider {
   return PAYMENT_PROVIDERS.find((p) => p.enabled) ?? manualProvider;
 }
+
+/* ================================================================== */
+/*                    Commission invoice center                        */
+/*  Easy Move Pro issues exactly ONE invoice per completed move:       */
+/*  Easy Move Pro -> Moving Company, for the platform commission.      */
+/*  Customer <-> Moving Company invoices are never stored here.        */
+/* ================================================================== */
+
+export type InvoiceAction = "send" | "view" | "paid" | "partial" | "overdue" | "void";
+
+export type CommissionPayment = {
+  id: string;
+  invoice_id: string;
+  commission_id: string | null;
+  company_id: string | null;
+  amount: number;
+  currency: string;
+  method: string;
+  reference: string | null;
+  note: string | null;
+  paid_at: string;
+  created_at: string;
+};
+
+export const INVOICE_STATUS_LABEL: Record<string, string> = {
+  draft: "Draft",
+  sent: "Sent",
+  viewed: "Viewed",
+  invoiced: "Sent",
+  partial: "Partially paid",
+  paid: "Paid",
+  overdue: "Overdue",
+  void: "Void",
+  cancelled: "Void",
+};
+
+/** Admin-only invoice state change / payment recording. */
+export async function adminInvoiceAction(
+  invoiceId: string,
+  action: InvoiceAction,
+  opts: { amount?: number; note?: string; reference?: string } = {},
+) {
+  return supabase.rpc("fn_admin_invoice_action", {
+    _invoice_id: invoiceId,
+    _action: action,
+    _amount: opts.amount ?? null,
+    _note: opts.note ?? null,
+    _reference: opts.reference ?? null,
+  } as never);
+}
+
+/** Payment history for one invoice (or every invoice when id is null). */
+export function useCommissionPayments(invoiceId: string | null) {
+  const [payments, setPayments] = useState<CommissionPayment[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const reload = useCallback(async () => {
+    let q = supabase
+      .from("commission_payments")
+      .select("*")
+      .order("paid_at", { ascending: false })
+      .limit(500);
+    if (invoiceId) q = q.eq("invoice_id", invoiceId);
+    const { data } = await q;
+    setPayments((data ?? []) as unknown as CommissionPayment[]);
+    setLoading(false);
+  }, [invoiceId]);
+
+  useEffect(() => {
+    void reload();
+  }, [reload]);
+
+  return { payments, loadingPayments: loading, reloadPayments: reload };
+}
+
+export function balanceOf(inv: CommissionInvoice) {
+  return Math.max(Number(inv.amount ?? 0) - Number(inv.amount_paid ?? 0), 0);
+}
+
+/** Commission invoice PDF (platform -> moving company). */
+export async function downloadCommissionInvoicePdf(
+  inv: CommissionInvoice,
+  ctx: { companyName: string; quoteNumber?: string | null; moveDate?: string | null },
+) {
+  const { jsPDF } = await import("jspdf");
+  const doc = new jsPDF();
+  const L = 16;
+  doc.setFontSize(20);
+  doc.text("EASY MOVE PRO", L, 22);
+  doc.setFontSize(10);
+  doc.text("Moving marketplace & broker platform", L, 28);
+  doc.setFontSize(16);
+  doc.text("COMMISSION INVOICE", L, 44);
+  doc.setFontSize(10);
+  doc.text(`Invoice #: ${inv.number}`, 140, 22);
+  doc.text(`Issued: ${inv.issue_date}`, 140, 28);
+  doc.text(`Due: ${inv.due_date}`, 140, 34);
+  doc.text(`Status: ${INVOICE_STATUS_LABEL[inv.status] ?? inv.status}`, 140, 40);
+
+  doc.text("Bill to:", L, 58);
+  doc.text(ctx.companyName, L, 64);
+
+  let y = 82;
+  const line = (k: string, v: string) => {
+    doc.text(k, L, y);
+    doc.text(v, 120, y);
+    y += 7;
+  };
+  line("Job / quote", ctx.quoteNumber ?? "—");
+  line("Move date", ctx.moveDate ?? "—");
+  line("Final move price", money(inv.final_price, inv.currency));
+  line("Platform commission rate", pct(inv.rate));
+  line("Commission due", money(inv.amount, inv.currency));
+  line("Amount paid", money(inv.amount_paid ?? 0, inv.currency));
+  line("Balance", money(balanceOf(inv), inv.currency));
+
+  doc.setFontSize(9);
+  doc.text(
+    "Easy Move Pro is a broker platform, not a moving company. This invoice covers the platform",
+    L,
+    y + 10,
+  );
+  doc.text(
+    "commission only. The moving service invoice is issued directly by the moving company to the customer.",
+    L,
+    y + 15,
+  );
+  doc.save(`${inv.number}.pdf`);
+}
+
+/** Email the invoice to the moving company (mail client hand-off). */
+export function emailCommissionInvoice(
+  inv: CommissionInvoice,
+  ctx: { companyName: string; email?: string | null },
+) {
+  if (typeof window === "undefined") return;
+  const subject = `Easy Move Pro commission invoice ${inv.number}`;
+  const body = [
+    `Hello ${ctx.companyName},`,
+    "",
+    `Commission invoice ${inv.number} is ${INVOICE_STATUS_LABEL[inv.status] ?? inv.status}.`,
+    `Move price: ${money(inv.final_price, inv.currency)}`,
+    `Platform commission (${pct(inv.rate)}): ${money(inv.amount, inv.currency)}`,
+    `Balance due: ${money(balanceOf(inv), inv.currency)}`,
+    `Due date: ${inv.due_date}`,
+    "",
+    "Easy Move Pro",
+  ].join("\n");
+  window.location.href = `mailto:${ctx.email ?? ""}?subject=${encodeURIComponent(
+    subject,
+  )}&body=${encodeURIComponent(body)}`;
+}

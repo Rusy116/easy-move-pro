@@ -1,6 +1,6 @@
 import { createFileRoute, useSearch, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { CheckCircle2, Download, FileText, Loader2, Pencil } from "lucide-react";
+import { Check, CheckCircle2, Copy, Download, FileText, Loader2, Pencil } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { SiteLayout } from "@/components/site/SiteLayout";

@@ -45,6 +45,9 @@ type QuoteLite = {
   created_at: string;
   status: string;
   accepted_at: string | null;
+  completed_at: string | null;
+  final_price: number | null;
+  final_accepted_price: number | null;
   estimated_low: number;
   estimated_high: number;
   origin_state: string | null;

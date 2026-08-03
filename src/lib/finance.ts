@@ -5,17 +5,47 @@ import { supabase } from "@/integrations/supabase/client";
 /*                              Types                                  */
 /* ================================================================== */
 
-export type CommissionStatus = "pending" | "invoiced" | "paid" | "overdue" | "cancelled";
+export type CommissionStatus =
+  | "pending"
+  | "invoiced"
+  | "partial"
+  | "paid"
+  | "overdue"
+  | "cancelled";
 
-export type InvoiceStatus = "invoiced" | "paid" | "overdue" | "cancelled";
+/** Full commission-invoice lifecycle (Easy Move Pro → Moving Company). */
+export type InvoiceStatus =
+  | "draft"
+  | "sent"
+  | "viewed"
+  | "invoiced"
+  | "partial"
+  | "paid"
+  | "overdue"
+  | "void"
+  | "cancelled";
+
+export const INVOICE_STATUSES: InvoiceStatus[] = [
+  "draft",
+  "sent",
+  "viewed",
+  "invoiced",
+  "partial",
+  "paid",
+  "overdue",
+  "void",
+  "cancelled",
+];
 
 export const COMMISSION_STATUSES: CommissionStatus[] = [
   "pending",
   "invoiced",
+  "partial",
   "paid",
   "overdue",
   "cancelled",
 ];
+
 
 /** Platform default commission rate. Commission is always auto-calculated. */
 export const DEFAULT_COMMISSION_RATE = 0.25;

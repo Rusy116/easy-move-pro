@@ -283,8 +283,9 @@ function DashboardPage() {
           <PageHeader
             eyebrow="Admin CRM"
             title="Dashboard"
-            subtitle={`${stats.total.toLocaleString()} total quotes · last 30 days trend`}
+            subtitle={`${stats.total.toLocaleString()} quotes · ${PERIOD_LABEL[period]} · live`}
             icon={<BarChart3 className="h-5 w-5" />}
+            actions={<PeriodFilter value={period} onChange={setPeriod} />}
           />
 
           {loading ? (

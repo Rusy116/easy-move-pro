@@ -5,17 +5,47 @@ import { supabase } from "@/integrations/supabase/client";
 /*                              Types                                  */
 /* ================================================================== */
 
-export type CommissionStatus = "pending" | "invoiced" | "paid" | "overdue" | "cancelled";
+export type CommissionStatus =
+  | "pending"
+  | "invoiced"
+  | "partial"
+  | "paid"
+  | "overdue"
+  | "cancelled";
 
-export type InvoiceStatus = "invoiced" | "paid" | "overdue" | "cancelled";
+/** Full commission-invoice lifecycle (Easy Move Pro → Moving Company). */
+export type InvoiceStatus =
+  | "draft"
+  | "sent"
+  | "viewed"
+  | "invoiced"
+  | "partial"
+  | "paid"
+  | "overdue"
+  | "void"
+  | "cancelled";
+
+export const INVOICE_STATUSES: InvoiceStatus[] = [
+  "draft",
+  "sent",
+  "viewed",
+  "invoiced",
+  "partial",
+  "paid",
+  "overdue",
+  "void",
+  "cancelled",
+];
 
 export const COMMISSION_STATUSES: CommissionStatus[] = [
   "pending",
   "invoiced",
+  "partial",
   "paid",
   "overdue",
   "cancelled",
 ];
+
 
 /** Platform default commission rate. Commission is always auto-calculated. */
 export const DEFAULT_COMMISSION_RATE = 0.25;
@@ -59,7 +89,15 @@ export type CommissionInvoice = {
   cancelled_at: string | null;
   notes: string | null;
   created_at: string;
+  /** Broker share of the platform commission. */
+  broker_rate?: number;
+  broker_amount?: number;
+  amount_paid?: number;
+  sent_at?: string | null;
+  viewed_at?: string | null;
+  voided_at?: string | null;
 };
+
 
 export type FinanceTotals = {
   total: number;
@@ -84,13 +122,19 @@ export const money = (n: number | null | undefined, currency = "USD") =>
 
 export const pct = (rate: number | null | undefined) => `${Math.round(Number(rate ?? 0) * 100)}%`;
 
-export const STATUS_STYLES: Record<CommissionStatus, string> = {
+export const STATUS_STYLES: Record<string, string> = {
   pending: "bg-muted text-muted-foreground border-border",
+  draft: "bg-muted text-muted-foreground border-border",
+  sent: "bg-blue-50 text-blue-800 border-blue-300",
+  viewed: "bg-indigo-50 text-indigo-800 border-indigo-300",
   invoiced: "bg-sky-50 text-sky-800 border-sky-300",
+  partial: "bg-amber-50 text-amber-800 border-amber-300",
   paid: "bg-emerald-50 text-emerald-800 border-emerald-300",
   overdue: "bg-rose-50 text-rose-800 border-rose-300",
+  void: "bg-muted text-muted-foreground border-border line-through",
   cancelled: "bg-muted text-muted-foreground border-border line-through",
 };
+
 
 /* ================================================================== */
 /*                              Filters                                */
@@ -460,4 +504,156 @@ export const PAYMENT_PROVIDERS: PaymentProvider[] = [manualProvider, stripeProvi
 
 export function activePaymentProvider(): PaymentProvider {
   return PAYMENT_PROVIDERS.find((p) => p.enabled) ?? manualProvider;
+}
+
+/* ================================================================== */
+/*                    Commission invoice center                        */
+/*  Easy Move Pro issues exactly ONE invoice per completed move:       */
+/*  Easy Move Pro -> Moving Company, for the platform commission.      */
+/*  Customer <-> Moving Company invoices are never stored here.        */
+/* ================================================================== */
+
+export type InvoiceAction = "send" | "view" | "paid" | "partial" | "overdue" | "void";
+
+export type CommissionPayment = {
+  id: string;
+  invoice_id: string;
+  commission_id: string | null;
+  company_id: string | null;
+  amount: number;
+  currency: string;
+  method: string;
+  reference: string | null;
+  note: string | null;
+  paid_at: string;
+  created_at: string;
+};
+
+export const INVOICE_STATUS_LABEL: Record<string, string> = {
+  draft: "Draft",
+  sent: "Sent",
+  viewed: "Viewed",
+  invoiced: "Sent",
+  partial: "Partially paid",
+  paid: "Paid",
+  overdue: "Overdue",
+  void: "Void",
+  cancelled: "Void",
+};
+
+/** Admin-only invoice state change / payment recording. */
+export async function adminInvoiceAction(
+  invoiceId: string,
+  action: InvoiceAction,
+  opts: { amount?: number; note?: string; reference?: string } = {},
+) {
+  return supabase.rpc("fn_admin_invoice_action", {
+    _invoice_id: invoiceId,
+    _action: action,
+    _amount: opts.amount ?? null,
+    _note: opts.note ?? null,
+    _reference: opts.reference ?? null,
+  } as never);
+}
+
+/** Payment history for one invoice (or every invoice when id is null). */
+export function useCommissionPayments(invoiceId: string | null) {
+  const [payments, setPayments] = useState<CommissionPayment[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const reload = useCallback(async () => {
+    let q = supabase
+      .from("commission_payments")
+      .select("*")
+      .order("paid_at", { ascending: false })
+      .limit(500);
+    if (invoiceId) q = q.eq("invoice_id", invoiceId);
+    const { data } = await q;
+    setPayments((data ?? []) as unknown as CommissionPayment[]);
+    setLoading(false);
+  }, [invoiceId]);
+
+  useEffect(() => {
+    void reload();
+  }, [reload]);
+
+  return { payments, loadingPayments: loading, reloadPayments: reload };
+}
+
+export function balanceOf(inv: CommissionInvoice) {
+  return Math.max(Number(inv.amount ?? 0) - Number(inv.amount_paid ?? 0), 0);
+}
+
+/** Commission invoice PDF (platform -> moving company). */
+export async function downloadCommissionInvoicePdf(
+  inv: CommissionInvoice,
+  ctx: { companyName: string; quoteNumber?: string | null; moveDate?: string | null },
+) {
+  const { jsPDF } = await import("jspdf");
+  const doc = new jsPDF();
+  const L = 16;
+  doc.setFontSize(20);
+  doc.text("EASY MOVE PRO", L, 22);
+  doc.setFontSize(10);
+  doc.text("Moving marketplace & broker platform", L, 28);
+  doc.setFontSize(16);
+  doc.text("COMMISSION INVOICE", L, 44);
+  doc.setFontSize(10);
+  doc.text(`Invoice #: ${inv.number}`, 140, 22);
+  doc.text(`Issued: ${inv.issue_date}`, 140, 28);
+  doc.text(`Due: ${inv.due_date}`, 140, 34);
+  doc.text(`Status: ${INVOICE_STATUS_LABEL[inv.status] ?? inv.status}`, 140, 40);
+
+  doc.text("Bill to:", L, 58);
+  doc.text(ctx.companyName, L, 64);
+
+  let y = 82;
+  const line = (k: string, v: string) => {
+    doc.text(k, L, y);
+    doc.text(v, 120, y);
+    y += 7;
+  };
+  line("Job / quote", ctx.quoteNumber ?? "—");
+  line("Move date", ctx.moveDate ?? "—");
+  line("Final move price", money(inv.final_price, inv.currency));
+  line("Platform commission rate", pct(inv.rate));
+  line("Commission due", money(inv.amount, inv.currency));
+  line("Amount paid", money(inv.amount_paid ?? 0, inv.currency));
+  line("Balance", money(balanceOf(inv), inv.currency));
+
+  doc.setFontSize(9);
+  doc.text(
+    "Easy Move Pro is a broker platform, not a moving company. This invoice covers the platform",
+    L,
+    y + 10,
+  );
+  doc.text(
+    "commission only. The moving service invoice is issued directly by the moving company to the customer.",
+    L,
+    y + 15,
+  );
+  doc.save(`${inv.number}.pdf`);
+}
+
+/** Email the invoice to the moving company (mail client hand-off). */
+export function emailCommissionInvoice(
+  inv: CommissionInvoice,
+  ctx: { companyName: string; email?: string | null },
+) {
+  if (typeof window === "undefined") return;
+  const subject = `Easy Move Pro commission invoice ${inv.number}`;
+  const body = [
+    `Hello ${ctx.companyName},`,
+    "",
+    `Commission invoice ${inv.number} is ${INVOICE_STATUS_LABEL[inv.status] ?? inv.status}.`,
+    `Move price: ${money(inv.final_price, inv.currency)}`,
+    `Platform commission (${pct(inv.rate)}): ${money(inv.amount, inv.currency)}`,
+    `Balance due: ${money(balanceOf(inv), inv.currency)}`,
+    `Due date: ${inv.due_date}`,
+    "",
+    "Easy Move Pro",
+  ].join("\n");
+  window.location.href = `mailto:${ctx.email ?? ""}?subject=${encodeURIComponent(
+    subject,
+  )}&body=${encodeURIComponent(body)}`;
 }

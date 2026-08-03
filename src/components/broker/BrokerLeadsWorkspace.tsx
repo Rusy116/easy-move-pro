@@ -14,6 +14,8 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { LeadDetailPanel } from "@/components/admin/LeadDetailPanel";
 import { LeadStatusBadge } from "@/components/admin/LeadWorkflow";
+import { PipelineStrip } from "@/components/crm/PipelineStrip";
+
 import { useBrokers } from "@/components/admin/BrokerSelect";
 import {
   ALL_LEAD_STATUSES,
@@ -366,7 +368,11 @@ export function BrokerLeadsWorkspace() {
                         </span>
                       )}
                     </div>
+                    <div className="mt-3">
+                      <PipelineStrip quote={l as never} />
+                    </div>
                   </div>
+
                   <div className="text-right">
                     <div className="font-serif text-xl font-medium tabular-nums">
                       ${Number(l.estimated_low).toLocaleString()} – $

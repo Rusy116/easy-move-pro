@@ -306,9 +306,18 @@ function QuoteConfirmationPage() {
         </div>
 
         <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
-          <Button size="lg" className="rounded-full" onClick={handleDownload}>
-            <Download className="mr-2 h-4 w-4" />
-            Download PDF
+          <Button
+            size="lg"
+            className="rounded-full"
+            onClick={handleDownload}
+            disabled={downloading}
+          >
+            {downloading ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <Download className="mr-2 h-4 w-4" />
+            )}
+            {downloading ? "Preparing PDF…" : "Download PDF"}
           </Button>
           <Button asChild size="lg" variant="outline" className="rounded-full">
             <a href={`/portal/${quote.quote_number}?token=${quote.portal_token}`}>

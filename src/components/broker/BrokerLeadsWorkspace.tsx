@@ -14,6 +14,8 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { LeadDetailPanel } from "@/components/admin/LeadDetailPanel";
 import { LeadStatusBadge } from "@/components/admin/LeadWorkflow";
+import { PipelineStrip } from "@/components/crm/PipelineStrip";
+
 import { useBrokers } from "@/components/admin/BrokerSelect";
 import {
   ALL_LEAD_STATUSES,

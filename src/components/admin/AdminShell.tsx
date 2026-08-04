@@ -10,6 +10,8 @@ import {
   Briefcase,
   LineChart,
   FileText,
+  Sparkles,
+
 
 } from "lucide-react";
 import { RoleShell } from "@/components/shell/RoleShell";

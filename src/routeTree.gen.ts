@@ -94,6 +94,7 @@ import { Route as AuthenticatedBrokerPerformanceRouteImport } from './routes/_au
 import { Route as AuthenticatedBrokerLeadsRouteImport } from './routes/_authenticated/broker.leads'
 import { Route as AuthenticatedBrokerDashboardRouteImport } from './routes/_authenticated/broker.dashboard'
 import { Route as AuthenticatedBrokerCompletedRouteImport } from './routes/_authenticated/broker.completed'
+import { Route as AuthenticatedAiWorkforceRouteImport } from './routes/_authenticated/ai.workforce'
 import { Route as AuthenticatedAiDashboardRouteImport } from './routes/_authenticated/ai.dashboard'
 import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin.users'
 import { Route as AuthenticatedAdminSettingsRouteImport } from './routes/_authenticated/admin.settings'
@@ -573,6 +574,12 @@ const AuthenticatedBrokerCompletedRoute =
     path: '/broker/completed',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedAiWorkforceRoute =
+  AuthenticatedAiWorkforceRouteImport.update({
+    id: '/ai/workforce',
+    path: '/ai/workforce',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAiDashboardRoute =
   AuthenticatedAiDashboardRouteImport.update({
     id: '/ai/dashboard',
@@ -718,6 +725,7 @@ export interface FileRoutesByFullPath {
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/ai/dashboard': typeof AuthenticatedAiDashboardRoute
+  '/ai/workforce': typeof AuthenticatedAiWorkforceRoute
   '/broker/completed': typeof AuthenticatedBrokerCompletedRoute
   '/broker/dashboard': typeof AuthenticatedBrokerDashboardRoute
   '/broker/leads': typeof AuthenticatedBrokerLeadsRoute
@@ -818,6 +826,7 @@ export interface FileRoutesByTo {
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/ai/dashboard': typeof AuthenticatedAiDashboardRoute
+  '/ai/workforce': typeof AuthenticatedAiWorkforceRoute
   '/broker/completed': typeof AuthenticatedBrokerCompletedRoute
   '/broker/dashboard': typeof AuthenticatedBrokerDashboardRoute
   '/broker/leads': typeof AuthenticatedBrokerLeadsRoute
@@ -921,6 +930,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
   '/_authenticated/ai/dashboard': typeof AuthenticatedAiDashboardRoute
+  '/_authenticated/ai/workforce': typeof AuthenticatedAiWorkforceRoute
   '/_authenticated/broker/completed': typeof AuthenticatedBrokerCompletedRoute
   '/_authenticated/broker/dashboard': typeof AuthenticatedBrokerDashboardRoute
   '/_authenticated/broker/leads': typeof AuthenticatedBrokerLeadsRoute
@@ -1024,6 +1034,7 @@ export interface FileRouteTypes {
     | '/admin/settings'
     | '/admin/users'
     | '/ai/dashboard'
+    | '/ai/workforce'
     | '/broker/completed'
     | '/broker/dashboard'
     | '/broker/leads'
@@ -1124,6 +1135,7 @@ export interface FileRouteTypes {
     | '/admin/settings'
     | '/admin/users'
     | '/ai/dashboard'
+    | '/ai/workforce'
     | '/broker/completed'
     | '/broker/dashboard'
     | '/broker/leads'
@@ -1226,6 +1238,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/settings'
     | '/_authenticated/admin/users'
     | '/_authenticated/ai/dashboard'
+    | '/_authenticated/ai/workforce'
     | '/_authenticated/broker/completed'
     | '/_authenticated/broker/dashboard'
     | '/_authenticated/broker/leads'
@@ -1914,6 +1927,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedBrokerCompletedRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/ai/workforce': {
+      id: '/_authenticated/ai/workforce'
+      path: '/ai/workforce'
+      fullPath: '/ai/workforce'
+      preLoaderRoute: typeof AuthenticatedAiWorkforceRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/ai/dashboard': {
       id: '/_authenticated/ai/dashboard'
       path: '/ai/dashboard'
@@ -2100,6 +2120,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminSettingsRoute: typeof AuthenticatedAdminSettingsRoute
   AuthenticatedAdminUsersRoute: typeof AuthenticatedAdminUsersRoute
   AuthenticatedAiDashboardRoute: typeof AuthenticatedAiDashboardRoute
+  AuthenticatedAiWorkforceRoute: typeof AuthenticatedAiWorkforceRoute
   AuthenticatedBrokerCompletedRoute: typeof AuthenticatedBrokerCompletedRoute
   AuthenticatedBrokerDashboardRoute: typeof AuthenticatedBrokerDashboardRoute
   AuthenticatedBrokerLeadsRoute: typeof AuthenticatedBrokerLeadsRoute
@@ -2135,6 +2156,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminSettingsRoute: AuthenticatedAdminSettingsRoute,
   AuthenticatedAdminUsersRoute: AuthenticatedAdminUsersRoute,
   AuthenticatedAiDashboardRoute: AuthenticatedAiDashboardRoute,
+  AuthenticatedAiWorkforceRoute: AuthenticatedAiWorkforceRoute,
   AuthenticatedBrokerCompletedRoute: AuthenticatedBrokerCompletedRoute,
   AuthenticatedBrokerDashboardRoute: AuthenticatedBrokerDashboardRoute,
   AuthenticatedBrokerLeadsRoute: AuthenticatedBrokerLeadsRoute,

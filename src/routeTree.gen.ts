@@ -100,6 +100,7 @@ import { Route as AuthenticatedAiPublishingRouteImport } from './routes/_authent
 import { Route as AuthenticatedAiProductsRouteImport } from './routes/_authenticated/ai.products'
 import { Route as AuthenticatedAiDashboardRouteImport } from './routes/_authenticated/ai.dashboard'
 import { Route as AuthenticatedAiContentRouteImport } from './routes/_authenticated/ai.content'
+import { Route as AuthenticatedAiAutomationRouteImport } from './routes/_authenticated/ai.automation'
 import { Route as AuthenticatedAiAnalyticsRouteImport } from './routes/_authenticated/ai.analytics'
 import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin.users'
 import { Route as AuthenticatedAdminSettingsRouteImport } from './routes/_authenticated/admin.settings'
@@ -612,6 +613,12 @@ const AuthenticatedAiContentRoute = AuthenticatedAiContentRouteImport.update({
   path: '/ai/content',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAiAutomationRoute =
+  AuthenticatedAiAutomationRouteImport.update({
+    id: '/ai/automation',
+    path: '/ai/automation',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAiAnalyticsRoute =
   AuthenticatedAiAnalyticsRouteImport.update({
     id: '/ai/analytics',
@@ -757,6 +764,7 @@ export interface FileRoutesByFullPath {
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/ai/analytics': typeof AuthenticatedAiAnalyticsRoute
+  '/ai/automation': typeof AuthenticatedAiAutomationRoute
   '/ai/content': typeof AuthenticatedAiContentRoute
   '/ai/dashboard': typeof AuthenticatedAiDashboardRoute
   '/ai/products': typeof AuthenticatedAiProductsRoute
@@ -863,6 +871,7 @@ export interface FileRoutesByTo {
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/ai/analytics': typeof AuthenticatedAiAnalyticsRoute
+  '/ai/automation': typeof AuthenticatedAiAutomationRoute
   '/ai/content': typeof AuthenticatedAiContentRoute
   '/ai/dashboard': typeof AuthenticatedAiDashboardRoute
   '/ai/products': typeof AuthenticatedAiProductsRoute
@@ -972,6 +981,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
   '/_authenticated/ai/analytics': typeof AuthenticatedAiAnalyticsRoute
+  '/_authenticated/ai/automation': typeof AuthenticatedAiAutomationRoute
   '/_authenticated/ai/content': typeof AuthenticatedAiContentRoute
   '/_authenticated/ai/dashboard': typeof AuthenticatedAiDashboardRoute
   '/_authenticated/ai/products': typeof AuthenticatedAiProductsRoute
@@ -1081,6 +1091,7 @@ export interface FileRouteTypes {
     | '/admin/settings'
     | '/admin/users'
     | '/ai/analytics'
+    | '/ai/automation'
     | '/ai/content'
     | '/ai/dashboard'
     | '/ai/products'
@@ -1187,6 +1198,7 @@ export interface FileRouteTypes {
     | '/admin/settings'
     | '/admin/users'
     | '/ai/analytics'
+    | '/ai/automation'
     | '/ai/content'
     | '/ai/dashboard'
     | '/ai/products'
@@ -1295,6 +1307,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/settings'
     | '/_authenticated/admin/users'
     | '/_authenticated/ai/analytics'
+    | '/_authenticated/ai/automation'
     | '/_authenticated/ai/content'
     | '/_authenticated/ai/dashboard'
     | '/_authenticated/ai/products'
@@ -2031,6 +2044,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAiContentRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/ai/automation': {
+      id: '/_authenticated/ai/automation'
+      path: '/ai/automation'
+      fullPath: '/ai/automation'
+      preLoaderRoute: typeof AuthenticatedAiAutomationRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/ai/analytics': {
       id: '/_authenticated/ai/analytics'
       path: '/ai/analytics'
@@ -2217,6 +2237,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminSettingsRoute: typeof AuthenticatedAdminSettingsRoute
   AuthenticatedAdminUsersRoute: typeof AuthenticatedAdminUsersRoute
   AuthenticatedAiAnalyticsRoute: typeof AuthenticatedAiAnalyticsRoute
+  AuthenticatedAiAutomationRoute: typeof AuthenticatedAiAutomationRoute
   AuthenticatedAiContentRoute: typeof AuthenticatedAiContentRoute
   AuthenticatedAiDashboardRoute: typeof AuthenticatedAiDashboardRoute
   AuthenticatedAiProductsRoute: typeof AuthenticatedAiProductsRoute
@@ -2258,6 +2279,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminSettingsRoute: AuthenticatedAdminSettingsRoute,
   AuthenticatedAdminUsersRoute: AuthenticatedAdminUsersRoute,
   AuthenticatedAiAnalyticsRoute: AuthenticatedAiAnalyticsRoute,
+  AuthenticatedAiAutomationRoute: AuthenticatedAiAutomationRoute,
   AuthenticatedAiContentRoute: AuthenticatedAiContentRoute,
   AuthenticatedAiDashboardRoute: AuthenticatedAiDashboardRoute,
   AuthenticatedAiProductsRoute: AuthenticatedAiProductsRoute,

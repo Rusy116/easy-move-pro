@@ -56,6 +56,435 @@ export type Database = {
           },
         ]
       }
+      ai_agents: {
+        Row: {
+          category: string
+          config: Json
+          cpu_usage: number
+          created_at: string
+          current_task: string | null
+          description: string
+          enabled: boolean
+          error_count: number
+          estimated_completion: string | null
+          id: string
+          key: string
+          last_run_at: string | null
+          memory_usage: number
+          name: string
+          progress: number
+          run_count: number
+          sort_order: number
+          status: string
+          success_rate: number
+          updated_at: string
+        }
+        Insert: {
+          category?: string
+          config?: Json
+          cpu_usage?: number
+          created_at?: string
+          current_task?: string | null
+          description?: string
+          enabled?: boolean
+          error_count?: number
+          estimated_completion?: string | null
+          id?: string
+          key: string
+          last_run_at?: string | null
+          memory_usage?: number
+          name: string
+          progress?: number
+          run_count?: number
+          sort_order?: number
+          status?: string
+          success_rate?: number
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          config?: Json
+          cpu_usage?: number
+          created_at?: string
+          current_task?: string | null
+          description?: string
+          enabled?: boolean
+          error_count?: number
+          estimated_completion?: string | null
+          id?: string
+          key?: string
+          last_run_at?: string | null
+          memory_usage?: number
+          name?: string
+          progress?: number
+          run_count?: number
+          sort_order?: number
+          status?: string
+          success_rate?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      ai_automations: {
+        Row: {
+          agent_key: string
+          capability: string
+          created_at: string
+          created_by: string | null
+          day_of_week: number | null
+          description: string | null
+          enabled: boolean
+          frequency: string
+          id: string
+          last_run_at: string | null
+          name: string
+          next_run_at: string | null
+          params: Json
+          quantity: number
+          run_at: string | null
+          updated_at: string
+        }
+        Insert: {
+          agent_key: string
+          capability: string
+          created_at?: string
+          created_by?: string | null
+          day_of_week?: number | null
+          description?: string | null
+          enabled?: boolean
+          frequency?: string
+          id?: string
+          last_run_at?: string | null
+          name: string
+          next_run_at?: string | null
+          params?: Json
+          quantity?: number
+          run_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          agent_key?: string
+          capability?: string
+          created_at?: string
+          created_by?: string | null
+          day_of_week?: number | null
+          description?: string | null
+          enabled?: boolean
+          frequency?: string
+          id?: string
+          last_run_at?: string | null
+          name?: string
+          next_run_at?: string | null
+          params?: Json
+          quantity?: number
+          run_at?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      ai_content_items: {
+        Row: {
+          agent_key: string | null
+          archived_at: string | null
+          body: string | null
+          created_at: string
+          duplicate_of: string | null
+          id: string
+          keyword: string | null
+          kind: string
+          locale: string
+          published_at: string | null
+          quality_score: number | null
+          scheduled_for: string | null
+          schema_markup: Json | null
+          seo: Json
+          slug: string | null
+          status: string
+          summary: string | null
+          target_city: string | null
+          target_state: string | null
+          task_id: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          agent_key?: string | null
+          archived_at?: string | null
+          body?: string | null
+          created_at?: string
+          duplicate_of?: string | null
+          id?: string
+          keyword?: string | null
+          kind?: string
+          locale?: string
+          published_at?: string | null
+          quality_score?: number | null
+          scheduled_for?: string | null
+          schema_markup?: Json | null
+          seo?: Json
+          slug?: string | null
+          status?: string
+          summary?: string | null
+          target_city?: string | null
+          target_state?: string | null
+          task_id?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          agent_key?: string | null
+          archived_at?: string | null
+          body?: string | null
+          created_at?: string
+          duplicate_of?: string | null
+          id?: string
+          keyword?: string | null
+          kind?: string
+          locale?: string
+          published_at?: string | null
+          quality_score?: number | null
+          scheduled_for?: string | null
+          schema_markup?: Json | null
+          seo?: Json
+          slug?: string | null
+          status?: string
+          summary?: string | null
+          target_city?: string | null
+          target_state?: string | null
+          task_id?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_content_items_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "ai_tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_metrics_daily: {
+        Row: {
+          created_at: string
+          day: string
+          dims: Json
+          id: string
+          metric: string
+          value: number
+        }
+        Insert: {
+          created_at?: string
+          day?: string
+          dims?: Json
+          id?: string
+          metric: string
+          value?: number
+        }
+        Update: {
+          created_at?: string
+          day?: string
+          dims?: Json
+          id?: string
+          metric?: string
+          value?: number
+        }
+        Relationships: []
+      }
+      ai_products: {
+        Row: {
+          agent_key: string | null
+          assets: Json
+          bundle_of: Json
+          cover_url: string | null
+          created_at: string
+          description: string | null
+          downloads: number
+          id: string
+          preview_urls: Json
+          price_cents: number
+          product_type: string
+          published_at: string | null
+          quality_score: number | null
+          revenue_cents: number
+          scheduled_for: string | null
+          seo: Json
+          slug: string | null
+          status: string
+          task_id: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          agent_key?: string | null
+          assets?: Json
+          bundle_of?: Json
+          cover_url?: string | null
+          created_at?: string
+          description?: string | null
+          downloads?: number
+          id?: string
+          preview_urls?: Json
+          price_cents?: number
+          product_type?: string
+          published_at?: string | null
+          quality_score?: number | null
+          revenue_cents?: number
+          scheduled_for?: string | null
+          seo?: Json
+          slug?: string | null
+          status?: string
+          task_id?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          agent_key?: string | null
+          assets?: Json
+          bundle_of?: Json
+          cover_url?: string | null
+          created_at?: string
+          description?: string | null
+          downloads?: number
+          id?: string
+          preview_urls?: Json
+          price_cents?: number
+          product_type?: string
+          published_at?: string | null
+          quality_score?: number | null
+          revenue_cents?: number
+          scheduled_for?: string | null
+          seo?: Json
+          slug?: string | null
+          status?: string
+          task_id?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_products_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "ai_tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_settings: {
+        Row: {
+          key: string
+          updated_at: string
+          value: Json
+        }
+        Insert: {
+          key: string
+          updated_at?: string
+          value?: Json
+        }
+        Update: {
+          key?: string
+          updated_at?: string
+          value?: Json
+        }
+        Relationships: []
+      }
+      ai_task_logs: {
+        Row: {
+          agent_key: string
+          created_at: string
+          id: string
+          level: string
+          message: string
+          meta: Json
+          task_id: string | null
+        }
+        Insert: {
+          agent_key: string
+          created_at?: string
+          id?: string
+          level?: string
+          message: string
+          meta?: Json
+          task_id?: string | null
+        }
+        Update: {
+          agent_key?: string
+          created_at?: string
+          id?: string
+          level?: string
+          message?: string
+          meta?: Json
+          task_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_task_logs_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "ai_tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_tasks: {
+        Row: {
+          agent_key: string
+          capability: string
+          completed_at: string | null
+          created_at: string
+          created_by: string | null
+          error: string | null
+          id: string
+          params: Json
+          priority: number
+          progress: number
+          result: Json | null
+          scheduled_for: string | null
+          started_at: string | null
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          agent_key: string
+          capability: string
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          error?: string | null
+          id?: string
+          params?: Json
+          priority?: number
+          progress?: number
+          result?: Json | null
+          scheduled_for?: string | null
+          started_at?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          agent_key?: string
+          capability?: string
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          error?: string | null
+          id?: string
+          params?: Json
+          priority?: number
+          progress?: number
+          result?: Json | null
+          scheduled_for?: string | null
+          started_at?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       audit_log: {
         Row: {
           action: string

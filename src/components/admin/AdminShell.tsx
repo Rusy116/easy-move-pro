@@ -10,6 +10,8 @@ import {
   Briefcase,
   LineChart,
   FileText,
+  Sparkles,
+
 
 } from "lucide-react";
 import { RoleShell } from "@/components/shell/RoleShell";
@@ -26,7 +28,9 @@ const NAV = [
   { to: "/admin/invoices", label: "Invoices", icon: <FileText className="h-4 w-4" /> },
 
   { to: "/admin/reports", label: "Reports", icon: <LineChart className="h-4 w-4" /> },
+  { to: "/ai/dashboard", label: "AI Growth", icon: <Sparkles className="h-4 w-4" /> },
   { to: "/admin/settings", label: "Settings", icon: <Settings className="h-4 w-4" /> },
+
 ];
 
 

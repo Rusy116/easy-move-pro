@@ -94,6 +94,15 @@ import { Route as AuthenticatedBrokerPerformanceRouteImport } from './routes/_au
 import { Route as AuthenticatedBrokerLeadsRouteImport } from './routes/_authenticated/broker.leads'
 import { Route as AuthenticatedBrokerDashboardRouteImport } from './routes/_authenticated/broker.dashboard'
 import { Route as AuthenticatedBrokerCompletedRouteImport } from './routes/_authenticated/broker.completed'
+import { Route as AuthenticatedAiWorkforceRouteImport } from './routes/_authenticated/ai.workforce'
+import { Route as AuthenticatedAiSettingsRouteImport } from './routes/_authenticated/ai.settings'
+import { Route as AuthenticatedAiSeoRouteImport } from './routes/_authenticated/ai.seo'
+import { Route as AuthenticatedAiPublishingRouteImport } from './routes/_authenticated/ai.publishing'
+import { Route as AuthenticatedAiProductsRouteImport } from './routes/_authenticated/ai.products'
+import { Route as AuthenticatedAiDashboardRouteImport } from './routes/_authenticated/ai.dashboard'
+import { Route as AuthenticatedAiContentRouteImport } from './routes/_authenticated/ai.content'
+import { Route as AuthenticatedAiAutomationRouteImport } from './routes/_authenticated/ai.automation'
+import { Route as AuthenticatedAiAnalyticsRouteImport } from './routes/_authenticated/ai.analytics'
 import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin.users'
 import { Route as AuthenticatedAdminSettingsRouteImport } from './routes/_authenticated/admin.settings'
 import { Route as AuthenticatedAdminReportsRouteImport } from './routes/_authenticated/admin.reports'
@@ -572,6 +581,56 @@ const AuthenticatedBrokerCompletedRoute =
     path: '/broker/completed',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedAiWorkforceRoute =
+  AuthenticatedAiWorkforceRouteImport.update({
+    id: '/ai/workforce',
+    path: '/ai/workforce',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAiSettingsRoute = AuthenticatedAiSettingsRouteImport.update({
+  id: '/ai/settings',
+  path: '/ai/settings',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedAiSeoRoute = AuthenticatedAiSeoRouteImport.update({
+  id: '/ai/seo',
+  path: '/ai/seo',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedAiPublishingRoute =
+  AuthenticatedAiPublishingRouteImport.update({
+    id: '/ai/publishing',
+    path: '/ai/publishing',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAiProductsRoute = AuthenticatedAiProductsRouteImport.update({
+  id: '/ai/products',
+  path: '/ai/products',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedAiDashboardRoute =
+  AuthenticatedAiDashboardRouteImport.update({
+    id: '/ai/dashboard',
+    path: '/ai/dashboard',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAiContentRoute = AuthenticatedAiContentRouteImport.update({
+  id: '/ai/content',
+  path: '/ai/content',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedAiAutomationRoute =
+  AuthenticatedAiAutomationRouteImport.update({
+    id: '/ai/automation',
+    path: '/ai/automation',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAiAnalyticsRoute =
+  AuthenticatedAiAnalyticsRouteImport.update({
+    id: '/ai/analytics',
+    path: '/ai/analytics',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAdminUsersRoute = AuthenticatedAdminUsersRouteImport.update({
   id: '/admin/users',
   path: '/admin/users',
@@ -710,6 +769,15 @@ export interface FileRoutesByFullPath {
   '/admin/reports': typeof AuthenticatedAdminReportsRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
+  '/ai/analytics': typeof AuthenticatedAiAnalyticsRoute
+  '/ai/automation': typeof AuthenticatedAiAutomationRoute
+  '/ai/content': typeof AuthenticatedAiContentRoute
+  '/ai/dashboard': typeof AuthenticatedAiDashboardRoute
+  '/ai/products': typeof AuthenticatedAiProductsRoute
+  '/ai/publishing': typeof AuthenticatedAiPublishingRoute
+  '/ai/seo': typeof AuthenticatedAiSeoRoute
+  '/ai/settings': typeof AuthenticatedAiSettingsRoute
+  '/ai/workforce': typeof AuthenticatedAiWorkforceRoute
   '/broker/completed': typeof AuthenticatedBrokerCompletedRoute
   '/broker/dashboard': typeof AuthenticatedBrokerDashboardRoute
   '/broker/leads': typeof AuthenticatedBrokerLeadsRoute
@@ -809,6 +877,15 @@ export interface FileRoutesByTo {
   '/admin/reports': typeof AuthenticatedAdminReportsRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
+  '/ai/analytics': typeof AuthenticatedAiAnalyticsRoute
+  '/ai/automation': typeof AuthenticatedAiAutomationRoute
+  '/ai/content': typeof AuthenticatedAiContentRoute
+  '/ai/dashboard': typeof AuthenticatedAiDashboardRoute
+  '/ai/products': typeof AuthenticatedAiProductsRoute
+  '/ai/publishing': typeof AuthenticatedAiPublishingRoute
+  '/ai/seo': typeof AuthenticatedAiSeoRoute
+  '/ai/settings': typeof AuthenticatedAiSettingsRoute
+  '/ai/workforce': typeof AuthenticatedAiWorkforceRoute
   '/broker/completed': typeof AuthenticatedBrokerCompletedRoute
   '/broker/dashboard': typeof AuthenticatedBrokerDashboardRoute
   '/broker/leads': typeof AuthenticatedBrokerLeadsRoute
@@ -911,6 +988,15 @@ export interface FileRoutesById {
   '/_authenticated/admin/reports': typeof AuthenticatedAdminReportsRoute
   '/_authenticated/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
+  '/_authenticated/ai/analytics': typeof AuthenticatedAiAnalyticsRoute
+  '/_authenticated/ai/automation': typeof AuthenticatedAiAutomationRoute
+  '/_authenticated/ai/content': typeof AuthenticatedAiContentRoute
+  '/_authenticated/ai/dashboard': typeof AuthenticatedAiDashboardRoute
+  '/_authenticated/ai/products': typeof AuthenticatedAiProductsRoute
+  '/_authenticated/ai/publishing': typeof AuthenticatedAiPublishingRoute
+  '/_authenticated/ai/seo': typeof AuthenticatedAiSeoRoute
+  '/_authenticated/ai/settings': typeof AuthenticatedAiSettingsRoute
+  '/_authenticated/ai/workforce': typeof AuthenticatedAiWorkforceRoute
   '/_authenticated/broker/completed': typeof AuthenticatedBrokerCompletedRoute
   '/_authenticated/broker/dashboard': typeof AuthenticatedBrokerDashboardRoute
   '/_authenticated/broker/leads': typeof AuthenticatedBrokerLeadsRoute
@@ -1013,6 +1099,15 @@ export interface FileRouteTypes {
     | '/admin/reports'
     | '/admin/settings'
     | '/admin/users'
+    | '/ai/analytics'
+    | '/ai/automation'
+    | '/ai/content'
+    | '/ai/dashboard'
+    | '/ai/products'
+    | '/ai/publishing'
+    | '/ai/seo'
+    | '/ai/settings'
+    | '/ai/workforce'
     | '/broker/completed'
     | '/broker/dashboard'
     | '/broker/leads'
@@ -1112,6 +1207,15 @@ export interface FileRouteTypes {
     | '/admin/reports'
     | '/admin/settings'
     | '/admin/users'
+    | '/ai/analytics'
+    | '/ai/automation'
+    | '/ai/content'
+    | '/ai/dashboard'
+    | '/ai/products'
+    | '/ai/publishing'
+    | '/ai/seo'
+    | '/ai/settings'
+    | '/ai/workforce'
     | '/broker/completed'
     | '/broker/dashboard'
     | '/broker/leads'
@@ -1213,6 +1317,15 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/reports'
     | '/_authenticated/admin/settings'
     | '/_authenticated/admin/users'
+    | '/_authenticated/ai/analytics'
+    | '/_authenticated/ai/automation'
+    | '/_authenticated/ai/content'
+    | '/_authenticated/ai/dashboard'
+    | '/_authenticated/ai/products'
+    | '/_authenticated/ai/publishing'
+    | '/_authenticated/ai/seo'
+    | '/_authenticated/ai/settings'
+    | '/_authenticated/ai/workforce'
     | '/_authenticated/broker/completed'
     | '/_authenticated/broker/dashboard'
     | '/_authenticated/broker/leads'
@@ -1901,6 +2014,69 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedBrokerCompletedRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/ai/workforce': {
+      id: '/_authenticated/ai/workforce'
+      path: '/ai/workforce'
+      fullPath: '/ai/workforce'
+      preLoaderRoute: typeof AuthenticatedAiWorkforceRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/ai/settings': {
+      id: '/_authenticated/ai/settings'
+      path: '/ai/settings'
+      fullPath: '/ai/settings'
+      preLoaderRoute: typeof AuthenticatedAiSettingsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/ai/seo': {
+      id: '/_authenticated/ai/seo'
+      path: '/ai/seo'
+      fullPath: '/ai/seo'
+      preLoaderRoute: typeof AuthenticatedAiSeoRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/ai/publishing': {
+      id: '/_authenticated/ai/publishing'
+      path: '/ai/publishing'
+      fullPath: '/ai/publishing'
+      preLoaderRoute: typeof AuthenticatedAiPublishingRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/ai/products': {
+      id: '/_authenticated/ai/products'
+      path: '/ai/products'
+      fullPath: '/ai/products'
+      preLoaderRoute: typeof AuthenticatedAiProductsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/ai/dashboard': {
+      id: '/_authenticated/ai/dashboard'
+      path: '/ai/dashboard'
+      fullPath: '/ai/dashboard'
+      preLoaderRoute: typeof AuthenticatedAiDashboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/ai/content': {
+      id: '/_authenticated/ai/content'
+      path: '/ai/content'
+      fullPath: '/ai/content'
+      preLoaderRoute: typeof AuthenticatedAiContentRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/ai/automation': {
+      id: '/_authenticated/ai/automation'
+      path: '/ai/automation'
+      fullPath: '/ai/automation'
+      preLoaderRoute: typeof AuthenticatedAiAutomationRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/ai/analytics': {
+      id: '/_authenticated/ai/analytics'
+      path: '/ai/analytics'
+      fullPath: '/ai/analytics'
+      preLoaderRoute: typeof AuthenticatedAiAnalyticsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/admin/users': {
       id: '/_authenticated/admin/users'
       path: '/admin/users'
@@ -2079,6 +2255,15 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminReportsRoute: typeof AuthenticatedAdminReportsRoute
   AuthenticatedAdminSettingsRoute: typeof AuthenticatedAdminSettingsRoute
   AuthenticatedAdminUsersRoute: typeof AuthenticatedAdminUsersRoute
+  AuthenticatedAiAnalyticsRoute: typeof AuthenticatedAiAnalyticsRoute
+  AuthenticatedAiAutomationRoute: typeof AuthenticatedAiAutomationRoute
+  AuthenticatedAiContentRoute: typeof AuthenticatedAiContentRoute
+  AuthenticatedAiDashboardRoute: typeof AuthenticatedAiDashboardRoute
+  AuthenticatedAiProductsRoute: typeof AuthenticatedAiProductsRoute
+  AuthenticatedAiPublishingRoute: typeof AuthenticatedAiPublishingRoute
+  AuthenticatedAiSeoRoute: typeof AuthenticatedAiSeoRoute
+  AuthenticatedAiSettingsRoute: typeof AuthenticatedAiSettingsRoute
+  AuthenticatedAiWorkforceRoute: typeof AuthenticatedAiWorkforceRoute
   AuthenticatedBrokerCompletedRoute: typeof AuthenticatedBrokerCompletedRoute
   AuthenticatedBrokerDashboardRoute: typeof AuthenticatedBrokerDashboardRoute
   AuthenticatedBrokerLeadsRoute: typeof AuthenticatedBrokerLeadsRoute
@@ -2113,6 +2298,15 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminReportsRoute: AuthenticatedAdminReportsRoute,
   AuthenticatedAdminSettingsRoute: AuthenticatedAdminSettingsRoute,
   AuthenticatedAdminUsersRoute: AuthenticatedAdminUsersRoute,
+  AuthenticatedAiAnalyticsRoute: AuthenticatedAiAnalyticsRoute,
+  AuthenticatedAiAutomationRoute: AuthenticatedAiAutomationRoute,
+  AuthenticatedAiContentRoute: AuthenticatedAiContentRoute,
+  AuthenticatedAiDashboardRoute: AuthenticatedAiDashboardRoute,
+  AuthenticatedAiProductsRoute: AuthenticatedAiProductsRoute,
+  AuthenticatedAiPublishingRoute: AuthenticatedAiPublishingRoute,
+  AuthenticatedAiSeoRoute: AuthenticatedAiSeoRoute,
+  AuthenticatedAiSettingsRoute: AuthenticatedAiSettingsRoute,
+  AuthenticatedAiWorkforceRoute: AuthenticatedAiWorkforceRoute,
   AuthenticatedBrokerCompletedRoute: AuthenticatedBrokerCompletedRoute,
   AuthenticatedBrokerDashboardRoute: AuthenticatedBrokerDashboardRoute,
   AuthenticatedBrokerLeadsRoute: AuthenticatedBrokerLeadsRoute,

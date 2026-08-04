@@ -96,6 +96,7 @@ import { Route as AuthenticatedBrokerDashboardRouteImport } from './routes/_auth
 import { Route as AuthenticatedBrokerCompletedRouteImport } from './routes/_authenticated/broker.completed'
 import { Route as AuthenticatedAiWorkforceRouteImport } from './routes/_authenticated/ai.workforce'
 import { Route as AuthenticatedAiSeoRouteImport } from './routes/_authenticated/ai.seo'
+import { Route as AuthenticatedAiProductsRouteImport } from './routes/_authenticated/ai.products'
 import { Route as AuthenticatedAiDashboardRouteImport } from './routes/_authenticated/ai.dashboard'
 import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin.users'
 import { Route as AuthenticatedAdminSettingsRouteImport } from './routes/_authenticated/admin.settings'
@@ -586,6 +587,11 @@ const AuthenticatedAiSeoRoute = AuthenticatedAiSeoRouteImport.update({
   path: '/ai/seo',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAiProductsRoute = AuthenticatedAiProductsRouteImport.update({
+  id: '/ai/products',
+  path: '/ai/products',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedAiDashboardRoute =
   AuthenticatedAiDashboardRouteImport.update({
     id: '/ai/dashboard',
@@ -731,6 +737,7 @@ export interface FileRoutesByFullPath {
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/ai/dashboard': typeof AuthenticatedAiDashboardRoute
+  '/ai/products': typeof AuthenticatedAiProductsRoute
   '/ai/seo': typeof AuthenticatedAiSeoRoute
   '/ai/workforce': typeof AuthenticatedAiWorkforceRoute
   '/broker/completed': typeof AuthenticatedBrokerCompletedRoute
@@ -833,6 +840,7 @@ export interface FileRoutesByTo {
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/ai/dashboard': typeof AuthenticatedAiDashboardRoute
+  '/ai/products': typeof AuthenticatedAiProductsRoute
   '/ai/seo': typeof AuthenticatedAiSeoRoute
   '/ai/workforce': typeof AuthenticatedAiWorkforceRoute
   '/broker/completed': typeof AuthenticatedBrokerCompletedRoute
@@ -938,6 +946,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
   '/_authenticated/ai/dashboard': typeof AuthenticatedAiDashboardRoute
+  '/_authenticated/ai/products': typeof AuthenticatedAiProductsRoute
   '/_authenticated/ai/seo': typeof AuthenticatedAiSeoRoute
   '/_authenticated/ai/workforce': typeof AuthenticatedAiWorkforceRoute
   '/_authenticated/broker/completed': typeof AuthenticatedBrokerCompletedRoute
@@ -1043,6 +1052,7 @@ export interface FileRouteTypes {
     | '/admin/settings'
     | '/admin/users'
     | '/ai/dashboard'
+    | '/ai/products'
     | '/ai/seo'
     | '/ai/workforce'
     | '/broker/completed'
@@ -1145,6 +1155,7 @@ export interface FileRouteTypes {
     | '/admin/settings'
     | '/admin/users'
     | '/ai/dashboard'
+    | '/ai/products'
     | '/ai/seo'
     | '/ai/workforce'
     | '/broker/completed'
@@ -1249,6 +1260,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/settings'
     | '/_authenticated/admin/users'
     | '/_authenticated/ai/dashboard'
+    | '/_authenticated/ai/products'
     | '/_authenticated/ai/seo'
     | '/_authenticated/ai/workforce'
     | '/_authenticated/broker/completed'
@@ -1953,6 +1965,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAiSeoRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/ai/products': {
+      id: '/_authenticated/ai/products'
+      path: '/ai/products'
+      fullPath: '/ai/products'
+      preLoaderRoute: typeof AuthenticatedAiProductsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/ai/dashboard': {
       id: '/_authenticated/ai/dashboard'
       path: '/ai/dashboard'
@@ -2139,6 +2158,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminSettingsRoute: typeof AuthenticatedAdminSettingsRoute
   AuthenticatedAdminUsersRoute: typeof AuthenticatedAdminUsersRoute
   AuthenticatedAiDashboardRoute: typeof AuthenticatedAiDashboardRoute
+  AuthenticatedAiProductsRoute: typeof AuthenticatedAiProductsRoute
   AuthenticatedAiSeoRoute: typeof AuthenticatedAiSeoRoute
   AuthenticatedAiWorkforceRoute: typeof AuthenticatedAiWorkforceRoute
   AuthenticatedBrokerCompletedRoute: typeof AuthenticatedBrokerCompletedRoute
@@ -2176,6 +2196,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminSettingsRoute: AuthenticatedAdminSettingsRoute,
   AuthenticatedAdminUsersRoute: AuthenticatedAdminUsersRoute,
   AuthenticatedAiDashboardRoute: AuthenticatedAiDashboardRoute,
+  AuthenticatedAiProductsRoute: AuthenticatedAiProductsRoute,
   AuthenticatedAiSeoRoute: AuthenticatedAiSeoRoute,
   AuthenticatedAiWorkforceRoute: AuthenticatedAiWorkforceRoute,
   AuthenticatedBrokerCompletedRoute: AuthenticatedBrokerCompletedRoute,

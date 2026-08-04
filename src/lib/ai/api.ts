@@ -230,7 +230,7 @@ export async function setAgentState(agent: AiAgent, action: AgentAction) {
     patch["progress"] = 0;
     patch["current_task"] = null;
   }
-  const { error } = await supabase.from("ai_agents").update(patch).eq("id", agent.id);
+  const { error } = await supabase.from("ai_agents").update(patch as never).eq("id", agent.id);
   if (error) throw error;
   await log(agent.key, `Agent ${action} requested`, "info");
 }
@@ -240,7 +240,7 @@ export async function updateTaskStatus(id: string, status: string, agentKey: str
   if (status === "cancelled" || status === "completed") {
     patch["completed_at"] = new Date().toISOString();
   }
-  const { error } = await supabase.from("ai_tasks").update(patch).eq("id", id);
+  const { error } = await supabase.from("ai_tasks").update(patch as never).eq("id", id);
   if (error) throw error;
   await log(agentKey, `Task marked ${status}`, "info", id);
 }
@@ -250,7 +250,7 @@ export async function setContentStatus(ids: string[], status: string) {
   const patch: Record<string, unknown> = { status };
   if (status === "published") patch["published_at"] = new Date().toISOString();
   if (status === "archived") patch["archived_at"] = new Date().toISOString();
-  const { error } = await supabase.from("ai_content_items").update(patch).in("id", ids);
+  const { error } = await supabase.from("ai_content_items").update(patch as never).in("id", ids);
   if (error) throw error;
   await log("publishing_agent", `${ids.length} item(s) moved to ${status}`, "info");
 }

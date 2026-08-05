@@ -58,10 +58,13 @@ export type Database = {
       }
       ai_agents: {
         Row: {
+          avg_runtime_ms: number
+          capabilities: string[]
           category: string
           config: Json
           cpu_usage: number
           created_at: string
+          created_by: string | null
           current_task: string | null
           description: string
           enabled: boolean
@@ -69,21 +72,30 @@ export type Database = {
           estimated_completion: string | null
           id: string
           key: string
+          last_activity_at: string | null
           last_run_at: string | null
           memory_usage: number
           name: string
+          priority: number
           progress: number
+          queue: string
           run_count: number
           sort_order: number
           status: string
           success_rate: number
+          tasks_completed: number
+          tasks_failed: number
           updated_at: string
+          version: string
         }
         Insert: {
+          avg_runtime_ms?: number
+          capabilities?: string[]
           category?: string
           config?: Json
           cpu_usage?: number
           created_at?: string
+          created_by?: string | null
           current_task?: string | null
           description?: string
           enabled?: boolean
@@ -91,21 +103,30 @@ export type Database = {
           estimated_completion?: string | null
           id?: string
           key: string
+          last_activity_at?: string | null
           last_run_at?: string | null
           memory_usage?: number
           name: string
+          priority?: number
           progress?: number
+          queue?: string
           run_count?: number
           sort_order?: number
           status?: string
           success_rate?: number
+          tasks_completed?: number
+          tasks_failed?: number
           updated_at?: string
+          version?: string
         }
         Update: {
+          avg_runtime_ms?: number
+          capabilities?: string[]
           category?: string
           config?: Json
           cpu_usage?: number
           created_at?: string
+          created_by?: string | null
           current_task?: string | null
           description?: string
           enabled?: boolean
@@ -113,15 +134,21 @@ export type Database = {
           estimated_completion?: string | null
           id?: string
           key?: string
+          last_activity_at?: string | null
           last_run_at?: string | null
           memory_usage?: number
           name?: string
+          priority?: number
           progress?: number
+          queue?: string
           run_count?: number
           sort_order?: number
           status?: string
           success_rate?: number
+          tasks_completed?: number
+          tasks_failed?: number
           updated_at?: string
+          version?: string
         }
         Relationships: []
       }
@@ -292,6 +319,42 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_notifications: {
+        Row: {
+          agent_key: string | null
+          body: string | null
+          created_at: string
+          id: string
+          kind: string
+          read_at: string | null
+          severity: string
+          task_id: string | null
+          title: string
+        }
+        Insert: {
+          agent_key?: string | null
+          body?: string | null
+          created_at?: string
+          id?: string
+          kind: string
+          read_at?: string | null
+          severity?: string
+          task_id?: string | null
+          title: string
+        }
+        Update: {
+          agent_key?: string | null
+          body?: string | null
+          created_at?: string
+          id?: string
+          kind?: string
+          read_at?: string | null
+          severity?: string
+          task_id?: string | null
+          title?: string
+        }
+        Relationships: []
+      }
       ai_products: {
         Row: {
           agent_key: string | null
@@ -435,12 +498,16 @@ export type Database = {
           completed_at: string | null
           created_at: string
           created_by: string | null
+          depends_on: string[]
+          duration_ms: number | null
           error: string | null
           id: string
+          max_retries: number
           params: Json
           priority: number
           progress: number
           result: Json | null
+          retry_count: number
           scheduled_for: string | null
           started_at: string | null
           status: string
@@ -453,12 +520,16 @@ export type Database = {
           completed_at?: string | null
           created_at?: string
           created_by?: string | null
+          depends_on?: string[]
+          duration_ms?: number | null
           error?: string | null
           id?: string
+          max_retries?: number
           params?: Json
           priority?: number
           progress?: number
           result?: Json | null
+          retry_count?: number
           scheduled_for?: string | null
           started_at?: string | null
           status?: string
@@ -471,12 +542,16 @@ export type Database = {
           completed_at?: string | null
           created_at?: string
           created_by?: string | null
+          depends_on?: string[]
+          duration_ms?: number | null
           error?: string | null
           id?: string
+          max_retries?: number
           params?: Json
           priority?: number
           progress?: number
           result?: Json | null
+          retry_count?: number
           scheduled_for?: string | null
           started_at?: string | null
           status?: string

@@ -98,6 +98,7 @@ import { Route as AuthenticatedAiWorkforceRouteImport } from './routes/_authenti
 import { Route as AuthenticatedAiSettingsRouteImport } from './routes/_authenticated/ai.settings'
 import { Route as AuthenticatedAiSeoRouteImport } from './routes/_authenticated/ai.seo'
 import { Route as AuthenticatedAiRegistryRouteImport } from './routes/_authenticated/ai.registry'
+import { Route as AuthenticatedAiQueueRouteImport } from './routes/_authenticated/ai.queue'
 import { Route as AuthenticatedAiPublishingRouteImport } from './routes/_authenticated/ai.publishing'
 import { Route as AuthenticatedAiProductsRouteImport } from './routes/_authenticated/ai.products'
 import { Route as AuthenticatedAiOrchestratorRouteImport } from './routes/_authenticated/ai.orchestrator'
@@ -604,6 +605,11 @@ const AuthenticatedAiRegistryRoute = AuthenticatedAiRegistryRouteImport.update({
   path: '/ai/registry',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAiQueueRoute = AuthenticatedAiQueueRouteImport.update({
+  id: '/ai/queue',
+  path: '/ai/queue',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedAiPublishingRoute =
   AuthenticatedAiPublishingRouteImport.update({
     id: '/ai/publishing',
@@ -789,6 +795,7 @@ export interface FileRoutesByFullPath {
   '/ai/orchestrator': typeof AuthenticatedAiOrchestratorRoute
   '/ai/products': typeof AuthenticatedAiProductsRoute
   '/ai/publishing': typeof AuthenticatedAiPublishingRoute
+  '/ai/queue': typeof AuthenticatedAiQueueRoute
   '/ai/registry': typeof AuthenticatedAiRegistryRoute
   '/ai/seo': typeof AuthenticatedAiSeoRoute
   '/ai/settings': typeof AuthenticatedAiSettingsRoute
@@ -899,6 +906,7 @@ export interface FileRoutesByTo {
   '/ai/orchestrator': typeof AuthenticatedAiOrchestratorRoute
   '/ai/products': typeof AuthenticatedAiProductsRoute
   '/ai/publishing': typeof AuthenticatedAiPublishingRoute
+  '/ai/queue': typeof AuthenticatedAiQueueRoute
   '/ai/registry': typeof AuthenticatedAiRegistryRoute
   '/ai/seo': typeof AuthenticatedAiSeoRoute
   '/ai/settings': typeof AuthenticatedAiSettingsRoute
@@ -1012,6 +1020,7 @@ export interface FileRoutesById {
   '/_authenticated/ai/orchestrator': typeof AuthenticatedAiOrchestratorRoute
   '/_authenticated/ai/products': typeof AuthenticatedAiProductsRoute
   '/_authenticated/ai/publishing': typeof AuthenticatedAiPublishingRoute
+  '/_authenticated/ai/queue': typeof AuthenticatedAiQueueRoute
   '/_authenticated/ai/registry': typeof AuthenticatedAiRegistryRoute
   '/_authenticated/ai/seo': typeof AuthenticatedAiSeoRoute
   '/_authenticated/ai/settings': typeof AuthenticatedAiSettingsRoute
@@ -1125,6 +1134,7 @@ export interface FileRouteTypes {
     | '/ai/orchestrator'
     | '/ai/products'
     | '/ai/publishing'
+    | '/ai/queue'
     | '/ai/registry'
     | '/ai/seo'
     | '/ai/settings'
@@ -1235,6 +1245,7 @@ export interface FileRouteTypes {
     | '/ai/orchestrator'
     | '/ai/products'
     | '/ai/publishing'
+    | '/ai/queue'
     | '/ai/registry'
     | '/ai/seo'
     | '/ai/settings'
@@ -1347,6 +1358,7 @@ export interface FileRouteTypes {
     | '/_authenticated/ai/orchestrator'
     | '/_authenticated/ai/products'
     | '/_authenticated/ai/publishing'
+    | '/_authenticated/ai/queue'
     | '/_authenticated/ai/registry'
     | '/_authenticated/ai/seo'
     | '/_authenticated/ai/settings'
@@ -2067,6 +2079,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAiRegistryRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/ai/queue': {
+      id: '/_authenticated/ai/queue'
+      path: '/ai/queue'
+      fullPath: '/ai/queue'
+      preLoaderRoute: typeof AuthenticatedAiQueueRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/ai/publishing': {
       id: '/_authenticated/ai/publishing'
       path: '/ai/publishing'
@@ -2301,6 +2320,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAiOrchestratorRoute: typeof AuthenticatedAiOrchestratorRoute
   AuthenticatedAiProductsRoute: typeof AuthenticatedAiProductsRoute
   AuthenticatedAiPublishingRoute: typeof AuthenticatedAiPublishingRoute
+  AuthenticatedAiQueueRoute: typeof AuthenticatedAiQueueRoute
   AuthenticatedAiRegistryRoute: typeof AuthenticatedAiRegistryRoute
   AuthenticatedAiSeoRoute: typeof AuthenticatedAiSeoRoute
   AuthenticatedAiSettingsRoute: typeof AuthenticatedAiSettingsRoute
@@ -2346,6 +2366,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAiOrchestratorRoute: AuthenticatedAiOrchestratorRoute,
   AuthenticatedAiProductsRoute: AuthenticatedAiProductsRoute,
   AuthenticatedAiPublishingRoute: AuthenticatedAiPublishingRoute,
+  AuthenticatedAiQueueRoute: AuthenticatedAiQueueRoute,
   AuthenticatedAiRegistryRoute: AuthenticatedAiRegistryRoute,
   AuthenticatedAiSeoRoute: AuthenticatedAiSeoRoute,
   AuthenticatedAiSettingsRoute: AuthenticatedAiSettingsRoute,

@@ -19,7 +19,17 @@ export type AiAgent = {
   estimated_completion: string | null;
   last_run_at: string | null;
   sort_order: number;
+  /** Orchestrator (CEO agent) fields */
+  priority: number;
+  capabilities: string[];
+  queue: string;
+  version: string;
+  last_activity_at: string | null;
+  tasks_completed: number;
+  tasks_failed: number;
+  avg_runtime_ms: number;
 };
+
 
 export type AiTask = {
   id: string;
@@ -95,7 +105,7 @@ export async function listAgents(): Promise<AiAgent[]> {
     .select("*")
     .order("sort_order", { ascending: true });
   if (error) throw error;
-  return (data ?? []) as AiAgent[];
+  return (data ?? []) as unknown as AiAgent[];
 }
 
 export async function listTasks(opts: { agentKey?: string; limit?: number } = {}) {

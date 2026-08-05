@@ -97,12 +97,19 @@ import { Route as AuthenticatedBrokerCompletedRouteImport } from './routes/_auth
 import { Route as AuthenticatedAiWorkforceRouteImport } from './routes/_authenticated/ai.workforce'
 import { Route as AuthenticatedAiSettingsRouteImport } from './routes/_authenticated/ai.settings'
 import { Route as AuthenticatedAiSeoRouteImport } from './routes/_authenticated/ai.seo'
+import { Route as AuthenticatedAiRegistryRouteImport } from './routes/_authenticated/ai.registry'
+import { Route as AuthenticatedAiQueueRouteImport } from './routes/_authenticated/ai.queue'
 import { Route as AuthenticatedAiPublishingRouteImport } from './routes/_authenticated/ai.publishing'
 import { Route as AuthenticatedAiProductsRouteImport } from './routes/_authenticated/ai.products'
+import { Route as AuthenticatedAiPerformanceRouteImport } from './routes/_authenticated/ai.performance'
+import { Route as AuthenticatedAiOrchestratorRouteImport } from './routes/_authenticated/ai.orchestrator'
+import { Route as AuthenticatedAiNotificationsRouteImport } from './routes/_authenticated/ai.notifications'
+import { Route as AuthenticatedAiMonitorRouteImport } from './routes/_authenticated/ai.monitor'
 import { Route as AuthenticatedAiDashboardRouteImport } from './routes/_authenticated/ai.dashboard'
 import { Route as AuthenticatedAiContentRouteImport } from './routes/_authenticated/ai.content'
 import { Route as AuthenticatedAiAutomationRouteImport } from './routes/_authenticated/ai.automation'
 import { Route as AuthenticatedAiAnalyticsRouteImport } from './routes/_authenticated/ai.analytics'
+import { Route as AuthenticatedAiActivityRouteImport } from './routes/_authenticated/ai.activity'
 import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin.users'
 import { Route as AuthenticatedAdminSettingsRouteImport } from './routes/_authenticated/admin.settings'
 import { Route as AuthenticatedAdminReportsRouteImport } from './routes/_authenticated/admin.reports'
@@ -597,6 +604,16 @@ const AuthenticatedAiSeoRoute = AuthenticatedAiSeoRouteImport.update({
   path: '/ai/seo',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAiRegistryRoute = AuthenticatedAiRegistryRouteImport.update({
+  id: '/ai/registry',
+  path: '/ai/registry',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedAiQueueRoute = AuthenticatedAiQueueRouteImport.update({
+  id: '/ai/queue',
+  path: '/ai/queue',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedAiPublishingRoute =
   AuthenticatedAiPublishingRouteImport.update({
     id: '/ai/publishing',
@@ -606,6 +623,29 @@ const AuthenticatedAiPublishingRoute =
 const AuthenticatedAiProductsRoute = AuthenticatedAiProductsRouteImport.update({
   id: '/ai/products',
   path: '/ai/products',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedAiPerformanceRoute =
+  AuthenticatedAiPerformanceRouteImport.update({
+    id: '/ai/performance',
+    path: '/ai/performance',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAiOrchestratorRoute =
+  AuthenticatedAiOrchestratorRouteImport.update({
+    id: '/ai/orchestrator',
+    path: '/ai/orchestrator',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAiNotificationsRoute =
+  AuthenticatedAiNotificationsRouteImport.update({
+    id: '/ai/notifications',
+    path: '/ai/notifications',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAiMonitorRoute = AuthenticatedAiMonitorRouteImport.update({
+  id: '/ai/monitor',
+  path: '/ai/monitor',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedAiDashboardRoute =
@@ -631,6 +671,11 @@ const AuthenticatedAiAnalyticsRoute =
     path: '/ai/analytics',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedAiActivityRoute = AuthenticatedAiActivityRouteImport.update({
+  id: '/ai/activity',
+  path: '/ai/activity',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedAdminUsersRoute = AuthenticatedAdminUsersRouteImport.update({
   id: '/admin/users',
   path: '/admin/users',
@@ -769,12 +814,19 @@ export interface FileRoutesByFullPath {
   '/admin/reports': typeof AuthenticatedAdminReportsRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
+  '/ai/activity': typeof AuthenticatedAiActivityRoute
   '/ai/analytics': typeof AuthenticatedAiAnalyticsRoute
   '/ai/automation': typeof AuthenticatedAiAutomationRoute
   '/ai/content': typeof AuthenticatedAiContentRoute
   '/ai/dashboard': typeof AuthenticatedAiDashboardRoute
+  '/ai/monitor': typeof AuthenticatedAiMonitorRoute
+  '/ai/notifications': typeof AuthenticatedAiNotificationsRoute
+  '/ai/orchestrator': typeof AuthenticatedAiOrchestratorRoute
+  '/ai/performance': typeof AuthenticatedAiPerformanceRoute
   '/ai/products': typeof AuthenticatedAiProductsRoute
   '/ai/publishing': typeof AuthenticatedAiPublishingRoute
+  '/ai/queue': typeof AuthenticatedAiQueueRoute
+  '/ai/registry': typeof AuthenticatedAiRegistryRoute
   '/ai/seo': typeof AuthenticatedAiSeoRoute
   '/ai/settings': typeof AuthenticatedAiSettingsRoute
   '/ai/workforce': typeof AuthenticatedAiWorkforceRoute
@@ -877,12 +929,19 @@ export interface FileRoutesByTo {
   '/admin/reports': typeof AuthenticatedAdminReportsRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
+  '/ai/activity': typeof AuthenticatedAiActivityRoute
   '/ai/analytics': typeof AuthenticatedAiAnalyticsRoute
   '/ai/automation': typeof AuthenticatedAiAutomationRoute
   '/ai/content': typeof AuthenticatedAiContentRoute
   '/ai/dashboard': typeof AuthenticatedAiDashboardRoute
+  '/ai/monitor': typeof AuthenticatedAiMonitorRoute
+  '/ai/notifications': typeof AuthenticatedAiNotificationsRoute
+  '/ai/orchestrator': typeof AuthenticatedAiOrchestratorRoute
+  '/ai/performance': typeof AuthenticatedAiPerformanceRoute
   '/ai/products': typeof AuthenticatedAiProductsRoute
   '/ai/publishing': typeof AuthenticatedAiPublishingRoute
+  '/ai/queue': typeof AuthenticatedAiQueueRoute
+  '/ai/registry': typeof AuthenticatedAiRegistryRoute
   '/ai/seo': typeof AuthenticatedAiSeoRoute
   '/ai/settings': typeof AuthenticatedAiSettingsRoute
   '/ai/workforce': typeof AuthenticatedAiWorkforceRoute
@@ -988,12 +1047,19 @@ export interface FileRoutesById {
   '/_authenticated/admin/reports': typeof AuthenticatedAdminReportsRoute
   '/_authenticated/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
+  '/_authenticated/ai/activity': typeof AuthenticatedAiActivityRoute
   '/_authenticated/ai/analytics': typeof AuthenticatedAiAnalyticsRoute
   '/_authenticated/ai/automation': typeof AuthenticatedAiAutomationRoute
   '/_authenticated/ai/content': typeof AuthenticatedAiContentRoute
   '/_authenticated/ai/dashboard': typeof AuthenticatedAiDashboardRoute
+  '/_authenticated/ai/monitor': typeof AuthenticatedAiMonitorRoute
+  '/_authenticated/ai/notifications': typeof AuthenticatedAiNotificationsRoute
+  '/_authenticated/ai/orchestrator': typeof AuthenticatedAiOrchestratorRoute
+  '/_authenticated/ai/performance': typeof AuthenticatedAiPerformanceRoute
   '/_authenticated/ai/products': typeof AuthenticatedAiProductsRoute
   '/_authenticated/ai/publishing': typeof AuthenticatedAiPublishingRoute
+  '/_authenticated/ai/queue': typeof AuthenticatedAiQueueRoute
+  '/_authenticated/ai/registry': typeof AuthenticatedAiRegistryRoute
   '/_authenticated/ai/seo': typeof AuthenticatedAiSeoRoute
   '/_authenticated/ai/settings': typeof AuthenticatedAiSettingsRoute
   '/_authenticated/ai/workforce': typeof AuthenticatedAiWorkforceRoute
@@ -1099,12 +1165,19 @@ export interface FileRouteTypes {
     | '/admin/reports'
     | '/admin/settings'
     | '/admin/users'
+    | '/ai/activity'
     | '/ai/analytics'
     | '/ai/automation'
     | '/ai/content'
     | '/ai/dashboard'
+    | '/ai/monitor'
+    | '/ai/notifications'
+    | '/ai/orchestrator'
+    | '/ai/performance'
     | '/ai/products'
     | '/ai/publishing'
+    | '/ai/queue'
+    | '/ai/registry'
     | '/ai/seo'
     | '/ai/settings'
     | '/ai/workforce'
@@ -1207,12 +1280,19 @@ export interface FileRouteTypes {
     | '/admin/reports'
     | '/admin/settings'
     | '/admin/users'
+    | '/ai/activity'
     | '/ai/analytics'
     | '/ai/automation'
     | '/ai/content'
     | '/ai/dashboard'
+    | '/ai/monitor'
+    | '/ai/notifications'
+    | '/ai/orchestrator'
+    | '/ai/performance'
     | '/ai/products'
     | '/ai/publishing'
+    | '/ai/queue'
+    | '/ai/registry'
     | '/ai/seo'
     | '/ai/settings'
     | '/ai/workforce'
@@ -1317,12 +1397,19 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/reports'
     | '/_authenticated/admin/settings'
     | '/_authenticated/admin/users'
+    | '/_authenticated/ai/activity'
     | '/_authenticated/ai/analytics'
     | '/_authenticated/ai/automation'
     | '/_authenticated/ai/content'
     | '/_authenticated/ai/dashboard'
+    | '/_authenticated/ai/monitor'
+    | '/_authenticated/ai/notifications'
+    | '/_authenticated/ai/orchestrator'
+    | '/_authenticated/ai/performance'
     | '/_authenticated/ai/products'
     | '/_authenticated/ai/publishing'
+    | '/_authenticated/ai/queue'
+    | '/_authenticated/ai/registry'
     | '/_authenticated/ai/seo'
     | '/_authenticated/ai/settings'
     | '/_authenticated/ai/workforce'
@@ -2035,6 +2122,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAiSeoRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/ai/registry': {
+      id: '/_authenticated/ai/registry'
+      path: '/ai/registry'
+      fullPath: '/ai/registry'
+      preLoaderRoute: typeof AuthenticatedAiRegistryRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/ai/queue': {
+      id: '/_authenticated/ai/queue'
+      path: '/ai/queue'
+      fullPath: '/ai/queue'
+      preLoaderRoute: typeof AuthenticatedAiQueueRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/ai/publishing': {
       id: '/_authenticated/ai/publishing'
       path: '/ai/publishing'
@@ -2047,6 +2148,34 @@ declare module '@tanstack/react-router' {
       path: '/ai/products'
       fullPath: '/ai/products'
       preLoaderRoute: typeof AuthenticatedAiProductsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/ai/performance': {
+      id: '/_authenticated/ai/performance'
+      path: '/ai/performance'
+      fullPath: '/ai/performance'
+      preLoaderRoute: typeof AuthenticatedAiPerformanceRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/ai/orchestrator': {
+      id: '/_authenticated/ai/orchestrator'
+      path: '/ai/orchestrator'
+      fullPath: '/ai/orchestrator'
+      preLoaderRoute: typeof AuthenticatedAiOrchestratorRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/ai/notifications': {
+      id: '/_authenticated/ai/notifications'
+      path: '/ai/notifications'
+      fullPath: '/ai/notifications'
+      preLoaderRoute: typeof AuthenticatedAiNotificationsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/ai/monitor': {
+      id: '/_authenticated/ai/monitor'
+      path: '/ai/monitor'
+      fullPath: '/ai/monitor'
+      preLoaderRoute: typeof AuthenticatedAiMonitorRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/ai/dashboard': {
@@ -2075,6 +2204,13 @@ declare module '@tanstack/react-router' {
       path: '/ai/analytics'
       fullPath: '/ai/analytics'
       preLoaderRoute: typeof AuthenticatedAiAnalyticsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/ai/activity': {
+      id: '/_authenticated/ai/activity'
+      path: '/ai/activity'
+      fullPath: '/ai/activity'
+      preLoaderRoute: typeof AuthenticatedAiActivityRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/admin/users': {
@@ -2255,12 +2391,19 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminReportsRoute: typeof AuthenticatedAdminReportsRoute
   AuthenticatedAdminSettingsRoute: typeof AuthenticatedAdminSettingsRoute
   AuthenticatedAdminUsersRoute: typeof AuthenticatedAdminUsersRoute
+  AuthenticatedAiActivityRoute: typeof AuthenticatedAiActivityRoute
   AuthenticatedAiAnalyticsRoute: typeof AuthenticatedAiAnalyticsRoute
   AuthenticatedAiAutomationRoute: typeof AuthenticatedAiAutomationRoute
   AuthenticatedAiContentRoute: typeof AuthenticatedAiContentRoute
   AuthenticatedAiDashboardRoute: typeof AuthenticatedAiDashboardRoute
+  AuthenticatedAiMonitorRoute: typeof AuthenticatedAiMonitorRoute
+  AuthenticatedAiNotificationsRoute: typeof AuthenticatedAiNotificationsRoute
+  AuthenticatedAiOrchestratorRoute: typeof AuthenticatedAiOrchestratorRoute
+  AuthenticatedAiPerformanceRoute: typeof AuthenticatedAiPerformanceRoute
   AuthenticatedAiProductsRoute: typeof AuthenticatedAiProductsRoute
   AuthenticatedAiPublishingRoute: typeof AuthenticatedAiPublishingRoute
+  AuthenticatedAiQueueRoute: typeof AuthenticatedAiQueueRoute
+  AuthenticatedAiRegistryRoute: typeof AuthenticatedAiRegistryRoute
   AuthenticatedAiSeoRoute: typeof AuthenticatedAiSeoRoute
   AuthenticatedAiSettingsRoute: typeof AuthenticatedAiSettingsRoute
   AuthenticatedAiWorkforceRoute: typeof AuthenticatedAiWorkforceRoute
@@ -2298,12 +2441,19 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminReportsRoute: AuthenticatedAdminReportsRoute,
   AuthenticatedAdminSettingsRoute: AuthenticatedAdminSettingsRoute,
   AuthenticatedAdminUsersRoute: AuthenticatedAdminUsersRoute,
+  AuthenticatedAiActivityRoute: AuthenticatedAiActivityRoute,
   AuthenticatedAiAnalyticsRoute: AuthenticatedAiAnalyticsRoute,
   AuthenticatedAiAutomationRoute: AuthenticatedAiAutomationRoute,
   AuthenticatedAiContentRoute: AuthenticatedAiContentRoute,
   AuthenticatedAiDashboardRoute: AuthenticatedAiDashboardRoute,
+  AuthenticatedAiMonitorRoute: AuthenticatedAiMonitorRoute,
+  AuthenticatedAiNotificationsRoute: AuthenticatedAiNotificationsRoute,
+  AuthenticatedAiOrchestratorRoute: AuthenticatedAiOrchestratorRoute,
+  AuthenticatedAiPerformanceRoute: AuthenticatedAiPerformanceRoute,
   AuthenticatedAiProductsRoute: AuthenticatedAiProductsRoute,
   AuthenticatedAiPublishingRoute: AuthenticatedAiPublishingRoute,
+  AuthenticatedAiQueueRoute: AuthenticatedAiQueueRoute,
+  AuthenticatedAiRegistryRoute: AuthenticatedAiRegistryRoute,
   AuthenticatedAiSeoRoute: AuthenticatedAiSeoRoute,
   AuthenticatedAiSettingsRoute: AuthenticatedAiSettingsRoute,
   AuthenticatedAiWorkforceRoute: AuthenticatedAiWorkforceRoute,

@@ -13,11 +13,24 @@ import {
   Sparkles,
   Menu,
   X,
+  Brain,
+  ListOrdered,
+  Activity,
+  Gauge,
+  Bell,
+  BookUser,
 } from "lucide-react";
 import { RoleGuard } from "@/components/auth/RoleGuard";
 
 export const AI_NAV = [
   { to: "/ai/dashboard", label: "Dashboard", icon: BarChart3 },
+  { to: "/ai/orchestrator", label: "Orchestrator", icon: Brain },
+  { to: "/ai/registry", label: "Agent Registry", icon: BookUser },
+  { to: "/ai/queue", label: "Task Queue", icon: ListOrdered },
+  { to: "/ai/monitor", label: "Queue Monitor", icon: Gauge },
+  { to: "/ai/activity", label: "Activity Timeline", icon: Activity },
+  { to: "/ai/performance", label: "Agent Performance", icon: LineChart },
+  { to: "/ai/notifications", label: "Notifications", icon: Bell },
   { to: "/ai/workforce", label: "AI Workforce", icon: Bot },
   { to: "/ai/seo", label: "SEO Factory", icon: Search },
   { to: "/ai/products", label: "Digital Product Factory", icon: Package },
@@ -27,6 +40,7 @@ export const AI_NAV = [
   { to: "/ai/automation", label: "Automation", icon: Workflow },
   { to: "/ai/settings", label: "Settings", icon: Settings },
 ];
+
 
 /**
  * Layout for the AI Growth Center. Completely independent from the CRM /

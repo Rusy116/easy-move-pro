@@ -103,6 +103,7 @@ import { Route as AuthenticatedAiPublishingRouteImport } from './routes/_authent
 import { Route as AuthenticatedAiProductsRouteImport } from './routes/_authenticated/ai.products'
 import { Route as AuthenticatedAiPerformanceRouteImport } from './routes/_authenticated/ai.performance'
 import { Route as AuthenticatedAiOrchestratorRouteImport } from './routes/_authenticated/ai.orchestrator'
+import { Route as AuthenticatedAiNotificationsRouteImport } from './routes/_authenticated/ai.notifications'
 import { Route as AuthenticatedAiMonitorRouteImport } from './routes/_authenticated/ai.monitor'
 import { Route as AuthenticatedAiDashboardRouteImport } from './routes/_authenticated/ai.dashboard'
 import { Route as AuthenticatedAiContentRouteImport } from './routes/_authenticated/ai.content'
@@ -636,6 +637,12 @@ const AuthenticatedAiOrchestratorRoute =
     path: '/ai/orchestrator',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedAiNotificationsRoute =
+  AuthenticatedAiNotificationsRouteImport.update({
+    id: '/ai/notifications',
+    path: '/ai/notifications',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAiMonitorRoute = AuthenticatedAiMonitorRouteImport.update({
   id: '/ai/monitor',
   path: '/ai/monitor',
@@ -813,6 +820,7 @@ export interface FileRoutesByFullPath {
   '/ai/content': typeof AuthenticatedAiContentRoute
   '/ai/dashboard': typeof AuthenticatedAiDashboardRoute
   '/ai/monitor': typeof AuthenticatedAiMonitorRoute
+  '/ai/notifications': typeof AuthenticatedAiNotificationsRoute
   '/ai/orchestrator': typeof AuthenticatedAiOrchestratorRoute
   '/ai/performance': typeof AuthenticatedAiPerformanceRoute
   '/ai/products': typeof AuthenticatedAiProductsRoute
@@ -927,6 +935,7 @@ export interface FileRoutesByTo {
   '/ai/content': typeof AuthenticatedAiContentRoute
   '/ai/dashboard': typeof AuthenticatedAiDashboardRoute
   '/ai/monitor': typeof AuthenticatedAiMonitorRoute
+  '/ai/notifications': typeof AuthenticatedAiNotificationsRoute
   '/ai/orchestrator': typeof AuthenticatedAiOrchestratorRoute
   '/ai/performance': typeof AuthenticatedAiPerformanceRoute
   '/ai/products': typeof AuthenticatedAiProductsRoute
@@ -1044,6 +1053,7 @@ export interface FileRoutesById {
   '/_authenticated/ai/content': typeof AuthenticatedAiContentRoute
   '/_authenticated/ai/dashboard': typeof AuthenticatedAiDashboardRoute
   '/_authenticated/ai/monitor': typeof AuthenticatedAiMonitorRoute
+  '/_authenticated/ai/notifications': typeof AuthenticatedAiNotificationsRoute
   '/_authenticated/ai/orchestrator': typeof AuthenticatedAiOrchestratorRoute
   '/_authenticated/ai/performance': typeof AuthenticatedAiPerformanceRoute
   '/_authenticated/ai/products': typeof AuthenticatedAiProductsRoute
@@ -1161,6 +1171,7 @@ export interface FileRouteTypes {
     | '/ai/content'
     | '/ai/dashboard'
     | '/ai/monitor'
+    | '/ai/notifications'
     | '/ai/orchestrator'
     | '/ai/performance'
     | '/ai/products'
@@ -1275,6 +1286,7 @@ export interface FileRouteTypes {
     | '/ai/content'
     | '/ai/dashboard'
     | '/ai/monitor'
+    | '/ai/notifications'
     | '/ai/orchestrator'
     | '/ai/performance'
     | '/ai/products'
@@ -1391,6 +1403,7 @@ export interface FileRouteTypes {
     | '/_authenticated/ai/content'
     | '/_authenticated/ai/dashboard'
     | '/_authenticated/ai/monitor'
+    | '/_authenticated/ai/notifications'
     | '/_authenticated/ai/orchestrator'
     | '/_authenticated/ai/performance'
     | '/_authenticated/ai/products'
@@ -2151,6 +2164,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAiOrchestratorRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/ai/notifications': {
+      id: '/_authenticated/ai/notifications'
+      path: '/ai/notifications'
+      fullPath: '/ai/notifications'
+      preLoaderRoute: typeof AuthenticatedAiNotificationsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/ai/monitor': {
       id: '/_authenticated/ai/monitor'
       path: '/ai/monitor'
@@ -2377,6 +2397,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAiContentRoute: typeof AuthenticatedAiContentRoute
   AuthenticatedAiDashboardRoute: typeof AuthenticatedAiDashboardRoute
   AuthenticatedAiMonitorRoute: typeof AuthenticatedAiMonitorRoute
+  AuthenticatedAiNotificationsRoute: typeof AuthenticatedAiNotificationsRoute
   AuthenticatedAiOrchestratorRoute: typeof AuthenticatedAiOrchestratorRoute
   AuthenticatedAiPerformanceRoute: typeof AuthenticatedAiPerformanceRoute
   AuthenticatedAiProductsRoute: typeof AuthenticatedAiProductsRoute
@@ -2426,6 +2447,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAiContentRoute: AuthenticatedAiContentRoute,
   AuthenticatedAiDashboardRoute: AuthenticatedAiDashboardRoute,
   AuthenticatedAiMonitorRoute: AuthenticatedAiMonitorRoute,
+  AuthenticatedAiNotificationsRoute: AuthenticatedAiNotificationsRoute,
   AuthenticatedAiOrchestratorRoute: AuthenticatedAiOrchestratorRoute,
   AuthenticatedAiPerformanceRoute: AuthenticatedAiPerformanceRoute,
   AuthenticatedAiProductsRoute: AuthenticatedAiProductsRoute,

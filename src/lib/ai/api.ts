@@ -105,7 +105,7 @@ export async function listAgents(): Promise<AiAgent[]> {
     .select("*")
     .order("sort_order", { ascending: true });
   if (error) throw error;
-  return (data ?? []) as AiAgent[];
+  return (data ?? []) as unknown as AiAgent[];
 }
 
 export async function listTasks(opts: { agentKey?: string; limit?: number } = {}) {

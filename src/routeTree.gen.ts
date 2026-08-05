@@ -99,6 +99,7 @@ import { Route as AuthenticatedAiSettingsRouteImport } from './routes/_authentic
 import { Route as AuthenticatedAiSeoRouteImport } from './routes/_authenticated/ai.seo'
 import { Route as AuthenticatedAiPublishingRouteImport } from './routes/_authenticated/ai.publishing'
 import { Route as AuthenticatedAiProductsRouteImport } from './routes/_authenticated/ai.products'
+import { Route as AuthenticatedAiOrchestratorRouteImport } from './routes/_authenticated/ai.orchestrator'
 import { Route as AuthenticatedAiDashboardRouteImport } from './routes/_authenticated/ai.dashboard'
 import { Route as AuthenticatedAiContentRouteImport } from './routes/_authenticated/ai.content'
 import { Route as AuthenticatedAiAutomationRouteImport } from './routes/_authenticated/ai.automation'
@@ -608,6 +609,12 @@ const AuthenticatedAiProductsRoute = AuthenticatedAiProductsRouteImport.update({
   path: '/ai/products',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAiOrchestratorRoute =
+  AuthenticatedAiOrchestratorRouteImport.update({
+    id: '/ai/orchestrator',
+    path: '/ai/orchestrator',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAiDashboardRoute =
   AuthenticatedAiDashboardRouteImport.update({
     id: '/ai/dashboard',
@@ -773,6 +780,7 @@ export interface FileRoutesByFullPath {
   '/ai/automation': typeof AuthenticatedAiAutomationRoute
   '/ai/content': typeof AuthenticatedAiContentRoute
   '/ai/dashboard': typeof AuthenticatedAiDashboardRoute
+  '/ai/orchestrator': typeof AuthenticatedAiOrchestratorRoute
   '/ai/products': typeof AuthenticatedAiProductsRoute
   '/ai/publishing': typeof AuthenticatedAiPublishingRoute
   '/ai/seo': typeof AuthenticatedAiSeoRoute
@@ -881,6 +889,7 @@ export interface FileRoutesByTo {
   '/ai/automation': typeof AuthenticatedAiAutomationRoute
   '/ai/content': typeof AuthenticatedAiContentRoute
   '/ai/dashboard': typeof AuthenticatedAiDashboardRoute
+  '/ai/orchestrator': typeof AuthenticatedAiOrchestratorRoute
   '/ai/products': typeof AuthenticatedAiProductsRoute
   '/ai/publishing': typeof AuthenticatedAiPublishingRoute
   '/ai/seo': typeof AuthenticatedAiSeoRoute
@@ -992,6 +1001,7 @@ export interface FileRoutesById {
   '/_authenticated/ai/automation': typeof AuthenticatedAiAutomationRoute
   '/_authenticated/ai/content': typeof AuthenticatedAiContentRoute
   '/_authenticated/ai/dashboard': typeof AuthenticatedAiDashboardRoute
+  '/_authenticated/ai/orchestrator': typeof AuthenticatedAiOrchestratorRoute
   '/_authenticated/ai/products': typeof AuthenticatedAiProductsRoute
   '/_authenticated/ai/publishing': typeof AuthenticatedAiPublishingRoute
   '/_authenticated/ai/seo': typeof AuthenticatedAiSeoRoute
@@ -1103,6 +1113,7 @@ export interface FileRouteTypes {
     | '/ai/automation'
     | '/ai/content'
     | '/ai/dashboard'
+    | '/ai/orchestrator'
     | '/ai/products'
     | '/ai/publishing'
     | '/ai/seo'
@@ -1211,6 +1222,7 @@ export interface FileRouteTypes {
     | '/ai/automation'
     | '/ai/content'
     | '/ai/dashboard'
+    | '/ai/orchestrator'
     | '/ai/products'
     | '/ai/publishing'
     | '/ai/seo'
@@ -1321,6 +1333,7 @@ export interface FileRouteTypes {
     | '/_authenticated/ai/automation'
     | '/_authenticated/ai/content'
     | '/_authenticated/ai/dashboard'
+    | '/_authenticated/ai/orchestrator'
     | '/_authenticated/ai/products'
     | '/_authenticated/ai/publishing'
     | '/_authenticated/ai/seo'
@@ -2049,6 +2062,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAiProductsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/ai/orchestrator': {
+      id: '/_authenticated/ai/orchestrator'
+      path: '/ai/orchestrator'
+      fullPath: '/ai/orchestrator'
+      preLoaderRoute: typeof AuthenticatedAiOrchestratorRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/ai/dashboard': {
       id: '/_authenticated/ai/dashboard'
       path: '/ai/dashboard'
@@ -2259,6 +2279,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAiAutomationRoute: typeof AuthenticatedAiAutomationRoute
   AuthenticatedAiContentRoute: typeof AuthenticatedAiContentRoute
   AuthenticatedAiDashboardRoute: typeof AuthenticatedAiDashboardRoute
+  AuthenticatedAiOrchestratorRoute: typeof AuthenticatedAiOrchestratorRoute
   AuthenticatedAiProductsRoute: typeof AuthenticatedAiProductsRoute
   AuthenticatedAiPublishingRoute: typeof AuthenticatedAiPublishingRoute
   AuthenticatedAiSeoRoute: typeof AuthenticatedAiSeoRoute
@@ -2302,6 +2323,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAiAutomationRoute: AuthenticatedAiAutomationRoute,
   AuthenticatedAiContentRoute: AuthenticatedAiContentRoute,
   AuthenticatedAiDashboardRoute: AuthenticatedAiDashboardRoute,
+  AuthenticatedAiOrchestratorRoute: AuthenticatedAiOrchestratorRoute,
   AuthenticatedAiProductsRoute: AuthenticatedAiProductsRoute,
   AuthenticatedAiPublishingRoute: AuthenticatedAiPublishingRoute,
   AuthenticatedAiSeoRoute: AuthenticatedAiSeoRoute,

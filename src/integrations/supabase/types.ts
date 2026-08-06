@@ -486,6 +486,72 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_supervisor_incidents: {
+        Row: {
+          agent_key: string | null
+          created_at: string
+          details: Json
+          id: string
+          kind: string
+          landing_slug: string | null
+          message: string
+          resolved_at: string | null
+          severity: string
+        }
+        Insert: {
+          agent_key?: string | null
+          created_at?: string
+          details?: Json
+          id?: string
+          kind: string
+          landing_slug?: string | null
+          message: string
+          resolved_at?: string | null
+          severity?: string
+        }
+        Update: {
+          agent_key?: string | null
+          created_at?: string
+          details?: Json
+          id?: string
+          kind?: string
+          landing_slug?: string | null
+          message?: string
+          resolved_at?: string | null
+          severity?: string
+        }
+        Relationships: []
+      }
+      ai_supervisor_reports: {
+        Row: {
+          batch_label: string
+          created_at: string
+          id: string
+          kind: string
+          metrics: Json
+          state_code: string | null
+          summary: string
+        }
+        Insert: {
+          batch_label: string
+          created_at?: string
+          id?: string
+          kind: string
+          metrics?: Json
+          state_code?: string | null
+          summary: string
+        }
+        Update: {
+          batch_label?: string
+          created_at?: string
+          id?: string
+          kind?: string
+          metrics?: Json
+          state_code?: string | null
+          summary?: string
+        }
+        Relationships: []
+      }
       ai_task_logs: {
         Row: {
           agent_key: string
@@ -1015,16 +1081,20 @@ export type Database = {
           id: string
           landing_slug: string
           last_error: string | null
+          leased_until: string | null
           population: number
           priority: number
           queued_at: string
+          skipped_reason: string | null
           stage: number
           stage_results: Json
           started_at: string | null
           state_code: string
           status: string
+          supervisor_state: string
           tier: string
           updated_at: string
+          worker_id: string | null
         }
         Insert: {
           attempts?: number
@@ -1037,16 +1107,20 @@ export type Database = {
           id?: string
           landing_slug: string
           last_error?: string | null
+          leased_until?: string | null
           population?: number
           priority?: number
           queued_at?: string
+          skipped_reason?: string | null
           stage?: number
           stage_results?: Json
           started_at?: string | null
           state_code: string
           status?: string
+          supervisor_state?: string
           tier?: string
           updated_at?: string
+          worker_id?: string | null
         }
         Update: {
           attempts?: number
@@ -1059,16 +1133,20 @@ export type Database = {
           id?: string
           landing_slug?: string
           last_error?: string | null
+          leased_until?: string | null
           population?: number
           priority?: number
           queued_at?: string
+          skipped_reason?: string | null
           stage?: number
           stage_results?: Json
           started_at?: string | null
           state_code?: string
           status?: string
+          supervisor_state?: string
           tier?: string
           updated_at?: string
+          worker_id?: string | null
         }
         Relationships: []
       }

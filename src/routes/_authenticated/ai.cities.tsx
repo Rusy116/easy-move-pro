@@ -206,10 +206,17 @@ function CityLandingDashboard() {
         <StatCard label="Publishing speed" value={`${speed}/hr`} tone="info" />
         <StatCard label="Skipped (already live)" value={skipped} />
         <StatCard label="Errors" value={errors.length} tone={errors.length ? "warning" : undefined} />
-        <StatCard label="Indexed pages" value={published.length} tone="info" />
-        <StatCard label="Organic clicks" value={0} />
-        <StatCard label="Revenue attributed" value="$0" />
+        <StatCard label="Indexed pages" value={indexed.length} tone="info" />
+        <StatCard label="Organic clicks" value={clicks} />
+        <StatCard label="Storage used" value={`${storageMb} MB`} />
+        <StatCard label="Queue status" value={queueStatus} tone="info" />
+        <StatCard
+          label="System health"
+          value={health}
+          tone={health === "healthy" ? "success" : "warning"}
+        />
       </div>
+
 
       <SectionShell title="Generate">
         <div className="flex flex-wrap items-end gap-3">

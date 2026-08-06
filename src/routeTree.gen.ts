@@ -23,7 +23,7 @@ import { Route as MovingEstimateSoftwareRouteImport } from './routes/moving-esti
 import { Route as MovingDispatchSoftwareRouteImport } from './routes/moving-dispatch-software'
 import { Route as MovingCompanySoftwareRouteImport } from './routes/moving-company-software'
 import { Route as MovingCompanyCrmRouteImport } from './routes/moving-company-crm'
-import { Route as MovingCalculatorCityRouteImport } from './routes/moving-calculator-$city'
+import { Route as MovingCalculatorChar123cityChar125RouteImport } from './routes/moving-calculator-{$city}'
 import { Route as LeadGenerationRouteImport } from './routes/lead-generation'
 import { Route as JoinRouteImport } from './routes/join'
 import { Route as ForMoversRouteImport } from './routes/for-movers'
@@ -196,11 +196,12 @@ const MovingCompanyCrmRoute = MovingCompanyCrmRouteImport.update({
   path: '/moving-company-crm',
   getParentRoute: () => rootRouteImport,
 } as any)
-const MovingCalculatorCityRoute = MovingCalculatorCityRouteImport.update({
-  id: '/moving-calculator-$city',
-  path: '/moving-calculator-$city',
-  getParentRoute: () => rootRouteImport,
-} as any)
+const MovingCalculatorChar123cityChar125Route =
+  MovingCalculatorChar123cityChar125RouteImport.update({
+    id: '/moving-calculator-{$city}',
+    path: '/moving-calculator-{$city}',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const LeadGenerationRoute = LeadGenerationRouteImport.update({
   id: '/lead-generation',
   path: '/lead-generation',
@@ -776,7 +777,7 @@ export interface FileRoutesByFullPath {
   '/for-movers': typeof ForMoversRoute
   '/join': typeof JoinRoute
   '/lead-generation': typeof LeadGenerationRoute
-  '/moving-calculator-$city': typeof MovingCalculatorCityRoute
+  '/moving-calculator-{$city}': typeof MovingCalculatorChar123cityChar125Route
   '/moving-company-crm': typeof MovingCompanyCrmRoute
   '/moving-company-software': typeof MovingCompanySoftwareRoute
   '/moving-dispatch-software': typeof MovingDispatchSoftwareRoute
@@ -893,7 +894,7 @@ export interface FileRoutesByTo {
   '/for-movers': typeof ForMoversRoute
   '/join': typeof JoinRoute
   '/lead-generation': typeof LeadGenerationRoute
-  '/moving-calculator-$city': typeof MovingCalculatorCityRoute
+  '/moving-calculator-{$city}': typeof MovingCalculatorChar123cityChar125Route
   '/moving-company-crm': typeof MovingCompanyCrmRoute
   '/moving-company-software': typeof MovingCompanySoftwareRoute
   '/moving-dispatch-software': typeof MovingDispatchSoftwareRoute
@@ -1011,7 +1012,7 @@ export interface FileRoutesById {
   '/for-movers': typeof ForMoversRoute
   '/join': typeof JoinRoute
   '/lead-generation': typeof LeadGenerationRoute
-  '/moving-calculator-$city': typeof MovingCalculatorCityRoute
+  '/moving-calculator-{$city}': typeof MovingCalculatorChar123cityChar125Route
   '/moving-company-crm': typeof MovingCompanyCrmRoute
   '/moving-company-software': typeof MovingCompanySoftwareRoute
   '/moving-dispatch-software': typeof MovingDispatchSoftwareRoute
@@ -1130,7 +1131,7 @@ export interface FileRouteTypes {
     | '/for-movers'
     | '/join'
     | '/lead-generation'
-    | '/moving-calculator-$city'
+    | '/moving-calculator-{$city}'
     | '/moving-company-crm'
     | '/moving-company-software'
     | '/moving-dispatch-software'
@@ -1247,7 +1248,7 @@ export interface FileRouteTypes {
     | '/for-movers'
     | '/join'
     | '/lead-generation'
-    | '/moving-calculator-$city'
+    | '/moving-calculator-{$city}'
     | '/moving-company-crm'
     | '/moving-company-software'
     | '/moving-dispatch-software'
@@ -1364,7 +1365,7 @@ export interface FileRouteTypes {
     | '/for-movers'
     | '/join'
     | '/lead-generation'
-    | '/moving-calculator-$city'
+    | '/moving-calculator-{$city}'
     | '/moving-company-crm'
     | '/moving-company-software'
     | '/moving-dispatch-software'
@@ -1483,7 +1484,7 @@ export interface RootRouteChildren {
   ForMoversRoute: typeof ForMoversRoute
   JoinRoute: typeof JoinRoute
   LeadGenerationRoute: typeof LeadGenerationRoute
-  MovingCalculatorCityRoute: typeof MovingCalculatorCityRoute
+  MovingCalculatorChar123cityChar125Route: typeof MovingCalculatorChar123cityChar125Route
   MovingCompanyCrmRoute: typeof MovingCompanyCrmRoute
   MovingCompanySoftwareRoute: typeof MovingCompanySoftwareRoute
   MovingDispatchSoftwareRoute: typeof MovingDispatchSoftwareRoute
@@ -1617,11 +1618,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MovingCompanyCrmRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/moving-calculator-$city': {
-      id: '/moving-calculator-$city'
-      path: '/moving-calculator-$city'
-      fullPath: '/moving-calculator-$city'
-      preLoaderRoute: typeof MovingCalculatorCityRouteImport
+    '/moving-calculator-{$city}': {
+      id: '/moving-calculator-{$city}'
+      path: '/moving-calculator-{$city}'
+      fullPath: '/moving-calculator-{$city}'
+      preLoaderRoute: typeof MovingCalculatorChar123cityChar125RouteImport
       parentRoute: typeof rootRouteImport
     }
     '/lead-generation': {
@@ -2512,7 +2513,8 @@ const rootRouteChildren: RootRouteChildren = {
   ForMoversRoute: ForMoversRoute,
   JoinRoute: JoinRoute,
   LeadGenerationRoute: LeadGenerationRoute,
-  MovingCalculatorCityRoute: MovingCalculatorCityRoute,
+  MovingCalculatorChar123cityChar125Route:
+    MovingCalculatorChar123cityChar125Route,
   MovingCompanyCrmRoute: MovingCompanyCrmRoute,
   MovingCompanySoftwareRoute: MovingCompanySoftwareRoute,
   MovingDispatchSoftwareRoute: MovingDispatchSoftwareRoute,
@@ -2548,3 +2550,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

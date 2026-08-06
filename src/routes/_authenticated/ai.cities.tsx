@@ -175,7 +175,7 @@ function CityLandingDashboard() {
       if (ticking.current || cancelled) return;
       ticking.current = true;
       try {
-        await processCityRunBatch({ data: { runId: activeRun.id, batchSize: 3 } });
+        await processCityRunBatch({ data: { runId: activeRun.id, batchSize } });
         refresh();
       } catch {
         /* surfaced through run.last_error */
@@ -364,7 +364,7 @@ function CityLandingDashboard() {
                         disabled={busy}
                         onClick={() =>
                           run(
-                            () => processCityRunBatch({ data: { runId: r.id, batchSize: 3 } }),
+                            () => processCityRunBatch({ data: { runId: r.id, batchSize } }),
                             "Batch processed",
                           )
                         }

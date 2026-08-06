@@ -32,6 +32,20 @@ export interface CityLandingRecord {
 
 const AUTO_PUBLISH_SCORE = 95;
 
+/** A city is "done" when a published page already exists for its slug. */
+async function pageExists(
+  admin: ReturnType<typeof publicClient>,
+  slug: string,
+): Promise<boolean> {
+  const { data } = await admin
+    .from("city_landing_pages")
+    .select("slug")
+    .eq("slug", slug)
+    .eq("status", "published")
+    .maybeSingle();
+  return Boolean(data);
+}
+
 function publicClient() {
   return createClient<Database>(
     process.env["SUPABASE_URL"]!,
@@ -185,7 +199,7 @@ export const startCityRun = createServerFn({ method: "POST" })
 /** Process the next batch of a run. Called repeatedly by the dashboard. */
 export const processCityRunBatch = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { runId: string; batchSize?: number; useAi?: boolean }) => d)
+  .inputValidator((d: { runId: string; batchSize?: number; useAi?: boolean; force?: boolean }) => d)
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -214,6 +228,7 @@ export const processCityRunBatch = createServerFn({ method: "POST" })
     let generated = r.generated;
     let published = r.published;
     let failed = r.failed;
+    let skipped = 0;
     let lastError: string | null = null;
 
     for (const entry of slice) {
@@ -221,6 +236,11 @@ export const processCityRunBatch = createServerFn({ method: "POST" })
       try {
         const facts = findCityFacts(citySlug!, stateCode);
         if (!facts) throw new Error(`Unknown city ${entry}`);
+        // Workflow step 2/3: if a published landing page already exists, skip it.
+        if (data.force !== true && (await pageExists(admin, facts.landingSlug))) {
+          skipped += 1;
+          continue;
+        }
         const res = await generateOne(admin, facts, r.id, data.useAi !== false);
         generated += 1;
         if (res.status === "published") published += 1;
@@ -244,7 +264,16 @@ export const processCityRunBatch = createServerFn({ method: "POST" })
       } as never)
       .eq("id", r.id);
 
-    return { status: done ? "completed" : "running", cursor, total: r.total, generated, published, failed, done };
+    return {
+      status: done ? "completed" : "running",
+      cursor,
+      total: r.total,
+      generated,
+      published,
+      failed,
+      skipped,
+      done,
+    };
   });
 
 /** Pause / resume / stop a run. */

@@ -10,6 +10,8 @@ import {
   cityFactsForState,
   allCityFacts,
   parseLandingParam,
+  moversSlugFor,
+  moversPathFor,
   type CityFacts,
 } from "./city-landing/data";
 import {
@@ -21,6 +23,10 @@ import {
   type DuplicateContext,
   type PageValidation,
 } from "./city-landing/validation";
+import {
+  buildMoversSeoContent,
+  validateMoversSeoContent,
+} from "./city-landing/seo-page";
 
 
 export interface CityLandingRecord {
@@ -111,6 +117,18 @@ export interface GenerateResult {
   score: number;
   validation: PageValidation;
   durationMs: number;
+  content: CityLandingContent;
+}
+
+export interface PipelineResult {
+  slug: string;
+  calculator: "published" | "review" | "failed";
+  seo: "published" | "review" | "skipped" | "failed";
+  score: number;
+  seoWords: number;
+  durationMs: number;
+  seoBlockers: string[];
+  validation: PageValidation;
 }
 
 async function generateOne(
@@ -140,7 +158,7 @@ async function generateOne(
   // AUTOMATIC PUBLISH RULE — every blocker must pass, otherwise Draft Queue.
   const status: "published" | "review" = validation.ok ? "published" : "review";
 
-  if (opts.preview) return { status, score: validation.seoScore, validation, durationMs };
+  if (opts.preview) return { status, score: validation.seoScore, validation, durationMs, content };
 
   const { data: prev } = await admin
     .from("city_landing_pages")
@@ -203,7 +221,118 @@ async function generateOne(
     run_id: runId,
   } as never);
 
-  return { status, score: validation.seoScore, validation, durationMs };
+  return { status, score: validation.seoScore, validation, durationMs, content };
+}
+
+// ── STAGE 2 — SEO landing page (/movers/<city>-<st>) ───────────────────────
+/**
+ * Runs ONLY after the calculator page is published. Failure here never
+ * unpublishes the calculator — the SEO page simply stays in the retry queue.
+ */
+async function generateSeoStage(
+  admin: ReturnType<typeof publicClient>,
+  facts: CityFacts,
+  content: CityLandingContent,
+  runId: string | null,
+  attempt = 1,
+): Promise<{ status: "published" | "review"; words: number; blockers: string[]; ms: number }> {
+  const startedAt = Date.now();
+  const seo = buildMoversSeoContent(facts, content);
+  const check = validateMoversSeoContent(seo);
+  const ms = Date.now() - startedAt;
+  const status: "published" | "review" = check.ok ? "published" : "review";
+
+  const { error } = await admin
+    .from("city_landing_pages")
+    .update({
+      seo_slug: moversSlugFor(facts.slug, facts.stateCode),
+      seo_status: status,
+      seo_content: seo as never,
+      seo_error: check.blockers.length ? check.blockers.join(" | ") : null,
+      seo_generation_ms: ms,
+      seo_published_at: status === "published" ? new Date().toISOString() : null,
+    } as never)
+    .eq("slug", facts.landingSlug);
+  if (error) throw error;
+
+  await admin.from("city_publish_log").insert({
+    slug: moversSlugFor(facts.slug, facts.stateCode),
+    city: facts.city,
+    state_code: facts.stateCode,
+    seo_score: check.ok ? 100 : 80,
+    calculator_status: "ok",
+    result: status === "published" ? "published" : "blocked",
+    reason: check.blockers[0] ?? null,
+    duration_ms: ms,
+    attempt,
+    run_id: runId,
+  } as never);
+
+  return { status, words: check.wordCount, blockers: check.blockers, ms };
+}
+
+/**
+ * THE PRODUCTION PIPELINE.
+ * Import city → generate + validate + publish CALCULATOR → only then generate,
+ * validate and publish the SEO page that embeds that same calculator.
+ */
+async function runCityPipeline(
+  admin: ReturnType<typeof publicClient>,
+  facts: CityFacts,
+  runId: string | null,
+  useAi: boolean,
+  opts: { force?: boolean; attempt?: number } = {},
+): Promise<PipelineResult> {
+  const calc = await generateOne(admin, facts, runId, useAi, opts);
+
+  // RULE: if the calculator is not published, STOP — never create the SEO page.
+  if (calc.status !== "published") {
+    await admin
+      .from("city_landing_pages")
+      .update({ seo_status: "blocked", seo_error: calc.validation.blockedReason } as never)
+      .eq("slug", facts.landingSlug);
+    return {
+      slug: facts.landingSlug,
+      calculator: calc.status,
+      seo: "skipped",
+      score: calc.score,
+      seoWords: 0,
+      durationMs: calc.durationMs,
+      seoBlockers: [],
+      validation: calc.validation,
+    };
+  }
+
+  try {
+    const seo = await generateSeoStage(admin, facts, calc.content, runId, opts.attempt ?? 1);
+    return {
+      slug: facts.landingSlug,
+      calculator: "published",
+      seo: seo.status,
+      score: calc.score,
+      seoWords: seo.words,
+      durationMs: calc.durationMs + seo.ms,
+      seoBlockers: seo.blockers,
+      validation: calc.validation,
+    };
+  } catch (err) {
+    // Calculator stays published; SEO goes to the retry queue.
+    const message = err instanceof Error ? err.message : String(err);
+    await admin
+      .from("city_landing_pages")
+      .update({ seo_status: "failed", seo_error: message } as never)
+      .eq("slug", facts.landingSlug);
+    return {
+      slug: facts.landingSlug,
+      calculator: "published",
+      seo: "failed",
+      score: calc.score,
+      seoWords: 0,
+      durationMs: calc.durationMs,
+      seoBlockers: [message],
+      validation: calc.validation,
+    };
+  }
 }
 
 /** PREVIEW MODE — build the page and run the gate WITHOUT writing/publishing. */
@@ -244,7 +373,7 @@ export const publishCityPage = createServerFn({ method: "POST" })
     let error: string | null = null;
     for (let attempt = 1; attempt <= 3; attempt += 1) {
       try {
-        last = await generateOne(admin, facts, null, data.useAi !== false, {
+        last = await runCityPipeline(admin, facts, null, data.useAi !== false, {
           force: data.force !== false,
           attempt,
         });
@@ -322,7 +451,7 @@ export const generateCityPage = createServerFn({ method: "POST" })
     const facts = findCityFacts(data.citySlug, data.stateCode);
     if (!facts) throw new Error(`Unknown city: ${data.citySlug}-${data.stateCode}`);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const res = await generateOne(
+    const res = await runCityPipeline(
       supabaseAdmin as unknown as ReturnType<typeof publicClient>,
       facts,
       null,
@@ -445,7 +574,7 @@ export const processCityRunBatch = createServerFn({ method: "POST" })
       let ok = false;
       for (let attempt = 1; attempt <= 3 && !ok; attempt += 1) {
         try {
-          const res = await generateOne(admin, facts, r.id, data.useAi !== false, { attempt });
+          const res = await runCityPipeline(admin, facts, r.id, data.useAi !== false, { attempt });
           generated += 1;
           if (res.status === "published") published += 1;
           ok = true;
@@ -543,7 +672,7 @@ export const retryFailedCityPages = createServerFn({ method: "POST" })
       const facts = findCityFacts(parsed.citySlug, parsed.stateCode);
       if (!facts) continue;
       try {
-        await generateOne(admin, facts, null, true);
+        await runCityPipeline(admin, facts, null, true);
         ok += 1;
       } catch {
         failed += 1;

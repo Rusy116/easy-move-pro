@@ -39,14 +39,9 @@ type PreviewResult = {
   stateCode: string;
   score: number;
   status: string;
-  validation: {
-    seoScore: number;
-    passed: boolean;
-    blockedReason: string | null;
-    wordCount: number;
-    checks: { id: string; label: string; ok: boolean; detail?: string }[];
-  };
+  validation: PageValidation;
 };
+
 
 type PageRow = {
 

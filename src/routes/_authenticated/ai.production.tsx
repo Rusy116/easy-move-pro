@@ -86,6 +86,36 @@ function ProductionPage() {
     queryFn: () => pilotStatus({ data: {} as never }),
     refetchInterval: 6000,
   });
+
+  // Backend worker (browser-free production service).
+  const worker = useQuery({
+    queryKey: ["city-worker-status"],
+    queryFn: () => workerStatus({ data: {} as never }),
+    refetchInterval: 8000,
+  });
+  const w = worker.data;
+  const refreshWorker = () => qc.invalidateQueries({ queryKey: ["city-worker-status"] });
+
+  const toggleWorker = useMutation({
+    mutationFn: (enabled: boolean) => setWorkerSettings({ data: { enabled } }),
+    onSuccess: (next) => {
+      push(`Backend worker ${next.enabled ? "started" : "paused"}.`);
+      toast.success(`Backend worker ${next.enabled ? "running" : "paused"}`);
+      refreshWorker();
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const runNow = useMutation({
+    mutationFn: () => runWorkerNow({ data: {} as never }),
+    onSuccess: (r) => {
+      push(`Server tick — ${r.processed} jobs, ${r.published} published, ${r.failed} failed.`, r.failed === 0);
+      refreshWorker();
+      refreshAll();
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
   const refreshAll = () => {
     void qc.invalidateQueries({ queryKey: ["city-production-stats"] });
     void qc.invalidateQueries({ queryKey: ["city-pilot-status"] });

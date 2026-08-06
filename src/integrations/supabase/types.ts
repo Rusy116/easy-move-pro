@@ -1198,6 +1198,54 @@ export type Database = {
         }
         Relationships: []
       }
+      city_worker_runs: {
+        Row: {
+          created_at: string
+          duration_ms: number
+          error: string | null
+          failed: number
+          id: string
+          jobs_processed: number
+          published: number
+          reclaimed: number
+          refilled: number
+          stages_run: number
+          trigger: string
+          updated_at: string
+          worker_id: string
+        }
+        Insert: {
+          created_at?: string
+          duration_ms?: number
+          error?: string | null
+          failed?: number
+          id?: string
+          jobs_processed?: number
+          published?: number
+          reclaimed?: number
+          refilled?: number
+          stages_run?: number
+          trigger?: string
+          updated_at?: string
+          worker_id: string
+        }
+        Update: {
+          created_at?: string
+          duration_ms?: number
+          error?: string | null
+          failed?: number
+          id?: string
+          jobs_processed?: number
+          published?: number
+          reclaimed?: number
+          refilled?: number
+          stages_run?: number
+          trigger?: string
+          updated_at?: string
+          worker_id?: string
+        }
+        Relationships: []
+      }
       commission_invoices: {
         Row: {
           amount: number

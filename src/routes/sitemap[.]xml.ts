@@ -40,10 +40,16 @@ export const Route = createFileRoute("/sitemap.xml")({
 
         ];
 
+        // County hubs (City Factory hierarchy)
+        allCounties().forEach((c) =>
+          entries.push({ path: c.path, changefreq: "weekly", priority: "0.7" }),
+        );
+
         // Geo platform pages
         GEO_STATES.forEach((s) =>
           entries.push({ path: statePath(s), changefreq: "monthly", priority: "0.7" }),
         );
+
         GEO_CITIES.forEach((c) =>
           entries.push({ path: cityPath(c), changefreq: "monthly", priority: "0.7" }),
         );

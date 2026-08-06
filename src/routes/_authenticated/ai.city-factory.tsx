@@ -106,7 +106,7 @@ function CityFactoryPage() {
         <StatCard label="Auto-improvements" value={String(s?.improvements ?? "—")} />
       </div>
 
-      <SectionShell title="Agents" description="Each agent is resumable and batch-safe — run it as often as you like.">
+      <SectionShell title="Agents">
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <Button onClick={() => audit.mutate()} disabled={busy} className="justify-start gap-2">
             {audit.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <ShieldCheck className="h-4 w-4" />}
@@ -132,7 +132,7 @@ function CityFactoryPage() {
         )}
       </SectionShell>
 
-      <SectionShell title="Health" description="Live monitoring verdicts from the last pass.">
+      <SectionShell title="Health">
         <div className="grid gap-3 sm:grid-cols-3">
           <StatCard label="Healthy" value={String(s?.healthy ?? "—")} />
           <StatCard label="Watch" value={String(s?.watch ?? "—")} />
@@ -140,7 +140,7 @@ function CityFactoryPage() {
         </div>
       </SectionShell>
 
-      <SectionShell title="Agent log" description="Most recent factory activity in this session.">
+      <SectionShell title="Agent log">
         {log.length === 0 ? (
           <EmptyState title="No runs yet" hint="Start with the SEO audit — pages scoring under 95 are returned for correction." />
         ) : (

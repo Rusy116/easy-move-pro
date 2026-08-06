@@ -67,9 +67,21 @@ export function buildCityLandingContent(f: CityFacts): CityLandingContent {
   const county = f.county ? `${f.county}, ${f.stateName}` : f.stateName;
   const pop = f.population.toLocaleString();
 
+  // Title/meta are budgeted to the SERP limits the validator enforces
+  // (title 30–70 chars, meta 110–175) and fall back to shorter variants for
+  // long city names.
+  const fullTitle = `${c}, ${st} Moving Cost Calculator — Instant Estimate`;
+  const title = fullTitle.length <= 70 ? fullTitle : `${c}, ${st} Moving Cost Calculator`;
+  const fullMeta = `Calculate your ${c}, ${st} moving cost in 60 seconds. Real local and long-distance pricing from licensed ${c} movers. Average 2-bedroom move: ${money(a.twoBed)}.`;
+  const metaDescription =
+    fullMeta.length <= 175
+      ? fullMeta
+      : `Calculate your ${c}, ${st} moving cost in 60 seconds with real local and long-distance pricing. Average 2-bedroom move: ${money(a.twoBed)}.`;
+
   return {
-    title: `Moving Calculator ${c}, ${st} — Instant Moving Cost Estimate | Easy Moving`,
-    metaDescription: `Calculate your ${c}, ${st} moving cost in 60 seconds. Real local and long-distance pricing, licensed ${c} movers, apartment and office moves. Average 2-bedroom move: ${money(a.twoBed)}.`,
+    title,
+    metaDescription,
+
     h1: `Moving Calculator for ${c}, ${st}`,
     intro: [
       `Planning a move in ${c}? Use the Easy Moving calculator below to price your move against real ${c} carrier rates — no phone call, no sales pitch, no email wall. Enter your origin and destination ZIP codes, your inventory, and access details like floor, elevator and long carry, and you'll see an itemized estimate instantly.`,

@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Factory, Play, Pause, RotateCcw, Plus, Loader2, CheckCircle2, XCircle } from "lucide-react";
+import { Factory, Play, Pause, RotateCcw, Plus, Loader2, CheckCircle2, XCircle, Rocket, Circle } from "lucide-react";
 import { AiShell } from "@/components/ai/AiShell";
 import { PageHeader, SectionShell, StatCard } from "@/components/shell/Chrome";
 import { EmptyState } from "@/components/ai/blocks";
@@ -12,8 +12,12 @@ import {
   productionTick,
   productionStats,
   controlProduction,
+  enqueuePilotBatch,
+  pilotStatus,
+  preparePhase9,
 } from "@/lib/city-production.functions";
 import { PRODUCTION_STAGES, TOTAL_STAGES } from "@/lib/city-production/stages";
+import { PILOT_CITIES } from "@/lib/city-production/pilot";
 
 export const Route = createFileRoute("/_authenticated/ai/production")({
   head: () => ({
@@ -52,6 +56,37 @@ function ProductionPage() {
   });
   const refresh = () => qc.invalidateQueries({ queryKey: ["city-production-stats"] });
 
+  const pilot = useQuery({
+    queryKey: ["city-pilot-status"],
+    queryFn: () => pilotStatus({ data: {} as never }),
+    refetchInterval: 6000,
+  });
+  const refreshAll = () => {
+    void qc.invalidateQueries({ queryKey: ["city-production-stats"] });
+    void qc.invalidateQueries({ queryKey: ["city-pilot-status"] });
+  };
+
+  const startPilot = useMutation({
+    mutationFn: () => enqueuePilotBatch({ data: {} as never }),
+    onSuccess: (r) => {
+      push(`Pilot batch — ${r.queued} cities queued (${r.alreadyQueued} already in the line).`);
+      toast.success("Pilot batch queued");
+      setAuto(true);
+      refreshAll();
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const phase9 = useMutation({
+    mutationFn: () => preparePhase9({ data: {} as never }),
+    onSuccess: (r) => {
+      push(`Phase 9 prepared — ${r.queued} additional California cities queued.`);
+      toast.success(`California production queued (${r.queued} cities)`);
+      refreshAll();
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
   const enqueue = useMutation({
     mutationFn: (count: number) => enqueueProduction({ data: { count } }),
     onSuccess: (r) => {
@@ -66,7 +101,7 @@ function ProductionPage() {
     mutationFn: () => productionTick({ data: { jobs: 1, stagesPerJob: 12 } }),
     onSuccess: (r) => {
       for (const s of r.results) push(`${s.city} — stage ${s.stage}/12: ${s.summary}`, s.ok);
-      refresh();
+      refreshAll();
     },
     onError: (e: Error) => {
       push(e.message, false);
@@ -110,6 +145,7 @@ function ProductionPage() {
   }, [auto]);
 
   const s = stats.data;
+  const p = pilot.data;
   const jobs = s?.jobs ?? [];
 
   return (
@@ -132,6 +168,83 @@ function ProductionPage() {
         />
         <StatCard label="Agent working" value={s?.currentStage?.name ?? "—"} />
       </div>
+
+      <SectionShell title="Phase 8 — Pilot batch (10 California cities)">
+        <div className="flex flex-wrap items-center gap-2">
+          <Button onClick={() => startPilot.mutate()} disabled={startPilot.isPending} className="gap-2">
+            {startPilot.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Rocket className="h-4 w-4" />}
+            Launch pilot batch
+          </Button>
+          <span className="text-sm text-muted-foreground">
+            {p ? `${p.completed}/${PILOT_CITIES.length} complete · ${p.remaining} remaining · ${p.failed} failed · ${p.published} published · ${p.indexed} submitted for indexing · avg quality ${p.avgQuality ?? "—"}` : "Loading…"}
+          </span>
+        </div>
+
+        <div className="mt-4 space-y-2">
+          {(p?.cities ?? []).map((c) => (
+            <div key={c.landingSlug} className="rounded-xl border border-border p-3">
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                <span className="text-xs text-muted-foreground">#{c.order}</span>
+                <span className="font-medium">
+                  {c.city}, {c.stateCode}
+                </span>
+                <span className="text-xs text-muted-foreground">
+                  stage {c.stage}/{TOTAL_STAGES}
+                </span>
+                <span
+                  className={`rounded-full px-2 py-0.5 text-xs ${
+                    c.status === "completed"
+                      ? "bg-emerald-500/10 text-emerald-600"
+                      : c.status === "failed"
+                        ? "bg-destructive/10 text-destructive"
+                        : c.status === "running"
+                          ? "bg-amber-500/10 text-amber-600"
+                          : "bg-muted text-muted-foreground"
+                  }`}
+                >
+                  {c.status.replace("_", " ")}
+                </span>
+                <span className="text-xs text-muted-foreground">
+                  quality {c.qualityScore ?? "—"}/100 · {c.publishStatus} · index {c.indexStatus}
+                </span>
+                {c.attempts > 1 && (
+                  <span className="text-xs text-muted-foreground">retries {c.attempts - 1}</span>
+                )}
+              </div>
+              <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1">
+                {c.gate.map((g) => (
+                  <span
+                    key={g.label}
+                    className={`inline-flex items-center gap-1 text-xs ${g.ok ? "text-emerald-600" : "text-muted-foreground"}`}
+                  >
+                    {g.ok ? <CheckCircle2 className="h-3 w-3" /> : <Circle className="h-3 w-3" />}
+                    {g.label}
+                  </span>
+                ))}
+              </div>
+              {c.lastError && <p className="mt-2 text-xs text-destructive">{c.lastError}</p>}
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-4 rounded-xl border border-border p-3">
+          <p className="text-sm font-medium">Phase 9 — California State Production</p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            {p?.readyForPhase9
+              ? "All 10 pilot cities passed every stage. California production can be queued behind the pilot batch."
+              : `Locked until all ${PILOT_CITIES.length} pilot cities complete every stage.`}
+          </p>
+          <Button
+            className="mt-3 gap-2"
+            variant={p?.readyForPhase9 ? "default" : "outline"}
+            disabled={!p?.readyForPhase9 || phase9.isPending}
+            onClick={() => phase9.mutate()}
+          >
+            {phase9.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Rocket className="h-4 w-4" />}
+            Prepare Phase 9
+          </Button>
+        </div>
+      </SectionShell>
 
       <SectionShell title="Factory controls">
         <div className="flex flex-wrap gap-2">

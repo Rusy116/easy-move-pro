@@ -73,16 +73,24 @@ export const productionTick = createServerFn({ method: "POST" })
     await assertAdmin(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { runProductionStage, factsForSlug } = await import("./city-production.server");
-    const { TOTAL_STAGES } = await import("./city-production/stages");
+    const { TOTAL_STAGES, stageAt } = await import("./city-production/stages");
+    const { MAX_AUTO_RETRIES, gateFor, gatePassed } = await import("./city-production/pilot");
     const db = supabaseAdmin as any;
 
-    const { data: batch } = await db
+    // Failed cities are retried automatically (up to MAX_AUTO_RETRIES) and never
+    // block the rest of the queue — production simply moves to the next city.
+    const { data: candidates } = await db
       .from("city_production_jobs")
       .select("*")
-      .in("status", ["queued", "running"])
+      .in("status", ["queued", "running", "failed"])
       .order("priority", { ascending: true })
       .order("population", { ascending: false })
-      .limit(data.jobs);
+      .limit(Math.max(data.jobs * 8, 40));
+
+    const batch = ((candidates ?? []) as ProductionJob[])
+      .filter((j) => j.status !== "failed" || j.attempts < MAX_AUTO_RETRIES)
+      .slice(0, data.jobs);
+
 
     const results: Array<{ city: string; stage: number; ok: boolean; summary: string; done: boolean }> = [];
 

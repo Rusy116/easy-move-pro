@@ -98,6 +98,7 @@ import { Route as AuthenticatedBrokerLeadsRouteImport } from './routes/_authenti
 import { Route as AuthenticatedBrokerDashboardRouteImport } from './routes/_authenticated/broker.dashboard'
 import { Route as AuthenticatedBrokerCompletedRouteImport } from './routes/_authenticated/broker.completed'
 import { Route as AuthenticatedAiWorkforceRouteImport } from './routes/_authenticated/ai.workforce'
+import { Route as AuthenticatedAiUsaDataRouteImport } from './routes/_authenticated/ai.usa-data'
 import { Route as AuthenticatedAiSettingsRouteImport } from './routes/_authenticated/ai.settings'
 import { Route as AuthenticatedAiSeoRouteImport } from './routes/_authenticated/ai.seo'
 import { Route as AuthenticatedAiRegistryRouteImport } from './routes/_authenticated/ai.registry'
@@ -617,6 +618,11 @@ const AuthenticatedAiWorkforceRoute =
     path: '/ai/workforce',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedAiUsaDataRoute = AuthenticatedAiUsaDataRouteImport.update({
+  id: '/ai/usa-data',
+  path: '/ai/usa-data',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedAiSettingsRoute = AuthenticatedAiSettingsRouteImport.update({
   id: '/ai/settings',
   path: '/ai/settings',
@@ -881,6 +887,7 @@ export interface FileRoutesByFullPath {
   '/ai/registry': typeof AuthenticatedAiRegistryRoute
   '/ai/seo': typeof AuthenticatedAiSeoRoute
   '/ai/settings': typeof AuthenticatedAiSettingsRoute
+  '/ai/usa-data': typeof AuthenticatedAiUsaDataRoute
   '/ai/workforce': typeof AuthenticatedAiWorkforceRoute
   '/broker/completed': typeof AuthenticatedBrokerCompletedRoute
   '/broker/dashboard': typeof AuthenticatedBrokerDashboardRoute
@@ -1003,6 +1010,7 @@ export interface FileRoutesByTo {
   '/ai/registry': typeof AuthenticatedAiRegistryRoute
   '/ai/seo': typeof AuthenticatedAiSeoRoute
   '/ai/settings': typeof AuthenticatedAiSettingsRoute
+  '/ai/usa-data': typeof AuthenticatedAiUsaDataRoute
   '/ai/workforce': typeof AuthenticatedAiWorkforceRoute
   '/broker/completed': typeof AuthenticatedBrokerCompletedRoute
   '/broker/dashboard': typeof AuthenticatedBrokerDashboardRoute
@@ -1128,6 +1136,7 @@ export interface FileRoutesById {
   '/_authenticated/ai/registry': typeof AuthenticatedAiRegistryRoute
   '/_authenticated/ai/seo': typeof AuthenticatedAiSeoRoute
   '/_authenticated/ai/settings': typeof AuthenticatedAiSettingsRoute
+  '/_authenticated/ai/usa-data': typeof AuthenticatedAiUsaDataRoute
   '/_authenticated/ai/workforce': typeof AuthenticatedAiWorkforceRoute
   '/_authenticated/broker/completed': typeof AuthenticatedBrokerCompletedRoute
   '/_authenticated/broker/dashboard': typeof AuthenticatedBrokerDashboardRoute
@@ -1253,6 +1262,7 @@ export interface FileRouteTypes {
     | '/ai/registry'
     | '/ai/seo'
     | '/ai/settings'
+    | '/ai/usa-data'
     | '/ai/workforce'
     | '/broker/completed'
     | '/broker/dashboard'
@@ -1375,6 +1385,7 @@ export interface FileRouteTypes {
     | '/ai/registry'
     | '/ai/seo'
     | '/ai/settings'
+    | '/ai/usa-data'
     | '/ai/workforce'
     | '/broker/completed'
     | '/broker/dashboard'
@@ -1499,6 +1510,7 @@ export interface FileRouteTypes {
     | '/_authenticated/ai/registry'
     | '/_authenticated/ai/seo'
     | '/_authenticated/ai/settings'
+    | '/_authenticated/ai/usa-data'
     | '/_authenticated/ai/workforce'
     | '/_authenticated/broker/completed'
     | '/_authenticated/broker/dashboard'
@@ -2219,6 +2231,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAiWorkforceRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/ai/usa-data': {
+      id: '/_authenticated/ai/usa-data'
+      path: '/ai/usa-data'
+      fullPath: '/ai/usa-data'
+      preLoaderRoute: typeof AuthenticatedAiUsaDataRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/ai/settings': {
       id: '/_authenticated/ai/settings'
       path: '/ai/settings'
@@ -2549,6 +2568,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAiRegistryRoute: typeof AuthenticatedAiRegistryRoute
   AuthenticatedAiSeoRoute: typeof AuthenticatedAiSeoRoute
   AuthenticatedAiSettingsRoute: typeof AuthenticatedAiSettingsRoute
+  AuthenticatedAiUsaDataRoute: typeof AuthenticatedAiUsaDataRoute
   AuthenticatedAiWorkforceRoute: typeof AuthenticatedAiWorkforceRoute
   AuthenticatedBrokerCompletedRoute: typeof AuthenticatedBrokerCompletedRoute
   AuthenticatedBrokerDashboardRoute: typeof AuthenticatedBrokerDashboardRoute
@@ -2603,6 +2623,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAiRegistryRoute: AuthenticatedAiRegistryRoute,
   AuthenticatedAiSeoRoute: AuthenticatedAiSeoRoute,
   AuthenticatedAiSettingsRoute: AuthenticatedAiSettingsRoute,
+  AuthenticatedAiUsaDataRoute: AuthenticatedAiUsaDataRoute,
   AuthenticatedAiWorkforceRoute: AuthenticatedAiWorkforceRoute,
   AuthenticatedBrokerCompletedRoute: AuthenticatedBrokerCompletedRoute,
   AuthenticatedBrokerDashboardRoute: AuthenticatedBrokerDashboardRoute,

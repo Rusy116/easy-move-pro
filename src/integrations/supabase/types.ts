@@ -4143,6 +4143,156 @@ export type Database = {
         }
         Relationships: []
       }
+      usa_cities: {
+        Row: {
+          area_codes: string[]
+          attempts: number
+          calculator_slug: string | null
+          calculator_status: string
+          city_name: string
+          city_slug: string
+          country: string
+          county: string | null
+          created_at: string
+          demand_score: number
+          id: string
+          imported_at: string
+          last_error: string | null
+          last_published_at: string | null
+          latitude: number | null
+          longitude: number | null
+          nearby_cities: Json
+          pipeline_status: string
+          population: number
+          published: boolean
+          seo_page_status: string
+          seo_priority: number
+          seo_slug: string | null
+          state_code: string
+          state_name: string
+          timezone: string | null
+          updated_at: string
+          zip_codes: string[]
+        }
+        Insert: {
+          area_codes?: string[]
+          attempts?: number
+          calculator_slug?: string | null
+          calculator_status?: string
+          city_name: string
+          city_slug: string
+          country?: string
+          county?: string | null
+          created_at?: string
+          demand_score?: number
+          id?: string
+          imported_at?: string
+          last_error?: string | null
+          last_published_at?: string | null
+          latitude?: number | null
+          longitude?: number | null
+          nearby_cities?: Json
+          pipeline_status?: string
+          population?: number
+          published?: boolean
+          seo_page_status?: string
+          seo_priority?: number
+          seo_slug?: string | null
+          state_code: string
+          state_name: string
+          timezone?: string | null
+          updated_at?: string
+          zip_codes?: string[]
+        }
+        Update: {
+          area_codes?: string[]
+          attempts?: number
+          calculator_slug?: string | null
+          calculator_status?: string
+          city_name?: string
+          city_slug?: string
+          country?: string
+          county?: string | null
+          created_at?: string
+          demand_score?: number
+          id?: string
+          imported_at?: string
+          last_error?: string | null
+          last_published_at?: string | null
+          latitude?: number | null
+          longitude?: number | null
+          nearby_cities?: Json
+          pipeline_status?: string
+          population?: number
+          published?: boolean
+          seo_page_status?: string
+          seo_priority?: number
+          seo_slug?: string | null
+          state_code?: string
+          state_name?: string
+          timezone?: string | null
+          updated_at?: string
+          zip_codes?: string[]
+        }
+        Relationships: []
+      }
+      usa_import_runs: {
+        Row: {
+          avg_ms: number
+          completed: number
+          created_at: string
+          created_by: string | null
+          cursor: number
+          failed: number
+          id: string
+          imported: number
+          last_error: string | null
+          processed: number
+          requested: number
+          scope: string
+          skipped: number
+          state_code: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          avg_ms?: number
+          completed?: number
+          created_at?: string
+          created_by?: string | null
+          cursor?: number
+          failed?: number
+          id?: string
+          imported?: number
+          last_error?: string | null
+          processed?: number
+          requested?: number
+          scope?: string
+          skipped?: number
+          state_code?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          avg_ms?: number
+          completed?: number
+          created_at?: string
+          created_by?: string | null
+          cursor?: number
+          failed?: number
+          id?: string
+          imported?: number
+          last_error?: string | null
+          processed?: number
+          requested?: number
+          scope?: string
+          skipped?: number
+          state_code?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string

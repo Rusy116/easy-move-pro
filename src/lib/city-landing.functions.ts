@@ -276,7 +276,7 @@ async function generateSeoStage(
  * Import city → generate + validate + publish CALCULATOR → only then generate,
  * validate and publish the SEO page that embeds that same calculator.
  */
-async function runCityPipeline(
+export async function runCityPipeline(
   admin: ReturnType<typeof publicClient>,
   facts: CityFacts,
   runId: string | null,

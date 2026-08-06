@@ -3,6 +3,7 @@ import type {} from "@tanstack/react-start";
 import { STATES, CITIES } from "@/lib/seo/locations";
 import { PRODUCT_PAGES, EDUCATION_PAGES, COMPARISON_PAGES } from "@/lib/seo/content";
 import { GEO_STATES, GEO_CITIES, GEO_ROUTES, cityPath, statePath, routePath } from "@/lib/seo/geo";
+import { landingPathFor } from "@/lib/city-landing/data";
 
 const BASE_URL = "";
 
@@ -41,6 +42,14 @@ export const Route = createFileRoute("/sitemap.xml")({
         );
         GEO_CITIES.forEach((c) =>
           entries.push({ path: cityPath(c), changefreq: "monthly", priority: "0.7" }),
+        );
+        // City moving-calculator landing pages (AI Growth Agent network)
+        GEO_CITIES.forEach((c) =>
+          entries.push({
+            path: landingPathFor(c.slug, c.stateCode),
+            changefreq: "weekly",
+            priority: "0.8",
+          }),
         );
         GEO_ROUTES.forEach((r) =>
           entries.push({ path: routePath(r), changefreq: "monthly", priority: "0.6" }),

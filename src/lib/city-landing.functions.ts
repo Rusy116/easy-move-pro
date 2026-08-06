@@ -14,9 +14,14 @@ import {
 } from "./city-landing/data";
 import {
   buildCityLandingContent,
-  validateCityContent,
   type CityLandingContent,
 } from "./city-landing/content";
+import {
+  validateCityPage,
+  type DuplicateContext,
+  type PageValidation,
+} from "./city-landing/validation";
+
 
 export interface CityLandingRecord {
   slug: string;

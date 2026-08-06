@@ -36,8 +36,14 @@ type PageRow = {
   city: string;
   state_code: string;
   status: string;
+  city_status: string;
+  index_status: string;
+  calculator_status: string;
+  clicks: number;
+  impressions: number;
   seo_score: number;
   word_count: number;
+  generation_ms: number;
   error: string | null;
   created_at: string;
   published_at: string | null;
@@ -53,9 +59,12 @@ type RunRow = {
   generated: number;
   published: number;
   failed: number;
+  skipped: number;
+  batch_size: number;
   last_error: string | null;
   created_at: string;
 };
+
 
 function CityLandingDashboard() {
   const qc = useQueryClient();

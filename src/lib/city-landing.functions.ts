@@ -339,7 +339,14 @@ export const generateCityPage = createServerFn({ method: "POST" })
 /** Start a bulk run: a single city, an entire state, or the whole USA. */
 export const startCityRun = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { scope: "city" | "state" | "usa"; stateCode?: string; citySlug?: string }) => d)
+  .inputValidator(
+    (d: {
+      scope: "city" | "state" | "usa";
+      stateCode?: string;
+      citySlug?: string;
+      batchSize?: number;
+    }) => d,
+  )
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -356,6 +363,10 @@ export const startCityRun = createServerFn({ method: "POST" })
     }
     if (!targets.length) throw new Error("No cities matched this scope");
 
+    // BATCH MODE — cap the run at the requested batch size (10…5000).
+    const batchSize = Math.min(Math.max(data.batchSize ?? targets.length, 1), 5000);
+    targets = targets.slice(0, batchSize);
+
     const { data: run, error } = await supabaseAdmin
       .from("city_landing_runs")
       .insert({
@@ -363,11 +374,13 @@ export const startCityRun = createServerFn({ method: "POST" })
         state_code: data.stateCode ?? null,
         city_slugs: targets.map((t) => `${t.slug}|${t.stateCode}`),
         total: targets.length,
+        batch_size: batchSize,
         status: "running",
         created_by: context.userId,
       } as never)
       .select("id")
       .single();
+
     if (error) throw error;
 
     await supabaseAdmin.from("ai_task_logs").insert({

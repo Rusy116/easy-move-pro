@@ -25,12 +25,20 @@ export const enqueueProduction = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { allCityFacts, cityFactsForState } = await import("./city-landing/data");
+    const { masterFactsForState } = await import("./city-landing/master.server");
     const { cityTier } = await import("./city-landing/hierarchy");
     const { priorityFor } = await import("./city-production/stages");
+    const { ROLLOUT_STATES } = await import("./city-production/mass");
     const db = supabaseAdmin as any;
 
-    const pool = data.stateCode ? cityFactsForState(data.stateCode) : allCityFacts();
+    // Pool comes from the master USA dataset (public.usa_cities).
+    const pool = data.stateCode
+      ? await masterFactsForState(db, data.stateCode, data.count * 4)
+      : (
+          await Promise.all(
+            ROLLOUT_STATES.map((s) => masterFactsForState(db, s.code, data.count)),
+          )
+        ).flat();
     const { data: existing } = await db.from("city_production_jobs").select("landing_slug");
     const taken = new Set(((existing ?? []) as Array<{ landing_slug: string }>).map((r) => r.landing_slug));
 
@@ -72,7 +80,7 @@ export const productionTick = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { runProductionStage, factsForSlug } = await import("./city-production.server");
+    const { runProductionStage, resolveFacts } = await import("./city-production.server");
     const { TOTAL_STAGES, stageAt } = await import("./city-production/stages");
     const { MAX_AUTO_RETRIES, gateFor, gatePassed } = await import("./city-production/pilot");
     const db = supabaseAdmin as any;
@@ -95,7 +103,7 @@ export const productionTick = createServerFn({ method: "POST" })
     const results: Array<{ city: string; stage: number; ok: boolean; summary: string; done: boolean }> = [];
 
     for (const job of (batch ?? []) as ProductionJob[]) {
-      const facts = factsForSlug(job.landing_slug);
+      const facts = await resolveFacts(db, job.landing_slug);
       if (!facts) {
         await db
           .from("city_production_jobs")
@@ -308,12 +316,12 @@ export const enqueueMassBatch = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { cityFactsForState } = await import("./city-landing/data");
+    const { masterFactsForState } = await import("./city-landing/master.server");
     const { cityTier } = await import("./city-landing/hierarchy");
     const { priorityFor } = await import("./city-production/stages");
     const db = supabaseAdmin as any;
 
-    const pool = cityFactsForState(data.stateCode);
+    const pool = await masterFactsForState(db, data.stateCode, Math.max(data.count * 4, 500));
 
     const [{ data: existing }, { data: published }] = await Promise.all([
       db.from("city_production_jobs").select("landing_slug"),

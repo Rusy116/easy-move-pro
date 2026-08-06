@@ -23,6 +23,7 @@ import {
   ClipboardCheck,
   ScrollText,
   Radar,
+  Database,
 
 } from "lucide-react";
 import { RoleGuard } from "@/components/auth/RoleGuard";
@@ -38,6 +39,7 @@ export const AI_NAV = [
   { to: "/ai/notifications", label: "Notifications", icon: Bell },
   { to: "/ai/workforce", label: "AI Workforce", icon: Bot },
   { to: "/ai/seo", label: "SEO Factory", icon: Search },
+  { to: "/ai/usa-data", label: "USA Data Engine", icon: Database },
   { to: "/ai/cities", label: "City Landing Agent", icon: MapPin },
   { to: "/ai/city-review", label: "Draft Review Queue", icon: ClipboardCheck },
   { to: "/ai/city-log", label: "Publish Log", icon: ScrollText },

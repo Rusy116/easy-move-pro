@@ -406,30 +406,48 @@ export const processCityRunBatch = createServerFn({ method: "POST" })
     };
     if (r.status !== "running") return { status: r.status, cursor: r.cursor, done: true };
 
-    const size = Math.min(Math.max(data.batchSize ?? 3, 1), 10);
+    // Per-tick chunk (the run's total batch target is stored on the run).
+    const size = Math.min(Math.max(data.batchSize ?? 3, 1), 25);
     const slice = r.city_slugs.slice(r.cursor, r.cursor + size);
     let generated = r.generated;
     let published = r.published;
     let failed = r.failed;
-    let skipped = 0;
+    let skipped = (r as unknown as { skipped?: number }).skipped ?? 0;
     let lastError: string | null = null;
 
     for (const entry of slice) {
       const [citySlug, stateCode] = entry.split("|");
-      try {
-        const facts = findCityFacts(citySlug!, stateCode);
-        if (!facts) throw new Error(`Unknown city ${entry}`);
-        // Workflow step 2/3: if a published landing page already exists, skip it.
-        if (data.force !== true && (await pageExists(admin, facts.landingSlug))) {
-          skipped += 1;
-          continue;
-        }
-        const res = await generateOne(admin, facts, r.id, data.useAi !== false);
-        generated += 1;
-        if (res.status === "published") published += 1;
-      } catch (err) {
+      const facts = findCityFacts(citySlug!, stateCode);
+      if (!facts) {
         failed += 1;
-        lastError = err instanceof Error ? err.message : String(err);
+        lastError = `Unknown city ${entry}`;
+        continue;
+      }
+      // Workflow step 2/3: if a published landing page already exists, skip it.
+      if (data.force !== true && (await pageExists(admin, facts.landingSlug))) {
+        skipped += 1;
+        continue;
+      }
+      // AUTOMATIC RETRY — up to 3 attempts before the error queue.
+      let ok = false;
+      for (let attempt = 1; attempt <= 3 && !ok; attempt += 1) {
+        try {
+          const res = await generateOne(admin, facts, r.id, data.useAi !== false, { attempt });
+          generated += 1;
+          if (res.status === "published") published += 1;
+          ok = true;
+        } catch (err) {
+          lastError = err instanceof Error ? err.message : String(err);
+          if (attempt === 3) {
+            failed += 1;
+            await admin.from("ai_notifications").insert({
+              level: "error",
+              title: `City page failed after 3 retries: ${facts.city}, ${facts.stateCode}`,
+              message: lastError,
+              agent_key: "city_landing_agent",
+            } as never);
+          }
+        }
       }
     }
 
@@ -442,10 +460,12 @@ export const processCityRunBatch = createServerFn({ method: "POST" })
         generated,
         published,
         failed,
+        skipped,
         last_error: lastError,
         status: done ? "completed" : "running",
       } as never)
       .eq("id", r.id);
+
 
     return {
       status: done ? "completed" : "running",

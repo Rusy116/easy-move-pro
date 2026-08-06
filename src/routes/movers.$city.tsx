@@ -174,6 +174,23 @@ function MoversCityPage() {
 
       <Faq items={seo.faq} />
       <InternalLinks title={`More moving resources near ${facts.city}`} links={seo.internalLinks} />
+      <InternalLinks
+        title={`${facts.city} in context — county, state and metro`}
+        links={hierarchy.up.map((l) => ({ label: l.label, to: l.to }))}
+      />
+      {hierarchy.down.length > 0 && (
+        <InternalLinks
+          title={`Smaller cities we serve around ${facts.city}`}
+          links={hierarchy.down.map((l) => ({ label: l.label, to: l.to }))}
+        />
+      )}
+      {hierarchy.lateral.length > 0 && (
+        <InternalLinks
+          title={`Comparable ${facts.stateName} cities`}
+          links={hierarchy.lateral.map((l) => ({ label: l.label, to: l.to }))}
+        />
+      )}
+
     </SiteLayout>
   );
 }

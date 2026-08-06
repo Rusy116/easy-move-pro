@@ -356,7 +356,7 @@ function CityLandingDashboard() {
             )}
             <div className="mt-3 grid gap-1 sm:grid-cols-2 lg:grid-cols-3">
               {preview.validation.checks.map((c) => (
-                <div key={c.id} className="flex items-start gap-2 text-xs">
+                <div key={c.key} className="flex items-start gap-2 text-xs">
                   <span className={c.ok ? "text-emerald-600" : "text-destructive"}>
                     {c.ok ? "✓" : "✕"}
                   </span>

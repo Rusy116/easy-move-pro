@@ -35,6 +35,10 @@ export const AI_NAV = [
   { to: "/ai/workforce", label: "AI Workforce", icon: Bot },
   { to: "/ai/seo", label: "SEO Factory", icon: Search },
   { to: "/ai/cities", label: "City Landing Agent", icon: MapPin },
+  { to: "/ai/city-review", label: "Draft Review Queue", icon: ClipboardCheck },
+  { to: "/ai/city-log", label: "Publish Log", icon: ScrollText },
+  { to: "/ai/city-index", label: "Index Monitor", icon: Radar },
+
   { to: "/ai/products", label: "Digital Product Factory", icon: Package },
   { to: "/ai/content", label: "Content Factory", icon: FileText },
   { to: "/ai/publishing", label: "Publishing Center", icon: Send },

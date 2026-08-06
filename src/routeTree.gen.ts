@@ -136,6 +136,7 @@ import { Route as AuthenticatedAdminDashboardRouteImport } from './routes/_authe
 import { Route as AuthenticatedAdminCustomersRouteImport } from './routes/_authenticated/admin.customers'
 import { Route as AuthenticatedAdminCompaniesRouteImport } from './routes/_authenticated/admin.companies'
 import { Route as AuthenticatedAdminBrokersRouteImport } from './routes/_authenticated/admin.brokers'
+import { Route as ApiPublicHooksCityProductionTickRouteImport } from './routes/api/public/hooks/city-production-tick'
 import { Route as AuthenticatedCompanyJobJobIdRouteImport } from './routes/_authenticated/company.job.$jobId'
 import { Route as AuthenticatedAdminJobQuoteIdRouteImport } from './routes/_authenticated/admin.job.$quoteId'
 
@@ -837,6 +838,12 @@ const AuthenticatedAdminBrokersRoute =
     path: '/admin/brokers',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const ApiPublicHooksCityProductionTickRoute =
+  ApiPublicHooksCityProductionTickRouteImport.update({
+    id: '/api/public/hooks/city-production-tick',
+    path: '/api/public/hooks/city-production-tick',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AuthenticatedCompanyJobJobIdRoute =
   AuthenticatedCompanyJobJobIdRouteImport.update({
     id: '/job/$jobId',
@@ -979,6 +986,7 @@ export interface FileRoutesByFullPath {
   '/customer/': typeof AuthenticatedCustomerIndexRoute
   '/admin/job/$quoteId': typeof AuthenticatedAdminJobQuoteIdRoute
   '/company/job/$jobId': typeof AuthenticatedCompanyJobJobIdRoute
+  '/api/public/hooks/city-production-tick': typeof ApiPublicHooksCityProductionTickRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -1108,6 +1116,7 @@ export interface FileRoutesByTo {
   '/customer': typeof AuthenticatedCustomerIndexRoute
   '/admin/job/$quoteId': typeof AuthenticatedAdminJobQuoteIdRoute
   '/company/job/$jobId': typeof AuthenticatedCompanyJobJobIdRoute
+  '/api/public/hooks/city-production-tick': typeof ApiPublicHooksCityProductionTickRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -1240,6 +1249,7 @@ export interface FileRoutesById {
   '/_authenticated/customer/': typeof AuthenticatedCustomerIndexRoute
   '/_authenticated/admin/job/$quoteId': typeof AuthenticatedAdminJobQuoteIdRoute
   '/_authenticated/company/job/$jobId': typeof AuthenticatedCompanyJobJobIdRoute
+  '/api/public/hooks/city-production-tick': typeof ApiPublicHooksCityProductionTickRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -1372,6 +1382,7 @@ export interface FileRouteTypes {
     | '/customer/'
     | '/admin/job/$quoteId'
     | '/company/job/$jobId'
+    | '/api/public/hooks/city-production-tick'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -1501,6 +1512,7 @@ export interface FileRouteTypes {
     | '/customer'
     | '/admin/job/$quoteId'
     | '/company/job/$jobId'
+    | '/api/public/hooks/city-production-tick'
   id:
     | '__root__'
     | '/'
@@ -1632,6 +1644,7 @@ export interface FileRouteTypes {
     | '/_authenticated/customer/'
     | '/_authenticated/admin/job/$quoteId'
     | '/_authenticated/company/job/$jobId'
+    | '/api/public/hooks/city-production-tick'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -1682,6 +1695,7 @@ export interface RootRouteChildren {
   RoutesIndexRoute: typeof RoutesIndexRoute
   StatesIndexRoute: typeof StatesIndexRoute
   ApiPublicSlaTickRoute: typeof ApiPublicSlaTickRoute
+  ApiPublicHooksCityProductionTickRoute: typeof ApiPublicHooksCityProductionTickRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -2575,6 +2589,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminBrokersRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/api/public/hooks/city-production-tick': {
+      id: '/api/public/hooks/city-production-tick'
+      path: '/api/public/hooks/city-production-tick'
+      fullPath: '/api/public/hooks/city-production-tick'
+      preLoaderRoute: typeof ApiPublicHooksCityProductionTickRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/company/job/$jobId': {
       id: '/_authenticated/company/job/$jobId'
       path: '/job/$jobId'
@@ -2825,6 +2846,7 @@ const rootRouteChildren: RootRouteChildren = {
   RoutesIndexRoute: RoutesIndexRoute,
   StatesIndexRoute: StatesIndexRoute,
   ApiPublicSlaTickRoute: ApiPublicSlaTickRoute,
+  ApiPublicHooksCityProductionTickRoute: ApiPublicHooksCityProductionTickRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

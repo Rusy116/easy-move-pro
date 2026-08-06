@@ -47,6 +47,19 @@ export function factsForSlug(slug: string): CityFacts | null {
   return parsed ? findCityFacts(parsed.citySlug, parsed.stateCode) : null;
 }
 
+/**
+ * Facts resolver used by every production tick: curated geo seed first, then
+ * the master USA dataset (public.usa_cities) so all 29k+ cities can produce.
+ */
+export async function resolveFacts(db: Db, slug: string): Promise<CityFacts | null> {
+  const seed = factsForSlug(slug);
+  if (seed) return seed;
+  const parsed = parseLandingParam(String(slug).replace(/^movers-/, ""));
+  if (!parsed) return null;
+  const { masterFactsForCity } = await import("./city-landing/master.server");
+  return masterFactsForCity(db, parsed.citySlug, parsed.stateCode);
+}
+
 async function pageRow(db: Db, slug: string) {
   const { data } = await db.from("city_landing_pages").select("*").eq("slug", slug).maybeSingle();
   return (data ?? null) as Record<string, any> | null;

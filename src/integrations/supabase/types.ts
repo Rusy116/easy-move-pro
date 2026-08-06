@@ -4355,6 +4355,7 @@ export type Database = {
       }
       usa_cities: {
         Row: {
+          aliases: string[]
           area_codes: string[]
           attempts: number
           calculator_slug: string | null
@@ -4385,6 +4386,7 @@ export type Database = {
           zip_codes: string[]
         }
         Insert: {
+          aliases?: string[]
           area_codes?: string[]
           attempts?: number
           calculator_slug?: string | null
@@ -4415,6 +4417,7 @@ export type Database = {
           zip_codes?: string[]
         }
         Update: {
+          aliases?: string[]
           area_codes?: string[]
           attempts?: number
           calculator_slug?: string | null

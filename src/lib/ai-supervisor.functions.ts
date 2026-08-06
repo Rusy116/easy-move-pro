@@ -39,7 +39,7 @@ export const supervisorTick = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { runProductionStage, factsForSlug } = await import("./city-production.server");
+    const { runProductionStage, resolveFacts } = await import("./city-production.server");
     const { TOTAL_STAGES, stageAt } = await import("./city-production/stages");
     const { gateFor, gatePassed } = await import("./city-production/pilot");
     const { MAX_SUPERVISOR_RETRIES, LEASE_MS, agentForStep } = await import("./ai/supervisor");
@@ -140,7 +140,7 @@ export const supervisorTick = createServerFn({ method: "POST" })
       if (!claimed || !claimed.length) continue;
       assigned += 1;
 
-      const facts = factsForSlug(job.landing_slug);
+      const facts = await resolveFacts(db, job.landing_slug);
       if (!facts) {
         await db
           .from("city_production_jobs")
@@ -279,7 +279,7 @@ export const supervisorRefill = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { cityFactsForState } = await import("./city-landing/data");
+    const { masterFactsForState } = await import("./city-landing/master.server");
     const { cityTier } = await import("./city-landing/hierarchy");
     const { priorityFor } = await import("./city-production/stages");
     const { ROLLOUT_STATES } = await import("./city-production/mass");
@@ -292,15 +292,17 @@ export const supervisorRefill = createServerFn({ method: "POST" })
     const taken = new Set(((existing ?? []) as Array<{ landing_slug: string }>).map((r) => r.landing_slug));
     for (const p of (published ?? []) as Array<{ slug: string }>) taken.add(p.slug);
 
-    // Start at the requested state; when it is exhausted, prepare the next one.
+    // Start at the requested state; when it is exhausted, roll to the next one.
     const order = ROLLOUT_STATES.map((s) => s.code);
     const startIdx = Math.max(0, order.indexOf(data.stateCode));
     let chosen = data.stateCode;
-    let eligible: ReturnType<typeof cityFactsForState> = [];
+    let eligible: Awaited<ReturnType<typeof masterFactsForState>> = [];
 
     for (let i = startIdx; i < order.length; i += 1) {
       const code = order[i]!;
-      const pool = cityFactsForState(code).filter((f) => !taken.has(f.landingSlug));
+      const pool = (await masterFactsForState(db, code, Math.max(data.count * 4, 500))).filter(
+        (f) => !taken.has(f.landingSlug),
+      );
       if (pool.length) {
         chosen = code;
         eligible = pool;

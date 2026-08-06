@@ -1,0 +1,1 @@
+ALTER TABLE public.usa_cities ADD COLUMN IF NOT EXISTS aliases text[] NOT NULL DEFAULT '{}'::text[];

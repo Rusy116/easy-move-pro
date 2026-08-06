@@ -264,3 +264,166 @@ export const productionStats = createServerFn({ method: "POST" })
       failedJobs: jobs.filter((j) => j.status === "failed").slice(0, 25),
     };
   });
+
+// ── PHASE 8 — Pilot batch (10 California cities) ───────────────────────────
+
+/** Queue the 10 pilot cities at the front of the line, in the pilot order. */
+export const enqueuePilotBatch = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator(() => ({}))
+  .handler(async ({ context }) => {
+    await assertAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { PILOT_CITIES } = await import("./city-production/pilot");
+    const { factsForSlug } = await import("./city-production.server");
+    const { cityTier } = await import("./city-landing/hierarchy");
+    const db = supabaseAdmin as any;
+
+    const { data: existing } = await db
+      .from("city_production_jobs")
+      .select("landing_slug")
+      .in("landing_slug", PILOT_CITIES.map((c) => c.landingSlug));
+    const taken = new Set(((existing ?? []) as Array<{ landing_slug: string }>).map((r) => r.landing_slug));
+
+    const rows = PILOT_CITIES.filter((c) => !taken.has(c.landingSlug)).flatMap((c, i) => {
+      const facts = factsForSlug(c.landingSlug);
+      if (!facts) return [];
+      return [
+        {
+          landing_slug: c.landingSlug,
+          city_slug: facts.slug,
+          state_code: facts.stateCode,
+          city: facts.city,
+          county: facts.county,
+          tier: cityTier(facts.population),
+          // Pilot cities always run before the rest of the queue, in order.
+          priority: i,
+          population: facts.population,
+        },
+      ];
+    });
+
+    if (rows.length) {
+      const { error } = await db.from("city_production_jobs").insert(rows);
+      if (error) throw new Error(error.message);
+    }
+    return { queued: rows.length, alreadyQueued: taken.size };
+  });
+
+/** Per-city pilot status: gate checklist, quality score, publish + index state. */
+export const pilotStatus = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator(() => ({}))
+  .handler(async ({ context }) => {
+    await assertAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { PILOT_CITIES, PILOT_SLUGS, gateFor, PILOT_MIN_QUALITY } = await import(
+      "./city-production/pilot"
+    );
+    const { landingPathFor, moversPathFor } = await import("./city-landing/data");
+    const db = supabaseAdmin as any;
+
+    const [{ data: jobRows }, { data: pageRows }] = await Promise.all([
+      db.from("city_production_jobs").select("*").in("landing_slug", PILOT_SLUGS),
+      db
+        .from("city_landing_pages")
+        .select("slug, status, seo_status, index_status, audit_score")
+        .in("slug", PILOT_SLUGS),
+    ]);
+
+    const jobs = new Map(((jobRows ?? []) as ProductionJob[]).map((j) => [j.landing_slug, j]));
+    const pages = new Map(
+      ((pageRows ?? []) as Array<Record<string, any>>).map((p) => [String(p["slug"]), p]),
+    );
+
+    const cities = PILOT_CITIES.map((c, i) => {
+      const job = jobs.get(c.landingSlug) ?? null;
+      const page = pages.get(c.landingSlug) ?? null;
+      return {
+        landingSlug: c.landingSlug,
+        city: c.city,
+        stateCode: c.stateCode,
+        order: i + 1,
+        stage: job?.stage ?? 0,
+        status: job?.status ?? "not_queued",
+        attempts: job?.attempts ?? 0,
+        lastError: job?.last_error ?? null,
+        durationMs: job?.duration_ms ?? 0,
+        gate: gateFor(job),
+        qualityScore: page?.["audit_score"] ?? null,
+        publishStatus: page?.["status"] ?? "draft",
+        indexStatus: page?.["index_status"] ?? "pending",
+        calculatorPath: landingPathFor(c.slug, c.stateCode),
+        seoPath: moversPathFor(c.slug, c.stateCode),
+      };
+    });
+
+    const completed = cities.filter((c) => c.status === "completed").length;
+    const scores = cities.map((c) => c.qualityScore).filter((s): s is number => typeof s === "number");
+
+    return {
+      cities,
+      completed,
+      remaining: cities.length - completed,
+      failed: cities.filter((c) => c.status === "failed").length,
+      queued: cities.filter((c) => c.status === "not_queued" || c.status === "queued").length,
+      published: cities.filter((c) => c.publishStatus === "published").length,
+      indexed: cities.filter((c) => c.indexStatus === "submitted" || c.indexStatus === "indexed").length,
+      avgQuality: scores.length ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : null,
+      minQuality: PILOT_MIN_QUALITY,
+      readyForPhase9: completed === cities.length,
+    };
+  });
+
+/**
+ * Phase 9 preparation — runs only when all 10 pilot cities finished. Queues
+ * the rest of California behind the pilot batch.
+ */
+export const preparePhase9 = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator(() => ({}))
+  .handler(async ({ context }) => {
+    await assertAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { PILOT_SLUGS } = await import("./city-production/pilot");
+    const { cityFactsForState } = await import("./city-landing/data");
+    const { cityTier } = await import("./city-landing/hierarchy");
+    const { priorityFor } = await import("./city-production/stages");
+    const db = supabaseAdmin as any;
+
+    const { data: pilotJobs } = await db
+      .from("city_production_jobs")
+      .select("landing_slug, status")
+      .in("landing_slug", PILOT_SLUGS);
+    const done = ((pilotJobs ?? []) as Array<{ status: string }>).filter(
+      (j) => j.status === "completed",
+    ).length;
+    if (done < PILOT_SLUGS.length) {
+      throw new Error(`Phase 9 locked — ${done}/${PILOT_SLUGS.length} pilot cities completed`);
+    }
+
+    const { data: existing } = await db.from("city_production_jobs").select("landing_slug");
+    const taken = new Set(((existing ?? []) as Array<{ landing_slug: string }>).map((r) => r.landing_slug));
+
+    const rows = cityFactsForState("CA")
+      .filter((f) => !taken.has(f.landingSlug))
+      .map((f) => {
+        const tier = cityTier(f.population);
+        return {
+          landing_slug: f.landingSlug,
+          city_slug: f.slug,
+          state_code: f.stateCode,
+          city: f.city,
+          county: f.county,
+          tier,
+          priority: 100 + priorityFor(f.population, tier),
+          population: f.population,
+        };
+      });
+
+    if (rows.length) {
+      const { error } = await db.from("city_production_jobs").insert(rows);
+      if (error) throw new Error(error.message);
+    }
+    return { queued: rows.length };
+  });

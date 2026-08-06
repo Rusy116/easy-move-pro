@@ -19,6 +19,8 @@ import {
 
 } from "@/lib/city-landing.functions";
 import { landingPathForSlug } from "@/lib/city-landing/data";
+import type { PageValidation } from "@/lib/city-landing/validation";
+
 
 export const Route = createFileRoute("/_authenticated/ai/cities")({
   head: () => ({

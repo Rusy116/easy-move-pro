@@ -43,6 +43,7 @@ const EXTRA_CITIES: Array<[string, string, string, number]> = [
   ["irvine", "Irvine", "CA", 307670],
   ["santa-clarita", "Santa Clarita", "CA", 228673],
   ["burbank", "Burbank", "CA", 105319],
+  ["santa-monica", "Santa Monica", "CA", 93076],
   ["san-bernardino", "San Bernardino", "CA", 222101],
   ["scottsdale", "Scottsdale", "AZ", 258069],
   ["tempe", "Tempe", "AZ", 195805],

@@ -10,10 +10,14 @@ import {
   faqSchema,
   serviceSchema,
   localBusinessSchema,
+  organizationSchema,
+  websiteSchema,
 } from "@/lib/seo/schema";
 import { findCityFacts, parseLandingParam, type CityFacts } from "@/lib/city-landing/data";
 import { buildCityLandingContent } from "@/lib/city-landing/content";
 import { buildMoversSeoContent, type MoversSeoContent } from "@/lib/city-landing/seo-page";
+import { buildCityHierarchy, type CityHierarchy } from "@/lib/city-landing/hierarchy";
+
 
 /**
  * Stage 2 of the City Calculator Factory. This page embeds the ONE official

@@ -124,14 +124,22 @@ export function timezoneFor(stateCode: string): string {
 }
 
 // ── Slug helpers ───────────────────────────────────────────────────────────
+// Canonical URL shape: /moving-calculator/glendale-ca
 export const LANDING_PREFIX = "moving-calculator-";
+export const LANDING_BASE = "/moving-calculator";
 
+/** Storage slug — "glendale-ca" (legacy rows may carry the old prefix). */
 export function landingSlugFor(citySlug: string, stateCode: string): string {
-  return `${LANDING_PREFIX}${citySlug}-${stateCode.toLowerCase()}`;
+  return `${citySlug}-${stateCode.toLowerCase()}`;
 }
 
 export function landingPathFor(citySlug: string, stateCode: string): string {
-  return `/${landingSlugFor(citySlug, stateCode)}`;
+  return `${LANDING_BASE}/${landingSlugFor(citySlug, stateCode)}`;
+}
+
+/** Accepts both the legacy prefixed slug and the new bare slug. */
+export function landingPathForSlug(slug: string): string {
+  return `${LANDING_BASE}/${slug.replace(new RegExp(`^${LANDING_PREFIX}`), "")}`;
 }
 
 /** "los-angeles-ca" → { citySlug: "los-angeles", stateCode: "CA" } */

@@ -23,6 +23,7 @@ import { Route as MovingEstimateSoftwareRouteImport } from './routes/moving-esti
 import { Route as MovingDispatchSoftwareRouteImport } from './routes/moving-dispatch-software'
 import { Route as MovingCompanySoftwareRouteImport } from './routes/moving-company-software'
 import { Route as MovingCompanyCrmRouteImport } from './routes/moving-company-crm'
+import { Route as MovingCalculatorChar123cityChar125RouteImport } from './routes/moving-calculator-{$city}'
 import { Route as LeadGenerationRouteImport } from './routes/lead-generation'
 import { Route as JoinRouteImport } from './routes/join'
 import { Route as ForMoversRouteImport } from './routes/for-movers'
@@ -107,6 +108,7 @@ import { Route as AuthenticatedAiNotificationsRouteImport } from './routes/_auth
 import { Route as AuthenticatedAiMonitorRouteImport } from './routes/_authenticated/ai.monitor'
 import { Route as AuthenticatedAiDashboardRouteImport } from './routes/_authenticated/ai.dashboard'
 import { Route as AuthenticatedAiContentRouteImport } from './routes/_authenticated/ai.content'
+import { Route as AuthenticatedAiCitiesRouteImport } from './routes/_authenticated/ai.cities'
 import { Route as AuthenticatedAiAutomationRouteImport } from './routes/_authenticated/ai.automation'
 import { Route as AuthenticatedAiAnalyticsRouteImport } from './routes/_authenticated/ai.analytics'
 import { Route as AuthenticatedAiActivityRouteImport } from './routes/_authenticated/ai.activity'
@@ -195,6 +197,12 @@ const MovingCompanyCrmRoute = MovingCompanyCrmRouteImport.update({
   path: '/moving-company-crm',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MovingCalculatorChar123cityChar125Route =
+  MovingCalculatorChar123cityChar125RouteImport.update({
+    id: '/moving-calculator-{$city}',
+    path: '/moving-calculator-{$city}',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const LeadGenerationRoute = LeadGenerationRouteImport.update({
   id: '/lead-generation',
   path: '/lead-generation',
@@ -659,6 +667,11 @@ const AuthenticatedAiContentRoute = AuthenticatedAiContentRouteImport.update({
   path: '/ai/content',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAiCitiesRoute = AuthenticatedAiCitiesRouteImport.update({
+  id: '/ai/cities',
+  path: '/ai/cities',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedAiAutomationRoute =
   AuthenticatedAiAutomationRouteImport.update({
     id: '/ai/automation',
@@ -770,6 +783,7 @@ export interface FileRoutesByFullPath {
   '/for-movers': typeof ForMoversRoute
   '/join': typeof JoinRoute
   '/lead-generation': typeof LeadGenerationRoute
+  '/moving-calculator-{$city}': typeof MovingCalculatorChar123cityChar125Route
   '/moving-company-crm': typeof MovingCompanyCrmRoute
   '/moving-company-software': typeof MovingCompanySoftwareRoute
   '/moving-dispatch-software': typeof MovingDispatchSoftwareRoute
@@ -817,6 +831,7 @@ export interface FileRoutesByFullPath {
   '/ai/activity': typeof AuthenticatedAiActivityRoute
   '/ai/analytics': typeof AuthenticatedAiAnalyticsRoute
   '/ai/automation': typeof AuthenticatedAiAutomationRoute
+  '/ai/cities': typeof AuthenticatedAiCitiesRoute
   '/ai/content': typeof AuthenticatedAiContentRoute
   '/ai/dashboard': typeof AuthenticatedAiDashboardRoute
   '/ai/monitor': typeof AuthenticatedAiMonitorRoute
@@ -886,6 +901,7 @@ export interface FileRoutesByTo {
   '/for-movers': typeof ForMoversRoute
   '/join': typeof JoinRoute
   '/lead-generation': typeof LeadGenerationRoute
+  '/moving-calculator-{$city}': typeof MovingCalculatorChar123cityChar125Route
   '/moving-company-crm': typeof MovingCompanyCrmRoute
   '/moving-company-software': typeof MovingCompanySoftwareRoute
   '/moving-dispatch-software': typeof MovingDispatchSoftwareRoute
@@ -932,6 +948,7 @@ export interface FileRoutesByTo {
   '/ai/activity': typeof AuthenticatedAiActivityRoute
   '/ai/analytics': typeof AuthenticatedAiAnalyticsRoute
   '/ai/automation': typeof AuthenticatedAiAutomationRoute
+  '/ai/cities': typeof AuthenticatedAiCitiesRoute
   '/ai/content': typeof AuthenticatedAiContentRoute
   '/ai/dashboard': typeof AuthenticatedAiDashboardRoute
   '/ai/monitor': typeof AuthenticatedAiMonitorRoute
@@ -1003,6 +1020,7 @@ export interface FileRoutesById {
   '/for-movers': typeof ForMoversRoute
   '/join': typeof JoinRoute
   '/lead-generation': typeof LeadGenerationRoute
+  '/moving-calculator-{$city}': typeof MovingCalculatorChar123cityChar125Route
   '/moving-company-crm': typeof MovingCompanyCrmRoute
   '/moving-company-software': typeof MovingCompanySoftwareRoute
   '/moving-dispatch-software': typeof MovingDispatchSoftwareRoute
@@ -1050,6 +1068,7 @@ export interface FileRoutesById {
   '/_authenticated/ai/activity': typeof AuthenticatedAiActivityRoute
   '/_authenticated/ai/analytics': typeof AuthenticatedAiAnalyticsRoute
   '/_authenticated/ai/automation': typeof AuthenticatedAiAutomationRoute
+  '/_authenticated/ai/cities': typeof AuthenticatedAiCitiesRoute
   '/_authenticated/ai/content': typeof AuthenticatedAiContentRoute
   '/_authenticated/ai/dashboard': typeof AuthenticatedAiDashboardRoute
   '/_authenticated/ai/monitor': typeof AuthenticatedAiMonitorRoute
@@ -1121,6 +1140,7 @@ export interface FileRouteTypes {
     | '/for-movers'
     | '/join'
     | '/lead-generation'
+    | '/moving-calculator-{$city}'
     | '/moving-company-crm'
     | '/moving-company-software'
     | '/moving-dispatch-software'
@@ -1168,6 +1188,7 @@ export interface FileRouteTypes {
     | '/ai/activity'
     | '/ai/analytics'
     | '/ai/automation'
+    | '/ai/cities'
     | '/ai/content'
     | '/ai/dashboard'
     | '/ai/monitor'
@@ -1237,6 +1258,7 @@ export interface FileRouteTypes {
     | '/for-movers'
     | '/join'
     | '/lead-generation'
+    | '/moving-calculator-{$city}'
     | '/moving-company-crm'
     | '/moving-company-software'
     | '/moving-dispatch-software'
@@ -1283,6 +1305,7 @@ export interface FileRouteTypes {
     | '/ai/activity'
     | '/ai/analytics'
     | '/ai/automation'
+    | '/ai/cities'
     | '/ai/content'
     | '/ai/dashboard'
     | '/ai/monitor'
@@ -1353,6 +1376,7 @@ export interface FileRouteTypes {
     | '/for-movers'
     | '/join'
     | '/lead-generation'
+    | '/moving-calculator-{$city}'
     | '/moving-company-crm'
     | '/moving-company-software'
     | '/moving-dispatch-software'
@@ -1400,6 +1424,7 @@ export interface FileRouteTypes {
     | '/_authenticated/ai/activity'
     | '/_authenticated/ai/analytics'
     | '/_authenticated/ai/automation'
+    | '/_authenticated/ai/cities'
     | '/_authenticated/ai/content'
     | '/_authenticated/ai/dashboard'
     | '/_authenticated/ai/monitor'
@@ -1471,6 +1496,7 @@ export interface RootRouteChildren {
   ForMoversRoute: typeof ForMoversRoute
   JoinRoute: typeof JoinRoute
   LeadGenerationRoute: typeof LeadGenerationRoute
+  MovingCalculatorChar123cityChar125Route: typeof MovingCalculatorChar123cityChar125Route
   MovingCompanyCrmRoute: typeof MovingCompanyCrmRoute
   MovingCompanySoftwareRoute: typeof MovingCompanySoftwareRoute
   MovingDispatchSoftwareRoute: typeof MovingDispatchSoftwareRoute
@@ -1602,6 +1628,13 @@ declare module '@tanstack/react-router' {
       path: '/moving-company-crm'
       fullPath: '/moving-company-crm'
       preLoaderRoute: typeof MovingCompanyCrmRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/moving-calculator-{$city}': {
+      id: '/moving-calculator-{$city}'
+      path: '/moving-calculator-{$city}'
+      fullPath: '/moving-calculator-{$city}'
+      preLoaderRoute: typeof MovingCalculatorChar123cityChar125RouteImport
       parentRoute: typeof rootRouteImport
     }
     '/lead-generation': {
@@ -2192,6 +2225,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAiContentRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/ai/cities': {
+      id: '/_authenticated/ai/cities'
+      path: '/ai/cities'
+      fullPath: '/ai/cities'
+      preLoaderRoute: typeof AuthenticatedAiCitiesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/ai/automation': {
       id: '/_authenticated/ai/automation'
       path: '/ai/automation'
@@ -2394,6 +2434,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAiActivityRoute: typeof AuthenticatedAiActivityRoute
   AuthenticatedAiAnalyticsRoute: typeof AuthenticatedAiAnalyticsRoute
   AuthenticatedAiAutomationRoute: typeof AuthenticatedAiAutomationRoute
+  AuthenticatedAiCitiesRoute: typeof AuthenticatedAiCitiesRoute
   AuthenticatedAiContentRoute: typeof AuthenticatedAiContentRoute
   AuthenticatedAiDashboardRoute: typeof AuthenticatedAiDashboardRoute
   AuthenticatedAiMonitorRoute: typeof AuthenticatedAiMonitorRoute
@@ -2444,6 +2485,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAiActivityRoute: AuthenticatedAiActivityRoute,
   AuthenticatedAiAnalyticsRoute: AuthenticatedAiAnalyticsRoute,
   AuthenticatedAiAutomationRoute: AuthenticatedAiAutomationRoute,
+  AuthenticatedAiCitiesRoute: AuthenticatedAiCitiesRoute,
   AuthenticatedAiContentRoute: AuthenticatedAiContentRoute,
   AuthenticatedAiDashboardRoute: AuthenticatedAiDashboardRoute,
   AuthenticatedAiMonitorRoute: AuthenticatedAiMonitorRoute,
@@ -2492,6 +2534,8 @@ const rootRouteChildren: RootRouteChildren = {
   ForMoversRoute: ForMoversRoute,
   JoinRoute: JoinRoute,
   LeadGenerationRoute: LeadGenerationRoute,
+  MovingCalculatorChar123cityChar125Route:
+    MovingCalculatorChar123cityChar125Route,
   MovingCompanyCrmRoute: MovingCompanyCrmRoute,
   MovingCompanySoftwareRoute: MovingCompanySoftwareRoute,
   MovingDispatchSoftwareRoute: MovingDispatchSoftwareRoute,
@@ -2527,13 +2571,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

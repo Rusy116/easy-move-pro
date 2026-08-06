@@ -730,6 +730,135 @@ export type Database = {
         }
         Relationships: []
       }
+      city_landing_pages: {
+        Row: {
+          city: string
+          content: Json
+          county: string | null
+          created_at: string
+          error: string | null
+          facts: Json
+          highways: string[]
+          id: string
+          nearby_cities: Json
+          neighborhoods: string[]
+          population: number | null
+          published_at: string | null
+          run_id: string | null
+          seo_score: number
+          slug: string
+          source: string
+          state_code: string
+          state_name: string
+          status: string
+          timezone: string | null
+          updated_at: string
+          word_count: number
+          zip_codes: string[]
+        }
+        Insert: {
+          city: string
+          content?: Json
+          county?: string | null
+          created_at?: string
+          error?: string | null
+          facts?: Json
+          highways?: string[]
+          id?: string
+          nearby_cities?: Json
+          neighborhoods?: string[]
+          population?: number | null
+          published_at?: string | null
+          run_id?: string | null
+          seo_score?: number
+          slug: string
+          source?: string
+          state_code: string
+          state_name: string
+          status?: string
+          timezone?: string | null
+          updated_at?: string
+          word_count?: number
+          zip_codes?: string[]
+        }
+        Update: {
+          city?: string
+          content?: Json
+          county?: string | null
+          created_at?: string
+          error?: string | null
+          facts?: Json
+          highways?: string[]
+          id?: string
+          nearby_cities?: Json
+          neighborhoods?: string[]
+          population?: number | null
+          published_at?: string | null
+          run_id?: string | null
+          seo_score?: number
+          slug?: string
+          source?: string
+          state_code?: string
+          state_name?: string
+          status?: string
+          timezone?: string | null
+          updated_at?: string
+          word_count?: number
+          zip_codes?: string[]
+        }
+        Relationships: []
+      }
+      city_landing_runs: {
+        Row: {
+          city_slugs: string[]
+          created_at: string
+          created_by: string | null
+          cursor: number
+          failed: number
+          generated: number
+          id: string
+          last_error: string | null
+          published: number
+          scope: string
+          state_code: string | null
+          status: string
+          total: number
+          updated_at: string
+        }
+        Insert: {
+          city_slugs?: string[]
+          created_at?: string
+          created_by?: string | null
+          cursor?: number
+          failed?: number
+          generated?: number
+          id?: string
+          last_error?: string | null
+          published?: number
+          scope: string
+          state_code?: string | null
+          status?: string
+          total?: number
+          updated_at?: string
+        }
+        Update: {
+          city_slugs?: string[]
+          created_at?: string
+          created_by?: string | null
+          cursor?: number
+          failed?: number
+          generated?: number
+          id?: string
+          last_error?: string | null
+          published?: number
+          scope?: string
+          state_code?: string | null
+          status?: string
+          total?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       commission_invoices: {
         Row: {
           amount: number

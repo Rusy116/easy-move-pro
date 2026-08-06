@@ -410,7 +410,7 @@ function CityLandingDashboard() {
                   {r.state_code ? ` · ${r.state_code}` : ""}
                 </span>
                 <span className="text-muted-foreground">
-                  {r.cursor}/{r.total} processed · {r.published} published · {r.failed} failed
+                  {r.cursor}/{r.total} processed · {r.published} published · {r.failed} failed · {r.skipped ?? 0} skipped
                 </span>
                 <div className="ml-auto flex gap-2">
                   {r.status === "running" && (

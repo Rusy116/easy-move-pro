@@ -410,7 +410,7 @@ export const ecosystemStatus = createServerFn({ method: "GET" })
       agents,
     ] = await Promise.all([
       count("usa_cities"),
-      count("city_landing_pages", (q) => q.eq("calculator_status", "published")),
+      count("city_landing_pages", (q) => q.eq("status", "published")),
       count("city_landing_pages", (q) => q.eq("seo_status", "published")),
       count("ai_content_items", (q) => q.eq("status", "draft")),
       count("ai_content_items", (q) => q.eq("status", "published")),

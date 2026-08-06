@@ -1003,6 +1003,75 @@ export type Database = {
         }
         Relationships: []
       }
+      city_production_jobs: {
+        Row: {
+          attempts: number
+          city: string
+          city_slug: string
+          completed_at: string | null
+          county: string | null
+          created_at: string
+          duration_ms: number
+          id: string
+          landing_slug: string
+          last_error: string | null
+          population: number
+          priority: number
+          queued_at: string
+          stage: number
+          stage_results: Json
+          started_at: string | null
+          state_code: string
+          status: string
+          tier: string
+          updated_at: string
+        }
+        Insert: {
+          attempts?: number
+          city: string
+          city_slug: string
+          completed_at?: string | null
+          county?: string | null
+          created_at?: string
+          duration_ms?: number
+          id?: string
+          landing_slug: string
+          last_error?: string | null
+          population?: number
+          priority?: number
+          queued_at?: string
+          stage?: number
+          stage_results?: Json
+          started_at?: string | null
+          state_code: string
+          status?: string
+          tier?: string
+          updated_at?: string
+        }
+        Update: {
+          attempts?: number
+          city?: string
+          city_slug?: string
+          completed_at?: string | null
+          county?: string | null
+          created_at?: string
+          duration_ms?: number
+          id?: string
+          landing_slug?: string
+          last_error?: string | null
+          population?: number
+          priority?: number
+          queued_at?: string
+          stage?: number
+          stage_results?: Json
+          started_at?: string | null
+          state_code?: string
+          status?: string
+          tier?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       city_publish_log: {
         Row: {
           attempt: number

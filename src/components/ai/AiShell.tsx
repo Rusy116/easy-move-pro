@@ -26,6 +26,7 @@ import {
   Database,
   ShieldCheck,
   Network,
+  Factory,
 
 } from "lucide-react";
 import { RoleGuard } from "@/components/auth/RoleGuard";
@@ -48,6 +49,7 @@ export const AI_NAV = [
   { to: "/ai/city-log", label: "Publish Log", icon: ScrollText },
   { to: "/ai/city-index", label: "Index Monitor", icon: Radar },
   { to: "/ai/city-factory", label: "Autonomous Factory", icon: ShieldCheck },
+  { to: "/ai/production", label: "Production Factory", icon: Factory },
 
   { to: "/ai/products", label: "Digital Product Factory", icon: Package },
   { to: "/ai/content", label: "Content Factory", icon: FileText },

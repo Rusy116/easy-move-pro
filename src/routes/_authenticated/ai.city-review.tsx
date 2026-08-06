@@ -101,7 +101,7 @@ function DraftReviewQueue() {
 
       <SectionShell title="Blocked pages">
         {rows.length === 0 ? (
-          <EmptyState title="Nothing to review" description="Every generated page passed the pre-publish gate." />
+          <EmptyState title="Nothing to review" hint="Every generated page passed the pre-publish gate." />
         ) : (
           <div className="space-y-3">
             {rows.map((r) => {

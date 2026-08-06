@@ -14,9 +14,14 @@ import {
 } from "./city-landing/data";
 import {
   buildCityLandingContent,
-  validateCityContent,
   type CityLandingContent,
 } from "./city-landing/content";
+import {
+  validateCityPage,
+  type DuplicateContext,
+  type PageValidation,
+} from "./city-landing/validation";
+
 
 export interface CityLandingRecord {
   slug: string;
@@ -80,12 +85,42 @@ export const getPublishedCityPage = createServerFn({ method: "GET" })
   });
 
 // ── Generation ─────────────────────────────────────────────────────────────
+/** Duplicate context: slugs/titles already used by OTHER city pages. */
+async function duplicateContext(
+  admin: ReturnType<typeof publicClient>,
+  facts: CityFacts,
+  force: boolean,
+): Promise<DuplicateContext> {
+  const { data } = await admin
+    .from("city_landing_pages")
+    .select("slug, content, status")
+    .eq("city", facts.city)
+    .eq("state_code", facts.stateCode);
+  const rows = (data ?? []) as unknown as Array<{ slug: string; content: { title?: string } | null; status: string }>;
+  const others = rows.filter((r) => r.slug !== facts.landingSlug);
+  const self = rows.find((r) => r.slug === facts.landingSlug);
+  return {
+    existingSlugs: others.map((r) => r.slug),
+    existingTitles: others.map((r) => (r.content?.title ?? "").trim().toLowerCase()),
+    urlTaken: !force && self?.status === "published",
+  };
+}
+
+export interface GenerateResult {
+  status: "published" | "review" | "failed";
+  score: number;
+  validation: PageValidation;
+  durationMs: number;
+}
+
 async function generateOne(
   admin: ReturnType<typeof publicClient>,
   facts: CityFacts,
   runId: string | null,
   useAi: boolean,
-): Promise<{ status: string; score: number }> {
+  opts: { force?: boolean; attempt?: number; preview?: boolean } = {},
+): Promise<GenerateResult> {
+  const startedAt = Date.now();
   let content: CityLandingContent;
   let source: "ai" | "template" = "template";
 
@@ -98,8 +133,23 @@ async function generateOne(
     content = buildCityLandingContent(facts);
   }
 
-  const validation = validateCityContent(content, facts);
-  const status = validation.score > AUTO_PUBLISH_SCORE ? "published" : "draft";
+  const dup = await duplicateContext(admin, facts, opts.force === true);
+  const validation = validateCityPage(facts, content, dup);
+  const durationMs = Date.now() - startedAt;
+
+  // AUTOMATIC PUBLISH RULE — every blocker must pass, otherwise Draft Queue.
+  const status: "published" | "review" = validation.ok ? "published" : "review";
+
+  if (opts.preview) return { status, score: validation.seoScore, validation, durationMs };
+
+  const { data: prev } = await admin
+    .from("city_landing_pages")
+    .select("version, publish_attempts")
+    .eq("slug", facts.landingSlug)
+    .maybeSingle();
+  const prevRow = prev as unknown as { version?: number; publish_attempts?: number } | null;
+  const version = (prevRow?.version ?? 0) + 1;
+  const attempts = (prevRow?.publish_attempts ?? 0) + 1;
 
   const { error } = await admin.from("city_landing_pages").upsert(
     {
@@ -117,18 +167,151 @@ async function generateOne(
       facts: facts as never,
       content: content as never,
       word_count: validation.words,
-      seo_score: validation.score,
-      status,
+      seo_score: validation.seoScore,
+      status: status === "published" ? "published" : "draft",
+      city_status: status,
       source,
-      error: validation.issues.length ? validation.issues.join(" | ") : null,
+      validation: validation as never,
+      calculator_status: validation.calculatorStatus,
+      schema_valid: validation.schemaValid,
+      internal_links: validation.internalLinks,
+      canonical_url: validation.canonicalUrl,
+      blocked_reason: validation.blockedReason,
+      version,
+      publish_attempts: attempts,
+      generation_ms: durationMs,
+      index_status: status === "published" ? "submitted" : "pending",
+      error: validation.blockers.length ? validation.blockers.join(" | ") : null,
       run_id: runId,
       published_at: status === "published" ? new Date().toISOString() : null,
     } as never,
     { onConflict: "slug" },
   );
   if (error) throw error;
-  return { status, score: validation.score };
+
+  await admin.from("city_publish_log").insert({
+    slug: facts.landingSlug,
+    city: facts.city,
+    state_code: facts.stateCode,
+    version,
+    seo_score: validation.seoScore,
+    calculator_status: validation.calculatorStatus,
+    result: status === "published" ? "published" : "blocked",
+    reason: validation.blockedReason,
+    duration_ms: durationMs,
+    attempt: opts.attempt ?? 1,
+    run_id: runId,
+  } as never);
+
+  return { status, score: validation.seoScore, validation, durationMs };
 }
+
+/** PREVIEW MODE — build the page and run the gate WITHOUT writing/publishing. */
+export const previewCityPage = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: { citySlug: string; stateCode: string; useAi?: boolean }) => d)
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const facts = findCityFacts(data.citySlug, data.stateCode);
+    if (!facts) throw new Error(`Unknown city: ${data.citySlug}-${data.stateCode}`);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const admin = supabaseAdmin as unknown as ReturnType<typeof publicClient>;
+    const res = await generateOne(admin, facts, null, data.useAi !== false, { preview: true });
+    return {
+      url: res.validation.canonicalUrl,
+      path: facts.path,
+      city: facts.city,
+      stateCode: facts.stateCode,
+      citySlug: facts.slug,
+      ...res,
+    };
+  });
+
+/** Publish (or retry publishing) a stored page with up to 3 attempts. */
+export const publishCityPage = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: { slug: string; force?: boolean; useAi?: boolean }) => d)
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const parsed = parseLandingParam(data.slug);
+    if (!parsed) throw new Error("Invalid slug");
+    const facts = findCityFacts(parsed.citySlug, parsed.stateCode);
+    if (!facts) throw new Error("Unknown city");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const admin = supabaseAdmin as unknown as ReturnType<typeof publicClient>;
+
+    let last: GenerateResult | null = null;
+    let error: string | null = null;
+    for (let attempt = 1; attempt <= 3; attempt += 1) {
+      try {
+        last = await generateOne(admin, facts, null, data.useAi !== false, {
+          force: data.force !== false,
+          attempt,
+        });
+        error = null;
+        if (last.status === "published") break;
+      } catch (e) {
+        error = e instanceof Error ? e.message : String(e);
+      }
+    }
+
+    if (error) {
+      // ERROR QUEUE + admin notification after 3 failed attempts.
+      await admin
+        .from("city_landing_pages")
+        .update({ city_status: "failed", blocked_reason: error } as never)
+        .eq("slug", facts.landingSlug);
+      await admin.from("city_publish_log").insert({
+        slug: facts.landingSlug,
+        city: facts.city,
+        state_code: facts.stateCode,
+        result: "error",
+        reason: error,
+        attempt: 3,
+      } as never);
+      await admin.from("ai_notifications").insert({
+        level: "error",
+        title: `City page failed: ${facts.city}, ${facts.stateCode}`,
+        message: error,
+        agent_key: "city_landing_agent",
+      } as never);
+      throw new Error(error);
+    }
+    return { slug: facts.landingSlug, status: last?.status, score: last?.score };
+  });
+
+/** DRAFT REVIEW QUEUE — approve (force publish) or reject a blocked page. */
+export const reviewCityPage = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: { slug: string; action: "approve" | "reject" }) => d)
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const patch =
+      data.action === "approve"
+        ? {
+            status: "published",
+            city_status: "published",
+            index_status: "submitted",
+            blocked_reason: null,
+            published_at: new Date().toISOString(),
+          }
+        : { status: "archived", city_status: "skipped" };
+    const { error } = await supabaseAdmin
+      .from("city_landing_pages")
+      .update(patch as never)
+      .eq("slug", data.slug);
+    if (error) throw error;
+    await supabaseAdmin.from("city_publish_log").insert({
+      slug: data.slug,
+      city: data.slug,
+      state_code: data.slug.slice(-2).toUpperCase(),
+      result: data.action === "approve" ? "approved" : "rejected",
+      reason: `Manual ${data.action} by admin`,
+    } as never);
+    return { ok: true };
+  });
+
 
 /** Generate (or regenerate) a single city landing page. */
 export const generateCityPage = createServerFn({ method: "POST" })
@@ -156,7 +339,14 @@ export const generateCityPage = createServerFn({ method: "POST" })
 /** Start a bulk run: a single city, an entire state, or the whole USA. */
 export const startCityRun = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { scope: "city" | "state" | "usa"; stateCode?: string; citySlug?: string }) => d)
+  .inputValidator(
+    (d: {
+      scope: "city" | "state" | "usa";
+      stateCode?: string;
+      citySlug?: string;
+      batchSize?: number;
+    }) => d,
+  )
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -173,6 +363,10 @@ export const startCityRun = createServerFn({ method: "POST" })
     }
     if (!targets.length) throw new Error("No cities matched this scope");
 
+    // BATCH MODE — cap the run at the requested batch size (10…5000).
+    const batchSize = Math.min(Math.max(data.batchSize ?? targets.length, 1), 5000);
+    targets = targets.slice(0, batchSize);
+
     const { data: run, error } = await supabaseAdmin
       .from("city_landing_runs")
       .insert({
@@ -180,11 +374,13 @@ export const startCityRun = createServerFn({ method: "POST" })
         state_code: data.stateCode ?? null,
         city_slugs: targets.map((t) => `${t.slug}|${t.stateCode}`),
         total: targets.length,
+        batch_size: batchSize,
         status: "running",
         created_by: context.userId,
       } as never)
       .select("id")
       .single();
+
     if (error) throw error;
 
     await supabaseAdmin.from("ai_task_logs").insert({
@@ -223,30 +419,48 @@ export const processCityRunBatch = createServerFn({ method: "POST" })
     };
     if (r.status !== "running") return { status: r.status, cursor: r.cursor, done: true };
 
-    const size = Math.min(Math.max(data.batchSize ?? 3, 1), 10);
+    // Per-tick chunk (the run's total batch target is stored on the run).
+    const size = Math.min(Math.max(data.batchSize ?? 3, 1), 25);
     const slice = r.city_slugs.slice(r.cursor, r.cursor + size);
     let generated = r.generated;
     let published = r.published;
     let failed = r.failed;
-    let skipped = 0;
+    let skipped = (r as unknown as { skipped?: number }).skipped ?? 0;
     let lastError: string | null = null;
 
     for (const entry of slice) {
       const [citySlug, stateCode] = entry.split("|");
-      try {
-        const facts = findCityFacts(citySlug!, stateCode);
-        if (!facts) throw new Error(`Unknown city ${entry}`);
-        // Workflow step 2/3: if a published landing page already exists, skip it.
-        if (data.force !== true && (await pageExists(admin, facts.landingSlug))) {
-          skipped += 1;
-          continue;
-        }
-        const res = await generateOne(admin, facts, r.id, data.useAi !== false);
-        generated += 1;
-        if (res.status === "published") published += 1;
-      } catch (err) {
+      const facts = findCityFacts(citySlug!, stateCode);
+      if (!facts) {
         failed += 1;
-        lastError = err instanceof Error ? err.message : String(err);
+        lastError = `Unknown city ${entry}`;
+        continue;
+      }
+      // Workflow step 2/3: if a published landing page already exists, skip it.
+      if (data.force !== true && (await pageExists(admin, facts.landingSlug))) {
+        skipped += 1;
+        continue;
+      }
+      // AUTOMATIC RETRY — up to 3 attempts before the error queue.
+      let ok = false;
+      for (let attempt = 1; attempt <= 3 && !ok; attempt += 1) {
+        try {
+          const res = await generateOne(admin, facts, r.id, data.useAi !== false, { attempt });
+          generated += 1;
+          if (res.status === "published") published += 1;
+          ok = true;
+        } catch (err) {
+          lastError = err instanceof Error ? err.message : String(err);
+          if (attempt === 3) {
+            failed += 1;
+            await admin.from("ai_notifications").insert({
+              level: "error",
+              title: `City page failed after 3 retries: ${facts.city}, ${facts.stateCode}`,
+              message: lastError,
+              agent_key: "city_landing_agent",
+            } as never);
+          }
+        }
       }
     }
 
@@ -259,10 +473,12 @@ export const processCityRunBatch = createServerFn({ method: "POST" })
         generated,
         published,
         failed,
+        skipped,
         last_error: lastError,
         status: done ? "completed" : "running",
       } as never)
       .eq("id", r.id);
+
 
     return {
       status: done ? "completed" : "running",
@@ -279,11 +495,19 @@ export const processCityRunBatch = createServerFn({ method: "POST" })
 /** Pause / resume / stop a run. */
 export const controlCityRun = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { runId: string; action: "pause" | "resume" | "stop" }) => d)
+  .inputValidator((d: { runId: string; action: "pause" | "resume" | "stop" | "cancel" }) => d)
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const status = data.action === "resume" ? "running" : data.action === "pause" ? "paused" : "stopped";
+    const status =
+      data.action === "resume"
+        ? "running"
+        : data.action === "pause"
+          ? "paused"
+          : data.action === "cancel"
+            ? "cancelled"
+            : "stopped";
+
     const { error } = await supabaseAdmin
       .from("city_landing_runs")
       .update({ status } as never)
@@ -360,3 +584,36 @@ export function cityCatalog() {
 }
 
 export { buildCityFacts };
+
+/** INDEX MONITOR — record crawl / Search Console style metrics for a page. */
+export const setCityIndexStatus = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator(
+    (d: {
+      slug: string;
+      indexStatus: "pending" | "submitted" | "indexed" | "not_indexed" | "rejected";
+      clicks?: number;
+      impressions?: number;
+      avgPosition?: number;
+    }) => d,
+  )
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const clicks = Math.max(data.clicks ?? 0, 0);
+    const impressions = Math.max(data.impressions ?? 0, 0);
+    const { error } = await supabaseAdmin
+      .from("city_landing_pages")
+      .update({
+        index_status: data.indexStatus,
+        city_status: data.indexStatus === "indexed" ? "indexed" : undefined,
+        last_crawl: new Date().toISOString(),
+        clicks,
+        impressions,
+        ctr: impressions ? Number(((clicks / impressions) * 100).toFixed(2)) : 0,
+        avg_position: data.avgPosition ?? 0,
+      } as never)
+      .eq("slug", data.slug);
+    if (error) throw error;
+    return { ok: true };
+  });

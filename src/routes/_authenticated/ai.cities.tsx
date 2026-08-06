@@ -14,9 +14,13 @@ import {
   processCityRunBatch,
   controlCityRun,
   retryFailedCityPages,
+  previewCityPage,
   cityCatalog,
+
 } from "@/lib/city-landing.functions";
 import { landingPathForSlug } from "@/lib/city-landing/data";
+import type { PageValidation } from "@/lib/city-landing/validation";
+
 
 export const Route = createFileRoute("/_authenticated/ai/cities")({
   head: () => ({
@@ -31,13 +35,30 @@ export const Route = createFileRoute("/_authenticated/ai/cities")({
   component: CityLandingDashboard,
 });
 
+type PreviewResult = {
+  url: string;
+  city: string;
+  stateCode: string;
+  score: number;
+  status: string;
+  validation: PageValidation;
+};
+
+
 type PageRow = {
+
   slug: string;
   city: string;
   state_code: string;
   status: string;
+  city_status: string;
+  index_status: string;
+  calculator_status: string;
+  clicks: number;
+  impressions: number;
   seo_score: number;
   word_count: number;
+  generation_ms: number;
   error: string | null;
   created_at: string;
   published_at: string | null;
@@ -53,9 +74,12 @@ type RunRow = {
   generated: number;
   published: number;
   failed: number;
+  skipped: number;
+  batch_size: number;
   last_error: string | null;
   created_at: string;
 };
+
 
 function CityLandingDashboard() {
   const qc = useQueryClient();
@@ -73,9 +97,11 @@ function CityLandingDashboard() {
     queryFn: async (): Promise<PageRow[]> => {
       const { data, error } = await supabase
         .from("city_landing_pages")
-        .select("slug, city, state_code, status, seo_score, word_count, error, created_at, published_at")
+        .select(
+          "slug, city, state_code, status, city_status, index_status, calculator_status, clicks, impressions, word_count, seo_score, error, created_at, published_at, generation_ms",
+        )
         .order("created_at", { ascending: false })
-        .limit(200);
+        .limit(500);
       if (error) throw error;
       return (data ?? []) as unknown as PageRow[];
     },
@@ -105,22 +131,42 @@ function CityLandingDashboard() {
     ? Math.round(rows.reduce((a, b) => a + (b.seo_score ?? 0), 0) / rows.length)
     : 0;
   const errors = rows.filter((r) => r.error);
+  const failedCities = rows.filter((r) => r.city_status === "failed");
+  const indexed = rows.filter((r) => r.index_status === "indexed");
+  const clicks = rows.reduce((a, b) => a + (b.clicks ?? 0), 0);
   const publishedToday = published.filter((r) => (r.published_at ?? "").startsWith(today)).length;
   const citiesCompleted = new Set(published.map((r) => r.slug)).size;
   const citiesRemaining = Math.max(catalog.length - citiesCompleted, 0);
   const activeRun = (runs.data ?? []).find((r) => r.status === "running");
-  const skipped = (runs.data ?? []).reduce(
-    (a, r) => a + Math.max(r.cursor - r.generated - r.failed, 0),
-    0,
-  );
+  const skipped = (runs.data ?? []).reduce((a, r) => a + (r.skipped ?? 0), 0);
   // Publishing speed: pages published today per active hour of the day.
   const hoursElapsed = Math.max(new Date().getHours() + new Date().getMinutes() / 60, 1);
   const speed = (publishedToday / hoursElapsed).toFixed(1);
+  // Storage: rough content footprint (≈6 bytes/word + facts + validation payload).
+  const storageMb = (
+    rows.reduce((a, b) => a + (b.word_count ?? 0) * 6 + 4096, 0) /
+    (1024 * 1024)
+  ).toFixed(2);
+  const health =
+    errors.length === 0 && failedCities.length === 0
+      ? "healthy"
+      : failedCities.length > 5
+        ? "degraded"
+        : "warning";
+  const queueStatus = activeRun
+    ? `running ${activeRun.cursor}/${activeRun.total}`
+    : (runs.data ?? []).some((r) => r.status === "paused")
+      ? "paused"
+      : "idle";
+
 
   const refresh = () => qc.invalidateQueries({ queryKey: ["city-landing"] });
 
   // ── Autonomous queue: keep processing the running run, no human clicks. ──
   const [autopilot, setAutopilot] = useState(true);
+  const [batchSize, setBatchSize] = useState(10);
+  const [preview, setPreview] = useState<PreviewResult | null>(null);
+
   const ticking = useRef(false);
   useEffect(() => {
     if (!autopilot || !activeRun) return;
@@ -129,7 +175,7 @@ function CityLandingDashboard() {
       if (ticking.current || cancelled) return;
       ticking.current = true;
       try {
-        await processCityRunBatch({ data: { runId: activeRun.id, batchSize: 3 } });
+        await processCityRunBatch({ data: { runId: activeRun.id, batchSize } });
         refresh();
       } catch {
         /* surfaced through run.last_error */
@@ -178,10 +224,17 @@ function CityLandingDashboard() {
         <StatCard label="Publishing speed" value={`${speed}/hr`} tone="info" />
         <StatCard label="Skipped (already live)" value={skipped} />
         <StatCard label="Errors" value={errors.length} tone={errors.length ? "warning" : undefined} />
-        <StatCard label="Indexed pages" value={published.length} tone="info" />
-        <StatCard label="Organic clicks" value={0} />
-        <StatCard label="Revenue attributed" value="$0" />
+        <StatCard label="Indexed pages" value={indexed.length} tone="info" />
+        <StatCard label="Organic clicks" value={clicks} />
+        <StatCard label="Storage used" value={`${storageMb} MB`} />
+        <StatCard label="Queue status" value={queueStatus} tone="info" />
+        <StatCard
+          label="System health"
+          value={health}
+          tone={health === "healthy" ? "success" : "warning"}
+        />
       </div>
+
 
       <SectionShell title="Generate">
         <div className="flex flex-wrap items-end gap-3">
@@ -213,6 +266,27 @@ function CityLandingDashboard() {
           >
             {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Generate city"}
           </Button>
+          <Button
+            variant="outline"
+            disabled={busy || !selected}
+            onClick={async () => {
+              setBusy(true);
+              try {
+                const res = await previewCityPage({
+                  data: { citySlug: selected!.slug, stateCode: selected!.stateCode },
+                });
+                setPreview(res as PreviewResult);
+                toast.success("Preview built — nothing was published");
+              } catch (e) {
+                toast.error(e instanceof Error ? e.message : "Preview failed");
+              } finally {
+                setBusy(false);
+              }
+            }}
+          >
+            Preview
+          </Button>
+
 
           <div className="ml-4">
             <label className="block text-xs text-muted-foreground mb-1">Entire state</label>
@@ -256,17 +330,73 @@ function CityLandingDashboard() {
           Pages scoring above 95 publish automatically; everything else stays a draft with the SEO
           issues attached.
         </p>
+
+        {preview && (
+          <div className="mt-4 rounded-lg border border-border p-4">
+            <div className="flex flex-wrap items-center gap-3">
+              <StatusPill status={preview.status} />
+              <span className="font-medium">
+                Preview — {preview.city}, {preview.stateCode}
+              </span>
+              <span className="text-xs text-muted-foreground">{preview.url}</span>
+              <span className="ml-auto text-sm">
+                SEO {preview.validation.seoScore} · {preview.validation.words} words ·{" "}
+                {preview.validation.passed}/{preview.validation.total} checks
+              </span>
+              <Button size="sm" variant="ghost" onClick={() => setPreview(null)}>
+                Close
+              </Button>
+            </div>
+            {preview.validation.blockers.length > 0 && (
+              <ul className="mt-3 list-disc space-y-1 pl-5 text-xs text-destructive">
+                {preview.validation.blockers.map((b) => (
+                  <li key={b}>{b}</li>
+                ))}
+              </ul>
+            )}
+            <div className="mt-3 grid gap-1 sm:grid-cols-2 lg:grid-cols-3">
+              {preview.validation.checks.map((c) => (
+                <div key={c.key} className="flex items-start gap-2 text-xs">
+                  <span className={c.ok ? "text-emerald-600" : "text-destructive"}>
+                    {c.ok ? "✓" : "✕"}
+                  </span>
+                  <span className="text-muted-foreground">{c.label}</span>
+                </div>
+              ))}
+            </div>
+            <p className="mt-3 text-xs text-muted-foreground">
+              Preview mode is read-only — nothing was written or published.
+            </p>
+          </div>
+        )}
       </SectionShell>
 
       <SectionShell title="Publishing queue / runs">
-        <label className="mb-3 flex items-center gap-2 text-sm">
-          <input
-            type="checkbox"
-            checked={autopilot}
-            onChange={(e) => setAutopilot(e.target.checked)}
-          />
-          Autopilot — keep processing the queue automatically until every city is done
-        </label>
+        <div className="mb-3 flex flex-wrap items-center gap-4">
+          <label className="flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              checked={autopilot}
+              onChange={(e) => setAutopilot(e.target.checked)}
+            />
+            Autopilot — keep processing the queue automatically until every city is done
+          </label>
+          <label className="flex items-center gap-2 text-sm">
+            Batch size
+            <select
+              className="h-9 rounded-md border border-border bg-background px-2 text-sm"
+              value={batchSize}
+              onChange={(e) => setBatchSize(Number(e.target.value))}
+            >
+              {[1, 5, 10, 25].map((n) => (
+                <option key={n} value={n}>
+                  {n} pages / tick
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
+
         {runs.data?.length ? (
           <div className="space-y-3">
             {runs.data.map((r) => (
@@ -280,7 +410,7 @@ function CityLandingDashboard() {
                   {r.state_code ? ` · ${r.state_code}` : ""}
                 </span>
                 <span className="text-muted-foreground">
-                  {r.cursor}/{r.total} processed · {r.published} published · {r.failed} failed
+                  {r.cursor}/{r.total} processed · {r.published} published · {r.failed} failed · {r.skipped ?? 0} skipped
                 </span>
                 <div className="ml-auto flex gap-2">
                   {r.status === "running" && (
@@ -290,7 +420,7 @@ function CityLandingDashboard() {
                         disabled={busy}
                         onClick={() =>
                           run(
-                            () => processCityRunBatch({ data: { runId: r.id, batchSize: 3 } }),
+                            () => processCityRunBatch({ data: { runId: r.id, batchSize } }),
                             "Batch processed",
                           )
                         }

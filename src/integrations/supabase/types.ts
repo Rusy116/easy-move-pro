@@ -732,19 +732,33 @@ export type Database = {
       }
       city_landing_pages: {
         Row: {
+          avg_position: number
+          blocked_reason: string | null
+          calculator_status: string
+          canonical_url: string | null
           city: string
+          city_status: string
+          clicks: number
           content: Json
           county: string | null
           created_at: string
+          ctr: number
           error: string | null
           facts: Json
+          generation_ms: number
           highways: string[]
           id: string
+          impressions: number
+          index_status: string
+          internal_links: number
+          last_crawl: string | null
           nearby_cities: Json
           neighborhoods: string[]
           population: number | null
+          publish_attempts: number
           published_at: string | null
           run_id: string | null
+          schema_valid: boolean
           seo_score: number
           slug: string
           source: string
@@ -753,23 +767,39 @@ export type Database = {
           status: string
           timezone: string | null
           updated_at: string
+          validation: Json
+          version: number
           word_count: number
           zip_codes: string[]
         }
         Insert: {
+          avg_position?: number
+          blocked_reason?: string | null
+          calculator_status?: string
+          canonical_url?: string | null
           city: string
+          city_status?: string
+          clicks?: number
           content?: Json
           county?: string | null
           created_at?: string
+          ctr?: number
           error?: string | null
           facts?: Json
+          generation_ms?: number
           highways?: string[]
           id?: string
+          impressions?: number
+          index_status?: string
+          internal_links?: number
+          last_crawl?: string | null
           nearby_cities?: Json
           neighborhoods?: string[]
           population?: number | null
+          publish_attempts?: number
           published_at?: string | null
           run_id?: string | null
+          schema_valid?: boolean
           seo_score?: number
           slug: string
           source?: string
@@ -778,23 +808,39 @@ export type Database = {
           status?: string
           timezone?: string | null
           updated_at?: string
+          validation?: Json
+          version?: number
           word_count?: number
           zip_codes?: string[]
         }
         Update: {
+          avg_position?: number
+          blocked_reason?: string | null
+          calculator_status?: string
+          canonical_url?: string | null
           city?: string
+          city_status?: string
+          clicks?: number
           content?: Json
           county?: string | null
           created_at?: string
+          ctr?: number
           error?: string | null
           facts?: Json
+          generation_ms?: number
           highways?: string[]
           id?: string
+          impressions?: number
+          index_status?: string
+          internal_links?: number
+          last_crawl?: string | null
           nearby_cities?: Json
           neighborhoods?: string[]
           population?: number | null
+          publish_attempts?: number
           published_at?: string | null
           run_id?: string | null
+          schema_valid?: boolean
           seo_score?: number
           slug?: string
           source?: string
@@ -803,6 +849,8 @@ export type Database = {
           status?: string
           timezone?: string | null
           updated_at?: string
+          validation?: Json
+          version?: number
           word_count?: number
           zip_codes?: string[]
         }
@@ -810,6 +858,7 @@ export type Database = {
       }
       city_landing_runs: {
         Row: {
+          batch_size: number
           city_slugs: string[]
           created_at: string
           created_by: string | null
@@ -820,12 +869,14 @@ export type Database = {
           last_error: string | null
           published: number
           scope: string
+          skipped: number
           state_code: string | null
           status: string
           total: number
           updated_at: string
         }
         Insert: {
+          batch_size?: number
           city_slugs?: string[]
           created_at?: string
           created_by?: string | null
@@ -836,12 +887,14 @@ export type Database = {
           last_error?: string | null
           published?: number
           scope: string
+          skipped?: number
           state_code?: string | null
           status?: string
           total?: number
           updated_at?: string
         }
         Update: {
+          batch_size?: number
           city_slugs?: string[]
           created_at?: string
           created_by?: string | null
@@ -852,10 +905,59 @@ export type Database = {
           last_error?: string | null
           published?: number
           scope?: string
+          skipped?: number
           state_code?: string | null
           status?: string
           total?: number
           updated_at?: string
+        }
+        Relationships: []
+      }
+      city_publish_log: {
+        Row: {
+          attempt: number
+          calculator_status: string
+          city: string
+          created_at: string
+          duration_ms: number
+          id: string
+          reason: string | null
+          result: string
+          run_id: string | null
+          seo_score: number
+          slug: string
+          state_code: string
+          version: number
+        }
+        Insert: {
+          attempt?: number
+          calculator_status?: string
+          city: string
+          created_at?: string
+          duration_ms?: number
+          id?: string
+          reason?: string | null
+          result: string
+          run_id?: string | null
+          seo_score?: number
+          slug: string
+          state_code: string
+          version?: number
+        }
+        Update: {
+          attempt?: number
+          calculator_status?: string
+          city?: string
+          created_at?: string
+          duration_ms?: number
+          id?: string
+          reason?: string | null
+          result?: string
+          run_id?: string | null
+          seo_score?: number
+          slug?: string
+          state_code?: string
+          version?: number
         }
         Relationships: []
       }

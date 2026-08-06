@@ -36,6 +36,8 @@ export const Route = createFileRoute("/sitemap.xml")({
           { path: "/ai-tools", changefreq: "monthly", priority: "0.7" },
           { path: "/states", changefreq: "monthly", priority: "0.8" },
           { path: "/routes", changefreq: "monthly", priority: "0.8" },
+          { path: "/sitemap", changefreq: "weekly", priority: "0.5" },
+
         ];
 
         // Geo platform pages

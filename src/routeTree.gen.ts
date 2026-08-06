@@ -46,6 +46,7 @@ import { Route as QuoteQuoteNumberRouteImport } from './routes/quote.$quoteNumbe
 import { Route as PortalQuoteNumberRouteImport } from './routes/portal.$quoteNumber'
 import { Route as PartnersApplyRouteImport } from './routes/partners.apply'
 import { Route as PartnersLocationRouteImport } from './routes/partners.$location'
+import { Route as MovingCalculatorCityRouteImport } from './routes/moving-calculator.$city'
 import { Route as LearnTopicRouteImport } from './routes/learn.$topic'
 import { Route as CompareSlugRouteImport } from './routes/compare.$slug'
 import { Route as CitiesCityRouteImport } from './routes/cities.$city'
@@ -310,6 +311,11 @@ const PartnersApplyRoute = PartnersApplyRouteImport.update({
 const PartnersLocationRoute = PartnersLocationRouteImport.update({
   id: '/partners/$location',
   path: '/partners/$location',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MovingCalculatorCityRoute = MovingCalculatorCityRouteImport.update({
+  id: '/moving-calculator/$city',
+  path: '/moving-calculator/$city',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LearnTopicRoute = LearnTopicRouteImport.update({
@@ -805,6 +811,7 @@ export interface FileRoutesByFullPath {
   '/cities/$city': typeof CitiesCityRoute
   '/compare/$slug': typeof CompareSlugRoute
   '/learn/$topic': typeof LearnTopicRoute
+  '/moving-calculator/$city': typeof MovingCalculatorCityRoute
   '/partners/$location': typeof PartnersLocationRoute
   '/partners/apply': typeof PartnersApplyRoute
   '/portal/$quoteNumber': typeof PortalQuoteNumberRoute
@@ -922,6 +929,7 @@ export interface FileRoutesByTo {
   '/cities/$city': typeof CitiesCityRoute
   '/compare/$slug': typeof CompareSlugRoute
   '/learn/$topic': typeof LearnTopicRoute
+  '/moving-calculator/$city': typeof MovingCalculatorCityRoute
   '/partners/$location': typeof PartnersLocationRoute
   '/partners/apply': typeof PartnersApplyRoute
   '/portal/$quoteNumber': typeof PortalQuoteNumberRoute
@@ -1042,6 +1050,7 @@ export interface FileRoutesById {
   '/cities/$city': typeof CitiesCityRoute
   '/compare/$slug': typeof CompareSlugRoute
   '/learn/$topic': typeof LearnTopicRoute
+  '/moving-calculator/$city': typeof MovingCalculatorCityRoute
   '/partners/$location': typeof PartnersLocationRoute
   '/partners/apply': typeof PartnersApplyRoute
   '/portal/$quoteNumber': typeof PortalQuoteNumberRoute
@@ -1162,6 +1171,7 @@ export interface FileRouteTypes {
     | '/cities/$city'
     | '/compare/$slug'
     | '/learn/$topic'
+    | '/moving-calculator/$city'
     | '/partners/$location'
     | '/partners/apply'
     | '/portal/$quoteNumber'
@@ -1279,6 +1289,7 @@ export interface FileRouteTypes {
     | '/cities/$city'
     | '/compare/$slug'
     | '/learn/$topic'
+    | '/moving-calculator/$city'
     | '/partners/$location'
     | '/partners/apply'
     | '/portal/$quoteNumber'
@@ -1398,6 +1409,7 @@ export interface FileRouteTypes {
     | '/cities/$city'
     | '/compare/$slug'
     | '/learn/$topic'
+    | '/moving-calculator/$city'
     | '/partners/$location'
     | '/partners/apply'
     | '/portal/$quoteNumber'
@@ -1516,6 +1528,7 @@ export interface RootRouteChildren {
   CitiesCityRoute: typeof CitiesCityRoute
   CompareSlugRoute: typeof CompareSlugRoute
   LearnTopicRoute: typeof LearnTopicRoute
+  MovingCalculatorCityRoute: typeof MovingCalculatorCityRoute
   PartnersLocationRoute: typeof PartnersLocationRoute
   PartnersApplyRoute: typeof PartnersApplyRoute
   PortalQuoteNumberRoute: typeof PortalQuoteNumberRoute
@@ -1789,6 +1802,13 @@ declare module '@tanstack/react-router' {
       path: '/partners/$location'
       fullPath: '/partners/$location'
       preLoaderRoute: typeof PartnersLocationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/moving-calculator/$city': {
+      id: '/moving-calculator/$city'
+      path: '/moving-calculator/$city'
+      fullPath: '/moving-calculator/$city'
+      preLoaderRoute: typeof MovingCalculatorCityRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/learn/$topic': {
@@ -2555,6 +2575,7 @@ const rootRouteChildren: RootRouteChildren = {
   CitiesCityRoute: CitiesCityRoute,
   CompareSlugRoute: CompareSlugRoute,
   LearnTopicRoute: LearnTopicRoute,
+  MovingCalculatorCityRoute: MovingCalculatorCityRoute,
   PartnersLocationRoute: PartnersLocationRoute,
   PartnersApplyRoute: PartnersApplyRoute,
   PortalQuoteNumberRoute: PortalQuoteNumberRoute,
@@ -2571,13 +2592,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

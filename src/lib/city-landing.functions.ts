@@ -584,3 +584,36 @@ export function cityCatalog() {
 }
 
 export { buildCityFacts };
+
+/** INDEX MONITOR — record crawl / Search Console style metrics for a page. */
+export const setCityIndexStatus = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator(
+    (d: {
+      slug: string;
+      indexStatus: "pending" | "submitted" | "indexed" | "not_indexed" | "rejected";
+      clicks?: number;
+      impressions?: number;
+      avgPosition?: number;
+    }) => d,
+  )
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const clicks = Math.max(data.clicks ?? 0, 0);
+    const impressions = Math.max(data.impressions ?? 0, 0);
+    const { error } = await supabaseAdmin
+      .from("city_landing_pages")
+      .update({
+        index_status: data.indexStatus,
+        city_status: data.indexStatus === "indexed" ? "indexed" : undefined,
+        last_crawl: new Date().toISOString(),
+        clicks,
+        impressions,
+        ctr: impressions ? Number(((clicks / impressions) * 100).toFixed(2)) : 0,
+        avg_position: data.avgPosition ?? 0,
+      } as never)
+      .eq("slug", data.slug);
+    if (error) throw error;
+    return { ok: true };
+  });

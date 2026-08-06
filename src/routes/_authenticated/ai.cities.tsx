@@ -73,9 +73,11 @@ function CityLandingDashboard() {
     queryFn: async (): Promise<PageRow[]> => {
       const { data, error } = await supabase
         .from("city_landing_pages")
-        .select("slug, city, state_code, status, seo_score, word_count, error, created_at, published_at")
+        .select(
+          "slug, city, state_code, status, city_status, index_status, calculator_status, clicks, impressions, word_count, seo_score, error, created_at, published_at, generation_ms",
+        )
         .order("created_at", { ascending: false })
-        .limit(200);
+        .limit(500);
       if (error) throw error;
       return (data ?? []) as unknown as PageRow[];
     },
@@ -105,17 +107,34 @@ function CityLandingDashboard() {
     ? Math.round(rows.reduce((a, b) => a + (b.seo_score ?? 0), 0) / rows.length)
     : 0;
   const errors = rows.filter((r) => r.error);
+  const failedCities = rows.filter((r) => r.city_status === "failed");
+  const indexed = rows.filter((r) => r.index_status === "indexed");
+  const clicks = rows.reduce((a, b) => a + (b.clicks ?? 0), 0);
   const publishedToday = published.filter((r) => (r.published_at ?? "").startsWith(today)).length;
   const citiesCompleted = new Set(published.map((r) => r.slug)).size;
   const citiesRemaining = Math.max(catalog.length - citiesCompleted, 0);
   const activeRun = (runs.data ?? []).find((r) => r.status === "running");
-  const skipped = (runs.data ?? []).reduce(
-    (a, r) => a + Math.max(r.cursor - r.generated - r.failed, 0),
-    0,
-  );
+  const skipped = (runs.data ?? []).reduce((a, r) => a + (r.skipped ?? 0), 0);
   // Publishing speed: pages published today per active hour of the day.
   const hoursElapsed = Math.max(new Date().getHours() + new Date().getMinutes() / 60, 1);
   const speed = (publishedToday / hoursElapsed).toFixed(1);
+  // Storage: rough content footprint (≈6 bytes/word + facts + validation payload).
+  const storageMb = (
+    rows.reduce((a, b) => a + (b.word_count ?? 0) * 6 + 4096, 0) /
+    (1024 * 1024)
+  ).toFixed(2);
+  const health =
+    errors.length === 0 && failedCities.length === 0
+      ? "healthy"
+      : failedCities.length > 5
+        ? "degraded"
+        : "warning";
+  const queueStatus = activeRun
+    ? `running ${activeRun.cursor}/${activeRun.total}`
+    : (runs.data ?? []).some((r) => r.status === "paused")
+      ? "paused"
+      : "idle";
+
 
   const refresh = () => qc.invalidateQueries({ queryKey: ["city-landing"] });
 

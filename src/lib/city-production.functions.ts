@@ -113,11 +113,32 @@ export const productionTick = createServerFn({ method: "POST" })
 
       for (let i = 0; i < data.stagesPerJob && stage < TOTAL_STAGES; i += 1) {
         const step = stage + 1;
+
+        // Hard publish gate: nothing publishes until Calculator, SEO, FAQ,
+        // Schema, Internal Links, Images, Image SEO and Quality ≥ 95 all pass.
+        if (stageAt(step)?.key === "publish" && !gatePassed({ stage_results: stageResults })) {
+          const missing = gateFor({ stage_results: stageResults })
+            .filter((g) => !g.ok)
+            .map((g) => g.label)
+            .join(", ");
+          status = "failed";
+          lastError = `Publish blocked — gate incomplete: ${missing}`;
+          results.push({
+            city: `${facts.city}, ${facts.stateCode}`,
+            stage: step,
+            ok: false,
+            summary: lastError,
+            done: false,
+          });
+          break;
+        }
+
         const stepStart = Date.now();
         const res = await runProductionStage(
           { db, facts, landingSlug: job.landing_slug, useAi: data.useAi },
           step,
         );
+
         stageResults[res.key] = {
           ok: res.ok,
           summary: res.summary,

@@ -495,11 +495,19 @@ export const processCityRunBatch = createServerFn({ method: "POST" })
 /** Pause / resume / stop a run. */
 export const controlCityRun = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { runId: string; action: "pause" | "resume" | "stop" }) => d)
+  .inputValidator((d: { runId: string; action: "pause" | "resume" | "stop" | "cancel" }) => d)
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const status = data.action === "resume" ? "running" : data.action === "pause" ? "paused" : "stopped";
+    const status =
+      data.action === "resume"
+        ? "running"
+        : data.action === "pause"
+          ? "paused"
+          : data.action === "cancel"
+            ? "cancelled"
+            : "stopped";
+
     const { error } = await supabaseAdmin
       .from("city_landing_runs")
       .update({ status } as never)

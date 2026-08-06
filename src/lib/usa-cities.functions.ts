@@ -31,11 +31,6 @@ export interface ImportResult {
   invalid: number;
 }
 
-/** Catalog size available for import (client-safe, pure). */
-export function usaCatalogSize(stateCode?: string) {
-  return catalogSize(stateCode);
-}
-
 // ── IMPORT ENGINE ──────────────────────────────────────────────────────────
 /**
  * Import 10 / 100 / 1,000 / entire USA. Duplicates are detected by the

@@ -213,7 +213,17 @@ export const controlProduction = createServerFn({ method: "POST" })
 export const productionStats = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator(() => ({}))
-  .handler(async ({ context }): Promise<ProductionSummary & { jobs: ProductionJob[]; failedJobs: ProductionJob[] }> => {
+  .handler(async ({ context }): Promise<
+    ProductionSummary & {
+      jobs: ProductionJob[];
+      failedJobs: ProductionJob[];
+      publishedTotal: number;
+      publishedToday: number;
+      avgQuality: number | null;
+      retries: number;
+      currentWorker: string | null;
+    }
+  > => {
     await assertAdmin(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { stageAt, estimateEta } = await import("./city-production/stages");
@@ -245,6 +255,20 @@ export const productionStats = createServerFn({ method: "POST" })
 
     const active = jobs.find((j) => j.status === "running") ?? jobs.find((j) => j.status === "queued") ?? null;
     const remaining = count("queued") + count("running");
+    const currentStage = active ? (stageAt(Math.min(active.stage + 1, 12)) ?? null) : null;
+
+    // Published pages + average SEO quality across the whole factory output.
+    const [{ data: publishedRows }, { count: publishedTotal }] = await Promise.all([
+      db
+        .from("city_landing_pages")
+        .select("audit_score, published_at")
+        .eq("status", "published")
+        .order("published_at", { ascending: false })
+        .limit(1000),
+      db.from("city_landing_pages").select("slug", { count: "exact", head: true }).eq("status", "published"),
+    ]);
+    const pub = ((publishedRows ?? []) as Array<{ audit_score: number | null; published_at: string | null }>);
+    const scores = pub.map((r) => r.audit_score).filter((s): s is number => typeof s === "number");
 
     return {
       queued: count("queued"),
@@ -259,9 +283,75 @@ export const productionStats = createServerFn({ method: "POST" })
       perHour,
       etaHours: estimateEta(remaining, perHour),
       currentCity: active ? `${active.city}, ${active.state_code}` : null,
-      currentStage: active ? (stageAt(Math.min(active.stage + 1, 12)) ?? null) : null,
+      currentStage,
       jobs: jobs.slice(0, 60),
       failedJobs: jobs.filter((j) => j.status === "failed").slice(0, 25),
+      publishedTotal: publishedTotal ?? pub.length,
+      publishedToday: pub.filter((r) => r.published_at && new Date(r.published_at) >= midnight).length,
+      avgQuality: scores.length ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : null,
+      retries: jobs.reduce((sum, j) => sum + Math.max(0, j.attempts - 1), 0),
+      currentWorker: currentStage?.name ?? null,
+    };
+  });
+
+/**
+ * Phase 9 — mass batch enqueue. Scoped to a state (California first), skips
+ * every city already queued or already published, so completed cities are
+ * never regenerated and no duplicate URL can enter the line.
+ */
+export const enqueueMassBatch = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: { stateCode?: string; count?: number }) => ({
+    stateCode: (d?.stateCode ? String(d.stateCode) : "CA").slice(0, 2).toUpperCase(),
+    count: Math.min(Math.max(Number(d?.count ?? 100), 1), 5000),
+  }))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { cityFactsForState } = await import("./city-landing/data");
+    const { cityTier } = await import("./city-landing/hierarchy");
+    const { priorityFor } = await import("./city-production/stages");
+    const db = supabaseAdmin as any;
+
+    const pool = cityFactsForState(data.stateCode);
+
+    const [{ data: existing }, { data: published }] = await Promise.all([
+      db.from("city_production_jobs").select("landing_slug"),
+      db.from("city_landing_pages").select("slug").eq("status", "published"),
+    ]);
+    const taken = new Set(((existing ?? []) as Array<{ landing_slug: string }>).map((r) => r.landing_slug));
+    for (const p of (published ?? []) as Array<{ slug: string }>) taken.add(p.slug);
+
+    const eligible = pool.filter((f) => !taken.has(f.landingSlug));
+    const duplicatesSkipped = pool.length - eligible.length;
+
+    const rows = eligible
+      .map((f) => {
+        const tier = cityTier(f.population);
+        return {
+          landing_slug: f.landingSlug,
+          city_slug: f.slug,
+          state_code: f.stateCode,
+          city: f.city,
+          county: f.county,
+          tier,
+          // Large metro → medium → small → nearby towns.
+          priority: 100 + priorityFor(f.population, tier),
+          population: f.population,
+        };
+      })
+      .sort((a, b) => a.priority - b.priority || b.population - a.population)
+      .slice(0, data.count);
+
+    if (rows.length) {
+      const { error } = await db.from("city_production_jobs").insert(rows);
+      if (error) throw new Error(error.message);
+    }
+    return {
+      queued: rows.length,
+      duplicatesSkipped,
+      poolSize: pool.length,
+      stateCode: data.stateCode,
     };
   });
 

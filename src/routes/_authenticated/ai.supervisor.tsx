@@ -72,6 +72,26 @@ const HEALTH_TONE: Record<string, string> = {
   down: "bg-destructive/12 text-destructive",
 };
 
+/** Local panel wrapper: SectionShell plus a description line. */
+function Panel({
+  title,
+  description,
+  actions,
+  children,
+}: {
+  title: string;
+  description?: string;
+  actions?: React.ReactNode;
+  children: React.ReactNode;
+}) {
+  return (
+    <SectionShell title={title} right={actions}>
+      {description && <p className="-mt-2 mb-4 text-xs text-muted-foreground">{description}</p>}
+      {children}
+    </SectionShell>
+  );
+}
+
 function SupervisorPage() {
   const qc = useQueryClient();
   const [auto, setAuto] = useState(false);
@@ -196,7 +216,7 @@ function SupervisorPage() {
   return (
     <AiShell>
       <PageHeader
-        icon={Brain}
+        icon={<Brain className="h-5 w-5" />}
         title="AI Supervisor"
         subtitle="Master orchestrator — plans, assigns, monitors and retries every production agent. It never writes content itself."
         actions={
@@ -243,7 +263,7 @@ function SupervisorPage() {
       </div>
 
       {/* Controls */}
-      <SectionShell title="Workload balancing" description="Workers share the queue; a city is leased to exactly one worker at a time.">
+      <Panel title="Workload balancing" description="Workers share the queue; a city is leased to exactly one worker at a time.">
         <div className="flex flex-wrap items-center gap-4">
           <div className="flex items-center gap-2">
             <span className="text-xs font-medium text-muted-foreground">Workers</span>
@@ -288,10 +308,10 @@ function SupervisorPage() {
             </Button>
           </div>
         </div>
-      </SectionShell>
+      </Panel>
 
       {/* Queue states */}
-      <SectionShell title="Production queue" description="Every city carries one supervisor state at all times.">
+      <Panel title="Production queue" description="Every city carries one supervisor state at all times.">
         <div className="mb-4 flex flex-wrap gap-2">
           {SUPERVISOR_STATES.map((st) => (
             <span key={st} className={`rounded-full px-3 py-1 text-[11px] font-semibold capitalize ${STATE_TONE[st]}`}>
@@ -337,10 +357,10 @@ function SupervisorPage() {
             </table>
           </div>
         )}
-      </SectionShell>
+      </Panel>
 
       {/* Agent chain */}
-      <SectionShell title="Agent chain" description="Fixed order — each city walks the chain top to bottom, one agent at a time.">
+      <Panel title="Agent chain" description="Fixed order — each city walks the chain top to bottom, one agent at a time.">
         <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
           {SUPERVISOR_CHAIN.map((a) => {
             const active = s?.currentAgent === a.name;
@@ -360,10 +380,10 @@ function SupervisorPage() {
             );
           })}
         </div>
-      </SectionShell>
+      </Panel>
 
       {/* Health */}
-      <SectionShell
+      <Panel
         title="Health monitor"
         description="Swept every minute: agents, memory, queue, database, API, publishing, indexing and images."
         actions={
@@ -406,10 +426,10 @@ function SupervisorPage() {
             </ul>
           )}
         </div>
-      </SectionShell>
+      </Panel>
 
       {/* Reports */}
-      <SectionShell
+      <Panel
         title="Batch reports"
         description="Production, SEO, Publishing, Quality and Revenue reports stored in the AI Growth Center."
         actions={
@@ -442,10 +462,10 @@ function SupervisorPage() {
             ))}
           </div>
         )}
-      </SectionShell>
+      </Panel>
 
       {/* Live log */}
-      <SectionShell title="Supervisor log" description="Live assignment stream from the current session.">
+      <Panel title="Supervisor log" description="Live assignment stream from the current session.">
         {!log.length ? (
           <EmptyState title="No activity yet" hint="Start the supervisor to watch agents get assigned." />
         ) : (
@@ -463,7 +483,7 @@ function SupervisorPage() {
             ))}
           </ul>
         )}
-      </SectionShell>
+      </Panel>
     </AiShell>
   );
 }

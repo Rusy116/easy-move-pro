@@ -78,7 +78,7 @@ function CountyHub() {
 
       <section className="mx-auto max-w-5xl px-4 sm:px-6 py-12">
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {node.cities.map((c) => (
+          {node.cities.map((c: { slug: string; stateCode: string; name: string; population: number }) => (
             <div key={`${c.slug}-${c.stateCode}`} className="rounded-2xl border border-border p-5">
               <h2 className="font-serif text-xl font-semibold">
                 {c.name}, {c.stateCode}

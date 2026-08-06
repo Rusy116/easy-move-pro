@@ -49,6 +49,7 @@ import { Route as PartnersLocationRouteImport } from './routes/partners.$locatio
 import { Route as MovingCalculatorCityRouteImport } from './routes/moving-calculator.$city'
 import { Route as MoversCityRouteImport } from './routes/movers.$city'
 import { Route as LearnTopicRouteImport } from './routes/learn.$topic'
+import { Route as CountiesCountyRouteImport } from './routes/counties.$county'
 import { Route as CompareSlugRouteImport } from './routes/compare.$slug'
 import { Route as CitiesCityRouteImport } from './routes/cities.$city'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
@@ -331,6 +332,11 @@ const MoversCityRoute = MoversCityRouteImport.update({
 const LearnTopicRoute = LearnTopicRouteImport.update({
   id: '/learn/$topic',
   path: '/learn/$topic',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CountiesCountyRoute = CountiesCountyRouteImport.update({
+  id: '/counties/$county',
+  path: '/counties/$county',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CompareSlugRoute = CompareSlugRouteImport.update({
@@ -842,6 +848,7 @@ export interface FileRoutesByFullPath {
   '/blog/$slug': typeof BlogSlugRoute
   '/cities/$city': typeof CitiesCityRoute
   '/compare/$slug': typeof CompareSlugRoute
+  '/counties/$county': typeof CountiesCountyRoute
   '/learn/$topic': typeof LearnTopicRoute
   '/movers/$city': typeof MoversCityRoute
   '/moving-calculator/$city': typeof MovingCalculatorCityRoute
@@ -965,6 +972,7 @@ export interface FileRoutesByTo {
   '/blog/$slug': typeof BlogSlugRoute
   '/cities/$city': typeof CitiesCityRoute
   '/compare/$slug': typeof CompareSlugRoute
+  '/counties/$county': typeof CountiesCountyRoute
   '/learn/$topic': typeof LearnTopicRoute
   '/movers/$city': typeof MoversCityRoute
   '/moving-calculator/$city': typeof MovingCalculatorCityRoute
@@ -1091,6 +1099,7 @@ export interface FileRoutesById {
   '/blog/$slug': typeof BlogSlugRoute
   '/cities/$city': typeof CitiesCityRoute
   '/compare/$slug': typeof CompareSlugRoute
+  '/counties/$county': typeof CountiesCountyRoute
   '/learn/$topic': typeof LearnTopicRoute
   '/movers/$city': typeof MoversCityRoute
   '/moving-calculator/$city': typeof MovingCalculatorCityRoute
@@ -1217,6 +1226,7 @@ export interface FileRouteTypes {
     | '/blog/$slug'
     | '/cities/$city'
     | '/compare/$slug'
+    | '/counties/$county'
     | '/learn/$topic'
     | '/movers/$city'
     | '/moving-calculator/$city'
@@ -1340,6 +1350,7 @@ export interface FileRouteTypes {
     | '/blog/$slug'
     | '/cities/$city'
     | '/compare/$slug'
+    | '/counties/$county'
     | '/learn/$topic'
     | '/movers/$city'
     | '/moving-calculator/$city'
@@ -1465,6 +1476,7 @@ export interface FileRouteTypes {
     | '/blog/$slug'
     | '/cities/$city'
     | '/compare/$slug'
+    | '/counties/$county'
     | '/learn/$topic'
     | '/movers/$city'
     | '/moving-calculator/$city'
@@ -1589,6 +1601,7 @@ export interface RootRouteChildren {
   BlogSlugRoute: typeof BlogSlugRoute
   CitiesCityRoute: typeof CitiesCityRoute
   CompareSlugRoute: typeof CompareSlugRoute
+  CountiesCountyRoute: typeof CountiesCountyRoute
   LearnTopicRoute: typeof LearnTopicRoute
   MoversCityRoute: typeof MoversCityRoute
   MovingCalculatorCityRoute: typeof MovingCalculatorCityRoute
@@ -1886,6 +1899,13 @@ declare module '@tanstack/react-router' {
       path: '/learn/$topic'
       fullPath: '/learn/$topic'
       preLoaderRoute: typeof LearnTopicRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/counties/$county': {
+      id: '/counties/$county'
+      path: '/counties/$county'
+      fullPath: '/counties/$county'
+      preLoaderRoute: typeof CountiesCountyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/compare/$slug': {
@@ -2680,6 +2700,7 @@ const rootRouteChildren: RootRouteChildren = {
   BlogSlugRoute: BlogSlugRoute,
   CitiesCityRoute: CitiesCityRoute,
   CompareSlugRoute: CompareSlugRoute,
+  CountiesCountyRoute: CountiesCountyRoute,
   LearnTopicRoute: LearnTopicRoute,
   MoversCityRoute: MoversCityRoute,
   MovingCalculatorCityRoute: MovingCalculatorCityRoute,

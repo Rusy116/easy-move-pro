@@ -111,6 +111,7 @@ import { Route as AuthenticatedAiDashboardRouteImport } from './routes/_authenti
 import { Route as AuthenticatedAiContentRouteImport } from './routes/_authenticated/ai.content'
 import { Route as AuthenticatedAiCityReviewRouteImport } from './routes/_authenticated/ai.city-review'
 import { Route as AuthenticatedAiCityLogRouteImport } from './routes/_authenticated/ai.city-log'
+import { Route as AuthenticatedAiCityIndexRouteImport } from './routes/_authenticated/ai.city-index'
 import { Route as AuthenticatedAiCitiesRouteImport } from './routes/_authenticated/ai.cities'
 import { Route as AuthenticatedAiAutomationRouteImport } from './routes/_authenticated/ai.automation'
 import { Route as AuthenticatedAiAnalyticsRouteImport } from './routes/_authenticated/ai.analytics'
@@ -686,6 +687,12 @@ const AuthenticatedAiCityLogRoute = AuthenticatedAiCityLogRouteImport.update({
   path: '/ai/city-log',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAiCityIndexRoute =
+  AuthenticatedAiCityIndexRouteImport.update({
+    id: '/ai/city-index',
+    path: '/ai/city-index',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAiCitiesRoute = AuthenticatedAiCitiesRouteImport.update({
   id: '/ai/cities',
   path: '/ai/cities',
@@ -852,6 +859,7 @@ export interface FileRoutesByFullPath {
   '/ai/analytics': typeof AuthenticatedAiAnalyticsRoute
   '/ai/automation': typeof AuthenticatedAiAutomationRoute
   '/ai/cities': typeof AuthenticatedAiCitiesRoute
+  '/ai/city-index': typeof AuthenticatedAiCityIndexRoute
   '/ai/city-log': typeof AuthenticatedAiCityLogRoute
   '/ai/city-review': typeof AuthenticatedAiCityReviewRoute
   '/ai/content': typeof AuthenticatedAiContentRoute
@@ -972,6 +980,7 @@ export interface FileRoutesByTo {
   '/ai/analytics': typeof AuthenticatedAiAnalyticsRoute
   '/ai/automation': typeof AuthenticatedAiAutomationRoute
   '/ai/cities': typeof AuthenticatedAiCitiesRoute
+  '/ai/city-index': typeof AuthenticatedAiCityIndexRoute
   '/ai/city-log': typeof AuthenticatedAiCityLogRoute
   '/ai/city-review': typeof AuthenticatedAiCityReviewRoute
   '/ai/content': typeof AuthenticatedAiContentRoute
@@ -1095,6 +1104,7 @@ export interface FileRoutesById {
   '/_authenticated/ai/analytics': typeof AuthenticatedAiAnalyticsRoute
   '/_authenticated/ai/automation': typeof AuthenticatedAiAutomationRoute
   '/_authenticated/ai/cities': typeof AuthenticatedAiCitiesRoute
+  '/_authenticated/ai/city-index': typeof AuthenticatedAiCityIndexRoute
   '/_authenticated/ai/city-log': typeof AuthenticatedAiCityLogRoute
   '/_authenticated/ai/city-review': typeof AuthenticatedAiCityReviewRoute
   '/_authenticated/ai/content': typeof AuthenticatedAiContentRoute
@@ -1218,6 +1228,7 @@ export interface FileRouteTypes {
     | '/ai/analytics'
     | '/ai/automation'
     | '/ai/cities'
+    | '/ai/city-index'
     | '/ai/city-log'
     | '/ai/city-review'
     | '/ai/content'
@@ -1338,6 +1349,7 @@ export interface FileRouteTypes {
     | '/ai/analytics'
     | '/ai/automation'
     | '/ai/cities'
+    | '/ai/city-index'
     | '/ai/city-log'
     | '/ai/city-review'
     | '/ai/content'
@@ -1460,6 +1472,7 @@ export interface FileRouteTypes {
     | '/_authenticated/ai/analytics'
     | '/_authenticated/ai/automation'
     | '/_authenticated/ai/cities'
+    | '/_authenticated/ai/city-index'
     | '/_authenticated/ai/city-log'
     | '/_authenticated/ai/city-review'
     | '/_authenticated/ai/content'
@@ -2284,6 +2297,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAiCityLogRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/ai/city-index': {
+      id: '/_authenticated/ai/city-index'
+      path: '/ai/city-index'
+      fullPath: '/ai/city-index'
+      preLoaderRoute: typeof AuthenticatedAiCityIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/ai/cities': {
       id: '/_authenticated/ai/cities'
       path: '/ai/cities'
@@ -2494,6 +2514,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAiAnalyticsRoute: typeof AuthenticatedAiAnalyticsRoute
   AuthenticatedAiAutomationRoute: typeof AuthenticatedAiAutomationRoute
   AuthenticatedAiCitiesRoute: typeof AuthenticatedAiCitiesRoute
+  AuthenticatedAiCityIndexRoute: typeof AuthenticatedAiCityIndexRoute
   AuthenticatedAiCityLogRoute: typeof AuthenticatedAiCityLogRoute
   AuthenticatedAiCityReviewRoute: typeof AuthenticatedAiCityReviewRoute
   AuthenticatedAiContentRoute: typeof AuthenticatedAiContentRoute
@@ -2547,6 +2568,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAiAnalyticsRoute: AuthenticatedAiAnalyticsRoute,
   AuthenticatedAiAutomationRoute: AuthenticatedAiAutomationRoute,
   AuthenticatedAiCitiesRoute: AuthenticatedAiCitiesRoute,
+  AuthenticatedAiCityIndexRoute: AuthenticatedAiCityIndexRoute,
   AuthenticatedAiCityLogRoute: AuthenticatedAiCityLogRoute,
   AuthenticatedAiCityReviewRoute: AuthenticatedAiCityReviewRoute,
   AuthenticatedAiContentRoute: AuthenticatedAiContentRoute,

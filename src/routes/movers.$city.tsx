@@ -89,17 +89,23 @@ export const Route = createFileRoute("/movers/$city")({
 });
 
 function MoversCityPage() {
-  const { facts, seo } = Route.useLoaderData() as { facts: CityFacts; seo: MoversSeoContent };
+  const { facts, seo, hierarchy } = Route.useLoaderData() as {
+    facts: CityFacts;
+    seo: MoversSeoContent;
+    hierarchy: CityHierarchy;
+  };
 
   return (
     <SiteLayout>
       <Breadcrumbs
         items={[
           { label: "Home", to: "/" },
-          { label: "Movers", to: "/cities" },
+          { label: facts.stateName, to: `/states/${facts.stateSlug}` },
+          { label: hierarchy.county, to: hierarchy.countyPath },
           { label: `${facts.city}, ${facts.stateCode}` },
         ]}
       />
+
 
       <section className="mx-auto max-w-5xl px-4 sm:px-6 pt-10">
         <h1 className="font-serif text-4xl sm:text-5xl font-medium tracking-tight">{seo.h1}</h1>

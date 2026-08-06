@@ -248,6 +248,27 @@ function CityLandingDashboard() {
           >
             {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Generate city"}
           </Button>
+          <Button
+            variant="outline"
+            disabled={busy || !selected}
+            onClick={async () => {
+              setBusy(true);
+              try {
+                const res = await previewCityPage({
+                  data: { citySlug: selected!.slug, stateCode: selected!.stateCode },
+                });
+                setPreview(res as PreviewResult);
+                toast.success("Preview built — nothing was published");
+              } catch (e) {
+                toast.error(e instanceof Error ? e.message : "Preview failed");
+              } finally {
+                setBusy(false);
+              }
+            }}
+          >
+            Preview
+          </Button>
+
 
           <div className="ml-4">
             <label className="block text-xs text-muted-foreground mb-1">Entire state</label>

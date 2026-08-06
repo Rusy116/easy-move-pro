@@ -99,3 +99,18 @@ export function seoMeta(opts: {
   }
   return meta;
 }
+
+/** WebSite + SearchAction (sitelinks search box). */
+export function websiteSchema(origin = "https://mycity-move.lovable.app") {
+  return {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: "Easy Moving",
+    url: origin,
+    potentialAction: {
+      "@type": "SearchAction",
+      target: `${origin}/search?q={search_term_string}`,
+      "query-input": "required name=search_term_string",
+    },
+  };
+}

@@ -3,7 +3,7 @@ import type {} from "@tanstack/react-start";
 import { STATES, CITIES } from "@/lib/seo/locations";
 import { PRODUCT_PAGES, EDUCATION_PAGES, COMPARISON_PAGES } from "@/lib/seo/content";
 import { GEO_STATES, GEO_CITIES, GEO_ROUTES, cityPath, statePath, routePath } from "@/lib/seo/geo";
-import { landingPathFor } from "@/lib/city-landing/data";
+import { landingPathFor, moversPathFor } from "@/lib/city-landing/data";
 
 const BASE_URL = "";
 

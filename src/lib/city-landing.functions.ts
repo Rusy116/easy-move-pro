@@ -10,6 +10,8 @@ import {
   cityFactsForState,
   allCityFacts,
   parseLandingParam,
+  moversSlugFor,
+  moversPathFor,
   type CityFacts,
 } from "./city-landing/data";
 import {
@@ -21,6 +23,10 @@ import {
   type DuplicateContext,
   type PageValidation,
 } from "./city-landing/validation";
+import {
+  buildMoversSeoContent,
+  validateMoversSeoContent,
+} from "./city-landing/seo-page";
 
 
 export interface CityLandingRecord {
@@ -111,6 +117,18 @@ export interface GenerateResult {
   score: number;
   validation: PageValidation;
   durationMs: number;
+  content: CityLandingContent;
+}
+
+export interface PipelineResult {
+  slug: string;
+  calculator: "published" | "review" | "failed";
+  seo: "published" | "review" | "skipped" | "failed";
+  score: number;
+  seoWords: number;
+  durationMs: number;
+  seoBlockers: string[];
+  validation: PageValidation;
 }
 
 async function generateOne(
@@ -140,7 +158,7 @@ async function generateOne(
   // AUTOMATIC PUBLISH RULE — every blocker must pass, otherwise Draft Queue.
   const status: "published" | "review" = validation.ok ? "published" : "review";
 
-  if (opts.preview) return { status, score: validation.seoScore, validation, durationMs };
+  if (opts.preview) return { status, score: validation.seoScore, validation, durationMs, content };
 
   const { data: prev } = await admin
     .from("city_landing_pages")
@@ -203,7 +221,118 @@ async function generateOne(
     run_id: runId,
   } as never);
 
-  return { status, score: validation.seoScore, validation, durationMs };
+  return { status, score: validation.seoScore, validation, durationMs, content };
+}
+
+// ── STAGE 2 — SEO landing page (/movers/<city>-<st>) ───────────────────────
+/**
+ * Runs ONLY after the calculator page is published. Failure here never
+ * unpublishes the calculator — the SEO page simply stays in the retry queue.
+ */
+async function generateSeoStage(
+  admin: ReturnType<typeof publicClient>,
+  facts: CityFacts,
+  content: CityLandingContent,
+  runId: string | null,
+  attempt = 1,
+): Promise<{ status: "published" | "review"; words: number; blockers: string[]; ms: number }> {
+  const startedAt = Date.now();
+  const seo = buildMoversSeoContent(facts, content);
+  const check = validateMoversSeoContent(seo);
+  const ms = Date.now() - startedAt;
+  const status: "published" | "review" = check.ok ? "published" : "review";
+
+  const { error } = await admin
+    .from("city_landing_pages")
+    .update({
+      seo_slug: moversSlugFor(facts.slug, facts.stateCode),
+      seo_status: status,
+      seo_content: seo as never,
+      seo_error: check.blockers.length ? check.blockers.join(" | ") : null,
+      seo_generation_ms: ms,
+      seo_published_at: status === "published" ? new Date().toISOString() : null,
+    } as never)
+    .eq("slug", facts.landingSlug);
+  if (error) throw error;
+
+  await admin.from("city_publish_log").insert({
+    slug: moversSlugFor(facts.slug, facts.stateCode),
+    city: facts.city,
+    state_code: facts.stateCode,
+    seo_score: check.ok ? 100 : 80,
+    calculator_status: "ok",
+    result: status === "published" ? "published" : "blocked",
+    reason: check.blockers[0] ?? null,
+    duration_ms: ms,
+    attempt,
+    run_id: runId,
+  } as never);
+
+  return { status, words: check.wordCount, blockers: check.blockers, ms };
+}
+
+/**
+ * THE PRODUCTION PIPELINE.
+ * Import city → generate + validate + publish CALCULATOR → only then generate,
+ * validate and publish the SEO page that embeds that same calculator.
+ */
+async function runCityPipeline(
+  admin: ReturnType<typeof publicClient>,
+  facts: CityFacts,
+  runId: string | null,
+  useAi: boolean,
+  opts: { force?: boolean; attempt?: number } = {},
+): Promise<PipelineResult> {
+  const calc = await generateOne(admin, facts, runId, useAi, opts);
+
+  // RULE: if the calculator is not published, STOP — never create the SEO page.
+  if (calc.status !== "published") {
+    await admin
+      .from("city_landing_pages")
+      .update({ seo_status: "blocked", seo_error: calc.validation.blockedReason } as never)
+      .eq("slug", facts.landingSlug);
+    return {
+      slug: facts.landingSlug,
+      calculator: calc.status,
+      seo: "skipped",
+      score: calc.score,
+      seoWords: 0,
+      durationMs: calc.durationMs,
+      seoBlockers: [],
+      validation: calc.validation,
+    };
+  }
+
+  try {
+    const seo = await generateSeoStage(admin, facts, calc.content, runId, opts.attempt ?? 1);
+    return {
+      slug: facts.landingSlug,
+      calculator: "published",
+      seo: seo.status,
+      score: calc.score,
+      seoWords: seo.words,
+      durationMs: calc.durationMs + seo.ms,
+      seoBlockers: seo.blockers,
+      validation: calc.validation,
+    };
+  } catch (err) {
+    // Calculator stays published; SEO goes to the retry queue.
+    const message = err instanceof Error ? err.message : String(err);
+    await admin
+      .from("city_landing_pages")
+      .update({ seo_status: "failed", seo_error: message } as never)
+      .eq("slug", facts.landingSlug);
+    return {
+      slug: facts.landingSlug,
+      calculator: "published",
+      seo: "failed",
+      score: calc.score,
+      seoWords: 0,
+      durationMs: calc.durationMs,
+      seoBlockers: [message],
+      validation: calc.validation,
+    };
+  }
 }
 
 /** PREVIEW MODE — build the page and run the gate WITHOUT writing/publishing. */
@@ -223,7 +352,11 @@ export const previewCityPage = createServerFn({ method: "POST" })
       city: facts.city,
       stateCode: facts.stateCode,
       citySlug: facts.slug,
-      ...res,
+      moversUrl: moversPathFor(facts.slug, facts.stateCode),
+      status: res.status,
+      score: res.score,
+      validation: res.validation,
+      durationMs: res.durationMs,
     };
   });
 
@@ -240,16 +373,16 @@ export const publishCityPage = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const admin = supabaseAdmin as unknown as ReturnType<typeof publicClient>;
 
-    let last: GenerateResult | null = null;
+    let last: PipelineResult | null = null;
     let error: string | null = null;
     for (let attempt = 1; attempt <= 3; attempt += 1) {
       try {
-        last = await generateOne(admin, facts, null, data.useAi !== false, {
+        last = await runCityPipeline(admin, facts, null, data.useAi !== false, {
           force: data.force !== false,
           attempt,
         });
         error = null;
-        if (last.status === "published") break;
+        if (last.calculator === "published" && last.seo === "published") break;
       } catch (e) {
         error = e instanceof Error ? e.message : String(e);
       }
@@ -277,7 +410,12 @@ export const publishCityPage = createServerFn({ method: "POST" })
       } as never);
       throw new Error(error);
     }
-    return { slug: facts.landingSlug, status: last?.status, score: last?.score };
+    return {
+      slug: facts.landingSlug,
+      status: last?.calculator,
+      seo: last?.seo,
+      score: last?.score,
+    };
   });
 
 /** DRAFT REVIEW QUEUE — approve (force publish) or reject a blocked page. */
@@ -322,7 +460,7 @@ export const generateCityPage = createServerFn({ method: "POST" })
     const facts = findCityFacts(data.citySlug, data.stateCode);
     if (!facts) throw new Error(`Unknown city: ${data.citySlug}-${data.stateCode}`);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const res = await generateOne(
+    const res = await runCityPipeline(
       supabaseAdmin as unknown as ReturnType<typeof publicClient>,
       facts,
       null,
@@ -330,10 +468,10 @@ export const generateCityPage = createServerFn({ method: "POST" })
     );
     await supabaseAdmin.from("ai_task_logs").insert({
       agent_key: "city_landing_agent",
-      level: res.status === "published" ? "info" : "warn",
-      message: `${facts.city}, ${facts.stateCode}: ${res.status} (SEO ${res.score})`,
+      level: res.calculator === "published" ? "info" : "warn",
+      message: `${facts.city}, ${facts.stateCode}: calculator ${res.calculator}, SEO page ${res.seo} (score ${res.score})`,
     } as never);
-    return { slug: facts.landingSlug, ...res };
+    return { ...res, moversPath: moversPathFor(facts.slug, facts.stateCode) };
   });
 
 /** Start a bulk run: a single city, an entire state, or the whole USA. */
@@ -426,6 +564,7 @@ export const processCityRunBatch = createServerFn({ method: "POST" })
     let published = r.published;
     let failed = r.failed;
     let skipped = (r as unknown as { skipped?: number }).skipped ?? 0;
+    let seoGenerated = (r as unknown as { seo_generated?: number }).seo_generated ?? 0;
     let lastError: string | null = null;
 
     for (const entry of slice) {
@@ -445,9 +584,10 @@ export const processCityRunBatch = createServerFn({ method: "POST" })
       let ok = false;
       for (let attempt = 1; attempt <= 3 && !ok; attempt += 1) {
         try {
-          const res = await generateOne(admin, facts, r.id, data.useAi !== false, { attempt });
+          const res = await runCityPipeline(admin, facts, r.id, data.useAi !== false, { attempt });
           generated += 1;
-          if (res.status === "published") published += 1;
+          if (res.calculator === "published") published += 1;
+          if (res.seo === "published") seoGenerated += 1;
           ok = true;
         } catch (err) {
           lastError = err instanceof Error ? err.message : String(err);
@@ -474,6 +614,7 @@ export const processCityRunBatch = createServerFn({ method: "POST" })
         published,
         failed,
         skipped,
+        seo_generated: seoGenerated,
         last_error: lastError,
         status: done ? "completed" : "running",
       } as never)
@@ -488,6 +629,7 @@ export const processCityRunBatch = createServerFn({ method: "POST" })
       published,
       failed,
       skipped,
+      seoGenerated,
       done,
     };
   });
@@ -543,7 +685,7 @@ export const retryFailedCityPages = createServerFn({ method: "POST" })
       const facts = findCityFacts(parsed.citySlug, parsed.stateCode);
       if (!facts) continue;
       try {
-        await generateOne(admin, facts, null, true);
+        await runCityPipeline(admin, facts, null, true);
         ok += 1;
       } catch {
         failed += 1;
@@ -616,4 +758,79 @@ export const setCityIndexStatus = createServerFn({ method: "POST" })
       .eq("slug", data.slug);
     if (error) throw error;
     return { ok: true };
+  });
+
+
+/** RETRY QUEUE — regenerate SEO pages for cities whose calculator is live. */
+export const retrySeoPages = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: { limit?: number } = {}) => d)
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const admin = supabaseAdmin as unknown as ReturnType<typeof publicClient>;
+    const { data: rows } = await supabaseAdmin
+      .from("city_landing_pages")
+      .select("slug, content")
+      .eq("status", "published")
+      .neq("seo_status", "published")
+      .limit(Math.min(data.limit ?? 10, 50));
+
+    let ok = 0;
+    let failed = 0;
+    for (const row of (rows ?? []) as unknown as Array<{ slug: string; content: CityLandingContent }>) {
+      const parsed = parseLandingParam(row.slug);
+      const facts = parsed ? findCityFacts(parsed.citySlug, parsed.stateCode) : null;
+      if (!facts) continue;
+      try {
+        const content = row.content ?? buildCityLandingContent(facts);
+        const res = await generateSeoStage(admin, facts, content, null, 1);
+        if (res.status === "published") ok += 1;
+        else failed += 1;
+      } catch {
+        failed += 1;
+      }
+    }
+    return { retried: ok, failed };
+  });
+
+/** Production statistics for the factory dashboard. */
+export const cityPipelineStats = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data } = await supabaseAdmin
+      .from("city_landing_pages")
+      .select("status, seo_status, city_status, generation_ms, seo_generation_ms, published_at");
+    const rows = (data ?? []) as unknown as Array<{
+      status: string;
+      seo_status: string | null;
+      city_status: string | null;
+      generation_ms: number | null;
+      seo_generation_ms: number | null;
+      published_at: string | null;
+    }>;
+    const today = new Date().toISOString().slice(0, 10);
+    const durations = rows
+      .map((r) => (r.generation_ms ?? 0) + (r.seo_generation_ms ?? 0))
+      .filter((n) => n > 0);
+    const calculators = rows.filter((r) => r.status === "published").length;
+    const seoPages = rows.filter((r) => r.seo_status === "published").length;
+    const avgMs = durations.length
+      ? Math.round(durations.reduce((a, b) => a + b, 0) / durations.length)
+      : 0;
+    const queued = rows.filter((r) => r.city_status === "pending" || r.city_status === "generating").length;
+    return {
+      imported: rows.length,
+      calculators,
+      seoPages,
+      publishedToday: rows.filter((r) => (r.published_at ?? "").slice(0, 10) === today).length,
+      queued,
+      failed: rows.filter((r) => r.city_status === "failed").length,
+      skipped: rows.filter((r) => r.city_status === "skipped").length,
+      seoRetryQueue: rows.filter((r) => r.status === "published" && r.seo_status !== "published").length,
+      avgGenerationMs: avgMs,
+      estimatedCompletionMs: queued * avgMs,
+    };
   });

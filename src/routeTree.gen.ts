@@ -47,6 +47,7 @@ import { Route as PortalQuoteNumberRouteImport } from './routes/portal.$quoteNum
 import { Route as PartnersApplyRouteImport } from './routes/partners.apply'
 import { Route as PartnersLocationRouteImport } from './routes/partners.$location'
 import { Route as MovingCalculatorCityRouteImport } from './routes/moving-calculator.$city'
+import { Route as MoversCityRouteImport } from './routes/movers.$city'
 import { Route as LearnTopicRouteImport } from './routes/learn.$topic'
 import { Route as CompareSlugRouteImport } from './routes/compare.$slug'
 import { Route as CitiesCityRouteImport } from './routes/cities.$city'
@@ -319,6 +320,11 @@ const PartnersLocationRoute = PartnersLocationRouteImport.update({
 const MovingCalculatorCityRoute = MovingCalculatorCityRouteImport.update({
   id: '/moving-calculator/$city',
   path: '/moving-calculator/$city',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MoversCityRoute = MoversCityRouteImport.update({
+  id: '/movers/$city',
+  path: '/movers/$city',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LearnTopicRoute = LearnTopicRouteImport.update({
@@ -831,6 +837,7 @@ export interface FileRoutesByFullPath {
   '/cities/$city': typeof CitiesCityRoute
   '/compare/$slug': typeof CompareSlugRoute
   '/learn/$topic': typeof LearnTopicRoute
+  '/movers/$city': typeof MoversCityRoute
   '/moving-calculator/$city': typeof MovingCalculatorCityRoute
   '/partners/$location': typeof PartnersLocationRoute
   '/partners/apply': typeof PartnersApplyRoute
@@ -952,6 +959,7 @@ export interface FileRoutesByTo {
   '/cities/$city': typeof CitiesCityRoute
   '/compare/$slug': typeof CompareSlugRoute
   '/learn/$topic': typeof LearnTopicRoute
+  '/movers/$city': typeof MoversCityRoute
   '/moving-calculator/$city': typeof MovingCalculatorCityRoute
   '/partners/$location': typeof PartnersLocationRoute
   '/partners/apply': typeof PartnersApplyRoute
@@ -1076,6 +1084,7 @@ export interface FileRoutesById {
   '/cities/$city': typeof CitiesCityRoute
   '/compare/$slug': typeof CompareSlugRoute
   '/learn/$topic': typeof LearnTopicRoute
+  '/movers/$city': typeof MoversCityRoute
   '/moving-calculator/$city': typeof MovingCalculatorCityRoute
   '/partners/$location': typeof PartnersLocationRoute
   '/partners/apply': typeof PartnersApplyRoute
@@ -1200,6 +1209,7 @@ export interface FileRouteTypes {
     | '/cities/$city'
     | '/compare/$slug'
     | '/learn/$topic'
+    | '/movers/$city'
     | '/moving-calculator/$city'
     | '/partners/$location'
     | '/partners/apply'
@@ -1321,6 +1331,7 @@ export interface FileRouteTypes {
     | '/cities/$city'
     | '/compare/$slug'
     | '/learn/$topic'
+    | '/movers/$city'
     | '/moving-calculator/$city'
     | '/partners/$location'
     | '/partners/apply'
@@ -1444,6 +1455,7 @@ export interface FileRouteTypes {
     | '/cities/$city'
     | '/compare/$slug'
     | '/learn/$topic'
+    | '/movers/$city'
     | '/moving-calculator/$city'
     | '/partners/$location'
     | '/partners/apply'
@@ -1566,6 +1578,7 @@ export interface RootRouteChildren {
   CitiesCityRoute: typeof CitiesCityRoute
   CompareSlugRoute: typeof CompareSlugRoute
   LearnTopicRoute: typeof LearnTopicRoute
+  MoversCityRoute: typeof MoversCityRoute
   MovingCalculatorCityRoute: typeof MovingCalculatorCityRoute
   PartnersLocationRoute: typeof PartnersLocationRoute
   PartnersApplyRoute: typeof PartnersApplyRoute
@@ -1847,6 +1860,13 @@ declare module '@tanstack/react-router' {
       path: '/moving-calculator/$city'
       fullPath: '/moving-calculator/$city'
       preLoaderRoute: typeof MovingCalculatorCityRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/movers/$city': {
+      id: '/movers/$city'
+      path: '/movers/$city'
+      fullPath: '/movers/$city'
+      preLoaderRoute: typeof MoversCityRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/learn/$topic': {
@@ -2640,6 +2660,7 @@ const rootRouteChildren: RootRouteChildren = {
   CitiesCityRoute: CitiesCityRoute,
   CompareSlugRoute: CompareSlugRoute,
   LearnTopicRoute: LearnTopicRoute,
+  MoversCityRoute: MoversCityRoute,
   MovingCalculatorCityRoute: MovingCalculatorCityRoute,
   PartnersLocationRoute: PartnersLocationRoute,
   PartnersApplyRoute: PartnersApplyRoute,

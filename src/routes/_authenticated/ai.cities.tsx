@@ -14,6 +14,7 @@ import {
   processCityRunBatch,
   controlCityRun,
   retryFailedCityPages,
+  retrySeoPages,
   previewCityPage,
   cityCatalog,
 
@@ -60,6 +61,8 @@ type PageRow = {
   word_count: number;
   generation_ms: number;
   error: string | null;
+  seo_status: string | null;
+  seo_generation_ms: number | null;
   created_at: string;
   published_at: string | null;
 };
@@ -98,7 +101,7 @@ function CityLandingDashboard() {
       const { data, error } = await supabase
         .from("city_landing_pages")
         .select(
-          "slug, city, state_code, status, city_status, index_status, calculator_status, clicks, impressions, word_count, seo_score, error, created_at, published_at, generation_ms",
+          "slug, city, state_code, status, city_status, index_status, calculator_status, clicks, impressions, word_count, seo_score, error, seo_status, seo_generation_ms, created_at, published_at, generation_ms",
         )
         .order("created_at", { ascending: false })
         .limit(500);
@@ -137,6 +140,18 @@ function CityLandingDashboard() {
   const publishedToday = published.filter((r) => (r.published_at ?? "").startsWith(today)).length;
   const citiesCompleted = new Set(published.map((r) => r.slug)).size;
   const citiesRemaining = Math.max(catalog.length - citiesCompleted, 0);
+  // ── Two-stage production pipeline metrics ──────────────────────────────
+  const calculatorsLive = published.length;
+  const seoPagesLive = rows.filter((r) => r.seo_status === "published").length;
+  const seoRetryQueue = rows.filter(
+    (r) => r.status === "published" && r.seo_status !== "published",
+  ).length;
+  const genDurations = rows
+    .map((r) => (r.generation_ms ?? 0) + (r.seo_generation_ms ?? 0))
+    .filter((n) => n > 0);
+  const avgGenMs = genDurations.length
+    ? Math.round(genDurations.reduce((a, b) => a + b, 0) / genDurations.length)
+    : 0;
   const activeRun = (runs.data ?? []).find((r) => r.status === "running");
   const skipped = (runs.data ?? []).reduce((a, r) => a + (r.skipped ?? 0), 0);
   // Publishing speed: pages published today per active hour of the day.
@@ -227,6 +242,23 @@ function CityLandingDashboard() {
         <StatCard label="Indexed pages" value={indexed.length} tone="info" />
         <StatCard label="Organic clicks" value={clicks} />
         <StatCard label="Storage used" value={`${storageMb} MB`} />
+        <StatCard label="Cities imported" value={rows.length} />
+        <StatCard label="Calculators published" value={calculatorsLive} tone="success" />
+        <StatCard label="SEO pages published" value={seoPagesLive} tone="success" />
+        <StatCard
+          label="SEO retry queue"
+          value={seoRetryQueue}
+          tone={seoRetryQueue ? "warning" : undefined}
+        />
+        <StatCard label="Avg generation time" value={`${(avgGenMs / 1000).toFixed(1)}s`} tone="info" />
+        <StatCard
+          label="Est. completion"
+          value={
+            activeRun && avgGenMs
+              ? `${Math.ceil(((activeRun.total - activeRun.cursor) * avgGenMs) / 60000)} min`
+              : "—"
+          }
+        />
         <StatCard label="Queue status" value={queueStatus} tone="info" />
         <StatCard
           label="System health"
@@ -325,10 +357,19 @@ function CityLandingDashboard() {
           >
             Retry failed
           </Button>
+          <Button
+            variant="outline"
+            disabled={busy}
+            onClick={() => run(() => retrySeoPages({ data: {} }), "SEO pages retried")}
+          >
+            Retry SEO pages
+          </Button>
         </div>
         <p className="mt-3 text-xs text-muted-foreground">
-          Pages scoring above 95 publish automatically; everything else stays a draft with the SEO
-          issues attached.
+          Production order: the calculator page is generated, validated and published first — only
+          then is the /movers/{"{city}-{state}"} SEO page generated with that same calculator
+          embedded. If the calculator fails, the SEO page is never created; if the SEO page fails,
+          the calculator stays live and the SEO page joins the retry queue.
         </p>
 
         {preview && (

@@ -150,6 +150,25 @@ export function parseLandingParam(param: string): { citySlug: string; stateCode:
   return { citySlug: m[1]!, stateCode: m[2]!.toUpperCase() };
 }
 
+// ── Stage 2: SEO landing page (/movers/glendale-ca) ────────────────────────
+// The SEO page ALWAYS embeds the one official calculator — it never clones it.
+export const MOVERS_BASE = "/movers";
+
+/** Storage slug for the SEO page — "movers-glendale-ca". */
+export function moversSlugFor(citySlug: string, stateCode: string): string {
+  return `movers-${citySlug}-${stateCode.toLowerCase()}`;
+}
+
+export function moversPathFor(citySlug: string, stateCode: string): string {
+  return `${MOVERS_BASE}/${citySlug}-${stateCode.toLowerCase()}`;
+}
+
+/** "movers-glendale-ca" | "glendale-ca" → "/movers/glendale-ca" */
+export function moversPathForSlug(slug: string): string {
+  return `${MOVERS_BASE}/${slug.replace(/^movers-/, "")}`;
+}
+
+
 // ── Fact builder ───────────────────────────────────────────────────────────
 export function buildCityFacts(c: GeoCity): CityFacts {
   const meta = CITY_META[c.slug] ?? {};

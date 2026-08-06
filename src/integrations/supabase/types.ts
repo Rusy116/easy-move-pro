@@ -748,6 +748,7 @@ export type Database = {
           generation_ms: number
           highways: string[]
           id: string
+          imported_at: string
           impressions: number
           index_status: string
           internal_links: number
@@ -759,7 +760,14 @@ export type Database = {
           published_at: string | null
           run_id: string | null
           schema_valid: boolean
+          seo_attempts: number
+          seo_content: Json | null
+          seo_error: string | null
+          seo_generation_ms: number | null
+          seo_published_at: string | null
           seo_score: number
+          seo_slug: string | null
+          seo_status: string
           slug: string
           source: string
           state_code: string
@@ -789,6 +797,7 @@ export type Database = {
           generation_ms?: number
           highways?: string[]
           id?: string
+          imported_at?: string
           impressions?: number
           index_status?: string
           internal_links?: number
@@ -800,7 +809,14 @@ export type Database = {
           published_at?: string | null
           run_id?: string | null
           schema_valid?: boolean
+          seo_attempts?: number
+          seo_content?: Json | null
+          seo_error?: string | null
+          seo_generation_ms?: number | null
+          seo_published_at?: string | null
           seo_score?: number
+          seo_slug?: string | null
+          seo_status?: string
           slug: string
           source?: string
           state_code: string
@@ -830,6 +846,7 @@ export type Database = {
           generation_ms?: number
           highways?: string[]
           id?: string
+          imported_at?: string
           impressions?: number
           index_status?: string
           internal_links?: number
@@ -841,7 +858,14 @@ export type Database = {
           published_at?: string | null
           run_id?: string | null
           schema_valid?: boolean
+          seo_attempts?: number
+          seo_content?: Json | null
+          seo_error?: string | null
+          seo_generation_ms?: number | null
+          seo_published_at?: string | null
           seo_score?: number
+          seo_slug?: string | null
+          seo_status?: string
           slug?: string
           source?: string
           state_code?: string
@@ -869,6 +893,7 @@ export type Database = {
           last_error: string | null
           published: number
           scope: string
+          seo_generated: number
           skipped: number
           state_code: string | null
           status: string
@@ -887,6 +912,7 @@ export type Database = {
           last_error?: string | null
           published?: number
           scope: string
+          seo_generated?: number
           skipped?: number
           state_code?: string | null
           status?: string
@@ -905,6 +931,7 @@ export type Database = {
           last_error?: string | null
           published?: number
           scope?: string
+          seo_generated?: number
           skipped?: number
           state_code?: string | null
           status?: string

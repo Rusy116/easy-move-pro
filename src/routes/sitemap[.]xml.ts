@@ -3,7 +3,7 @@ import type {} from "@tanstack/react-start";
 import { STATES, CITIES } from "@/lib/seo/locations";
 import { PRODUCT_PAGES, EDUCATION_PAGES, COMPARISON_PAGES } from "@/lib/seo/content";
 import { GEO_STATES, GEO_CITIES, GEO_ROUTES, cityPath, statePath, routePath } from "@/lib/seo/geo";
-import { landingPathFor } from "@/lib/city-landing/data";
+import { landingPathFor, moversPathFor } from "@/lib/city-landing/data";
 
 const BASE_URL = "";
 
@@ -51,6 +51,15 @@ export const Route = createFileRoute("/sitemap.xml")({
             priority: "0.8",
           }),
         );
+        // Stage 2 — /movers city SEO pages (same embedded calculator)
+        GEO_CITIES.forEach((c) =>
+          entries.push({
+            path: moversPathFor(c.slug, c.stateCode),
+            changefreq: "weekly",
+            priority: "0.8",
+          }),
+        );
+
         GEO_ROUTES.forEach((r) =>
           entries.push({ path: routePath(r), changefreq: "monthly", priority: "0.6" }),
         );

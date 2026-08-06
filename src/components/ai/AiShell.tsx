@@ -25,6 +25,7 @@ import {
   Radar,
   Database,
   ShieldCheck,
+  Network,
 
 } from "lucide-react";
 import { RoleGuard } from "@/components/auth/RoleGuard";
@@ -32,6 +33,7 @@ import { RoleGuard } from "@/components/auth/RoleGuard";
 export const AI_NAV = [
   { to: "/ai/dashboard", label: "Dashboard", icon: BarChart3 },
   { to: "/ai/orchestrator", label: "Orchestrator", icon: Brain },
+  { to: "/ai/ecosystem", label: "AI Ecosystem", icon: Network },
   { to: "/ai/registry", label: "Agent Registry", icon: BookUser },
   { to: "/ai/queue", label: "Task Queue", icon: ListOrdered },
   { to: "/ai/monitor", label: "Queue Monitor", icon: Gauge },

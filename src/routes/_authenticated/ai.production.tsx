@@ -17,7 +17,20 @@ import {
   preparePhase9,
   enqueueMassBatch,
 } from "@/lib/city-production.functions";
+import { workerStatus, setWorkerSettings, runWorkerNow } from "@/lib/city-worker.functions";
 import { PRODUCTION_STAGES, TOTAL_STAGES } from "@/lib/city-production/stages";
+
+type WorkerRun = {
+  id: string;
+  created_at: string;
+  trigger: string;
+  jobs_processed: number;
+  published: number;
+  failed: number;
+  refilled: number;
+  error: string | null;
+};
+
 import { PILOT_CITIES } from "@/lib/city-production/pilot";
 import {
   BATCH_SIZES,

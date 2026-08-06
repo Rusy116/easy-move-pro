@@ -211,7 +211,51 @@ function ProductionPage() {
         <StatCard label="Retries" value={String(s?.retries ?? "—")} />
       </div>
 
+      <SectionShell title="Backend production worker (browser-free)">
+        <div className="flex flex-wrap items-center gap-2">
+          <Button
+            onClick={() => toggleWorker.mutate(!(w?.settings.enabled ?? false))}
+            disabled={toggleWorker.isPending}
+            className="gap-2"
+          >
+            {w?.settings.enabled ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+            {w?.settings.enabled ? "Pause backend worker" : "Start backend worker"}
+          </Button>
+          <Button variant="outline" onClick={() => runNow.mutate()} disabled={runNow.isPending} className="gap-2">
+            {runNow.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Factory className="h-4 w-4" />}
+            Run one server tick
+          </Button>
+          <span className="text-sm text-muted-foreground">
+            {w
+              ? `${w.settings.enabled ? "Running on the server" : "Paused"} · last tick ${
+                  w.lastRunAt ? new Date(w.lastRunAt).toLocaleTimeString() : "—"
+                } · ${w.publishedLastHour}/hr published · ${w.remaining.toLocaleString()} jobs open · ${w.totalCities.toLocaleString()} cities in master dataset`
+              : "Loading worker status…"}
+          </span>
+        </div>
+        <p className="mt-2 text-xs text-muted-foreground">
+          The factory runs as a scheduled server process — production continues after deployments, restarts and with
+          every browser tab closed. Expired job leases are reclaimed automatically and the queue refills itself from
+          the master USA dataset.
+        </p>
+        <div className="mt-4 space-y-1">
+          {((w?.runs ?? []) as WorkerRun[]).map((r) => (
+            <div key={r.id} className="flex flex-wrap gap-x-3 text-xs text-muted-foreground">
+              <span className="tabular-nums">{new Date(r.created_at).toLocaleTimeString()}</span>
+              <span>{r.trigger}</span>
+              <span>{r.jobs_processed} jobs</span>
+              <span>{r.published} published</span>
+              <span>{r.failed} failed</span>
+              <span>+{r.refilled} queued</span>
+              {r.error ? <span className="text-destructive">{r.error}</span> : null}
+            </div>
+          ))}
+          {!w?.runs?.length ? <span className="text-xs text-muted-foreground">No server runs recorded yet.</span> : null}
+        </div>
+      </SectionShell>
+
       <SectionShell title="Phase 9 — Mass city production (California first)">
+
         <div className="flex flex-wrap items-center gap-2">
           {ROLLOUT_STATES.map((st) => (
             <Button

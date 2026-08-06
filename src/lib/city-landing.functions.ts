@@ -369,7 +369,7 @@ export const publishCityPage = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const admin = supabaseAdmin as unknown as ReturnType<typeof publicClient>;
 
-    let last: GenerateResult | null = null;
+    let last: PipelineResult | null = null;
     let error: string | null = null;
     for (let attempt = 1; attempt <= 3; attempt += 1) {
       try {
@@ -378,7 +378,7 @@ export const publishCityPage = createServerFn({ method: "POST" })
           attempt,
         });
         error = null;
-        if (last.status === "published") break;
+        if (last.calculator === "published" && last.seo === "published") break;
       } catch (e) {
         error = e instanceof Error ? e.message : String(e);
       }
@@ -406,7 +406,12 @@ export const publishCityPage = createServerFn({ method: "POST" })
       } as never);
       throw new Error(error);
     }
-    return { slug: facts.landingSlug, status: last?.status, score: last?.score };
+    return {
+      slug: facts.landingSlug,
+      status: last?.calculator,
+      seo: last?.seo,
+      score: last?.score,
+    };
   });
 
 /** DRAFT REVIEW QUEUE — approve (force publish) or reject a blocked page. */
@@ -459,8 +464,8 @@ export const generateCityPage = createServerFn({ method: "POST" })
     );
     await supabaseAdmin.from("ai_task_logs").insert({
       agent_key: "city_landing_agent",
-      level: res.status === "published" ? "info" : "warn",
-      message: `${facts.city}, ${facts.stateCode}: ${res.status} (SEO ${res.score})`,
+      level: res.calculator === "published" ? "info" : "warn",
+      message: `${facts.city}, ${facts.stateCode}: calculator ${res.calculator}, SEO page ${res.seo} (score ${res.score})`,
     } as never);
     return { slug: facts.landingSlug, ...res };
   });
@@ -555,6 +560,7 @@ export const processCityRunBatch = createServerFn({ method: "POST" })
     let published = r.published;
     let failed = r.failed;
     let skipped = (r as unknown as { skipped?: number }).skipped ?? 0;
+    let seoGenerated = (r as unknown as { seo_generated?: number }).seo_generated ?? 0;
     let lastError: string | null = null;
 
     for (const entry of slice) {
@@ -576,7 +582,8 @@ export const processCityRunBatch = createServerFn({ method: "POST" })
         try {
           const res = await runCityPipeline(admin, facts, r.id, data.useAi !== false, { attempt });
           generated += 1;
-          if (res.status === "published") published += 1;
+          if (res.calculator === "published") published += 1;
+          if (res.seo === "published") seoGenerated += 1;
           ok = true;
         } catch (err) {
           lastError = err instanceof Error ? err.message : String(err);
@@ -603,6 +610,7 @@ export const processCityRunBatch = createServerFn({ method: "POST" })
         published,
         failed,
         skipped,
+        seo_generated: seoGenerated,
         last_error: lastError,
         status: done ? "completed" : "running",
       } as never)
@@ -617,6 +625,7 @@ export const processCityRunBatch = createServerFn({ method: "POST" })
       published,
       failed,
       skipped,
+      seoGenerated,
       done,
     };
   });

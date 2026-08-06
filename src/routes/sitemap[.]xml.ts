@@ -4,6 +4,8 @@ import { STATES, CITIES } from "@/lib/seo/locations";
 import { PRODUCT_PAGES, EDUCATION_PAGES, COMPARISON_PAGES } from "@/lib/seo/content";
 import { GEO_STATES, GEO_CITIES, GEO_ROUTES, cityPath, statePath, routePath } from "@/lib/seo/geo";
 import { landingPathFor, moversPathFor } from "@/lib/city-landing/data";
+import { allCounties } from "@/lib/city-landing/hierarchy";
+
 
 const BASE_URL = "";
 
@@ -34,12 +36,20 @@ export const Route = createFileRoute("/sitemap.xml")({
           { path: "/ai-tools", changefreq: "monthly", priority: "0.7" },
           { path: "/states", changefreq: "monthly", priority: "0.8" },
           { path: "/routes", changefreq: "monthly", priority: "0.8" },
+          { path: "/sitemap", changefreq: "weekly", priority: "0.5" },
+
         ];
+
+        // County hubs (City Factory hierarchy)
+        allCounties().forEach((c) =>
+          entries.push({ path: c.path, changefreq: "weekly", priority: "0.7" }),
+        );
 
         // Geo platform pages
         GEO_STATES.forEach((s) =>
           entries.push({ path: statePath(s), changefreq: "monthly", priority: "0.7" }),
         );
+
         GEO_CITIES.forEach((c) =>
           entries.push({ path: cityPath(c), changefreq: "monthly", priority: "0.7" }),
         );

@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as StoreRouteImport } from './routes/store'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as SitemapRouteImport } from './routes/sitemap'
 import { Route as ServicesRouteImport } from './routes/services'
 import { Route as SearchRouteImport } from './routes/search'
 import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
@@ -49,6 +50,7 @@ import { Route as PartnersLocationRouteImport } from './routes/partners.$locatio
 import { Route as MovingCalculatorCityRouteImport } from './routes/moving-calculator.$city'
 import { Route as MoversCityRouteImport } from './routes/movers.$city'
 import { Route as LearnTopicRouteImport } from './routes/learn.$topic'
+import { Route as CountiesCountyRouteImport } from './routes/counties.$county'
 import { Route as CompareSlugRouteImport } from './routes/compare.$slug'
 import { Route as CitiesCityRouteImport } from './routes/cities.$city'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
@@ -114,6 +116,7 @@ import { Route as AuthenticatedAiContentRouteImport } from './routes/_authentica
 import { Route as AuthenticatedAiCityReviewRouteImport } from './routes/_authenticated/ai.city-review'
 import { Route as AuthenticatedAiCityLogRouteImport } from './routes/_authenticated/ai.city-log'
 import { Route as AuthenticatedAiCityIndexRouteImport } from './routes/_authenticated/ai.city-index'
+import { Route as AuthenticatedAiCityFactoryRouteImport } from './routes/_authenticated/ai.city-factory'
 import { Route as AuthenticatedAiCitiesRouteImport } from './routes/_authenticated/ai.cities'
 import { Route as AuthenticatedAiAutomationRouteImport } from './routes/_authenticated/ai.automation'
 import { Route as AuthenticatedAiAnalyticsRouteImport } from './routes/_authenticated/ai.analytics'
@@ -141,6 +144,11 @@ const StoreRoute = StoreRouteImport.update({
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapRoute = SitemapRouteImport.update({
+  id: '/sitemap',
+  path: '/sitemap',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ServicesRoute = ServicesRouteImport.update({
@@ -331,6 +339,11 @@ const MoversCityRoute = MoversCityRouteImport.update({
 const LearnTopicRoute = LearnTopicRouteImport.update({
   id: '/learn/$topic',
   path: '/learn/$topic',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CountiesCountyRoute = CountiesCountyRouteImport.update({
+  id: '/counties/$county',
+  path: '/counties/$county',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CompareSlugRoute = CompareSlugRouteImport.update({
@@ -705,6 +718,12 @@ const AuthenticatedAiCityIndexRoute =
     path: '/ai/city-index',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedAiCityFactoryRoute =
+  AuthenticatedAiCityFactoryRouteImport.update({
+    id: '/ai/city-factory',
+    path: '/ai/city-factory',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAiCitiesRoute = AuthenticatedAiCitiesRouteImport.update({
   id: '/ai/cities',
   path: '/ai/cities',
@@ -834,6 +853,7 @@ export interface FileRoutesByFullPath {
   '/robots.txt': typeof RobotsDottxtRoute
   '/search': typeof SearchRoute
   '/services': typeof ServicesRoute
+  '/sitemap': typeof SitemapRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/store': typeof StoreRoute
   '/$state/$city': typeof StateCityRoute
@@ -842,6 +862,7 @@ export interface FileRoutesByFullPath {
   '/blog/$slug': typeof BlogSlugRoute
   '/cities/$city': typeof CitiesCityRoute
   '/compare/$slug': typeof CompareSlugRoute
+  '/counties/$county': typeof CountiesCountyRoute
   '/learn/$topic': typeof LearnTopicRoute
   '/movers/$city': typeof MoversCityRoute
   '/moving-calculator/$city': typeof MovingCalculatorCityRoute
@@ -872,6 +893,7 @@ export interface FileRoutesByFullPath {
   '/ai/analytics': typeof AuthenticatedAiAnalyticsRoute
   '/ai/automation': typeof AuthenticatedAiAutomationRoute
   '/ai/cities': typeof AuthenticatedAiCitiesRoute
+  '/ai/city-factory': typeof AuthenticatedAiCityFactoryRoute
   '/ai/city-index': typeof AuthenticatedAiCityIndexRoute
   '/ai/city-log': typeof AuthenticatedAiCityLogRoute
   '/ai/city-review': typeof AuthenticatedAiCityReviewRoute
@@ -958,6 +980,7 @@ export interface FileRoutesByTo {
   '/robots.txt': typeof RobotsDottxtRoute
   '/search': typeof SearchRoute
   '/services': typeof ServicesRoute
+  '/sitemap': typeof SitemapRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/store': typeof StoreRoute
   '/$state/$city': typeof StateCityRoute
@@ -965,6 +988,7 @@ export interface FileRoutesByTo {
   '/blog/$slug': typeof BlogSlugRoute
   '/cities/$city': typeof CitiesCityRoute
   '/compare/$slug': typeof CompareSlugRoute
+  '/counties/$county': typeof CountiesCountyRoute
   '/learn/$topic': typeof LearnTopicRoute
   '/movers/$city': typeof MoversCityRoute
   '/moving-calculator/$city': typeof MovingCalculatorCityRoute
@@ -995,6 +1019,7 @@ export interface FileRoutesByTo {
   '/ai/analytics': typeof AuthenticatedAiAnalyticsRoute
   '/ai/automation': typeof AuthenticatedAiAutomationRoute
   '/ai/cities': typeof AuthenticatedAiCitiesRoute
+  '/ai/city-factory': typeof AuthenticatedAiCityFactoryRoute
   '/ai/city-index': typeof AuthenticatedAiCityIndexRoute
   '/ai/city-log': typeof AuthenticatedAiCityLogRoute
   '/ai/city-review': typeof AuthenticatedAiCityReviewRoute
@@ -1083,6 +1108,7 @@ export interface FileRoutesById {
   '/robots.txt': typeof RobotsDottxtRoute
   '/search': typeof SearchRoute
   '/services': typeof ServicesRoute
+  '/sitemap': typeof SitemapRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/store': typeof StoreRoute
   '/$state/$city': typeof StateCityRoute
@@ -1091,6 +1117,7 @@ export interface FileRoutesById {
   '/blog/$slug': typeof BlogSlugRoute
   '/cities/$city': typeof CitiesCityRoute
   '/compare/$slug': typeof CompareSlugRoute
+  '/counties/$county': typeof CountiesCountyRoute
   '/learn/$topic': typeof LearnTopicRoute
   '/movers/$city': typeof MoversCityRoute
   '/moving-calculator/$city': typeof MovingCalculatorCityRoute
@@ -1121,6 +1148,7 @@ export interface FileRoutesById {
   '/_authenticated/ai/analytics': typeof AuthenticatedAiAnalyticsRoute
   '/_authenticated/ai/automation': typeof AuthenticatedAiAutomationRoute
   '/_authenticated/ai/cities': typeof AuthenticatedAiCitiesRoute
+  '/_authenticated/ai/city-factory': typeof AuthenticatedAiCityFactoryRoute
   '/_authenticated/ai/city-index': typeof AuthenticatedAiCityIndexRoute
   '/_authenticated/ai/city-log': typeof AuthenticatedAiCityLogRoute
   '/_authenticated/ai/city-review': typeof AuthenticatedAiCityReviewRoute
@@ -1209,6 +1237,7 @@ export interface FileRouteTypes {
     | '/robots.txt'
     | '/search'
     | '/services'
+    | '/sitemap'
     | '/sitemap.xml'
     | '/store'
     | '/$state/$city'
@@ -1217,6 +1246,7 @@ export interface FileRouteTypes {
     | '/blog/$slug'
     | '/cities/$city'
     | '/compare/$slug'
+    | '/counties/$county'
     | '/learn/$topic'
     | '/movers/$city'
     | '/moving-calculator/$city'
@@ -1247,6 +1277,7 @@ export interface FileRouteTypes {
     | '/ai/analytics'
     | '/ai/automation'
     | '/ai/cities'
+    | '/ai/city-factory'
     | '/ai/city-index'
     | '/ai/city-log'
     | '/ai/city-review'
@@ -1333,6 +1364,7 @@ export interface FileRouteTypes {
     | '/robots.txt'
     | '/search'
     | '/services'
+    | '/sitemap'
     | '/sitemap.xml'
     | '/store'
     | '/$state/$city'
@@ -1340,6 +1372,7 @@ export interface FileRouteTypes {
     | '/blog/$slug'
     | '/cities/$city'
     | '/compare/$slug'
+    | '/counties/$county'
     | '/learn/$topic'
     | '/movers/$city'
     | '/moving-calculator/$city'
@@ -1370,6 +1403,7 @@ export interface FileRouteTypes {
     | '/ai/analytics'
     | '/ai/automation'
     | '/ai/cities'
+    | '/ai/city-factory'
     | '/ai/city-index'
     | '/ai/city-log'
     | '/ai/city-review'
@@ -1457,6 +1491,7 @@ export interface FileRouteTypes {
     | '/robots.txt'
     | '/search'
     | '/services'
+    | '/sitemap'
     | '/sitemap.xml'
     | '/store'
     | '/$state/$city'
@@ -1465,6 +1500,7 @@ export interface FileRouteTypes {
     | '/blog/$slug'
     | '/cities/$city'
     | '/compare/$slug'
+    | '/counties/$county'
     | '/learn/$topic'
     | '/movers/$city'
     | '/moving-calculator/$city'
@@ -1495,6 +1531,7 @@ export interface FileRouteTypes {
     | '/_authenticated/ai/analytics'
     | '/_authenticated/ai/automation'
     | '/_authenticated/ai/cities'
+    | '/_authenticated/ai/city-factory'
     | '/_authenticated/ai/city-index'
     | '/_authenticated/ai/city-log'
     | '/_authenticated/ai/city-review'
@@ -1583,12 +1620,14 @@ export interface RootRouteChildren {
   RobotsDottxtRoute: typeof RobotsDottxtRoute
   SearchRoute: typeof SearchRoute
   ServicesRoute: typeof ServicesRoute
+  SitemapRoute: typeof SitemapRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   StoreRoute: typeof StoreRoute
   StateCityRoute: typeof StateCityRoute
   BlogSlugRoute: typeof BlogSlugRoute
   CitiesCityRoute: typeof CitiesCityRoute
   CompareSlugRoute: typeof CompareSlugRoute
+  CountiesCountyRoute: typeof CountiesCountyRoute
   LearnTopicRoute: typeof LearnTopicRoute
   MoversCityRoute: typeof MoversCityRoute
   MovingCalculatorCityRoute: typeof MovingCalculatorCityRoute
@@ -1620,6 +1659,13 @@ declare module '@tanstack/react-router' {
       path: '/sitemap.xml'
       fullPath: '/sitemap.xml'
       preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap': {
+      id: '/sitemap'
+      path: '/sitemap'
+      fullPath: '/sitemap'
+      preLoaderRoute: typeof SitemapRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/services': {
@@ -1886,6 +1932,13 @@ declare module '@tanstack/react-router' {
       path: '/learn/$topic'
       fullPath: '/learn/$topic'
       preLoaderRoute: typeof LearnTopicRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/counties/$county': {
+      id: '/counties/$county'
+      path: '/counties/$county'
+      fullPath: '/counties/$county'
+      preLoaderRoute: typeof CountiesCountyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/compare/$slug': {
@@ -2343,6 +2396,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAiCityIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/ai/city-factory': {
+      id: '/_authenticated/ai/city-factory'
+      path: '/ai/city-factory'
+      fullPath: '/ai/city-factory'
+      preLoaderRoute: typeof AuthenticatedAiCityFactoryRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/ai/cities': {
       id: '/_authenticated/ai/cities'
       path: '/ai/cities'
@@ -2553,6 +2613,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAiAnalyticsRoute: typeof AuthenticatedAiAnalyticsRoute
   AuthenticatedAiAutomationRoute: typeof AuthenticatedAiAutomationRoute
   AuthenticatedAiCitiesRoute: typeof AuthenticatedAiCitiesRoute
+  AuthenticatedAiCityFactoryRoute: typeof AuthenticatedAiCityFactoryRoute
   AuthenticatedAiCityIndexRoute: typeof AuthenticatedAiCityIndexRoute
   AuthenticatedAiCityLogRoute: typeof AuthenticatedAiCityLogRoute
   AuthenticatedAiCityReviewRoute: typeof AuthenticatedAiCityReviewRoute
@@ -2608,6 +2669,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAiAnalyticsRoute: AuthenticatedAiAnalyticsRoute,
   AuthenticatedAiAutomationRoute: AuthenticatedAiAutomationRoute,
   AuthenticatedAiCitiesRoute: AuthenticatedAiCitiesRoute,
+  AuthenticatedAiCityFactoryRoute: AuthenticatedAiCityFactoryRoute,
   AuthenticatedAiCityIndexRoute: AuthenticatedAiCityIndexRoute,
   AuthenticatedAiCityLogRoute: AuthenticatedAiCityLogRoute,
   AuthenticatedAiCityReviewRoute: AuthenticatedAiCityReviewRoute,
@@ -2674,12 +2736,14 @@ const rootRouteChildren: RootRouteChildren = {
   RobotsDottxtRoute: RobotsDottxtRoute,
   SearchRoute: SearchRoute,
   ServicesRoute: ServicesRoute,
+  SitemapRoute: SitemapRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   StoreRoute: StoreRoute,
   StateCityRoute: StateCityRoute,
   BlogSlugRoute: BlogSlugRoute,
   CitiesCityRoute: CitiesCityRoute,
   CompareSlugRoute: CompareSlugRoute,
+  CountiesCountyRoute: CountiesCountyRoute,
   LearnTopicRoute: LearnTopicRoute,
   MoversCityRoute: MoversCityRoute,
   MovingCalculatorCityRoute: MovingCalculatorCityRoute,

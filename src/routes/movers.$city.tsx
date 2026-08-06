@@ -10,10 +10,14 @@ import {
   faqSchema,
   serviceSchema,
   localBusinessSchema,
+  organizationSchema,
+  websiteSchema,
 } from "@/lib/seo/schema";
 import { findCityFacts, parseLandingParam, type CityFacts } from "@/lib/city-landing/data";
 import { buildCityLandingContent } from "@/lib/city-landing/content";
 import { buildMoversSeoContent, type MoversSeoContent } from "@/lib/city-landing/seo-page";
+import { buildCityHierarchy, type CityHierarchy } from "@/lib/city-landing/hierarchy";
+
 
 /**
  * Stage 2 of the City Calculator Factory. This page embeds the ONE official
@@ -24,7 +28,12 @@ export const Route = createFileRoute("/movers/$city")({
     const parsed = parseLandingParam(params.city);
     const facts = parsed ? findCityFacts(parsed.citySlug, parsed.stateCode) : null;
     if (!facts) throw notFound();
-    return { facts, seo: buildMoversSeoContent(facts, buildCityLandingContent(facts)) };
+    return {
+      facts,
+      seo: buildMoversSeoContent(facts, buildCityLandingContent(facts)),
+      hierarchy: buildCityHierarchy(facts),
+    };
+
   },
   head: ({ loaderData, params }) => {
     if (!loaderData) {
@@ -52,14 +61,18 @@ export const Route = createFileRoute("/movers/$city")({
           }),
         ),
         jsonLd(
-          breadcrumbSchema([
-            { name: "Home", url: "/" },
-            { name: "Movers", url: "/cities" },
-            { name: `${facts.city}, ${facts.stateCode}`, url: path },
-          ]),
+          breadcrumbSchema(
+            (loaderData as { hierarchy: CityHierarchy }).hierarchy.trail.map((t) => ({
+              name: t.label,
+              url: t.to,
+            })),
+          ),
         ),
         jsonLd(faqSchema(seo.faq)),
+        jsonLd(organizationSchema()),
+        jsonLd(websiteSchema()),
       ],
+
     };
   },
   component: MoversCityPage,
@@ -76,17 +89,23 @@ export const Route = createFileRoute("/movers/$city")({
 });
 
 function MoversCityPage() {
-  const { facts, seo } = Route.useLoaderData() as { facts: CityFacts; seo: MoversSeoContent };
+  const { facts, seo, hierarchy } = Route.useLoaderData() as {
+    facts: CityFacts;
+    seo: MoversSeoContent;
+    hierarchy: CityHierarchy;
+  };
 
   return (
     <SiteLayout>
       <Breadcrumbs
         items={[
           { label: "Home", to: "/" },
-          { label: "Movers", to: "/cities" },
+          { label: facts.stateName, to: `/states/${facts.stateSlug}` },
+          { label: hierarchy.county, to: hierarchy.countyPath },
           { label: `${facts.city}, ${facts.stateCode}` },
         ]}
       />
+
 
       <section className="mx-auto max-w-5xl px-4 sm:px-6 pt-10">
         <h1 className="font-serif text-4xl sm:text-5xl font-medium tracking-tight">{seo.h1}</h1>
@@ -155,6 +174,23 @@ function MoversCityPage() {
 
       <Faq items={seo.faq} />
       <InternalLinks title={`More moving resources near ${facts.city}`} links={seo.internalLinks} />
+      <InternalLinks
+        title={`${facts.city} in context — county, state and metro`}
+        links={hierarchy.up.map((l) => ({ label: l.label, to: l.to }))}
+      />
+      {hierarchy.down.length > 0 && (
+        <InternalLinks
+          title={`Smaller cities we serve around ${facts.city}`}
+          links={hierarchy.down.map((l) => ({ label: l.label, to: l.to }))}
+        />
+      )}
+      {hierarchy.lateral.length > 0 && (
+        <InternalLinks
+          title={`Comparable ${facts.stateName} cities`}
+          links={hierarchy.lateral.map((l) => ({ label: l.label, to: l.to }))}
+        />
+      )}
+
     </SiteLayout>
   );
 }

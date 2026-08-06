@@ -26,6 +26,7 @@ import {
   Database,
   ShieldCheck,
   Network,
+  Factory,
 
 } from "lucide-react";
 import { RoleGuard } from "@/components/auth/RoleGuard";

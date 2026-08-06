@@ -151,6 +151,9 @@ function CityLandingDashboard() {
 
   // ── Autonomous queue: keep processing the running run, no human clicks. ──
   const [autopilot, setAutopilot] = useState(true);
+  const [batchSize, setBatchSize] = useState(10);
+  const [preview, setPreview] = useState<PreviewResult | null>(null);
+
   const ticking = useRef(false);
   useEffect(() => {
     if (!autopilot || !activeRun) return;

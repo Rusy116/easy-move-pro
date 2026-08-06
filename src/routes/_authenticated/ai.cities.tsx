@@ -330,17 +330,73 @@ function CityLandingDashboard() {
           Pages scoring above 95 publish automatically; everything else stays a draft with the SEO
           issues attached.
         </p>
+
+        {preview && (
+          <div className="mt-4 rounded-lg border border-border p-4">
+            <div className="flex flex-wrap items-center gap-3">
+              <StatusPill status={preview.status} />
+              <span className="font-medium">
+                Preview — {preview.city}, {preview.stateCode}
+              </span>
+              <span className="text-xs text-muted-foreground">{preview.url}</span>
+              <span className="ml-auto text-sm">
+                SEO {preview.validation.seoScore} · {preview.validation.words} words ·{" "}
+                {preview.validation.passed}/{preview.validation.total} checks
+              </span>
+              <Button size="sm" variant="ghost" onClick={() => setPreview(null)}>
+                Close
+              </Button>
+            </div>
+            {preview.validation.blockers.length > 0 && (
+              <ul className="mt-3 list-disc space-y-1 pl-5 text-xs text-destructive">
+                {preview.validation.blockers.map((b) => (
+                  <li key={b}>{b}</li>
+                ))}
+              </ul>
+            )}
+            <div className="mt-3 grid gap-1 sm:grid-cols-2 lg:grid-cols-3">
+              {preview.validation.checks.map((c) => (
+                <div key={c.id} className="flex items-start gap-2 text-xs">
+                  <span className={c.ok ? "text-emerald-600" : "text-destructive"}>
+                    {c.ok ? "✓" : "✕"}
+                  </span>
+                  <span className="text-muted-foreground">{c.label}</span>
+                </div>
+              ))}
+            </div>
+            <p className="mt-3 text-xs text-muted-foreground">
+              Preview mode is read-only — nothing was written or published.
+            </p>
+          </div>
+        )}
       </SectionShell>
 
       <SectionShell title="Publishing queue / runs">
-        <label className="mb-3 flex items-center gap-2 text-sm">
-          <input
-            type="checkbox"
-            checked={autopilot}
-            onChange={(e) => setAutopilot(e.target.checked)}
-          />
-          Autopilot — keep processing the queue automatically until every city is done
-        </label>
+        <div className="mb-3 flex flex-wrap items-center gap-4">
+          <label className="flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              checked={autopilot}
+              onChange={(e) => setAutopilot(e.target.checked)}
+            />
+            Autopilot — keep processing the queue automatically until every city is done
+          </label>
+          <label className="flex items-center gap-2 text-sm">
+            Batch size
+            <select
+              className="h-9 rounded-md border border-border bg-background px-2 text-sm"
+              value={batchSize}
+              onChange={(e) => setBatchSize(Number(e.target.value))}
+            >
+              {[1, 5, 10, 25].map((n) => (
+                <option key={n} value={n}>
+                  {n} pages / tick
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
+
         {runs.data?.length ? (
           <div className="space-y-3">
             {runs.data.map((r) => (

@@ -352,7 +352,11 @@ export const previewCityPage = createServerFn({ method: "POST" })
       city: facts.city,
       stateCode: facts.stateCode,
       citySlug: facts.slug,
-      ...res,
+      moversUrl: moversPathFor(facts.slug, facts.stateCode),
+      status: res.status,
+      score: res.score,
+      validation: res.validation,
+      durationMs: res.durationMs,
     };
   });
 
@@ -754,4 +758,79 @@ export const setCityIndexStatus = createServerFn({ method: "POST" })
       .eq("slug", data.slug);
     if (error) throw error;
     return { ok: true };
+  });
+
+
+/** RETRY QUEUE — regenerate SEO pages for cities whose calculator is live. */
+export const retrySeoPages = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: { limit?: number } = {}) => d)
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const admin = supabaseAdmin as unknown as ReturnType<typeof publicClient>;
+    const { data: rows } = await supabaseAdmin
+      .from("city_landing_pages")
+      .select("slug, content")
+      .eq("status", "published")
+      .neq("seo_status", "published")
+      .limit(Math.min(data.limit ?? 10, 50));
+
+    let ok = 0;
+    let failed = 0;
+    for (const row of (rows ?? []) as Array<{ slug: string; content: CityLandingContent }>) {
+      const parsed = parseLandingParam(row.slug);
+      const facts = parsed ? findCityFacts(parsed.citySlug, parsed.stateCode) : null;
+      if (!facts) continue;
+      try {
+        const content = row.content ?? buildCityLandingContent(facts);
+        const res = await generateSeoStage(admin, facts, content, null, 1);
+        if (res.status === "published") ok += 1;
+        else failed += 1;
+      } catch {
+        failed += 1;
+      }
+    }
+    return { retried: ok, failed };
+  });
+
+/** Production statistics for the factory dashboard. */
+export const cityPipelineStats = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data } = await supabaseAdmin
+      .from("city_landing_pages")
+      .select("status, seo_status, city_status, generation_ms, seo_generation_ms, published_at");
+    const rows = (data ?? []) as unknown as Array<{
+      status: string;
+      seo_status: string | null;
+      city_status: string | null;
+      generation_ms: number | null;
+      seo_generation_ms: number | null;
+      published_at: string | null;
+    }>;
+    const today = new Date().toISOString().slice(0, 10);
+    const durations = rows
+      .map((r) => (r.generation_ms ?? 0) + (r.seo_generation_ms ?? 0))
+      .filter((n) => n > 0);
+    const calculators = rows.filter((r) => r.status === "published").length;
+    const seoPages = rows.filter((r) => r.seo_status === "published").length;
+    const avgMs = durations.length
+      ? Math.round(durations.reduce((a, b) => a + b, 0) / durations.length)
+      : 0;
+    const queued = rows.filter((r) => r.city_status === "pending" || r.city_status === "generating").length;
+    return {
+      imported: rows.length,
+      calculators,
+      seoPages,
+      publishedToday: rows.filter((r) => (r.published_at ?? "").slice(0, 10) === today).length,
+      queued,
+      failed: rows.filter((r) => r.city_status === "failed").length,
+      skipped: rows.filter((r) => r.city_status === "skipped").length,
+      seoRetryQueue: rows.filter((r) => r.status === "published" && r.seo_status !== "published").length,
+      avgGenerationMs: avgMs,
+      estimatedCompletionMs: queued * avgMs,
+    };
   });

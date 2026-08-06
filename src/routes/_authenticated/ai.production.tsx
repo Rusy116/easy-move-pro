@@ -15,9 +15,16 @@ import {
   enqueuePilotBatch,
   pilotStatus,
   preparePhase9,
+  enqueueMassBatch,
 } from "@/lib/city-production.functions";
 import { PRODUCTION_STAGES, TOTAL_STAGES } from "@/lib/city-production/stages";
 import { PILOT_CITIES } from "@/lib/city-production/pilot";
+import {
+  BATCH_SIZES,
+  WORKER_OPTIONS,
+  ROLLOUT_STATES,
+  AUTOPILOT_STORAGE_KEY,
+} from "@/lib/city-production/mass";
 
 export const Route = createFileRoute("/_authenticated/ai/production")({
   head: () => ({
@@ -33,7 +40,7 @@ export const Route = createFileRoute("/_authenticated/ai/production")({
   component: ProductionPage,
 });
 
-const BATCHES = [10, 100, 1000, 10000, 100000];
+const BATCHES = [...BATCH_SIZES];
 
 function ms(v: number) {
   if (!v) return "—";
@@ -43,8 +50,26 @@ function ms(v: number) {
 function ProductionPage() {
   const qc = useQueryClient();
   const [auto, setAuto] = useState(false);
+  const [workers, setWorkers] = useState(1);
+  const [stateCode, setStateCode] = useState("CA");
   const [log, setLog] = useState<{ t: string; msg: string; ok: boolean }[]>([]);
   const running = useRef(false);
+
+  // Resume production automatically after an interruption (reload, navigation).
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const saved = window.localStorage.getItem(AUTOPILOT_STORAGE_KEY);
+    if (saved) {
+      const parsed = JSON.parse(saved) as { auto?: boolean; workers?: number };
+      if (parsed.workers) setWorkers(parsed.workers);
+      if (parsed.auto) setAuto(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    window.localStorage.setItem(AUTOPILOT_STORAGE_KEY, JSON.stringify({ auto, workers }));
+  }, [auto, workers]);
 
   const push = (msg: string, ok = true) =>
     setLog((l) => [{ t: new Date().toLocaleTimeString(), msg, ok }, ...l].slice(0, 60));
@@ -97,8 +122,21 @@ function ProductionPage() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const massBatch = useMutation({
+    mutationFn: (count: number) => enqueueMassBatch({ data: { stateCode, count } }),
+    onSuccess: (r) => {
+      push(
+        `${r.stateCode} mass batch — ${r.queued} cities queued, ${r.duplicatesSkipped} skipped (already produced or queued).`,
+      );
+      toast.success(`${r.queued} ${r.stateCode} cities queued`);
+      setAuto(true);
+      refreshAll();
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
   const tick = useMutation({
-    mutationFn: () => productionTick({ data: { jobs: 1, stagesPerJob: 12 } }),
+    mutationFn: () => productionTick({ data: { jobs: workers, stagesPerJob: 12 } }),
     onSuccess: (r) => {
       for (const s of r.results) push(`${s.city} — stage ${s.stage}/12: ${s.summary}`, s.ok);
       refreshAll();
@@ -167,7 +205,53 @@ function ProductionPage() {
           value={s?.etaHours == null ? "—" : s.etaHours < 1 ? `${Math.round(s.etaHours * 60)} min` : `${s.etaHours.toFixed(1)} h`}
         />
         <StatCard label="Agent working" value={s?.currentStage?.name ?? "—"} />
+        <StatCard label="Pages published today" value={String(s?.publishedToday ?? "—")} />
+        <StatCard label="Pages published total" value={String(s?.publishedTotal ?? "—")} />
+        <StatCard label="Average SEO score" value={s?.avgQuality ? `${s.avgQuality}/100` : "—"} />
+        <StatCard label="Retries" value={String(s?.retries ?? "—")} />
       </div>
+
+      <SectionShell title="Phase 9 — Mass city production (California first)">
+        <div className="flex flex-wrap items-center gap-2">
+          {ROLLOUT_STATES.map((st) => (
+            <Button
+              key={st.code}
+              size="sm"
+              variant={stateCode === st.code ? "default" : "outline"}
+              onClick={() => setStateCode(st.code)}
+            >
+              {st.name}
+            </Button>
+          ))}
+        </div>
+        <div className="mt-3 flex flex-wrap gap-2">
+          {BATCH_SIZES.map((n) => (
+            <Button
+              key={n}
+              size="sm"
+              variant="outline"
+              disabled={massBatch.isPending}
+              onClick={() => massBatch.mutate(n)}
+              className="gap-2"
+            >
+              {massBatch.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
+              Produce {n.toLocaleString()} {stateCode} cities
+            </Button>
+          ))}
+        </div>
+        <div className="mt-3 flex flex-wrap items-center gap-2">
+          <span className="text-xs uppercase text-muted-foreground">Parallel workers</span>
+          {WORKER_OPTIONS.map((w) => (
+            <Button key={w} size="sm" variant={workers === w ? "default" : "outline"} onClick={() => setWorkers(w)}>
+              {w}
+            </Button>
+          ))}
+          <span className="text-sm text-muted-foreground">
+            Autopilot {auto ? "running" : "stopped"} · resumes automatically after an interruption · completed cities are
+            never regenerated.
+          </span>
+        </div>
+      </SectionShell>
 
       <SectionShell title="Phase 8 — Pilot batch (10 California cities)">
         <div className="flex flex-wrap items-center gap-2">

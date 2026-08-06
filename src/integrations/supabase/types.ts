@@ -732,6 +732,9 @@ export type Database = {
       }
       city_landing_pages: {
         Row: {
+          audit_report: Json | null
+          audit_score: number | null
+          audited_at: string | null
           avg_position: number
           blocked_reason: string | null
           calculator_status: string
@@ -746,16 +749,23 @@ export type Database = {
           error: string | null
           facts: Json
           generation_ms: number
+          hierarchy: Json | null
           highways: string[]
           id: string
           imported_at: string
           impressions: number
+          improvement_count: number
           index_status: string
+          index_submitted_at: string | null
           internal_links: number
           last_crawl: string | null
+          last_improved_at: string | null
+          monitor_health: string | null
+          monitored_at: string | null
           nearby_cities: Json
           neighborhoods: string[]
           population: number | null
+          prev_avg_position: number | null
           publish_attempts: number
           published_at: string | null
           run_id: string | null
@@ -781,6 +791,9 @@ export type Database = {
           zip_codes: string[]
         }
         Insert: {
+          audit_report?: Json | null
+          audit_score?: number | null
+          audited_at?: string | null
           avg_position?: number
           blocked_reason?: string | null
           calculator_status?: string
@@ -795,16 +808,23 @@ export type Database = {
           error?: string | null
           facts?: Json
           generation_ms?: number
+          hierarchy?: Json | null
           highways?: string[]
           id?: string
           imported_at?: string
           impressions?: number
+          improvement_count?: number
           index_status?: string
+          index_submitted_at?: string | null
           internal_links?: number
           last_crawl?: string | null
+          last_improved_at?: string | null
+          monitor_health?: string | null
+          monitored_at?: string | null
           nearby_cities?: Json
           neighborhoods?: string[]
           population?: number | null
+          prev_avg_position?: number | null
           publish_attempts?: number
           published_at?: string | null
           run_id?: string | null
@@ -830,6 +850,9 @@ export type Database = {
           zip_codes?: string[]
         }
         Update: {
+          audit_report?: Json | null
+          audit_score?: number | null
+          audited_at?: string | null
           avg_position?: number
           blocked_reason?: string | null
           calculator_status?: string
@@ -844,16 +867,23 @@ export type Database = {
           error?: string | null
           facts?: Json
           generation_ms?: number
+          hierarchy?: Json | null
           highways?: string[]
           id?: string
           imported_at?: string
           impressions?: number
+          improvement_count?: number
           index_status?: string
+          index_submitted_at?: string | null
           internal_links?: number
           last_crawl?: string | null
+          last_improved_at?: string | null
+          monitor_health?: string | null
+          monitored_at?: string | null
           nearby_cities?: Json
           neighborhoods?: string[]
           population?: number | null
+          prev_avg_position?: number | null
           publish_attempts?: number
           published_at?: string | null
           run_id?: string | null

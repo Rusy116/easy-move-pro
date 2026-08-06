@@ -108,6 +108,7 @@ import { Route as AuthenticatedAiNotificationsRouteImport } from './routes/_auth
 import { Route as AuthenticatedAiMonitorRouteImport } from './routes/_authenticated/ai.monitor'
 import { Route as AuthenticatedAiDashboardRouteImport } from './routes/_authenticated/ai.dashboard'
 import { Route as AuthenticatedAiContentRouteImport } from './routes/_authenticated/ai.content'
+import { Route as AuthenticatedAiCitiesRouteImport } from './routes/_authenticated/ai.cities'
 import { Route as AuthenticatedAiAutomationRouteImport } from './routes/_authenticated/ai.automation'
 import { Route as AuthenticatedAiAnalyticsRouteImport } from './routes/_authenticated/ai.analytics'
 import { Route as AuthenticatedAiActivityRouteImport } from './routes/_authenticated/ai.activity'
@@ -666,6 +667,11 @@ const AuthenticatedAiContentRoute = AuthenticatedAiContentRouteImport.update({
   path: '/ai/content',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAiCitiesRoute = AuthenticatedAiCitiesRouteImport.update({
+  id: '/ai/cities',
+  path: '/ai/cities',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedAiAutomationRoute =
   AuthenticatedAiAutomationRouteImport.update({
     id: '/ai/automation',
@@ -825,6 +831,7 @@ export interface FileRoutesByFullPath {
   '/ai/activity': typeof AuthenticatedAiActivityRoute
   '/ai/analytics': typeof AuthenticatedAiAnalyticsRoute
   '/ai/automation': typeof AuthenticatedAiAutomationRoute
+  '/ai/cities': typeof AuthenticatedAiCitiesRoute
   '/ai/content': typeof AuthenticatedAiContentRoute
   '/ai/dashboard': typeof AuthenticatedAiDashboardRoute
   '/ai/monitor': typeof AuthenticatedAiMonitorRoute
@@ -941,6 +948,7 @@ export interface FileRoutesByTo {
   '/ai/activity': typeof AuthenticatedAiActivityRoute
   '/ai/analytics': typeof AuthenticatedAiAnalyticsRoute
   '/ai/automation': typeof AuthenticatedAiAutomationRoute
+  '/ai/cities': typeof AuthenticatedAiCitiesRoute
   '/ai/content': typeof AuthenticatedAiContentRoute
   '/ai/dashboard': typeof AuthenticatedAiDashboardRoute
   '/ai/monitor': typeof AuthenticatedAiMonitorRoute
@@ -1060,6 +1068,7 @@ export interface FileRoutesById {
   '/_authenticated/ai/activity': typeof AuthenticatedAiActivityRoute
   '/_authenticated/ai/analytics': typeof AuthenticatedAiAnalyticsRoute
   '/_authenticated/ai/automation': typeof AuthenticatedAiAutomationRoute
+  '/_authenticated/ai/cities': typeof AuthenticatedAiCitiesRoute
   '/_authenticated/ai/content': typeof AuthenticatedAiContentRoute
   '/_authenticated/ai/dashboard': typeof AuthenticatedAiDashboardRoute
   '/_authenticated/ai/monitor': typeof AuthenticatedAiMonitorRoute
@@ -1179,6 +1188,7 @@ export interface FileRouteTypes {
     | '/ai/activity'
     | '/ai/analytics'
     | '/ai/automation'
+    | '/ai/cities'
     | '/ai/content'
     | '/ai/dashboard'
     | '/ai/monitor'
@@ -1295,6 +1305,7 @@ export interface FileRouteTypes {
     | '/ai/activity'
     | '/ai/analytics'
     | '/ai/automation'
+    | '/ai/cities'
     | '/ai/content'
     | '/ai/dashboard'
     | '/ai/monitor'
@@ -1413,6 +1424,7 @@ export interface FileRouteTypes {
     | '/_authenticated/ai/activity'
     | '/_authenticated/ai/analytics'
     | '/_authenticated/ai/automation'
+    | '/_authenticated/ai/cities'
     | '/_authenticated/ai/content'
     | '/_authenticated/ai/dashboard'
     | '/_authenticated/ai/monitor'
@@ -2213,6 +2225,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAiContentRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/ai/cities': {
+      id: '/_authenticated/ai/cities'
+      path: '/ai/cities'
+      fullPath: '/ai/cities'
+      preLoaderRoute: typeof AuthenticatedAiCitiesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/ai/automation': {
       id: '/_authenticated/ai/automation'
       path: '/ai/automation'
@@ -2415,6 +2434,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAiActivityRoute: typeof AuthenticatedAiActivityRoute
   AuthenticatedAiAnalyticsRoute: typeof AuthenticatedAiAnalyticsRoute
   AuthenticatedAiAutomationRoute: typeof AuthenticatedAiAutomationRoute
+  AuthenticatedAiCitiesRoute: typeof AuthenticatedAiCitiesRoute
   AuthenticatedAiContentRoute: typeof AuthenticatedAiContentRoute
   AuthenticatedAiDashboardRoute: typeof AuthenticatedAiDashboardRoute
   AuthenticatedAiMonitorRoute: typeof AuthenticatedAiMonitorRoute
@@ -2465,6 +2485,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAiActivityRoute: AuthenticatedAiActivityRoute,
   AuthenticatedAiAnalyticsRoute: AuthenticatedAiAnalyticsRoute,
   AuthenticatedAiAutomationRoute: AuthenticatedAiAutomationRoute,
+  AuthenticatedAiCitiesRoute: AuthenticatedAiCitiesRoute,
   AuthenticatedAiContentRoute: AuthenticatedAiContentRoute,
   AuthenticatedAiDashboardRoute: AuthenticatedAiDashboardRoute,
   AuthenticatedAiMonitorRoute: AuthenticatedAiMonitorRoute,
@@ -2550,3 +2571,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

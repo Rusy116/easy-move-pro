@@ -19,6 +19,7 @@ import {
   Gauge,
   Bell,
   BookUser,
+  MapPin,
 } from "lucide-react";
 import { RoleGuard } from "@/components/auth/RoleGuard";
 
@@ -33,6 +34,7 @@ export const AI_NAV = [
   { to: "/ai/notifications", label: "Notifications", icon: Bell },
   { to: "/ai/workforce", label: "AI Workforce", icon: Bot },
   { to: "/ai/seo", label: "SEO Factory", icon: Search },
+  { to: "/ai/cities", label: "City Landing Agent", icon: MapPin },
   { to: "/ai/products", label: "Digital Product Factory", icon: Package },
   { to: "/ai/content", label: "Content Factory", icon: FileText },
   { to: "/ai/publishing", label: "Publishing Center", icon: Send },

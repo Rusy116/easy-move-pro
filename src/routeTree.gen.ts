@@ -101,6 +101,7 @@ import { Route as AuthenticatedBrokerDashboardRouteImport } from './routes/_auth
 import { Route as AuthenticatedBrokerCompletedRouteImport } from './routes/_authenticated/broker.completed'
 import { Route as AuthenticatedAiWorkforceRouteImport } from './routes/_authenticated/ai.workforce'
 import { Route as AuthenticatedAiUsaDataRouteImport } from './routes/_authenticated/ai.usa-data'
+import { Route as AuthenticatedAiSupervisorRouteImport } from './routes/_authenticated/ai.supervisor'
 import { Route as AuthenticatedAiSettingsRouteImport } from './routes/_authenticated/ai.settings'
 import { Route as AuthenticatedAiSeoRouteImport } from './routes/_authenticated/ai.seo'
 import { Route as AuthenticatedAiRegistryRouteImport } from './routes/_authenticated/ai.registry'
@@ -638,6 +639,12 @@ const AuthenticatedAiUsaDataRoute = AuthenticatedAiUsaDataRouteImport.update({
   path: '/ai/usa-data',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAiSupervisorRoute =
+  AuthenticatedAiSupervisorRouteImport.update({
+    id: '/ai/supervisor',
+    path: '/ai/supervisor',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAiSettingsRoute = AuthenticatedAiSettingsRouteImport.update({
   id: '/ai/settings',
   path: '/ai/settings',
@@ -925,6 +932,7 @@ export interface FileRoutesByFullPath {
   '/ai/registry': typeof AuthenticatedAiRegistryRoute
   '/ai/seo': typeof AuthenticatedAiSeoRoute
   '/ai/settings': typeof AuthenticatedAiSettingsRoute
+  '/ai/supervisor': typeof AuthenticatedAiSupervisorRoute
   '/ai/usa-data': typeof AuthenticatedAiUsaDataRoute
   '/ai/workforce': typeof AuthenticatedAiWorkforceRoute
   '/broker/completed': typeof AuthenticatedBrokerCompletedRoute
@@ -1053,6 +1061,7 @@ export interface FileRoutesByTo {
   '/ai/registry': typeof AuthenticatedAiRegistryRoute
   '/ai/seo': typeof AuthenticatedAiSeoRoute
   '/ai/settings': typeof AuthenticatedAiSettingsRoute
+  '/ai/supervisor': typeof AuthenticatedAiSupervisorRoute
   '/ai/usa-data': typeof AuthenticatedAiUsaDataRoute
   '/ai/workforce': typeof AuthenticatedAiWorkforceRoute
   '/broker/completed': typeof AuthenticatedBrokerCompletedRoute
@@ -1184,6 +1193,7 @@ export interface FileRoutesById {
   '/_authenticated/ai/registry': typeof AuthenticatedAiRegistryRoute
   '/_authenticated/ai/seo': typeof AuthenticatedAiSeoRoute
   '/_authenticated/ai/settings': typeof AuthenticatedAiSettingsRoute
+  '/_authenticated/ai/supervisor': typeof AuthenticatedAiSupervisorRoute
   '/_authenticated/ai/usa-data': typeof AuthenticatedAiUsaDataRoute
   '/_authenticated/ai/workforce': typeof AuthenticatedAiWorkforceRoute
   '/_authenticated/broker/completed': typeof AuthenticatedBrokerCompletedRoute
@@ -1315,6 +1325,7 @@ export interface FileRouteTypes {
     | '/ai/registry'
     | '/ai/seo'
     | '/ai/settings'
+    | '/ai/supervisor'
     | '/ai/usa-data'
     | '/ai/workforce'
     | '/broker/completed'
@@ -1443,6 +1454,7 @@ export interface FileRouteTypes {
     | '/ai/registry'
     | '/ai/seo'
     | '/ai/settings'
+    | '/ai/supervisor'
     | '/ai/usa-data'
     | '/ai/workforce'
     | '/broker/completed'
@@ -1573,6 +1585,7 @@ export interface FileRouteTypes {
     | '/_authenticated/ai/registry'
     | '/_authenticated/ai/seo'
     | '/_authenticated/ai/settings'
+    | '/_authenticated/ai/supervisor'
     | '/_authenticated/ai/usa-data'
     | '/_authenticated/ai/workforce'
     | '/_authenticated/broker/completed'
@@ -2317,6 +2330,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAiUsaDataRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/ai/supervisor': {
+      id: '/_authenticated/ai/supervisor'
+      path: '/ai/supervisor'
+      fullPath: '/ai/supervisor'
+      preLoaderRoute: typeof AuthenticatedAiSupervisorRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/ai/settings': {
       id: '/_authenticated/ai/settings'
       path: '/ai/settings'
@@ -2671,6 +2691,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAiRegistryRoute: typeof AuthenticatedAiRegistryRoute
   AuthenticatedAiSeoRoute: typeof AuthenticatedAiSeoRoute
   AuthenticatedAiSettingsRoute: typeof AuthenticatedAiSettingsRoute
+  AuthenticatedAiSupervisorRoute: typeof AuthenticatedAiSupervisorRoute
   AuthenticatedAiUsaDataRoute: typeof AuthenticatedAiUsaDataRoute
   AuthenticatedAiWorkforceRoute: typeof AuthenticatedAiWorkforceRoute
   AuthenticatedBrokerCompletedRoute: typeof AuthenticatedBrokerCompletedRoute
@@ -2729,6 +2750,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAiRegistryRoute: AuthenticatedAiRegistryRoute,
   AuthenticatedAiSeoRoute: AuthenticatedAiSeoRoute,
   AuthenticatedAiSettingsRoute: AuthenticatedAiSettingsRoute,
+  AuthenticatedAiSupervisorRoute: AuthenticatedAiSupervisorRoute,
   AuthenticatedAiUsaDataRoute: AuthenticatedAiUsaDataRoute,
   AuthenticatedAiWorkforceRoute: AuthenticatedAiWorkforceRoute,
   AuthenticatedBrokerCompletedRoute: AuthenticatedBrokerCompletedRoute,
@@ -2807,3 +2829,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

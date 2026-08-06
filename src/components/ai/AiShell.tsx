@@ -33,6 +33,7 @@ import { RoleGuard } from "@/components/auth/RoleGuard";
 
 export const AI_NAV = [
   { to: "/ai/dashboard", label: "Dashboard", icon: BarChart3 },
+  { to: "/ai/supervisor", label: "AI Supervisor", icon: ShieldCheck },
   { to: "/ai/orchestrator", label: "Orchestrator", icon: Brain },
   { to: "/ai/ecosystem", label: "AI Ecosystem", icon: Network },
   { to: "/ai/registry", label: "Agent Registry", icon: BookUser },

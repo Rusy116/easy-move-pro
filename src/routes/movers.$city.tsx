@@ -61,14 +61,18 @@ export const Route = createFileRoute("/movers/$city")({
           }),
         ),
         jsonLd(
-          breadcrumbSchema([
-            { name: "Home", url: "/" },
-            { name: "Movers", url: "/cities" },
-            { name: `${facts.city}, ${facts.stateCode}`, url: path },
-          ]),
+          breadcrumbSchema(
+            (loaderData as { hierarchy: CityHierarchy }).hierarchy.trail.map((t) => ({
+              name: t.label,
+              url: t.to,
+            })),
+          ),
         ),
         jsonLd(faqSchema(seo.faq)),
+        jsonLd(organizationSchema()),
+        jsonLd(websiteSchema()),
       ],
+
     };
   },
   component: MoversCityPage,

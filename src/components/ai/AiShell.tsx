@@ -20,6 +20,10 @@ import {
   Bell,
   BookUser,
   MapPin,
+  ClipboardCheck,
+  ScrollText,
+  Radar,
+
 } from "lucide-react";
 import { RoleGuard } from "@/components/auth/RoleGuard";
 

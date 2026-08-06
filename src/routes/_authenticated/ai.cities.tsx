@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { MapPin, Loader2 } from "lucide-react";
 import { AiShell } from "@/components/ai/AiShell";
@@ -16,6 +16,7 @@ import {
   retryFailedCityPages,
   cityCatalog,
 } from "@/lib/city-landing.functions";
+import { landingPathForSlug } from "@/lib/city-landing/data";
 
 export const Route = createFileRoute("/_authenticated/ai/cities")({
   head: () => ({
@@ -104,8 +105,44 @@ function CityLandingDashboard() {
     ? Math.round(rows.reduce((a, b) => a + (b.seo_score ?? 0), 0) / rows.length)
     : 0;
   const errors = rows.filter((r) => r.error);
+  const publishedToday = published.filter((r) => (r.published_at ?? "").startsWith(today)).length;
+  const citiesCompleted = new Set(published.map((r) => r.slug)).size;
+  const citiesRemaining = Math.max(catalog.length - citiesCompleted, 0);
+  const activeRun = (runs.data ?? []).find((r) => r.status === "running");
+  const skipped = (runs.data ?? []).reduce(
+    (a, r) => a + Math.max(r.cursor - r.generated - r.failed, 0),
+    0,
+  );
+  // Publishing speed: pages published today per active hour of the day.
+  const hoursElapsed = Math.max(new Date().getHours() + new Date().getMinutes() / 60, 1);
+  const speed = (publishedToday / hoursElapsed).toFixed(1);
 
   const refresh = () => qc.invalidateQueries({ queryKey: ["city-landing"] });
+
+  // ── Autonomous queue: keep processing the running run, no human clicks. ──
+  const [autopilot, setAutopilot] = useState(true);
+  const ticking = useRef(false);
+  useEffect(() => {
+    if (!autopilot || !activeRun) return;
+    let cancelled = false;
+    const id = setInterval(async () => {
+      if (ticking.current || cancelled) return;
+      ticking.current = true;
+      try {
+        await processCityRunBatch({ data: { runId: activeRun.id, batchSize: 3 } });
+        refresh();
+      } catch {
+        /* surfaced through run.last_error */
+      } finally {
+        ticking.current = false;
+      }
+    }, 4000);
+    return () => {
+      cancelled = true;
+      clearInterval(id);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autopilot, activeRun?.id]);
 
   async function run<T>(fn: () => Promise<T>, msg: string) {
     setBusy(true);
@@ -127,16 +164,23 @@ function CityLandingDashboard() {
       <PageHeader
         eyebrow="AI Growth Center"
         title="City Landing & Calculator Agent"
-        subtitle="Generates /moving-calculator-{city}-{state} landing pages with the existing Easy Moving calculator embedded."
+        subtitle="Generates /moving-calculator/{city}-{state} landing pages with the one official Easy Move Pro calculator embedded above the fold."
         icon={<MapPin className="h-5 w-5" />}
       />
 
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
-        <StatCard label="Cities generated today" value={generatedToday} />
-        <StatCard label="Pages published" value={published.length} tone="success" />
-        <StatCard label="Drafts" value={drafts.length} tone="warning" />
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        <StatCard label="Cities completed" value={citiesCompleted} tone="success" />
+        <StatCard label="Cities remaining" value={citiesRemaining} />
+        <StatCard label="Published today" value={publishedToday} tone="success" />
+        <StatCard label="Generated today" value={generatedToday} />
+        <StatCard label="Drafts / review queue" value={drafts.length} tone="warning" />
         <StatCard label="Avg SEO score" value={avgScore || "—"} tone="info" />
+        <StatCard label="Publishing speed" value={`${speed}/hr`} tone="info" />
+        <StatCard label="Skipped (already live)" value={skipped} />
         <StatCard label="Errors" value={errors.length} tone={errors.length ? "warning" : undefined} />
+        <StatCard label="Indexed pages" value={published.length} tone="info" />
+        <StatCard label="Organic clicks" value={0} />
+        <StatCard label="Revenue attributed" value="$0" />
       </div>
 
       <SectionShell title="Generate">
@@ -215,6 +259,14 @@ function CityLandingDashboard() {
       </SectionShell>
 
       <SectionShell title="Publishing queue / runs">
+        <label className="mb-3 flex items-center gap-2 text-sm">
+          <input
+            type="checkbox"
+            checked={autopilot}
+            onChange={(e) => setAutopilot(e.target.checked)}
+          />
+          Autopilot — keep processing the queue automatically until every city is done
+        </label>
         {runs.data?.length ? (
           <div className="space-y-3">
             {runs.data.map((r) => (
@@ -311,12 +363,12 @@ function CityLandingDashboard() {
                     </td>
                     <td className="py-2.5 pr-3">
                       <a
-                        href={`/${r.slug}`}
+                        href={landingPathForSlug(r.slug)}
                         className="text-primary hover:underline"
                         target="_blank"
                         rel="noreferrer"
                       >
-                        /{r.slug}
+                        {landingPathForSlug(r.slug)}
                       </a>
                     </td>
                     <td className="py-2.5 pr-3 tabular-nums">{r.word_count}</td>

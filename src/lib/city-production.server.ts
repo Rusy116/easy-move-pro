@@ -71,8 +71,8 @@ async function stageUsaData({ db, facts }: StageContext): Promise<StageResult> {
       population: facts.population,
       timezone: facts.timezone,
       zip_codes: facts.zipCodes,
-      latitude: facts.latitude ?? null,
-      longitude: facts.longitude ?? null,
+      latitude: null,
+      longitude: null,
       demand_score: demand,
       seo_priority: 100 - competition,
       pipeline_status: "in_production",
@@ -87,7 +87,7 @@ async function stageUsaData({ db, facts }: StageContext): Promise<StageResult> {
       population: facts.population,
       county: facts.county,
       zipCodes: facts.zipCodes,
-      coordinates: { lat: facts.latitude ?? null, lng: facts.longitude ?? null },
+      coordinates: { lat: null, lng: null },
       timezone: facts.timezone,
       demand,
       competition,
@@ -139,7 +139,14 @@ async function stageSeo({ db, facts, landingSlug }: StageContext): Promise<Stage
       "twitter:title": seo.title,
       "twitter:description": seo.metaDescription,
     },
-    jsonLd: seo.schema ?? null,
+    jsonLd: {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      name: seo.title,
+      description: seo.metaDescription,
+      url: canonical,
+      about: { "@type": "Service", name: `Moving services in ${facts.city}, ${facts.stateCode}` },
+    },
   };
 
   await db
@@ -162,7 +169,9 @@ async function stageInternalLinks({ db, facts, landingSlug }: StageContext): Pro
     { label: "Moving blog", to: "/blog" },
     { label: "Digital moving products", to: "/store" },
     { label: "Moving companies", to: "/for-movers" },
-    { label: `${facts.county} County movers`, to: countyPathFor(facts.county, facts.stateCode) },
+    ...(facts.county
+      ? [{ label: `${facts.county} County movers`, to: countyPathFor(facts.county, facts.stateCode) }]
+      : []),
     { label: `Movers in ${facts.city}`, to: moversPathFor(facts.slug, facts.stateCode) },
   ];
   const total = h.up.length + h.down.length + h.lateral.length + extras.length;
@@ -264,7 +273,7 @@ async function stageBlog({ db, facts }: StageContext): Promise<StageResult> {
   const links = [
     landingPathFor(facts.slug, facts.stateCode),
     moversPathFor(facts.slug, facts.stateCode),
-    countyPathFor(facts.county, facts.stateCode),
+    ...(facts.county ? [countyPathFor(facts.county, facts.stateCode)] : []),
     "/calculator",
     "/store",
     "/resources",

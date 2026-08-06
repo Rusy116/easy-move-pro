@@ -51,6 +51,15 @@ export const Route = createFileRoute("/sitemap.xml")({
             priority: "0.8",
           }),
         );
+        // Stage 2 — /movers city SEO pages (same embedded calculator)
+        GEO_CITIES.forEach((c) =>
+          entries.push({
+            path: moversPathFor(c.slug, c.stateCode),
+            changefreq: "weekly",
+            priority: "0.8",
+          }),
+        );
+
         GEO_ROUTES.forEach((r) =>
           entries.push({ path: routePath(r), changefreq: "monthly", priority: "0.6" }),
         );

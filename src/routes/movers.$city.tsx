@@ -28,7 +28,12 @@ export const Route = createFileRoute("/movers/$city")({
     const parsed = parseLandingParam(params.city);
     const facts = parsed ? findCityFacts(parsed.citySlug, parsed.stateCode) : null;
     if (!facts) throw notFound();
-    return { facts, seo: buildMoversSeoContent(facts, buildCityLandingContent(facts)) };
+    return {
+      facts,
+      seo: buildMoversSeoContent(facts, buildCityLandingContent(facts)),
+      hierarchy: buildCityHierarchy(facts),
+    };
+
   },
   head: ({ loaderData, params }) => {
     if (!loaderData) {

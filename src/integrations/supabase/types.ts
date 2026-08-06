@@ -66,25 +66,36 @@ export type Database = {
           created_at: string
           created_by: string | null
           current_task: string | null
+          dependencies: string[]
           description: string
           enabled: boolean
           error_count: number
           estimated_completion: string | null
           id: string
+          inputs: Json
           key: string
           last_activity_at: string | null
+          last_error: string | null
           last_run_at: string | null
+          last_runtime_ms: number
+          max_retries: number
           memory_usage: number
           name: string
+          next_run_at: string | null
+          outputs: Json
           priority: number
           progress: number
           queue: string
+          retry_count: number
+          route: string | null
           run_count: number
+          schedule: string | null
           sort_order: number
           status: string
           success_rate: number
           tasks_completed: number
           tasks_failed: number
+          trigger_type: string
           updated_at: string
           version: string
         }
@@ -97,25 +108,36 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           current_task?: string | null
+          dependencies?: string[]
           description?: string
           enabled?: boolean
           error_count?: number
           estimated_completion?: string | null
           id?: string
+          inputs?: Json
           key: string
           last_activity_at?: string | null
+          last_error?: string | null
           last_run_at?: string | null
+          last_runtime_ms?: number
+          max_retries?: number
           memory_usage?: number
           name: string
+          next_run_at?: string | null
+          outputs?: Json
           priority?: number
           progress?: number
           queue?: string
+          retry_count?: number
+          route?: string | null
           run_count?: number
+          schedule?: string | null
           sort_order?: number
           status?: string
           success_rate?: number
           tasks_completed?: number
           tasks_failed?: number
+          trigger_type?: string
           updated_at?: string
           version?: string
         }
@@ -128,25 +150,36 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           current_task?: string | null
+          dependencies?: string[]
           description?: string
           enabled?: boolean
           error_count?: number
           estimated_completion?: string | null
           id?: string
+          inputs?: Json
           key?: string
           last_activity_at?: string | null
+          last_error?: string | null
           last_run_at?: string | null
+          last_runtime_ms?: number
+          max_retries?: number
           memory_usage?: number
           name?: string
+          next_run_at?: string | null
+          outputs?: Json
           priority?: number
           progress?: number
           queue?: string
+          retry_count?: number
+          route?: string | null
           run_count?: number
+          schedule?: string | null
           sort_order?: number
           status?: string
           success_rate?: number
           tasks_completed?: number
           tasks_failed?: number
+          trigger_type?: string
           updated_at?: string
           version?: string
         }

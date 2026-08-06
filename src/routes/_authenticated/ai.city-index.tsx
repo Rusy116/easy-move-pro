@@ -21,7 +21,7 @@ export const Route = createFileRoute("/_authenticated/ai/city-index")({
       },
     ],
   }),
-  component: CityIndexMonitor;
+  component: CityIndexMonitor,
 });
 
 type IndexRow = {

@@ -471,7 +471,7 @@ export const generateCityPage = createServerFn({ method: "POST" })
       level: res.calculator === "published" ? "info" : "warn",
       message: `${facts.city}, ${facts.stateCode}: calculator ${res.calculator}, SEO page ${res.seo} (score ${res.score})`,
     } as never);
-    return { slug: facts.landingSlug, ...res };
+    return { ...res, moversPath: moversPathFor(facts.slug, facts.stateCode) };
   });
 
 /** Start a bulk run: a single city, an entire state, or the whole USA. */
@@ -778,7 +778,7 @@ export const retrySeoPages = createServerFn({ method: "POST" })
 
     let ok = 0;
     let failed = 0;
-    for (const row of (rows ?? []) as Array<{ slug: string; content: CityLandingContent }>) {
+    for (const row of (rows ?? []) as unknown as Array<{ slug: string; content: CityLandingContent }>) {
       const parsed = parseLandingParam(row.slug);
       const facts = parsed ? findCityFacts(parsed.citySlug, parsed.stateCode) : null;
       if (!facts) continue;

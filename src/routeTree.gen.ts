@@ -38,6 +38,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as StatesIndexRouteImport } from './routes/states.index'
 import { Route as RoutesIndexRouteImport } from './routes/routes.index'
+import { Route as ProductsIndexRouteImport } from './routes/products.index'
 import { Route as PartnersIndexRouteImport } from './routes/partners.index'
 import { Route as CitiesIndexRouteImport } from './routes/cities.index'
 import { Route as BlogIndexRouteImport } from './routes/blog.index'
@@ -283,6 +284,11 @@ const StatesIndexRoute = StatesIndexRouteImport.update({
 const RoutesIndexRoute = RoutesIndexRouteImport.update({
   id: '/routes/',
   path: '/routes/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProductsIndexRoute = ProductsIndexRouteImport.update({
+  id: '/products/',
+  path: '/products/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PartnersIndexRoute = PartnersIndexRouteImport.update({
@@ -903,6 +909,7 @@ export interface FileRoutesByFullPath {
   '/blog/': typeof BlogIndexRoute
   '/cities/': typeof CitiesIndexRoute
   '/partners/': typeof PartnersIndexRoute
+  '/products/': typeof ProductsIndexRoute
   '/routes/': typeof RoutesIndexRoute
   '/states/': typeof StatesIndexRoute
   '/admin/brokers': typeof AuthenticatedAdminBrokersRoute
@@ -1033,6 +1040,7 @@ export interface FileRoutesByTo {
   '/blog': typeof BlogIndexRoute
   '/cities': typeof CitiesIndexRoute
   '/partners': typeof PartnersIndexRoute
+  '/products': typeof ProductsIndexRoute
   '/routes': typeof RoutesIndexRoute
   '/states': typeof StatesIndexRoute
   '/admin/brokers': typeof AuthenticatedAdminBrokersRoute
@@ -1166,6 +1174,7 @@ export interface FileRoutesById {
   '/blog/': typeof BlogIndexRoute
   '/cities/': typeof CitiesIndexRoute
   '/partners/': typeof PartnersIndexRoute
+  '/products/': typeof ProductsIndexRoute
   '/routes/': typeof RoutesIndexRoute
   '/states/': typeof StatesIndexRoute
   '/_authenticated/admin/brokers': typeof AuthenticatedAdminBrokersRoute
@@ -1299,6 +1308,7 @@ export interface FileRouteTypes {
     | '/blog/'
     | '/cities/'
     | '/partners/'
+    | '/products/'
     | '/routes/'
     | '/states/'
     | '/admin/brokers'
@@ -1429,6 +1439,7 @@ export interface FileRouteTypes {
     | '/blog'
     | '/cities'
     | '/partners'
+    | '/products'
     | '/routes'
     | '/states'
     | '/admin/brokers'
@@ -1561,6 +1572,7 @@ export interface FileRouteTypes {
     | '/blog/'
     | '/cities/'
     | '/partners/'
+    | '/products/'
     | '/routes/'
     | '/states/'
     | '/_authenticated/admin/brokers'
@@ -1692,6 +1704,7 @@ export interface RootRouteChildren {
   BlogIndexRoute: typeof BlogIndexRoute
   CitiesIndexRoute: typeof CitiesIndexRoute
   PartnersIndexRoute: typeof PartnersIndexRoute
+  ProductsIndexRoute: typeof ProductsIndexRoute
   RoutesIndexRoute: typeof RoutesIndexRoute
   StatesIndexRoute: typeof StatesIndexRoute
   ApiPublicSlaTickRoute: typeof ApiPublicSlaTickRoute
@@ -1901,6 +1914,13 @@ declare module '@tanstack/react-router' {
       path: '/routes'
       fullPath: '/routes/'
       preLoaderRoute: typeof RoutesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/products/': {
+      id: '/products/'
+      path: '/products'
+      fullPath: '/products/'
+      preLoaderRoute: typeof ProductsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/partners/': {
@@ -2843,6 +2863,7 @@ const rootRouteChildren: RootRouteChildren = {
   BlogIndexRoute: BlogIndexRoute,
   CitiesIndexRoute: CitiesIndexRoute,
   PartnersIndexRoute: PartnersIndexRoute,
+  ProductsIndexRoute: ProductsIndexRoute,
   RoutesIndexRoute: RoutesIndexRoute,
   StatesIndexRoute: StatesIndexRoute,
   ApiPublicSlaTickRoute: ApiPublicSlaTickRoute,
@@ -2851,13 +2872,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

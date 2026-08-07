@@ -49,7 +49,7 @@ function StoreHome() {
 
       <section className="mx-auto max-w-6xl px-4 pt-4 sm:px-6">
         <div className="flex flex-wrap gap-2">
-          {data.categories.map((c) => (
+          {data.categories.map((c: { slug: string; name: string }) => (
             <Link
               key={c.slug}
               to="/products/category/$slug"

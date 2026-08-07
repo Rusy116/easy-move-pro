@@ -53,22 +53,44 @@ export const Route = createFileRoute("/sitemap.xml")({
         GEO_CITIES.forEach((c) =>
           entries.push({ path: cityPath(c), changefreq: "monthly", priority: "0.7" }),
         );
-        // City moving-calculator landing pages (AI Growth Agent network)
-        GEO_CITIES.forEach((c) =>
+        // City pages come from the database (city_landing_pages), never from
+        // a hardcoded list. Calculator page = published; /movers = SEO published.
+        const seenCity = new Set<string>();
+        try {
+          const { readAllPublishedSlugs } = await import(
+            "@/lib/city-landing/public-read.server"
+          );
+          const rows = await readAllPublishedSlugs();
+          for (const r of rows) {
+            seenCity.add(r.slug);
+            entries.push({
+              path: `/moving-calculator/${r.slug}`,
+              changefreq: "weekly",
+              priority: "0.8",
+            });
+            if (r.seoPublished) {
+              entries.push({ path: `/movers/${r.slug}`, changefreq: "weekly", priority: "0.8" });
+            }
+          }
+        } catch {
+          /* sitemap stays valid even if the city database is unreachable */
+        }
+        // Legacy bundled cities that have no database record yet
+        GEO_CITIES.forEach((c) => {
+          const slug = `${c.slug}-${c.stateCode.toLowerCase()}`;
+          if (seenCity.has(slug)) return;
           entries.push({
             path: landingPathFor(c.slug, c.stateCode),
             changefreq: "weekly",
             priority: "0.8",
-          }),
-        );
-        // Stage 2 — /movers city SEO pages (same embedded calculator)
-        GEO_CITIES.forEach((c) =>
+          });
           entries.push({
             path: moversPathFor(c.slug, c.stateCode),
             changefreq: "weekly",
             priority: "0.8",
-          }),
-        );
+          });
+        });
+
 
         GEO_ROUTES.forEach((r) =>
           entries.push({ path: routePath(r), changefreq: "monthly", priority: "0.6" }),

@@ -14,9 +14,14 @@ import {
 import { findCityFacts, parseLandingParam, type CityFacts } from "@/lib/city-landing/data";
 import { buildCityLandingContent, type CityLandingContent } from "@/lib/city-landing/content";
 import { routesForCity, routePath } from "@/lib/seo/geo";
+import { getCityPageData } from "@/lib/city-landing/public.functions";
 
+// Source of truth: `public.city_landing_pages`. The bundled dataset only
+// covers legacy slugs that predate the City Factory.
 export const Route = createFileRoute("/moving-calculator/$city")({
-  loader: ({ params }) => {
+  loader: async ({ params }) => {
+    const record = await getCityPageData({ data: { slug: params.city.toLowerCase() } });
+    if (record) return { facts: record.facts, content: record.content };
     const parsed = parseLandingParam(params.city);
     const facts = parsed ? findCityFacts(parsed.citySlug, parsed.stateCode) : null;
     if (!facts) throw notFound();

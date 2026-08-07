@@ -127,15 +127,50 @@ export interface CityHierarchy {
   all: HierarchyLink[];
 }
 
-/** Build the full up/down/lateral link graph for one city. */
-export function buildCityHierarchy(f: CityFacts): CityHierarchy {
+/** A sibling city used to build down/lateral links (from the database). */
+export interface HierarchyPeer {
+  slug: string;
+  name: string;
+  stateCode: string;
+  population: number;
+  county: string | null;
+}
+
+/**
+ * Build the full up/down/lateral link graph for one city.
+ * `peerList` comes from the database for DB-driven routes; when omitted the
+ * bundled dataset is used (legacy/static callers and the audit tooling).
+ */
+export function buildCityHierarchy(f: CityFacts, peerList?: HierarchyPeer[]): CityHierarchy {
   const self = GEO_CITIES.find((c) => c.slug === f.slug && c.stateCode === f.stateCode);
   const tier = cityTier(f.population);
-  const county = f.county ?? (self ? countyOf(self) : `${f.city} area`);
+  const peers: HierarchyPeer[] =
+    peerList ??
+    GEO_CITIES.filter(
+      (o) => !(o.slug === f.slug && o.stateCode === f.stateCode) && o.stateCode === f.stateCode,
+    ).map((o) => ({
+      slug: o.slug,
+      name: o.name,
+      stateCode: o.stateCode,
+      population: o.population,
+      county: countyOf(o),
+    }));
+
+  const countyPeers = peers
+    .filter((o) => o.county)
+    .sort((a, b) => b.population - a.population);
+  const county =
+    f.county ??
+    (self ? countyOf(self) : null) ??
+    countyPeers[0]?.county ??
+    `${f.city} area`;
   const cPath = countyPathFor(county, f.stateCode);
 
   const up: HierarchyLink[] = [];
-  const metro = self ? metroAnchor(self) : null;
+  const metro =
+    peers
+      .filter((o) => o.county === county && o.population > f.population)
+      .sort((a, b) => b.population - a.population)[0] ?? null;
   if (metro) {
     up.push({
       label: `Movers in ${metro.name}, ${metro.stateCode} (metro area)`,
@@ -151,11 +186,8 @@ export function buildCityHierarchy(f: CityFacts): CityHierarchy {
   });
   up.push(USA_HUB);
 
-  const peers = GEO_CITIES.filter(
-    (o) => !(o.slug === f.slug && o.stateCode === f.stateCode) && o.stateCode === f.stateCode,
-  );
   const down: HierarchyLink[] = peers
-    .filter((o) => o.population < f.population && countyOf(o) === county)
+    .filter((o) => o.population < f.population && o.county === county)
     .sort((a, b) => b.population - a.population)
     .slice(0, 8)
     .map((o) => ({
@@ -173,6 +205,7 @@ export function buildCityHierarchy(f: CityFacts): CityHierarchy {
       to: moversPathFor(o.slug, o.stateCode),
       level: cityTier(o.population),
     }));
+
 
   const trail: HierarchyLink[] = [
     USA_HUB,

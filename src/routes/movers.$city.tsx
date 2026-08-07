@@ -17,14 +17,22 @@ import { findCityFacts, parseLandingParam, type CityFacts } from "@/lib/city-lan
 import { buildCityLandingContent } from "@/lib/city-landing/content";
 import { buildMoversSeoContent, type MoversSeoContent } from "@/lib/city-landing/seo-page";
 import { buildCityHierarchy, type CityHierarchy } from "@/lib/city-landing/hierarchy";
+import { getCityPageData } from "@/lib/city-landing/public.functions";
 
 
 /**
  * Stage 2 of the City Calculator Factory. This page embeds the ONE official
  * Easy Move Pro calculator — it never re-implements it.
+ *
+ * Source of truth: `public.city_landing_pages`. The bundled dataset is only a
+ * fallback for legacy slugs that predate the factory.
  */
 export const Route = createFileRoute("/movers/$city")({
-  loader: ({ params }) => {
+  loader: async ({ params }) => {
+    const record = await getCityPageData({ data: { slug: params.city.toLowerCase() } });
+    if (record) {
+      return { facts: record.facts, seo: record.seo, hierarchy: record.hierarchy };
+    }
     const parsed = parseLandingParam(params.city);
     const facts = parsed ? findCityFacts(parsed.citySlug, parsed.stateCode) : null;
     if (!facts) throw notFound();

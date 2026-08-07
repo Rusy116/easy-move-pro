@@ -12,6 +12,7 @@ import { buildCityLandingContent, type CityLandingContent } from "./content";
 import { buildMoversSeoContent, type MoversSeoContent } from "./seo-page";
 import { cityAverages } from "@/lib/seo/geo";
 import { neighborhoodsFor } from "@/lib/seo/city-content";
+import { stateName as usStateName } from "@/lib/us-states";
 
 function stateSlugFor(_stateCode: string, stateName: string): string {
   return stateName
@@ -34,7 +35,7 @@ export function factsFromRow(row: CityPageRow): CityFacts {
 
   const slug = citySlugOf(row);
   const stateCode = row.state_code.toUpperCase();
-  const stateName = row.state_name ?? stateCode;
+  const stateName = row.state_name ?? usStateName(stateCode) ?? stateCode;
   const population = row.population ?? 0;
   const nearby = Array.isArray(row.nearby_cities)
     ? (row.nearby_cities as CityFacts["nearbyCities"])

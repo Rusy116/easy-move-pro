@@ -2663,6 +2663,7 @@ export type Database = {
           download_url: string | null
           id: string
           product_id: string | null
+          product_slug: string | null
           purchased_at: string
           status: string
           title: string
@@ -2676,6 +2677,7 @@ export type Database = {
           download_url?: string | null
           id?: string
           product_id?: string | null
+          product_slug?: string | null
           purchased_at?: string
           status?: string
           title: string
@@ -2689,6 +2691,7 @@ export type Database = {
           download_url?: string | null
           id?: string
           product_id?: string | null
+          product_slug?: string | null
           purchased_at?: string
           status?: string
           title?: string
@@ -3716,6 +3719,348 @@ export type Database = {
           utm?: Json | null
           website?: string | null
           years_in_business?: number | null
+        }
+        Relationships: []
+      }
+      pdf_categories: {
+        Row: {
+          created_at: string
+          description: string | null
+          icon: string | null
+          id: string
+          name: string
+          slug: string
+          sort_order: number
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          name: string
+          slug: string
+          sort_order?: number
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          name?: string
+          slug?: string
+          sort_order?: number
+        }
+        Relationships: []
+      }
+      pdf_downloads: {
+        Row: {
+          downloaded_at: string
+          id: string
+          product_slug: string
+          user_id: string
+          version: string
+        }
+        Insert: {
+          downloaded_at?: string
+          id?: string
+          product_slug: string
+          user_id: string
+          version?: string
+        }
+        Update: {
+          downloaded_at?: string
+          id?: string
+          product_slug?: string
+          user_id?: string
+          version?: string
+        }
+        Relationships: []
+      }
+      pdf_favorites: {
+        Row: {
+          created_at: string
+          id: string
+          product_slug: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          product_slug: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          product_slug?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      pdf_jobs: {
+        Row: {
+          attempts: number
+          brief: string | null
+          category_slug: string
+          created_at: string
+          finished_at: string | null
+          id: string
+          last_error: string | null
+          leased_until: string | null
+          priority: number
+          product_slug: string
+          stage: number
+          stage_results: Json
+          started_at: string | null
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          attempts?: number
+          brief?: string | null
+          category_slug?: string
+          created_at?: string
+          finished_at?: string | null
+          id?: string
+          last_error?: string | null
+          leased_until?: string | null
+          priority?: number
+          product_slug: string
+          stage?: number
+          stage_results?: Json
+          started_at?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          attempts?: number
+          brief?: string | null
+          category_slug?: string
+          created_at?: string
+          finished_at?: string | null
+          id?: string
+          last_error?: string | null
+          leased_until?: string | null
+          priority?: number
+          product_slug?: string
+          stage?: number
+          stage_results?: Json
+          started_at?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      pdf_opportunities: {
+        Row: {
+          category_slug: string
+          created_at: string
+          demand_score: number
+          difficulty_score: number
+          gap_reason: string | null
+          id: string
+          keyword: string
+          priority: number
+          source: string
+          status: string
+          title: string
+        }
+        Insert: {
+          category_slug?: string
+          created_at?: string
+          demand_score?: number
+          difficulty_score?: number
+          gap_reason?: string | null
+          id?: string
+          keyword: string
+          priority?: number
+          source?: string
+          status?: string
+          title: string
+        }
+        Update: {
+          category_slug?: string
+          created_at?: string
+          demand_score?: number
+          difficulty_score?: number
+          gap_reason?: string | null
+          id?: string
+          keyword?: string
+          priority?: number
+          source?: string
+          status?: string
+          title?: string
+        }
+        Relationships: []
+      }
+      pdf_products: {
+        Row: {
+          ai_prompt: string | null
+          alt_text: string | null
+          canonical_url: string | null
+          category_slug: string
+          collection_slug: string | null
+          compare_at_cents: number | null
+          content: Json
+          cover_spec: Json
+          cover_url: string | null
+          created_at: string
+          description: string | null
+          difficulty: string
+          downloads: number
+          faq: Json
+          features: Json
+          file_size_kb: number | null
+          file_url: string | null
+          id: string
+          is_bestseller: boolean
+          is_featured: boolean
+          language: string
+          meta_description: string | null
+          og_image_url: string | null
+          page_count: number
+          preview_urls: Json
+          price_cents: number
+          published_at: string | null
+          quality_score: number | null
+          related_articles: string[]
+          related_calculators: string[]
+          related_cities: string[]
+          related_products: string[]
+          revenue_cents: number
+          seo_score: number | null
+          seo_title: string | null
+          slug: string
+          social_image_url: string | null
+          status: string
+          subtitle: string | null
+          tags: string[]
+          target_keywords: string[]
+          title: string
+          updated_at: string
+          version: string
+          views: number
+          whats_included: Json
+        }
+        Insert: {
+          ai_prompt?: string | null
+          alt_text?: string | null
+          canonical_url?: string | null
+          category_slug?: string
+          collection_slug?: string | null
+          compare_at_cents?: number | null
+          content?: Json
+          cover_spec?: Json
+          cover_url?: string | null
+          created_at?: string
+          description?: string | null
+          difficulty?: string
+          downloads?: number
+          faq?: Json
+          features?: Json
+          file_size_kb?: number | null
+          file_url?: string | null
+          id?: string
+          is_bestseller?: boolean
+          is_featured?: boolean
+          language?: string
+          meta_description?: string | null
+          og_image_url?: string | null
+          page_count?: number
+          preview_urls?: Json
+          price_cents?: number
+          published_at?: string | null
+          quality_score?: number | null
+          related_articles?: string[]
+          related_calculators?: string[]
+          related_cities?: string[]
+          related_products?: string[]
+          revenue_cents?: number
+          seo_score?: number | null
+          seo_title?: string | null
+          slug: string
+          social_image_url?: string | null
+          status?: string
+          subtitle?: string | null
+          tags?: string[]
+          target_keywords?: string[]
+          title: string
+          updated_at?: string
+          version?: string
+          views?: number
+          whats_included?: Json
+        }
+        Update: {
+          ai_prompt?: string | null
+          alt_text?: string | null
+          canonical_url?: string | null
+          category_slug?: string
+          collection_slug?: string | null
+          compare_at_cents?: number | null
+          content?: Json
+          cover_spec?: Json
+          cover_url?: string | null
+          created_at?: string
+          description?: string | null
+          difficulty?: string
+          downloads?: number
+          faq?: Json
+          features?: Json
+          file_size_kb?: number | null
+          file_url?: string | null
+          id?: string
+          is_bestseller?: boolean
+          is_featured?: boolean
+          language?: string
+          meta_description?: string | null
+          og_image_url?: string | null
+          page_count?: number
+          preview_urls?: Json
+          price_cents?: number
+          published_at?: string | null
+          quality_score?: number | null
+          related_articles?: string[]
+          related_calculators?: string[]
+          related_cities?: string[]
+          related_products?: string[]
+          revenue_cents?: number
+          seo_score?: number | null
+          seo_title?: string | null
+          slug?: string
+          social_image_url?: string | null
+          status?: string
+          subtitle?: string | null
+          tags?: string[]
+          target_keywords?: string[]
+          title?: string
+          updated_at?: string
+          version?: string
+          views?: number
+          whats_included?: Json
+        }
+        Relationships: []
+      }
+      pdf_recent_views: {
+        Row: {
+          id: string
+          product_slug: string
+          user_id: string
+          viewed_at: string
+        }
+        Insert: {
+          id?: string
+          product_slug: string
+          user_id: string
+          viewed_at?: string
+        }
+        Update: {
+          id?: string
+          product_slug?: string
+          user_id?: string
+          viewed_at?: string
         }
         Relationships: []
       }

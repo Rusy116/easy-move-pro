@@ -38,12 +38,14 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as StatesIndexRouteImport } from './routes/states.index'
 import { Route as RoutesIndexRouteImport } from './routes/routes.index'
+import { Route as ProductsIndexRouteImport } from './routes/products.index'
 import { Route as PartnersIndexRouteImport } from './routes/partners.index'
 import { Route as CitiesIndexRouteImport } from './routes/cities.index'
 import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as StatesStateRouteImport } from './routes/states.$state'
 import { Route as RoutesRouteRouteImport } from './routes/routes.$route'
 import { Route as QuoteQuoteNumberRouteImport } from './routes/quote.$quoteNumber'
+import { Route as ProductsSlugRouteImport } from './routes/products.$slug'
 import { Route as PortalQuoteNumberRouteImport } from './routes/portal.$quoteNumber'
 import { Route as PartnersApplyRouteImport } from './routes/partners.apply'
 import { Route as PartnersLocationRouteImport } from './routes/partners.$location'
@@ -61,6 +63,7 @@ import { Route as AuthenticatedCustomerIndexRouteImport } from './routes/_authen
 import { Route as AuthenticatedCompanyIndexRouteImport } from './routes/_authenticated/company.index'
 import { Route as AuthenticatedBrokerIndexRouteImport } from './routes/_authenticated/broker.index'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
+import { Route as ProductsCategorySlugRouteImport } from './routes/products.category.$slug'
 import { Route as ApiPublicSlaTickRouteImport } from './routes/api/public/sla-tick'
 import { Route as AuthenticatedCustomerSettingsRouteImport } from './routes/_authenticated/customer.settings'
 import { Route as AuthenticatedCustomerReviewsRouteImport } from './routes/_authenticated/customer.reviews'
@@ -285,6 +288,11 @@ const RoutesIndexRoute = RoutesIndexRouteImport.update({
   path: '/routes/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProductsIndexRoute = ProductsIndexRouteImport.update({
+  id: '/products/',
+  path: '/products/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PartnersIndexRoute = PartnersIndexRouteImport.update({
   id: '/partners/',
   path: '/partners/',
@@ -313,6 +321,11 @@ const RoutesRouteRoute = RoutesRouteRouteImport.update({
 const QuoteQuoteNumberRoute = QuoteQuoteNumberRouteImport.update({
   id: '/quote/$quoteNumber',
   path: '/quote/$quoteNumber',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProductsSlugRoute = ProductsSlugRouteImport.update({
+  id: '/products/$slug',
+  path: '/products/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PortalQuoteNumberRoute = PortalQuoteNumberRouteImport.update({
@@ -402,6 +415,11 @@ const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   id: '/admin/',
   path: '/admin/',
   getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const ProductsCategorySlugRoute = ProductsCategorySlugRouteImport.update({
+  id: '/products/category/$slug',
+  path: '/products/category/$slug',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const ApiPublicSlaTickRoute = ApiPublicSlaTickRouteImport.update({
   id: '/api/public/sla-tick',
@@ -897,12 +915,14 @@ export interface FileRoutesByFullPath {
   '/partners/$location': typeof PartnersLocationRoute
   '/partners/apply': typeof PartnersApplyRoute
   '/portal/$quoteNumber': typeof PortalQuoteNumberRoute
+  '/products/$slug': typeof ProductsSlugRoute
   '/quote/$quoteNumber': typeof QuoteQuoteNumberRoute
   '/routes/$route': typeof RoutesRouteRoute
   '/states/$state': typeof StatesStateRoute
   '/blog/': typeof BlogIndexRoute
   '/cities/': typeof CitiesIndexRoute
   '/partners/': typeof PartnersIndexRoute
+  '/products/': typeof ProductsIndexRoute
   '/routes/': typeof RoutesIndexRoute
   '/states/': typeof StatesIndexRoute
   '/admin/brokers': typeof AuthenticatedAdminBrokersRoute
@@ -980,6 +1000,7 @@ export interface FileRoutesByFullPath {
   '/customer/reviews': typeof AuthenticatedCustomerReviewsRoute
   '/customer/settings': typeof AuthenticatedCustomerSettingsRoute
   '/api/public/sla-tick': typeof ApiPublicSlaTickRoute
+  '/products/category/$slug': typeof ProductsCategorySlugRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/broker/': typeof AuthenticatedBrokerIndexRoute
   '/company/': typeof AuthenticatedCompanyIndexRoute
@@ -1027,12 +1048,14 @@ export interface FileRoutesByTo {
   '/partners/$location': typeof PartnersLocationRoute
   '/partners/apply': typeof PartnersApplyRoute
   '/portal/$quoteNumber': typeof PortalQuoteNumberRoute
+  '/products/$slug': typeof ProductsSlugRoute
   '/quote/$quoteNumber': typeof QuoteQuoteNumberRoute
   '/routes/$route': typeof RoutesRouteRoute
   '/states/$state': typeof StatesStateRoute
   '/blog': typeof BlogIndexRoute
   '/cities': typeof CitiesIndexRoute
   '/partners': typeof PartnersIndexRoute
+  '/products': typeof ProductsIndexRoute
   '/routes': typeof RoutesIndexRoute
   '/states': typeof StatesIndexRoute
   '/admin/brokers': typeof AuthenticatedAdminBrokersRoute
@@ -1110,6 +1133,7 @@ export interface FileRoutesByTo {
   '/customer/reviews': typeof AuthenticatedCustomerReviewsRoute
   '/customer/settings': typeof AuthenticatedCustomerSettingsRoute
   '/api/public/sla-tick': typeof ApiPublicSlaTickRoute
+  '/products/category/$slug': typeof ProductsCategorySlugRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/broker': typeof AuthenticatedBrokerIndexRoute
   '/company': typeof AuthenticatedCompanyIndexRoute
@@ -1160,12 +1184,14 @@ export interface FileRoutesById {
   '/partners/$location': typeof PartnersLocationRoute
   '/partners/apply': typeof PartnersApplyRoute
   '/portal/$quoteNumber': typeof PortalQuoteNumberRoute
+  '/products/$slug': typeof ProductsSlugRoute
   '/quote/$quoteNumber': typeof QuoteQuoteNumberRoute
   '/routes/$route': typeof RoutesRouteRoute
   '/states/$state': typeof StatesStateRoute
   '/blog/': typeof BlogIndexRoute
   '/cities/': typeof CitiesIndexRoute
   '/partners/': typeof PartnersIndexRoute
+  '/products/': typeof ProductsIndexRoute
   '/routes/': typeof RoutesIndexRoute
   '/states/': typeof StatesIndexRoute
   '/_authenticated/admin/brokers': typeof AuthenticatedAdminBrokersRoute
@@ -1243,6 +1269,7 @@ export interface FileRoutesById {
   '/_authenticated/customer/reviews': typeof AuthenticatedCustomerReviewsRoute
   '/_authenticated/customer/settings': typeof AuthenticatedCustomerSettingsRoute
   '/api/public/sla-tick': typeof ApiPublicSlaTickRoute
+  '/products/category/$slug': typeof ProductsCategorySlugRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/broker/': typeof AuthenticatedBrokerIndexRoute
   '/_authenticated/company/': typeof AuthenticatedCompanyIndexRoute
@@ -1293,12 +1320,14 @@ export interface FileRouteTypes {
     | '/partners/$location'
     | '/partners/apply'
     | '/portal/$quoteNumber'
+    | '/products/$slug'
     | '/quote/$quoteNumber'
     | '/routes/$route'
     | '/states/$state'
     | '/blog/'
     | '/cities/'
     | '/partners/'
+    | '/products/'
     | '/routes/'
     | '/states/'
     | '/admin/brokers'
@@ -1376,6 +1405,7 @@ export interface FileRouteTypes {
     | '/customer/reviews'
     | '/customer/settings'
     | '/api/public/sla-tick'
+    | '/products/category/$slug'
     | '/admin/'
     | '/broker/'
     | '/company/'
@@ -1423,12 +1453,14 @@ export interface FileRouteTypes {
     | '/partners/$location'
     | '/partners/apply'
     | '/portal/$quoteNumber'
+    | '/products/$slug'
     | '/quote/$quoteNumber'
     | '/routes/$route'
     | '/states/$state'
     | '/blog'
     | '/cities'
     | '/partners'
+    | '/products'
     | '/routes'
     | '/states'
     | '/admin/brokers'
@@ -1506,6 +1538,7 @@ export interface FileRouteTypes {
     | '/customer/reviews'
     | '/customer/settings'
     | '/api/public/sla-tick'
+    | '/products/category/$slug'
     | '/admin'
     | '/broker'
     | '/company'
@@ -1555,12 +1588,14 @@ export interface FileRouteTypes {
     | '/partners/$location'
     | '/partners/apply'
     | '/portal/$quoteNumber'
+    | '/products/$slug'
     | '/quote/$quoteNumber'
     | '/routes/$route'
     | '/states/$state'
     | '/blog/'
     | '/cities/'
     | '/partners/'
+    | '/products/'
     | '/routes/'
     | '/states/'
     | '/_authenticated/admin/brokers'
@@ -1638,6 +1673,7 @@ export interface FileRouteTypes {
     | '/_authenticated/customer/reviews'
     | '/_authenticated/customer/settings'
     | '/api/public/sla-tick'
+    | '/products/category/$slug'
     | '/_authenticated/admin/'
     | '/_authenticated/broker/'
     | '/_authenticated/company/'
@@ -1686,15 +1722,18 @@ export interface RootRouteChildren {
   PartnersLocationRoute: typeof PartnersLocationRoute
   PartnersApplyRoute: typeof PartnersApplyRoute
   PortalQuoteNumberRoute: typeof PortalQuoteNumberRoute
+  ProductsSlugRoute: typeof ProductsSlugRoute
   QuoteQuoteNumberRoute: typeof QuoteQuoteNumberRoute
   RoutesRouteRoute: typeof RoutesRouteRoute
   StatesStateRoute: typeof StatesStateRoute
   BlogIndexRoute: typeof BlogIndexRoute
   CitiesIndexRoute: typeof CitiesIndexRoute
   PartnersIndexRoute: typeof PartnersIndexRoute
+  ProductsIndexRoute: typeof ProductsIndexRoute
   RoutesIndexRoute: typeof RoutesIndexRoute
   StatesIndexRoute: typeof StatesIndexRoute
   ApiPublicSlaTickRoute: typeof ApiPublicSlaTickRoute
+  ProductsCategorySlugRoute: typeof ProductsCategorySlugRoute
   ApiPublicHooksCityProductionTickRoute: typeof ApiPublicHooksCityProductionTickRoute
 }
 
@@ -1903,6 +1942,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RoutesIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/products/': {
+      id: '/products/'
+      path: '/products'
+      fullPath: '/products/'
+      preLoaderRoute: typeof ProductsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/partners/': {
       id: '/partners/'
       path: '/partners'
@@ -1943,6 +1989,13 @@ declare module '@tanstack/react-router' {
       path: '/quote/$quoteNumber'
       fullPath: '/quote/$quoteNumber'
       preLoaderRoute: typeof QuoteQuoteNumberRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/products/$slug': {
+      id: '/products/$slug'
+      path: '/products/$slug'
+      fullPath: '/products/$slug'
+      preLoaderRoute: typeof ProductsSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/portal/$quoteNumber': {
@@ -2063,6 +2116,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/'
       preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/products/category/$slug': {
+      id: '/products/category/$slug'
+      path: '/products/category/$slug'
+      fullPath: '/products/category/$slug'
+      preLoaderRoute: typeof ProductsCategorySlugRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/api/public/sla-tick': {
       id: '/api/public/sla-tick'
@@ -2837,15 +2897,18 @@ const rootRouteChildren: RootRouteChildren = {
   PartnersLocationRoute: PartnersLocationRoute,
   PartnersApplyRoute: PartnersApplyRoute,
   PortalQuoteNumberRoute: PortalQuoteNumberRoute,
+  ProductsSlugRoute: ProductsSlugRoute,
   QuoteQuoteNumberRoute: QuoteQuoteNumberRoute,
   RoutesRouteRoute: RoutesRouteRoute,
   StatesStateRoute: StatesStateRoute,
   BlogIndexRoute: BlogIndexRoute,
   CitiesIndexRoute: CitiesIndexRoute,
   PartnersIndexRoute: PartnersIndexRoute,
+  ProductsIndexRoute: ProductsIndexRoute,
   RoutesIndexRoute: RoutesIndexRoute,
   StatesIndexRoute: StatesIndexRoute,
   ApiPublicSlaTickRoute: ApiPublicSlaTickRoute,
+  ProductsCategorySlugRoute: ProductsCategorySlugRoute,
   ApiPublicHooksCityProductionTickRoute: ApiPublicHooksCityProductionTickRoute,
 }
 export const routeTree = rootRouteImport

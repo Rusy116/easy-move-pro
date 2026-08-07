@@ -116,7 +116,7 @@ function ResourcesPage() {
         title="Keep exploring"
         links={[
           { label: "Moving guides & blog", to: "/blog" },
-          { label: "Digital products", to: "/store" },
+          { label: "Digital products", to: "/products" },
           { label: "AI moving tools", to: "/ai-tools" },
           { label: "Movers by state", to: "/states" },
           { label: "Popular routes", to: "/routes" },

@@ -66,7 +66,7 @@ const CUSTOMER_LINKS = [
   { label: "Instant moving quote calculator", to: "/calculator" },
   { label: "Browse cities we serve", to: "/cities" },
   { label: "Moving services", to: "/services" },
-  { label: "Digital products store", to: "/store" },
+  { label: "Digital products store", to: "/products" },
 ];
 const MOVER_LINKS = [
   { label: "Exclusive moving leads", to: "/exclusive-moving-leads" },
@@ -257,7 +257,7 @@ export const runProductAgent = createServerFn({ method: "POST" })
         seo: {
           title: `${idea.title} | Easy Moving Store`,
           description: `Download the ${idea.title.toLowerCase()} and plan your move with confidence. Pairs with the free Easy Moving calculator.`,
-          internal_links: ["/store", "/calculator", "/cities"],
+          internal_links: ["/products", "/calculator", "/cities"],
         },
         preview_urls: [],
         assets: [{ kind: "pdf", status: "pending_build", filename: `${slug}.pdf` }],

@@ -3776,6 +3776,33 @@ export type Database = {
         }
         Relationships: []
       }
+      pdf_factory_settings: {
+        Row: {
+          autopilot: boolean
+          batch_size: number
+          daily_target: number
+          id: number
+          min_seo_score: number
+          updated_at: string
+        }
+        Insert: {
+          autopilot?: boolean
+          batch_size?: number
+          daily_target?: number
+          id?: number
+          min_seo_score?: number
+          updated_at?: string
+        }
+        Update: {
+          autopilot?: boolean
+          batch_size?: number
+          daily_target?: number
+          id?: number
+          min_seo_score?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       pdf_favorites: {
         Row: {
           created_at: string
@@ -3854,6 +3881,54 @@ export type Database = {
         }
         Relationships: []
       }
+      pdf_keywords: {
+        Row: {
+          category_slug: string | null
+          cluster: string | null
+          created_at: string
+          difficulty_score: number
+          id: string
+          intent: string
+          keyword: string
+          notes: string | null
+          opportunity_score: number
+          seasonality: string
+          source: string
+          status: string
+          volume_score: number
+        }
+        Insert: {
+          category_slug?: string | null
+          cluster?: string | null
+          created_at?: string
+          difficulty_score?: number
+          id?: string
+          intent?: string
+          keyword: string
+          notes?: string | null
+          opportunity_score?: number
+          seasonality?: string
+          source?: string
+          status?: string
+          volume_score?: number
+        }
+        Update: {
+          category_slug?: string | null
+          cluster?: string | null
+          created_at?: string
+          difficulty_score?: number
+          id?: string
+          intent?: string
+          keyword?: string
+          notes?: string | null
+          opportunity_score?: number
+          seasonality?: string
+          source?: string
+          status?: string
+          volume_score?: number
+        }
+        Relationships: []
+      }
       pdf_opportunities: {
         Row: {
           category_slug: string
@@ -3900,8 +3975,10 @@ export type Database = {
         Row: {
           ai_prompt: string | null
           alt_text: string | null
+          bundle_slugs: string[]
           canonical_url: string | null
           category_slug: string
+          clicks: number
           collection_slug: string | null
           compare_at_cents: number | null
           content: Json
@@ -3916,9 +3993,13 @@ export type Database = {
           file_size_kb: number | null
           file_url: string | null
           id: string
+          impressions: number
+          improvement_notes: string | null
           is_bestseller: boolean
+          is_bundle: boolean
           is_featured: boolean
           language: string
+          last_improved_at: string | null
           meta_description: string | null
           og_image_url: string | null
           page_count: number
@@ -3926,11 +4007,13 @@ export type Database = {
           price_cents: number
           published_at: string | null
           quality_score: number | null
+          rating: number
           related_articles: string[]
           related_calculators: string[]
           related_cities: string[]
           related_products: string[]
           revenue_cents: number
+          review_count: number
           seo_score: number | null
           seo_title: string | null
           slug: string
@@ -3948,8 +4031,10 @@ export type Database = {
         Insert: {
           ai_prompt?: string | null
           alt_text?: string | null
+          bundle_slugs?: string[]
           canonical_url?: string | null
           category_slug?: string
+          clicks?: number
           collection_slug?: string | null
           compare_at_cents?: number | null
           content?: Json
@@ -3964,9 +4049,13 @@ export type Database = {
           file_size_kb?: number | null
           file_url?: string | null
           id?: string
+          impressions?: number
+          improvement_notes?: string | null
           is_bestseller?: boolean
+          is_bundle?: boolean
           is_featured?: boolean
           language?: string
+          last_improved_at?: string | null
           meta_description?: string | null
           og_image_url?: string | null
           page_count?: number
@@ -3974,11 +4063,13 @@ export type Database = {
           price_cents?: number
           published_at?: string | null
           quality_score?: number | null
+          rating?: number
           related_articles?: string[]
           related_calculators?: string[]
           related_cities?: string[]
           related_products?: string[]
           revenue_cents?: number
+          review_count?: number
           seo_score?: number | null
           seo_title?: string | null
           slug: string
@@ -3996,8 +4087,10 @@ export type Database = {
         Update: {
           ai_prompt?: string | null
           alt_text?: string | null
+          bundle_slugs?: string[]
           canonical_url?: string | null
           category_slug?: string
+          clicks?: number
           collection_slug?: string | null
           compare_at_cents?: number | null
           content?: Json
@@ -4012,9 +4105,13 @@ export type Database = {
           file_size_kb?: number | null
           file_url?: string | null
           id?: string
+          impressions?: number
+          improvement_notes?: string | null
           is_bestseller?: boolean
+          is_bundle?: boolean
           is_featured?: boolean
           language?: string
+          last_improved_at?: string | null
           meta_description?: string | null
           og_image_url?: string | null
           page_count?: number
@@ -4022,11 +4119,13 @@ export type Database = {
           price_cents?: number
           published_at?: string | null
           quality_score?: number | null
+          rating?: number
           related_articles?: string[]
           related_calculators?: string[]
           related_cities?: string[]
           related_products?: string[]
           revenue_cents?: number
+          review_count?: number
           seo_score?: number | null
           seo_title?: string | null
           slug?: string
@@ -4040,6 +4139,30 @@ export type Database = {
           version?: string
           views?: number
           whats_included?: Json
+        }
+        Relationships: []
+      }
+      pdf_publish_log: {
+        Row: {
+          action: string
+          created_at: string
+          detail: string | null
+          id: string
+          product_slug: string
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          detail?: string | null
+          id?: string
+          product_slug: string
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          detail?: string | null
+          id?: string
+          product_slug?: string
         }
         Relationships: []
       }
@@ -4061,6 +4184,78 @@ export type Database = {
           product_slug?: string
           user_id?: string
           viewed_at?: string
+        }
+        Relationships: []
+      }
+      pdf_reviews: {
+        Row: {
+          body: string | null
+          created_at: string
+          id: string
+          product_slug: string
+          rating: number
+          status: string
+          title: string | null
+          user_id: string
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string
+          id?: string
+          product_slug: string
+          rating: number
+          status?: string
+          title?: string | null
+          user_id: string
+        }
+        Update: {
+          body?: string | null
+          created_at?: string
+          id?: string
+          product_slug?: string
+          rating?: number
+          status?: string
+          title?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      pdf_worker_runs: {
+        Row: {
+          created_at: string
+          discovered: number
+          duration_ms: number
+          failed: number
+          id: string
+          improved: number
+          notes: string | null
+          processed: number
+          published: number
+          trigger: string
+        }
+        Insert: {
+          created_at?: string
+          discovered?: number
+          duration_ms?: number
+          failed?: number
+          id?: string
+          improved?: number
+          notes?: string | null
+          processed?: number
+          published?: number
+          trigger?: string
+        }
+        Update: {
+          created_at?: string
+          discovered?: number
+          duration_ms?: number
+          failed?: number
+          id?: string
+          improved?: number
+          notes?: string | null
+          processed?: number
+          published?: number
+          trigger?: string
         }
         Relationships: []
       }

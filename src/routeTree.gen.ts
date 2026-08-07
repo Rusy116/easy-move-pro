@@ -139,6 +139,7 @@ import { Route as AuthenticatedAdminDashboardRouteImport } from './routes/_authe
 import { Route as AuthenticatedAdminCustomersRouteImport } from './routes/_authenticated/admin.customers'
 import { Route as AuthenticatedAdminCompaniesRouteImport } from './routes/_authenticated/admin.companies'
 import { Route as AuthenticatedAdminBrokersRouteImport } from './routes/_authenticated/admin.brokers'
+import { Route as ApiPublicHooksPdfFactoryTickRouteImport } from './routes/api/public/hooks/pdf-factory-tick'
 import { Route as ApiPublicHooksCityProductionTickRouteImport } from './routes/api/public/hooks/city-production-tick'
 import { Route as AuthenticatedCompanyJobJobIdRouteImport } from './routes/_authenticated/company.job.$jobId'
 import { Route as AuthenticatedAdminJobQuoteIdRouteImport } from './routes/_authenticated/admin.job.$quoteId'
@@ -856,6 +857,12 @@ const AuthenticatedAdminBrokersRoute =
     path: '/admin/brokers',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const ApiPublicHooksPdfFactoryTickRoute =
+  ApiPublicHooksPdfFactoryTickRouteImport.update({
+    id: '/api/public/hooks/pdf-factory-tick',
+    path: '/api/public/hooks/pdf-factory-tick',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicHooksCityProductionTickRoute =
   ApiPublicHooksCityProductionTickRouteImport.update({
     id: '/api/public/hooks/city-production-tick',
@@ -1008,6 +1015,7 @@ export interface FileRoutesByFullPath {
   '/admin/job/$quoteId': typeof AuthenticatedAdminJobQuoteIdRoute
   '/company/job/$jobId': typeof AuthenticatedCompanyJobJobIdRoute
   '/api/public/hooks/city-production-tick': typeof ApiPublicHooksCityProductionTickRoute
+  '/api/public/hooks/pdf-factory-tick': typeof ApiPublicHooksPdfFactoryTickRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -1141,6 +1149,7 @@ export interface FileRoutesByTo {
   '/admin/job/$quoteId': typeof AuthenticatedAdminJobQuoteIdRoute
   '/company/job/$jobId': typeof AuthenticatedCompanyJobJobIdRoute
   '/api/public/hooks/city-production-tick': typeof ApiPublicHooksCityProductionTickRoute
+  '/api/public/hooks/pdf-factory-tick': typeof ApiPublicHooksPdfFactoryTickRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -1277,6 +1286,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/job/$quoteId': typeof AuthenticatedAdminJobQuoteIdRoute
   '/_authenticated/company/job/$jobId': typeof AuthenticatedCompanyJobJobIdRoute
   '/api/public/hooks/city-production-tick': typeof ApiPublicHooksCityProductionTickRoute
+  '/api/public/hooks/pdf-factory-tick': typeof ApiPublicHooksPdfFactoryTickRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -1413,6 +1423,7 @@ export interface FileRouteTypes {
     | '/admin/job/$quoteId'
     | '/company/job/$jobId'
     | '/api/public/hooks/city-production-tick'
+    | '/api/public/hooks/pdf-factory-tick'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -1546,6 +1557,7 @@ export interface FileRouteTypes {
     | '/admin/job/$quoteId'
     | '/company/job/$jobId'
     | '/api/public/hooks/city-production-tick'
+    | '/api/public/hooks/pdf-factory-tick'
   id:
     | '__root__'
     | '/'
@@ -1681,6 +1693,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/job/$quoteId'
     | '/_authenticated/company/job/$jobId'
     | '/api/public/hooks/city-production-tick'
+    | '/api/public/hooks/pdf-factory-tick'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -1735,6 +1748,7 @@ export interface RootRouteChildren {
   ApiPublicSlaTickRoute: typeof ApiPublicSlaTickRoute
   ProductsCategorySlugRoute: typeof ProductsCategorySlugRoute
   ApiPublicHooksCityProductionTickRoute: typeof ApiPublicHooksCityProductionTickRoute
+  ApiPublicHooksPdfFactoryTickRoute: typeof ApiPublicHooksPdfFactoryTickRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -2649,6 +2663,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminBrokersRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/api/public/hooks/pdf-factory-tick': {
+      id: '/api/public/hooks/pdf-factory-tick'
+      path: '/api/public/hooks/pdf-factory-tick'
+      fullPath: '/api/public/hooks/pdf-factory-tick'
+      preLoaderRoute: typeof ApiPublicHooksPdfFactoryTickRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hooks/city-production-tick': {
       id: '/api/public/hooks/city-production-tick'
       path: '/api/public/hooks/city-production-tick'
@@ -2910,6 +2931,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicSlaTickRoute: ApiPublicSlaTickRoute,
   ProductsCategorySlugRoute: ProductsCategorySlugRoute,
   ApiPublicHooksCityProductionTickRoute: ApiPublicHooksCityProductionTickRoute,
+  ApiPublicHooksPdfFactoryTickRoute: ApiPublicHooksPdfFactoryTickRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

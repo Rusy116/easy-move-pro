@@ -91,14 +91,63 @@ export const getStoreProduct = createServerFn({ method: "GET" })
       .maybeSingle();
     if (!product) return null;
     const p = product as unknown as PdfProduct;
-    const { data: related } = await db
-      .from("pdf_products")
-      .select(LIST_COLUMNS)
-      .eq("status", "published")
-      .eq("category_slug", p.category_slug)
-      .neq("slug", p.slug)
-      .limit(4);
-    return { product: p, related: (related ?? []) as unknown as PdfProduct[] };
+    const [{ data: related }, { data: reviews }] = await Promise.all([
+      db
+        .from("pdf_products")
+        .select(LIST_COLUMNS)
+        .eq("status", "published")
+        .eq("category_slug", p.category_slug)
+        .neq("slug", p.slug)
+        .limit(4),
+      db
+        .from("pdf_reviews")
+        .select("id,rating,title,body,created_at")
+        .eq("product_slug", data.slug)
+        .eq("status", "approved")
+        .order("created_at", { ascending: false })
+        .limit(12),
+    ]);
+    return {
+      product: p,
+      related: (related ?? []) as unknown as PdfProduct[],
+      reviews: (reviews ?? []) as unknown as Array<{
+        id: string;
+        rating: number;
+        title: string | null;
+        body: string | null;
+        created_at: string;
+      }>,
+    };
+  });
+
+/** Customer review submission. RLS scopes the row to the signed-in user. */
+export const submitProductReview = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: { slug: string; rating: number; title?: string; body?: string }) => ({
+    slug: String(d.slug).slice(0, 100),
+    rating: Math.min(Math.max(Math.round(Number(d.rating)), 1), 5),
+    title: d.title ? String(d.title).slice(0, 120) : null,
+    body: d.body ? String(d.body).slice(0, 2000) : null,
+  }))
+  .handler(async ({ data, context }) => {
+    const db = context.supabase as any;
+    const { error } = await db.from("pdf_reviews").upsert(
+      {
+        user_id: context.userId,
+        product_slug: data.slug,
+        rating: data.rating,
+        title: data.title,
+        body: data.body,
+        status: "approved",
+      },
+      { onConflict: "user_id,product_slug" },
+    );
+    if (error) throw new Error(error.message);
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { syncRatings } = await import("./pdf-store/research.server");
+    await syncRatings(supabaseAdmin as any, [data.slug]);
+    return { ok: true };
   });
 
 /* ------------------------------------------------------------------ */

@@ -112,6 +112,7 @@ import { Route as AuthenticatedAiQueueRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedAiPublishingRouteImport } from './routes/_authenticated/ai.publishing'
 import { Route as AuthenticatedAiProductsRouteImport } from './routes/_authenticated/ai.products'
 import { Route as AuthenticatedAiProductionRouteImport } from './routes/_authenticated/ai.production'
+import { Route as AuthenticatedAiProductFactoryRouteImport } from './routes/_authenticated/ai.product-factory'
 import { Route as AuthenticatedAiPerformanceRouteImport } from './routes/_authenticated/ai.performance'
 import { Route as AuthenticatedAiOrchestratorRouteImport } from './routes/_authenticated/ai.orchestrator'
 import { Route as AuthenticatedAiNotificationsRouteImport } from './routes/_authenticated/ai.notifications'
@@ -702,6 +703,12 @@ const AuthenticatedAiProductionRoute =
     path: '/ai/production',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedAiProductFactoryRoute =
+  AuthenticatedAiProductFactoryRouteImport.update({
+    id: '/ai/product-factory',
+    path: '/ai/product-factory',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAiPerformanceRoute =
   AuthenticatedAiPerformanceRouteImport.update({
     id: '/ai/performance',
@@ -959,6 +966,7 @@ export interface FileRoutesByFullPath {
   '/ai/notifications': typeof AuthenticatedAiNotificationsRoute
   '/ai/orchestrator': typeof AuthenticatedAiOrchestratorRoute
   '/ai/performance': typeof AuthenticatedAiPerformanceRoute
+  '/ai/product-factory': typeof AuthenticatedAiProductFactoryRoute
   '/ai/production': typeof AuthenticatedAiProductionRoute
   '/ai/products': typeof AuthenticatedAiProductsRoute
   '/ai/publishing': typeof AuthenticatedAiPublishingRoute
@@ -1093,6 +1101,7 @@ export interface FileRoutesByTo {
   '/ai/notifications': typeof AuthenticatedAiNotificationsRoute
   '/ai/orchestrator': typeof AuthenticatedAiOrchestratorRoute
   '/ai/performance': typeof AuthenticatedAiPerformanceRoute
+  '/ai/product-factory': typeof AuthenticatedAiProductFactoryRoute
   '/ai/production': typeof AuthenticatedAiProductionRoute
   '/ai/products': typeof AuthenticatedAiProductsRoute
   '/ai/publishing': typeof AuthenticatedAiPublishingRoute
@@ -1230,6 +1239,7 @@ export interface FileRoutesById {
   '/_authenticated/ai/notifications': typeof AuthenticatedAiNotificationsRoute
   '/_authenticated/ai/orchestrator': typeof AuthenticatedAiOrchestratorRoute
   '/_authenticated/ai/performance': typeof AuthenticatedAiPerformanceRoute
+  '/_authenticated/ai/product-factory': typeof AuthenticatedAiProductFactoryRoute
   '/_authenticated/ai/production': typeof AuthenticatedAiProductionRoute
   '/_authenticated/ai/products': typeof AuthenticatedAiProductsRoute
   '/_authenticated/ai/publishing': typeof AuthenticatedAiPublishingRoute
@@ -1367,6 +1377,7 @@ export interface FileRouteTypes {
     | '/ai/notifications'
     | '/ai/orchestrator'
     | '/ai/performance'
+    | '/ai/product-factory'
     | '/ai/production'
     | '/ai/products'
     | '/ai/publishing'
@@ -1501,6 +1512,7 @@ export interface FileRouteTypes {
     | '/ai/notifications'
     | '/ai/orchestrator'
     | '/ai/performance'
+    | '/ai/product-factory'
     | '/ai/production'
     | '/ai/products'
     | '/ai/publishing'
@@ -1637,6 +1649,7 @@ export interface FileRouteTypes {
     | '/_authenticated/ai/notifications'
     | '/_authenticated/ai/orchestrator'
     | '/_authenticated/ai/performance'
+    | '/_authenticated/ai/product-factory'
     | '/_authenticated/ai/production'
     | '/_authenticated/ai/products'
     | '/_authenticated/ai/publishing'
@@ -2474,6 +2487,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAiProductionRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/ai/product-factory': {
+      id: '/_authenticated/ai/product-factory'
+      path: '/ai/product-factory'
+      fullPath: '/ai/product-factory'
+      preLoaderRoute: typeof AuthenticatedAiProductFactoryRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/ai/performance': {
       id: '/_authenticated/ai/performance'
       path: '/ai/performance'
@@ -2786,6 +2806,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAiNotificationsRoute: typeof AuthenticatedAiNotificationsRoute
   AuthenticatedAiOrchestratorRoute: typeof AuthenticatedAiOrchestratorRoute
   AuthenticatedAiPerformanceRoute: typeof AuthenticatedAiPerformanceRoute
+  AuthenticatedAiProductFactoryRoute: typeof AuthenticatedAiProductFactoryRoute
   AuthenticatedAiProductionRoute: typeof AuthenticatedAiProductionRoute
   AuthenticatedAiProductsRoute: typeof AuthenticatedAiProductsRoute
   AuthenticatedAiPublishingRoute: typeof AuthenticatedAiPublishingRoute
@@ -2845,6 +2866,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAiNotificationsRoute: AuthenticatedAiNotificationsRoute,
   AuthenticatedAiOrchestratorRoute: AuthenticatedAiOrchestratorRoute,
   AuthenticatedAiPerformanceRoute: AuthenticatedAiPerformanceRoute,
+  AuthenticatedAiProductFactoryRoute: AuthenticatedAiProductFactoryRoute,
   AuthenticatedAiProductionRoute: AuthenticatedAiProductionRoute,
   AuthenticatedAiProductsRoute: AuthenticatedAiProductsRoute,
   AuthenticatedAiPublishingRoute: AuthenticatedAiPublishingRoute,

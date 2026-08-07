@@ -58,7 +58,7 @@ function HtmlSitemap() {
           <Link to="/cities" className="text-primary underline">All cities</Link>
           <Link to="/states" className="text-primary underline">All states</Link>
           <Link to="/blog" className="text-primary underline">Blog</Link>
-          <Link to="/store" className="text-primary underline">Store</Link>
+          <Link to="/products" className="text-primary underline">Store</Link>
           <Link to="/about" className="text-primary underline">About</Link>
           <Link to="/contact" className="text-primary underline">Contact</Link>
         </div>

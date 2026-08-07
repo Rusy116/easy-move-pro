@@ -20,7 +20,7 @@ export function Footer() {
               [t("site.nav.calculator"), "/calculator"],
               [t("site.nav.services"), "/services"],
               [t("footer.link.aiTools"), "/ai-tools"],
-              [t("footer.link.store"), "/store"],
+              [t("footer.link.store"), "/products"],
               [t("common.search"), "/search"],
             ]}
           />

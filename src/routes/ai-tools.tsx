@@ -102,7 +102,7 @@ function AiToolsPage() {
         links={[
           { label: "Moving cost calculator", to: "/calculator" },
           { label: "Resources center", to: "/resources" },
-          { label: "Digital products", to: "/store" },
+          { label: "Digital products", to: "/products" },
           { label: "Movers by state", to: "/states" },
         ]}
       />

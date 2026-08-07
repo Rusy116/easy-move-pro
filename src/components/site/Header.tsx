@@ -10,7 +10,7 @@ const nav = [
   { to: "/calculator", key: "site.nav.calculator" },
   { to: "/services", key: "site.nav.services" },
   { to: "/cities", key: "site.nav.cities" },
-  { to: "/store", key: "site.nav.store" },
+  { to: "/products", key: "site.nav.store" },
   { to: "/blog", key: "site.nav.blog" },
   { to: "/partners", key: "site.nav.partners" },
   { to: "/about", key: "site.nav.about" },

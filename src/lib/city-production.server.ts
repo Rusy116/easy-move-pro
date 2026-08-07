@@ -180,7 +180,7 @@ async function stageInternalLinks({ db, facts, landingSlug }: StageContext): Pro
   const extras = [
     { label: "Moving guides", to: "/resources" },
     { label: "Moving blog", to: "/blog" },
-    { label: "Digital moving products", to: "/store" },
+    { label: "Digital moving products", to: "/products" },
     { label: "Moving companies", to: "/for-movers" },
     ...(facts.county
       ? [{ label: `${facts.county} County movers`, to: countyPathFor(facts.county, facts.stateCode) }]
@@ -288,7 +288,7 @@ async function stageBlog({ db, facts }: StageContext): Promise<StageResult> {
     moversPathFor(facts.slug, facts.stateCode),
     ...(facts.county ? [countyPathFor(facts.county, facts.stateCode)] : []),
     "/calculator",
-    "/store",
+    "/products",
     "/resources",
   ];
 
@@ -365,7 +365,7 @@ async function stageDigitalProduct({ db, facts }: StageContext): Promise<StageRe
   const links = [
     landingPathFor(facts.slug, facts.stateCode),
     moversPathFor(facts.slug, facts.stateCode),
-    "/store",
+    "/products",
     "/blog",
     "/calculator",
   ];

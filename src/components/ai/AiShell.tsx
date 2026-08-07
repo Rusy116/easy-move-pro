@@ -53,6 +53,7 @@ export const AI_NAV = [
   { to: "/ai/production", label: "Production Factory", icon: Factory },
 
   { to: "/ai/products", label: "Digital Product Factory", icon: Package },
+  { to: "/ai/product-factory", label: "Autonomous Products", icon: Factory },
   { to: "/ai/content", label: "Content Factory", icon: FileText },
   { to: "/ai/publishing", label: "Publishing Center", icon: Send },
   { to: "/ai/analytics", label: "Analytics", icon: LineChart },

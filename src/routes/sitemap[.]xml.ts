@@ -106,6 +106,27 @@ export const Route = createFileRoute("/sitemap.xml")({
         COMPARISON_PAGES.forEach((p) =>
           entries.push({ path: `/compare/${p.slug}`, changefreq: "monthly", priority: "0.7" }),
         );
+        // Digital products (autonomous product factory)
+        try {
+          const { createClient } = await import("@supabase/supabase-js");
+          const key = process.env["SUPABASE_PUBLISHABLE_KEY"] ?? "";
+          const url = process.env["SUPABASE_URL"] ?? "";
+          if (key && url) {
+            const db = createClient(url, key, { auth: { persistSession: false } });
+            const { data } = await db
+              .from("pdf_products")
+              .select("slug")
+              .eq("status", "published")
+              .limit(5000);
+            (data ?? []).forEach((p: { slug: string }) =>
+              entries.push({ path: `/products/${p.slug}`, changefreq: "weekly", priority: "0.7" }),
+            );
+          }
+        } catch {
+          /* sitemap stays valid even if the store is unreachable */
+        }
+        entries.push({ path: "/products", changefreq: "daily", priority: "0.8" });
+
         // Partner locations
         STATES.forEach((s) =>
           entries.push({ path: `/partners/${s.slug}`, changefreq: "monthly", priority: "0.7" }),

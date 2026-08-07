@@ -1,10 +1,28 @@
-import { createFileRoute, redirect } from "@tanstack/react-router";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { createFileRoute } from "@tanstack/react-router";
+import { StorefrontPage } from "@/components/store/StorefrontPage";
+import { storefront } from "@/lib/pdf-store.functions";
+import { seoMeta, jsonLd, breadcrumbSchema } from "@/lib/seo/schema";
 
-// The legacy /store page was backed by the old `digital_products` seed table,
-// which has no cover images. The real, AI-produced catalog lives at /products,
-// so this URL now permanently forwards there.
+// /store is the historical storefront URL. It renders the real AI-produced
+// catalog (same data as /products) instead of throwing a redirect, which had
+// no route output and made the page fail to load on built deployments.
 export const Route = createFileRoute("/store")({
-  beforeLoad: () => {
-    throw redirect({ to: "/products", replace: true });
-  },
+  loader: () => storefront(),
+  head: () => ({
+    meta: seoMeta({
+      title: "Moving PDF Store — Printable Checklists & Planners | Easy Moving",
+      description:
+        "Browse the Easy Moving digital store: printable moving checklists, budget worksheets, packing guides and inventory sheets. Instant PDF downloads.",
+      path: "/store",
+    }),
+    links: [{ rel: "canonical", href: "/products" }],
+    scripts: [jsonLd(breadcrumbSchema([{ name: "Home", url: "/" }, { name: "Store", url: "/store" }]))],
+  }),
+  component: StorePage,
 });
+
+function StorePage() {
+  const data = Route.useLoaderData() as any;
+  return <StorefrontPage data={data} />;
+}

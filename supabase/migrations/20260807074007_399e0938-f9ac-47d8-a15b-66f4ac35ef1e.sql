@@ -1,0 +1,1 @@
+UPDATE public.pdf_products SET cover_url = NULL, cover_status = 'fallback' WHERE status <> 'archived';

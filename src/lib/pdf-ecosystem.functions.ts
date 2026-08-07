@@ -171,7 +171,7 @@ export const productReadinessReport = createServerFn({ method: "GET" })
       total: rows.length,
       published: published.length,
       missingPrice: rows.filter((p) => !p.is_lead_magnet && Number(p.price_cents ?? 0) <= 0).length,
-      missingCover: rows.filter((p) => !p.cover_url).length,
+      missingCover: rows.filter((p) => !p.cover_url || p.cover_url !== `/api/public/pdf-cover/${p.slug}.png`).length,
       missingCopy: rows.filter((p) => !p.description).length,
       badNames: rows.filter((p) => needsRename(p.title)).length,
       avgPriceCents: published.length

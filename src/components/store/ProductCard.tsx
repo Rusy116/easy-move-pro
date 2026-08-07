@@ -10,7 +10,7 @@ export function ProductCard({ p }: { p: PdfProduct }) {
       params={{ slug: p.slug }}
       className="group flex flex-col overflow-hidden rounded-2xl border border-border/60 bg-card transition hover:shadow-lg"
     >
-      <div className="relative aspect-[4/5] overflow-hidden">
+      <div className="relative aspect-[3/4] overflow-hidden">
         {p.cover_url ? (
           <img
             src={p.cover_url}

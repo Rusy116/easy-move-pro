@@ -300,12 +300,29 @@ export async function runPdfStage(
         motif: ai?.motif as any,
         layout: ai?.layout as any,
       });
+
+      // Cover Image Agent — render a real cover into storage. Falls back to the
+      // deterministic SVG artwork when the image model is unavailable.
+      const { generateCover } = await import("./pdf-store/cover.server");
+      const image = await generateCover(db, {
+        slug: job.product_slug,
+        title,
+        category_slug: category,
+        cover_spec: spec,
+      });
+
       return {
         ok: true,
-        summary: `Cover: ${spec.motif} / ${spec.layout}`,
-        patch: { cover_spec: { ...spec, prompt: ai?.prompt ?? `Editorial cover art for ${title}` } },
+        summary: `Cover: ${spec.motif} / ${spec.layout} · ${image.ok ? "image generated" : "vector fallback"}`,
+        patch: {
+          cover_spec: { ...spec, prompt: ai?.prompt ?? `Editorial cover art for ${title}` },
+          cover_url: image.cover_url,
+          cover_status: image.cover_status,
+          cover_prompt: image.prompt,
+        },
       };
     }
+
 
     case "mockups": {
       const previews = ((product?.content ?? []) as PdfSection[]).slice(0, 3).map((s) => s.heading);
@@ -411,14 +428,28 @@ export async function runPdfStage(
     }
 
     case "pricing": {
-      const pages = Number(product?.page_count ?? 8);
+      const { priceProduct } = await import("./pdf-store/pricing");
       const items = ((product?.content ?? []) as PdfSection[]).reduce((n, s) => n + (s.items?.length ?? 0), 0);
-      const depth = pages * 2 + items;
-      const price = depth > 90 ? 1900 : depth > 60 ? 1200 : depth > 35 ? 700 : 0;
+      const decision = priceProduct({
+        category_slug: category,
+        page_count: product?.page_count ?? 8,
+        checklist_items: items,
+        quality_score: product?.quality_score,
+        is_bundle: product?.is_bundle,
+        bundle_count: (product?.bundle_slugs ?? []).length,
+        is_lead_magnet: product?.is_lead_magnet,
+      });
       return {
-        ok: true,
-        summary: price === 0 ? "Free lead magnet" : `Priced at $${(price / 100).toFixed(2)}`,
-        patch: { price_cents: price, compare_at_cents: price ? price * 2 : null },
+        ok: decision.price_cents > 0 || !!product?.is_lead_magnet,
+        summary:
+          decision.price_cents === 0
+            ? "Free lead magnet"
+            : `Priced at $${(decision.price_cents / 100).toFixed(2)} (${decision.price_tier})`,
+        patch: {
+          price_cents: decision.price_cents,
+          compare_at_cents: decision.compare_at_cents,
+          price_tier: decision.price_tier,
+        },
       };
     }
 
@@ -432,20 +463,37 @@ export async function runPdfStage(
         (product?.canonical_url ? 15 : 0) +
         (product?.alt_text ? 15 : 0);
       const quality =
-        Math.min(30, sections.length * 5) +
-        Math.min(30, Math.round(items * 1.2)) +
-        (product?.description ? 12 : 0) +
-        ((product?.features?.length ?? 0) >= 4 ? 8 : 0) +
-        ((product?.faq?.length ?? 0) >= 3 ? 8 : 0) +
-        (product?.cover_spec?.motif ? 6 : 0) +
-        ((product?.related_products?.length ?? 0) > 0 ? 6 : 0);
+        Math.min(26, sections.length * 4) +
+        Math.min(26, Math.round(items * 1.1)) +
+        (product?.description ? 10 : 0) +
+        ((product?.features?.length ?? 0) >= 4 ? 7 : 0) +
+        ((product?.faq?.length ?? 0) >= 3 ? 7 : 0) +
+        (product?.cover_spec?.motif ? 5 : 0) +
+        (product?.cover_url ? 7 : 0) +
+        ((product?.related_products?.length ?? 0) > 0 ? 5 : 0) +
+        (Number(product?.price_cents ?? 0) > 0 || product?.is_lead_magnet ? 7 : 0);
       const score = Math.min(100, quality);
+
+      // Commercial gate: a sellable product needs a name, a price and artwork.
+      const { needsRename } = await import("./pdf-store/naming");
+      const blockers: string[] = [];
+      if (needsRename(title)) blockers.push("duplicate words in title");
+      if (Number(product?.price_cents ?? 0) <= 0 && !product?.is_lead_magnet) blockers.push("no price set");
+      if (!product?.description) blockers.push("no storefront description");
+
       return {
-        ok: score >= PDF_MIN_QUALITY,
-        summary: `Quality ${score}/100 · SEO ${seoScore}/100`,
-        patch: { quality_score: score, seo_score: seoScore, status: score >= PDF_MIN_QUALITY ? "approved" : "review" },
+        ok: score >= PDF_MIN_QUALITY && blockers.length === 0,
+        summary: blockers.length
+          ? `Blocked: ${blockers.join(", ")}`
+          : `Quality ${score}/100 · SEO ${seoScore}/100`,
+        patch: {
+          quality_score: score,
+          seo_score: seoScore,
+          status: score >= PDF_MIN_QUALITY && !blockers.length ? "approved" : "review",
+        },
       };
     }
+
 
     case "publish":
       return {

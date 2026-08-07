@@ -127,6 +127,65 @@ export const runSelfImprovement = createServerFn({ method: "POST" })
     return { improved: changes.length, changes };
   });
 
+/** Catalog repair — clean names, real prices, complete categories. */
+export const repairCatalogNow = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { repairCatalog } = await import("./pdf-store/repair.server");
+    return repairCatalog(supabaseAdmin as any);
+  });
+
+/** Cover Image Agent — generate real cover artwork for products missing one. */
+export const generateProductCovers = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: { limit?: number } | undefined) => ({
+    limit: Math.min(Math.max(Number(d?.limit ?? 5), 1), 25),
+  }))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { backfillCovers } = await import("./pdf-store/cover.server");
+    return backfillCovers(supabaseAdmin as any, data.limit);
+  });
+
+/** Commercial readiness report: what still blocks the catalog from selling. */
+export const productReadinessReport = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertAdmin(context);
+    const db = context.supabase as any;
+    const { needsRename } = await import("./pdf-store/naming");
+    const { FALLBACK_CATEGORIES } = await import("./pdf-store/catalog");
+
+    const { data } = await db
+      .from("pdf_products")
+      .select("slug,title,category_slug,status,price_cents,cover_url,description,seo_score,is_lead_magnet")
+      .neq("status", "archived")
+      .limit(500);
+    const rows = (data ?? []) as any[];
+    const published = rows.filter((p) => p.status === "published");
+
+    return {
+      total: rows.length,
+      published: published.length,
+      missingPrice: rows.filter((p) => !p.is_lead_magnet && Number(p.price_cents ?? 0) <= 0).length,
+      missingCover: rows.filter((p) => !p.cover_url).length,
+      missingCopy: rows.filter((p) => !p.description).length,
+      badNames: rows.filter((p) => needsRename(p.title)).length,
+      avgPriceCents: published.length
+        ? Math.round(published.reduce((n, p) => n + Number(p.price_cents ?? 0), 0) / published.length)
+        : 0,
+      categories: FALLBACK_CATEGORIES.map((c) => ({
+        slug: c.slug,
+        name: c.name,
+        published: published.filter((p) => p.category_slug === c.slug).length,
+      })),
+    };
+  });
+
+
 /** Lifecycle controls for the admin catalog table. */
 export const productAdminAction = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])

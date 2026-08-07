@@ -3982,7 +3982,9 @@ export type Database = {
           collection_slug: string | null
           compare_at_cents: number | null
           content: Json
+          cover_prompt: string | null
           cover_spec: Json
+          cover_status: string
           cover_url: string | null
           created_at: string
           description: string | null
@@ -3998,6 +4000,7 @@ export type Database = {
           is_bestseller: boolean
           is_bundle: boolean
           is_featured: boolean
+          is_lead_magnet: boolean
           language: string
           last_improved_at: string | null
           meta_description: string | null
@@ -4005,6 +4008,7 @@ export type Database = {
           page_count: number
           preview_urls: Json
           price_cents: number
+          price_tier: string | null
           published_at: string | null
           quality_score: number | null
           rating: number
@@ -4038,7 +4042,9 @@ export type Database = {
           collection_slug?: string | null
           compare_at_cents?: number | null
           content?: Json
+          cover_prompt?: string | null
           cover_spec?: Json
+          cover_status?: string
           cover_url?: string | null
           created_at?: string
           description?: string | null
@@ -4054,6 +4060,7 @@ export type Database = {
           is_bestseller?: boolean
           is_bundle?: boolean
           is_featured?: boolean
+          is_lead_magnet?: boolean
           language?: string
           last_improved_at?: string | null
           meta_description?: string | null
@@ -4061,6 +4068,7 @@ export type Database = {
           page_count?: number
           preview_urls?: Json
           price_cents?: number
+          price_tier?: string | null
           published_at?: string | null
           quality_score?: number | null
           rating?: number
@@ -4094,7 +4102,9 @@ export type Database = {
           collection_slug?: string | null
           compare_at_cents?: number | null
           content?: Json
+          cover_prompt?: string | null
           cover_spec?: Json
+          cover_status?: string
           cover_url?: string | null
           created_at?: string
           description?: string | null
@@ -4110,6 +4120,7 @@ export type Database = {
           is_bestseller?: boolean
           is_bundle?: boolean
           is_featured?: boolean
+          is_lead_magnet?: boolean
           language?: string
           last_improved_at?: string | null
           meta_description?: string | null
@@ -4117,6 +4128,7 @@ export type Database = {
           page_count?: number
           preview_urls?: Json
           price_cents?: number
+          price_tier?: string | null
           published_at?: string | null
           quality_score?: number | null
           rating?: number

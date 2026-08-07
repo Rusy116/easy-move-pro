@@ -221,6 +221,8 @@ export interface WorkerTickResult {
   published: number;
   failed: number;
   improved: number;
+  repaired: number;
+  covers: number;
   reason?: string;
 }
 
@@ -240,16 +242,31 @@ export async function runPdfWorkerTick(
     published: 0,
     failed: 0,
     improved: 0,
+    repaired: 0,
+    covers: 0,
   };
 
   if (!settings.autopilot && !opts.force) return { ...empty, enabled: false, reason: "Autopilot off" };
 
+  const { repairCatalog } = await import("./repair.server");
+  const { backfillCovers } = await import("./cover.server");
+
   const todays = await publishedToday(db);
   if (todays >= settings.daily_target && !opts.force) {
-    return { ...empty, reason: `Daily target reached (${todays}/${settings.daily_target})` };
+    // Production is paused for the day, but merchandising work continues:
+    // names, prices, categories and cover artwork still need finishing.
+    const repair = await repairCatalog(db);
+    const covers = await backfillCovers(db, 3);
+    return {
+      ...empty,
+      repaired: repair.renamed + repair.repriced + repair.categoriesAdded + repair.backlogAdded,
+      covers: covers.generated,
+      reason: `Daily target reached (${todays}/${settings.daily_target})`,
+    };
   }
 
   const result = { ...empty };
+
 
   // 1 — keep the backlog stocked.
   const { count: backlog } = await db
@@ -277,9 +294,18 @@ export async function runPdfWorkerTick(
   result.published = run.published;
   result.failed = run.failed;
 
-  // 4 — learn from live performance.
+  // 4 — commercial repair: names, prices, categories, backlog balance.
+  const repair = await repairCatalog(db);
+  result.repaired = repair.renamed + repair.repriced + repair.categoriesAdded + repair.backlogAdded;
+
+  // 5 — Cover Image Agent backfill for anything still on vector artwork.
+  const coverRun = await backfillCovers(db, 3);
+  result.covers = coverRun.generated;
+
+  // 6 — learn from live performance.
   const improvements = await improveProducts(db, 5);
   result.improved = improvements.length;
+
 
   await db.from("pdf_worker_runs").insert({
     trigger: opts.trigger ?? "manual",

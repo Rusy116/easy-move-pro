@@ -1,39 +1,59 @@
 // ---------------------------------------------------------------------------
-// PHASE 13 — Checkout abstraction.
+// PHASE 14 — Checkout abstraction (payment-provider agnostic).
 //
-// The store is payment-provider agnostic. Today every product is delivered
-// through the free-access path (instant unlock + library entry). When Stripe
-// is enabled, only `startCheckout` below needs a provider branch — every
-// caller in the UI already speaks this interface.
+// Products now carry real prices. Until a payment provider is enabled the
+// store runs in "preorder" mode for paid items and instant-unlock for free
+// lead magnets. When payments are switched on, only ACTIVE_PROVIDER and
+// startCheckout below need to change — every caller already speaks this
+// interface.
 // ---------------------------------------------------------------------------
 
-export type CheckoutProvider = "free" | "stripe";
+export type CheckoutProvider = "free" | "preorder" | "stripe";
 
 export interface CheckoutIntent {
   slug: string;
   title: string;
   priceCents: number;
   provider: CheckoutProvider;
+  /** What the buy button should say for this product right now. */
+  label: string;
   /** Present once a hosted payment page exists. */
   redirectUrl?: string;
 }
 
-/** Provider currently wired up. Flip to "stripe" once payments are enabled. */
-export const ACTIVE_PROVIDER: CheckoutProvider = "free";
+/**
+ * Provider currently wired up. Payments are not enabled yet, so paid products
+ * collect interest instead of silently giving away priced work.
+ */
+export const ACTIVE_PROVIDER = "preorder" as CheckoutProvider;
 
-export function providerFor(priceCents: number): CheckoutProvider {
-  return priceCents <= 0 ? "free" : ACTIVE_PROVIDER;
-}
+export const PAYMENTS_ENABLED = ACTIVE_PROVIDER === "stripe";
 
 export function isPaid(priceCents: number) {
-  return priceCents > 0;
+  return Number(priceCents ?? 0) > 0;
+}
+
+export function providerFor(priceCents: number): CheckoutProvider {
+  return isPaid(priceCents) ? ACTIVE_PROVIDER : "free";
+}
+
+export function checkoutLabel(priceCents: number) {
+  const provider = providerFor(priceCents);
+  if (provider === "free") return "Download free PDF";
+  if (provider === "stripe") return "Buy now";
+  return "Get early access";
 }
 
 /**
- * Stripe-ready seam. When payments are enabled this returns a hosted checkout
- * URL; until then paid products unlock instantly and are recorded as a
- * purchase so the customer library and download history stay correct.
+ * Stripe-ready seam. Returns everything the UI needs to render and run the
+ * buy action for a single product.
  */
 export function describeCheckout(slug: string, title: string, priceCents: number): CheckoutIntent {
-  return { slug, title, priceCents, provider: providerFor(priceCents) };
+  return {
+    slug,
+    title,
+    priceCents,
+    provider: providerFor(priceCents),
+    label: checkoutLabel(priceCents),
+  };
 }

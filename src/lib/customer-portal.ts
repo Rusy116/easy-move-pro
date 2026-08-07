@@ -119,6 +119,8 @@ export type CustomerPurchase = {
   purchased_at: string;
   amount_cents: number;
   status: string;
+  product_slug: string | null;
+  cover_url?: string | null;
 };
 
 export type CustomerReview = {
@@ -519,10 +521,22 @@ export function useCustomerPurchases() {
       }
       const { data } = await supabase
         .from("customer_purchases")
-        .select("id,title,version,download_url,purchased_at,amount_cents,status")
+        .select("id,title,version,download_url,purchased_at,amount_cents,status,product_slug")
         .eq("user_id", auth.user.id)
         .order("purchased_at", { ascending: false });
-      setItems((data ?? []) as CustomerPurchase[]);
+      const rows = (data ?? []) as CustomerPurchase[];
+      const slugs = rows.map((r) => r.product_slug).filter(Boolean) as string[];
+      let covers: Record<string, string | null> = {};
+      if (slugs.length) {
+        const { data: prods } = await supabase
+          .from("pdf_products")
+          .select("slug,cover_url")
+          .in("slug", slugs);
+        covers = Object.fromEntries(
+          ((prods ?? []) as { slug: string; cover_url: string | null }[]).map((p) => [p.slug, p.cover_url]),
+        );
+      }
+      setItems(rows.map((r) => ({ ...r, cover_url: r.product_slug ? covers[r.product_slug] ?? null : null })));
       setLoading(false);
     })();
   }, []);

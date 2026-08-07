@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { CustomerShell } from "@/components/customer/CustomerShell";
 import { PageHeader, SectionShell, SkeletonRows } from "@/components/shell/Chrome";
+import { ProductThumb } from "@/components/store/ProductThumb";
 import { useCustomerPurchases } from "@/lib/customer-portal";
 
 export const Route = createFileRoute("/_authenticated/customer/library")({
@@ -53,8 +54,14 @@ function MyLibraryPage() {
                 <ul className="grid gap-3 sm:grid-cols-2">
                   {items.map((p) => (
                     <li key={p.id} className="rounded-xl border border-border/60 p-4">
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="min-w-0">
+                      <div className="flex items-start gap-3">
+                        <ProductThumb
+                          slug={p.product_slug ?? p.id}
+                          title={p.title}
+                          coverUrl={p.cover_url}
+                          className="w-14"
+                        />
+                        <div className="min-w-0 flex-1">
                           <div className="truncate font-serif text-lg">{p.title}</div>
                           <div className="text-xs text-muted-foreground">
                             Purchased {new Date(p.purchased_at).toLocaleDateString()}

@@ -34,6 +34,15 @@ export const Route = createFileRoute("/products/$slug")({
           name: p.title,
           description: p.meta_description ?? p.description,
           brand: { "@type": "Organization", name: "Easy Moving" },
+          ...(Number(p.review_count ?? 0) > 0
+            ? {
+                aggregateRating: {
+                  "@type": "AggregateRating",
+                  ratingValue: Number(p.rating ?? 0).toFixed(1),
+                  reviewCount: Number(p.review_count ?? 0),
+                },
+              }
+            : {}),
           offers: {
             "@type": "Offer",
             price: (p.price_cents / 100).toFixed(2),
@@ -57,7 +66,8 @@ export const Route = createFileRoute("/products/$slug")({
 });
 
 function ProductDetail() {
-  const { product: p, related } = Route.useLoaderData();
+  const { product: p, related, reviews } = Route.useLoaderData();
+  const rating = Number(p.rating ?? 0);
 
   return (
     <SiteLayout>
@@ -76,6 +86,15 @@ function ProductDetail() {
           </div>
           <h1 className="mt-4 font-serif text-3xl sm:text-4xl">{p.title}</h1>
           {p.subtitle && <p className="mt-2 text-muted-foreground">{p.subtitle}</p>}
+
+          {rating > 0 && (
+            <p className="mt-3 text-sm text-muted-foreground">
+              {"★".repeat(Math.round(rating))}
+              <span className="ml-2 tabular-nums">
+                {rating.toFixed(1)} · {p.review_count} review{p.review_count === 1 ? "" : "s"}
+              </span>
+            </p>
+          )}
 
           <div className="mt-6 flex items-baseline gap-3">
             <span className="text-3xl font-semibold">{money(p.price_cents)}</span>
@@ -113,6 +132,21 @@ function ProductDetail() {
           ) : null}
         </div>
       </section>
+
+      {reviews.length ? (
+        <section className="mx-auto max-w-6xl px-4 py-6 sm:px-6">
+          <h2 className="mb-4 font-serif text-2xl">Customer reviews</h2>
+          <div className="grid gap-4 sm:grid-cols-2">
+            {reviews.map((r) => (
+              <div key={r.id} className="rounded-2xl border border-border/60 p-4">
+                <p className="text-sm">{"★".repeat(r.rating)}</p>
+                {r.title && <p className="mt-1 font-medium">{r.title}</p>}
+                {r.body && <p className="mt-1 text-sm text-muted-foreground">{r.body}</p>}
+              </div>
+            ))}
+          </div>
+        </section>
+      ) : null}
 
       {p.faq?.length ? <Faq items={p.faq} /> : null}
 

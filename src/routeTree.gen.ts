@@ -45,6 +45,7 @@ import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as StatesStateRouteImport } from './routes/states.$state'
 import { Route as RoutesRouteRouteImport } from './routes/routes.$route'
 import { Route as QuoteQuoteNumberRouteImport } from './routes/quote.$quoteNumber'
+import { Route as ProductsSlugRouteImport } from './routes/products.$slug'
 import { Route as PortalQuoteNumberRouteImport } from './routes/portal.$quoteNumber'
 import { Route as PartnersApplyRouteImport } from './routes/partners.apply'
 import { Route as PartnersLocationRouteImport } from './routes/partners.$location'
@@ -319,6 +320,11 @@ const RoutesRouteRoute = RoutesRouteRouteImport.update({
 const QuoteQuoteNumberRoute = QuoteQuoteNumberRouteImport.update({
   id: '/quote/$quoteNumber',
   path: '/quote/$quoteNumber',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProductsSlugRoute = ProductsSlugRouteImport.update({
+  id: '/products/$slug',
+  path: '/products/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PortalQuoteNumberRoute = PortalQuoteNumberRouteImport.update({
@@ -903,6 +909,7 @@ export interface FileRoutesByFullPath {
   '/partners/$location': typeof PartnersLocationRoute
   '/partners/apply': typeof PartnersApplyRoute
   '/portal/$quoteNumber': typeof PortalQuoteNumberRoute
+  '/products/$slug': typeof ProductsSlugRoute
   '/quote/$quoteNumber': typeof QuoteQuoteNumberRoute
   '/routes/$route': typeof RoutesRouteRoute
   '/states/$state': typeof StatesStateRoute
@@ -1034,6 +1041,7 @@ export interface FileRoutesByTo {
   '/partners/$location': typeof PartnersLocationRoute
   '/partners/apply': typeof PartnersApplyRoute
   '/portal/$quoteNumber': typeof PortalQuoteNumberRoute
+  '/products/$slug': typeof ProductsSlugRoute
   '/quote/$quoteNumber': typeof QuoteQuoteNumberRoute
   '/routes/$route': typeof RoutesRouteRoute
   '/states/$state': typeof StatesStateRoute
@@ -1168,6 +1176,7 @@ export interface FileRoutesById {
   '/partners/$location': typeof PartnersLocationRoute
   '/partners/apply': typeof PartnersApplyRoute
   '/portal/$quoteNumber': typeof PortalQuoteNumberRoute
+  '/products/$slug': typeof ProductsSlugRoute
   '/quote/$quoteNumber': typeof QuoteQuoteNumberRoute
   '/routes/$route': typeof RoutesRouteRoute
   '/states/$state': typeof StatesStateRoute
@@ -1302,6 +1311,7 @@ export interface FileRouteTypes {
     | '/partners/$location'
     | '/partners/apply'
     | '/portal/$quoteNumber'
+    | '/products/$slug'
     | '/quote/$quoteNumber'
     | '/routes/$route'
     | '/states/$state'
@@ -1433,6 +1443,7 @@ export interface FileRouteTypes {
     | '/partners/$location'
     | '/partners/apply'
     | '/portal/$quoteNumber'
+    | '/products/$slug'
     | '/quote/$quoteNumber'
     | '/routes/$route'
     | '/states/$state'
@@ -1566,6 +1577,7 @@ export interface FileRouteTypes {
     | '/partners/$location'
     | '/partners/apply'
     | '/portal/$quoteNumber'
+    | '/products/$slug'
     | '/quote/$quoteNumber'
     | '/routes/$route'
     | '/states/$state'
@@ -1698,6 +1710,7 @@ export interface RootRouteChildren {
   PartnersLocationRoute: typeof PartnersLocationRoute
   PartnersApplyRoute: typeof PartnersApplyRoute
   PortalQuoteNumberRoute: typeof PortalQuoteNumberRoute
+  ProductsSlugRoute: typeof ProductsSlugRoute
   QuoteQuoteNumberRoute: typeof QuoteQuoteNumberRoute
   RoutesRouteRoute: typeof RoutesRouteRoute
   StatesStateRoute: typeof StatesStateRoute
@@ -1963,6 +1976,13 @@ declare module '@tanstack/react-router' {
       path: '/quote/$quoteNumber'
       fullPath: '/quote/$quoteNumber'
       preLoaderRoute: typeof QuoteQuoteNumberRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/products/$slug': {
+      id: '/products/$slug'
+      path: '/products/$slug'
+      fullPath: '/products/$slug'
+      preLoaderRoute: typeof ProductsSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/portal/$quoteNumber': {
@@ -2857,6 +2877,7 @@ const rootRouteChildren: RootRouteChildren = {
   PartnersLocationRoute: PartnersLocationRoute,
   PartnersApplyRoute: PartnersApplyRoute,
   PortalQuoteNumberRoute: PortalQuoteNumberRoute,
+  ProductsSlugRoute: ProductsSlugRoute,
   QuoteQuoteNumberRoute: QuoteQuoteNumberRoute,
   RoutesRouteRoute: RoutesRouteRoute,
   StatesStateRoute: StatesStateRoute,

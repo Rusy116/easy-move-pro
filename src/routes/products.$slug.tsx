@@ -95,7 +95,7 @@ function ProductDetail() {
 
           {p.description && (
             <div className="mt-8 space-y-3 text-sm leading-relaxed text-muted-foreground">
-              {p.description.split("\n").filter(Boolean).map((para, i) => (
+              {p.description.split("\n").filter(Boolean).map((para: string, i: number) => (
                 <p key={i}>{para}</p>
               ))}
             </div>
@@ -105,7 +105,7 @@ function ProductDetail() {
             <div className="mt-8">
               <h2 className="font-serif text-xl">What's included</h2>
               <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
-                {p.whats_included.map((f, i) => (
+                {p.whats_included.map((f: string, i: number) => (
                   <li key={i}>· {f}</li>
                 ))}
               </ul>
@@ -120,7 +120,7 @@ function ProductDetail() {
         <section className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
           <h2 className="mb-4 font-serif text-2xl">You may also like</h2>
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            {related.map((r) => (
+            {related.map((r: typeof p) => (
               <ProductCard key={r.slug} p={r} />
             ))}
           </div>

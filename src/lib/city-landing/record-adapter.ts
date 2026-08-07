@@ -12,11 +12,8 @@ import { buildCityLandingContent, type CityLandingContent } from "./content";
 import { buildMoversSeoContent, type MoversSeoContent } from "./seo-page";
 import { cityAverages } from "@/lib/seo/geo";
 import { neighborhoodsFor } from "@/lib/seo/city-content";
-import { stateBySlugOrCode } from "@/lib/us-states";
 
-function stateSlugFor(stateCode: string, stateName: string): string {
-  const st = stateBySlugOrCode(stateCode);
-  if (st?.slug) return st.slug;
+function stateSlugFor(_stateCode: string, stateName: string): string {
   return stateName
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")

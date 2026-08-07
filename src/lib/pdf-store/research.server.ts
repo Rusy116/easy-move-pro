@@ -7,6 +7,7 @@
 // ---------------------------------------------------------------------------
 import { aiJson } from "../pdf-factory.server";
 import { slugify } from "./catalog";
+import { uniqueTitle } from "./naming";
 import {
   RESEARCH_SOURCES,
   PRODUCT_TAXONOMY,
@@ -169,17 +170,17 @@ export async function planProducts(keywords: ResearchedKeyword[], takenSlugs: Se
 
   const titleFor = (k: ResearchedKeyword) => {
     const hit = ai?.products?.find((p) => p.keyword?.toLowerCase() === k.keyword.toLowerCase());
-    if (hit?.title) return String(hit.title).slice(0, 90);
-    const words = k.keyword.replace(/\b(pdf|printable|free|template)\b/gi, "").trim();
-    return `The ${words.replace(/\b\w/g, (c) => c.toUpperCase())} Kit`.replace(/\s+/g, " ");
+    const raw = hit?.title ? String(hit.title) : `${k.keyword} kit`;
+    // uniqueTitle cleans stutters/filler and guarantees a free slug.
+    return uniqueTitle(raw, takenSlugs);
   };
 
   return keywords
     .map((k) => ({ keyword: k, title: titleFor(k) }))
     .map((r) => ({ ...r, slug: slugify(r.title) }))
-    .filter((r) => r.slug.length > 4 && !takenSlugs.has(r.slug))
-    .filter((r) => (takenSlugs.has(r.slug) ? false : (takenSlugs.add(r.slug), true)));
+    .filter((r) => r.slug.length > 4);
 }
+
 
 /**
  * Self-Improvement Agent — reads live performance (views, downloads, revenue,

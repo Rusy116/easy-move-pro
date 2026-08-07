@@ -13,6 +13,9 @@ import { Label } from "@/components/ui/label";
 import {
   productFactoryDashboard,
   productAdminAction,
+  productReadinessReport,
+  repairCatalogNow,
+  generateProductCovers,
   runProductResearch,
   runProductWorkerTick,
   runSelfImprovement,
@@ -37,10 +40,35 @@ export const Route = createFileRoute("/_authenticated/ai/product-factory")({
 function ProductFactoryConsole() {
   const qc = useQueryClient();
   const dash = useQuery({ queryKey: ["pdf", "factory"], queryFn: () => productFactoryDashboard() });
+  const readiness = useQuery({ queryKey: ["pdf", "readiness"], queryFn: () => productReadinessReport() });
   const [target, setTarget] = useState<string>("");
   const [batch, setBatch] = useState<string>("");
 
-  const refresh = () => qc.invalidateQueries({ queryKey: ["pdf", "factory"] });
+  const refresh = () => {
+    qc.invalidateQueries({ queryKey: ["pdf", "factory"] });
+    qc.invalidateQueries({ queryKey: ["pdf", "readiness"] });
+  };
+
+  const repair = useMutation({
+    mutationFn: () => repairCatalogNow(),
+    onSuccess: (r) => {
+      toast.success(
+        `Repair: ${r.renamed} renamed · ${r.repriced} repriced · ${r.categoriesAdded} categories · ${r.backlogAdded} new ideas`,
+      );
+      refresh();
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const covers = useMutation({
+    mutationFn: () => generateProductCovers({ data: { limit: 5 } }),
+    onSuccess: (r) => {
+      toast.success(`Cover agent: ${r.generated}/${r.attempted} covers generated`);
+      refresh();
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
 
   const research = useMutation({
     mutationFn: () => runProductResearch({ data: { count: 12 } }),
@@ -109,7 +137,9 @@ function ProductFactoryConsole() {
   const s = d.stats;
   const conversion = s.views ? ((s.downloads / s.views) * 100).toFixed(1) : "0.0";
   const milestone = nextMilestone(s.published);
-  const busy = research.isPending || tick.isPending || improve.isPending;
+  const busy =
+    research.isPending || tick.isPending || improve.isPending || repair.isPending || covers.isPending;
+  const r = readiness.data;
 
   return (
     <AiShell>
@@ -185,6 +215,12 @@ function ProductFactoryConsole() {
             <Button onClick={() => improve.mutate()} disabled={busy} variant="outline">
               Run self-improvement
             </Button>
+            <Button onClick={() => repair.mutate()} disabled={busy} variant="outline">
+              Repair catalog
+            </Button>
+            <Button onClick={() => covers.mutate()} disabled={busy} variant="outline">
+              Generate covers
+            </Button>
           </div>
         </div>
         <p className="mt-3 text-xs text-muted-foreground">
@@ -193,8 +229,44 @@ function ProductFactoryConsole() {
         </p>
       </SectionShell>
 
+      <SectionShell title="Commercial readiness">
+        {r ? (
+          <>
+            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+              <StatCard label="Average price" value={money(r.avgPriceCents)} tone="success" />
+              <StatCard
+                label="Missing a price"
+                value={r.missingPrice}
+                tone={r.missingPrice ? "danger" : "success"}
+              />
+              <StatCard
+                label="Missing cover image"
+                value={r.missingCover}
+                tone={r.missingCover ? "warning" : "success"}
+              />
+              <StatCard label="Duplicate-word names" value={r.badNames} tone={r.badNames ? "danger" : "success"} />
+            </div>
+            <div className="mt-4 flex flex-wrap gap-2">
+              {r.categories.map((c) => (
+                <span
+                  key={c.slug}
+                  className={`rounded-full border px-3 py-1 text-xs ${
+                    c.published >= 4 ? "border-border text-muted-foreground" : "border-destructive text-destructive"
+                  }`}
+                >
+                  {c.name}: {c.published}
+                </span>
+              ))}
+            </div>
+          </>
+        ) : (
+          <EmptyState title="Readiness report loading" />
+        )}
+      </SectionShell>
+
       <SectionShell title="Production queue">
         {d.jobs.length ? (
+
           <div className="overflow-x-auto">
             <table className="w-full min-w-[720px] text-sm">
               <thead>

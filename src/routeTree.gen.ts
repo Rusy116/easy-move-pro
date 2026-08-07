@@ -140,6 +140,7 @@ import { Route as AuthenticatedAdminDashboardRouteImport } from './routes/_authe
 import { Route as AuthenticatedAdminCustomersRouteImport } from './routes/_authenticated/admin.customers'
 import { Route as AuthenticatedAdminCompaniesRouteImport } from './routes/_authenticated/admin.companies'
 import { Route as AuthenticatedAdminBrokersRouteImport } from './routes/_authenticated/admin.brokers'
+import { Route as ApiPublicPdfCoverFileRouteImport } from './routes/api/public/pdf-cover.$file'
 import { Route as ApiPublicHooksPdfFactoryTickRouteImport } from './routes/api/public/hooks/pdf-factory-tick'
 import { Route as ApiPublicHooksCityProductionTickRouteImport } from './routes/api/public/hooks/city-production-tick'
 import { Route as AuthenticatedCompanyJobJobIdRouteImport } from './routes/_authenticated/company.job.$jobId'
@@ -864,6 +865,11 @@ const AuthenticatedAdminBrokersRoute =
     path: '/admin/brokers',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const ApiPublicPdfCoverFileRoute = ApiPublicPdfCoverFileRouteImport.update({
+  id: '/api/public/pdf-cover/$file',
+  path: '/api/public/pdf-cover/$file',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicHooksPdfFactoryTickRoute =
   ApiPublicHooksPdfFactoryTickRouteImport.update({
     id: '/api/public/hooks/pdf-factory-tick',
@@ -1024,6 +1030,7 @@ export interface FileRoutesByFullPath {
   '/company/job/$jobId': typeof AuthenticatedCompanyJobJobIdRoute
   '/api/public/hooks/city-production-tick': typeof ApiPublicHooksCityProductionTickRoute
   '/api/public/hooks/pdf-factory-tick': typeof ApiPublicHooksPdfFactoryTickRoute
+  '/api/public/pdf-cover/$file': typeof ApiPublicPdfCoverFileRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -1159,6 +1166,7 @@ export interface FileRoutesByTo {
   '/company/job/$jobId': typeof AuthenticatedCompanyJobJobIdRoute
   '/api/public/hooks/city-production-tick': typeof ApiPublicHooksCityProductionTickRoute
   '/api/public/hooks/pdf-factory-tick': typeof ApiPublicHooksPdfFactoryTickRoute
+  '/api/public/pdf-cover/$file': typeof ApiPublicPdfCoverFileRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -1297,6 +1305,7 @@ export interface FileRoutesById {
   '/_authenticated/company/job/$jobId': typeof AuthenticatedCompanyJobJobIdRoute
   '/api/public/hooks/city-production-tick': typeof ApiPublicHooksCityProductionTickRoute
   '/api/public/hooks/pdf-factory-tick': typeof ApiPublicHooksPdfFactoryTickRoute
+  '/api/public/pdf-cover/$file': typeof ApiPublicPdfCoverFileRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -1435,6 +1444,7 @@ export interface FileRouteTypes {
     | '/company/job/$jobId'
     | '/api/public/hooks/city-production-tick'
     | '/api/public/hooks/pdf-factory-tick'
+    | '/api/public/pdf-cover/$file'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -1570,6 +1580,7 @@ export interface FileRouteTypes {
     | '/company/job/$jobId'
     | '/api/public/hooks/city-production-tick'
     | '/api/public/hooks/pdf-factory-tick'
+    | '/api/public/pdf-cover/$file'
   id:
     | '__root__'
     | '/'
@@ -1707,6 +1718,7 @@ export interface FileRouteTypes {
     | '/_authenticated/company/job/$jobId'
     | '/api/public/hooks/city-production-tick'
     | '/api/public/hooks/pdf-factory-tick'
+    | '/api/public/pdf-cover/$file'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -1762,6 +1774,7 @@ export interface RootRouteChildren {
   ProductsCategorySlugRoute: typeof ProductsCategorySlugRoute
   ApiPublicHooksCityProductionTickRoute: typeof ApiPublicHooksCityProductionTickRoute
   ApiPublicHooksPdfFactoryTickRoute: typeof ApiPublicHooksPdfFactoryTickRoute
+  ApiPublicPdfCoverFileRoute: typeof ApiPublicPdfCoverFileRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -2683,6 +2696,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminBrokersRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/api/public/pdf-cover/$file': {
+      id: '/api/public/pdf-cover/$file'
+      path: '/api/public/pdf-cover/$file'
+      fullPath: '/api/public/pdf-cover/$file'
+      preLoaderRoute: typeof ApiPublicPdfCoverFileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hooks/pdf-factory-tick': {
       id: '/api/public/hooks/pdf-factory-tick'
       path: '/api/public/hooks/pdf-factory-tick'
@@ -2954,6 +2974,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProductsCategorySlugRoute: ProductsCategorySlugRoute,
   ApiPublicHooksCityProductionTickRoute: ApiPublicHooksCityProductionTickRoute,
   ApiPublicHooksPdfFactoryTickRoute: ApiPublicHooksPdfFactoryTickRoute,
+  ApiPublicPdfCoverFileRoute: ApiPublicPdfCoverFileRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

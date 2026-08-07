@@ -240,9 +240,12 @@ export const claimProduct = createServerFn({ method: "POST" })
 
     const { data: owned } = await db
       .from("customer_purchases")
-      .select("id")
+      .select("id,status")
       .eq("product_slug", data.slug)
       .maybeSingle();
+
+    const { PAYMENTS_ENABLED, isPaid } = await import("./pdf-store/checkout");
+    const requiresPayment = isPaid(product.price_cents) && !PAYMENTS_ENABLED;
 
     if (!owned) {
       await db.from("customer_purchases").insert({
@@ -252,24 +255,34 @@ export const claimProduct = createServerFn({ method: "POST" })
         version: product.version,
         amount_cents: product.price_cents,
         currency: "usd",
-        status: "completed",
+        // Paid titles are reserved until checkout opens — never given away.
+        status: requiresPayment ? "reserved" : "completed",
       });
     }
 
-    await db.from("pdf_downloads").insert({
-      user_id: context.userId,
-      product_slug: data.slug,
-      version: product.version,
-    });
+    const unlocked = !requiresPayment || owned?.status === "completed";
+    if (unlocked) {
+      await db.from("pdf_downloads").insert({
+        user_id: context.userId,
+        product_slug: data.slug,
+        version: product.version,
+      });
 
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    await (supabaseAdmin as any)
-      .from("pdf_products")
-      .update({
-        downloads: Number(product.downloads ?? 0) + 1,
-        revenue_cents: Number(product.revenue_cents ?? 0) + (owned ? 0 : Number(product.price_cents ?? 0)),
-      })
-      .eq("slug", data.slug);
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      await (supabaseAdmin as any)
+        .from("pdf_products")
+        .update({
+          downloads: Number(product.downloads ?? 0) + 1,
+          revenue_cents: Number(product.revenue_cents ?? 0) + (owned ? 0 : Number(product.price_cents ?? 0)),
+        })
+        .eq("slug", data.slug);
+    }
 
-    return { product: product as PdfProduct, alreadyOwned: !!owned };
+    return {
+      product: (unlocked ? product : { ...product, content: [] }) as PdfProduct,
+      alreadyOwned: !!owned,
+      unlocked,
+      requiresPayment: !unlocked,
+    };
   });
+

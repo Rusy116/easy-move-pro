@@ -118,7 +118,7 @@ function BlogIndex() {
         title="Keep exploring"
         links={[
           { label: "Free resources", to: "/resources" },
-          { label: "Digital products", to: "/store" },
+          { label: "Digital products", to: "/products" },
           { label: "Movers by state", to: "/states" },
           { label: "Popular routes", to: "/routes" },
           { label: "AI moving tools", to: "/ai-tools" },

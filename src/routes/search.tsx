@@ -96,7 +96,7 @@ function SearchPage() {
       .filter((p) => match(p.title, p.description))
       .slice(0, 8)
       .forEach((p) =>
-        out.push({ group: "Store", label: p.title, sub: p.description ?? undefined, to: "/store" }),
+        out.push({ group: "Store", label: p.title, sub: p.description ?? undefined, to: "/products" }),
       );
     return out;
   }, [term, posts, products]);
@@ -167,7 +167,7 @@ function SearchPage() {
           { label: "Popular routes", to: "/routes" },
           { label: "Resources", to: "/resources" },
           { label: "AI tools", to: "/ai-tools" },
-          { label: "Digital store", to: "/store" },
+          { label: "Digital store", to: "/products" },
         ]}
       />
     </SiteLayout>

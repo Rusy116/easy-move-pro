@@ -353,7 +353,17 @@ function ProductFactoryConsole() {
               <tbody>
                 {d.products.slice(0, 40).map((p) => (
                   <tr key={p.slug} className="border-b border-border/60 last:border-0">
-                    <td className="py-2.5 pr-3 font-medium">{p.title}</td>
+                    <td className="py-2.5 pr-3 font-medium">
+                      <div className="flex items-center gap-3">
+                        <ProductThumb
+                          slug={p.slug}
+                          title={p.title}
+                          coverUrl={p.cover_url}
+                          spec={p.cover_spec}
+                        />
+                        <span>{p.title}</span>
+                      </div>
+                    </td>
                     <td className="py-2.5 pr-3">
                       <StatusPill status={p.status} />
                     </td>

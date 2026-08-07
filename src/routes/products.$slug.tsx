@@ -137,7 +137,7 @@ function ProductDetail() {
         <section className="mx-auto max-w-6xl px-4 py-6 sm:px-6">
           <h2 className="mb-4 font-serif text-2xl">Customer reviews</h2>
           <div className="grid gap-4 sm:grid-cols-2">
-            {reviews.map((r) => (
+            {reviews.map((r: { id: string; rating: number; title: string | null; body: string | null }) => (
               <div key={r.id} className="rounded-2xl border border-border/60 p-4">
                 <p className="text-sm">{"★".repeat(r.rating)}</p>
                 {r.title && <p className="mt-1 font-medium">{r.title}</p>}

@@ -77,6 +77,12 @@ export interface PdfProduct {
   is_bestseller: boolean;
   downloads: number;
   views: number;
+  rating: number;
+  review_count: number;
+  impressions: number;
+  clicks: number;
+  is_bundle: boolean;
+  bundle_slugs: string[];
   revenue_cents: number;
   published_at: string | null;
   created_at: string;

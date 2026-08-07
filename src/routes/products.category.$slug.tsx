@@ -3,7 +3,7 @@ import { SiteLayout } from "@/components/site/SiteLayout";
 import { SeoHero, Breadcrumbs, Cta } from "@/components/seo/blocks";
 import { ProductCard } from "@/components/store/ProductCard";
 import { listStoreProducts } from "@/lib/pdf-store.functions";
-import { FALLBACK_CATEGORIES } from "@/lib/pdf-store/catalog";
+import { FALLBACK_CATEGORIES, type PdfProduct } from "@/lib/pdf-store/catalog";
 import { seoMeta, jsonLd, breadcrumbSchema } from "@/lib/seo/schema";
 
 const catFor = (slug: string) =>
@@ -50,7 +50,7 @@ function CategoryPage() {
       <section className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
         {products.length ? (
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            {products.map((p) => (
+            {products.map((p: PdfProduct) => (
               <ProductCard key={p.slug} p={p} />
             ))}
           </div>

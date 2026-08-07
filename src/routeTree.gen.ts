@@ -63,6 +63,7 @@ import { Route as AuthenticatedCustomerIndexRouteImport } from './routes/_authen
 import { Route as AuthenticatedCompanyIndexRouteImport } from './routes/_authenticated/company.index'
 import { Route as AuthenticatedBrokerIndexRouteImport } from './routes/_authenticated/broker.index'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
+import { Route as ProductsCategorySlugRouteImport } from './routes/products.category.$slug'
 import { Route as ApiPublicSlaTickRouteImport } from './routes/api/public/sla-tick'
 import { Route as AuthenticatedCustomerSettingsRouteImport } from './routes/_authenticated/customer.settings'
 import { Route as AuthenticatedCustomerReviewsRouteImport } from './routes/_authenticated/customer.reviews'
@@ -414,6 +415,11 @@ const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   id: '/admin/',
   path: '/admin/',
   getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const ProductsCategorySlugRoute = ProductsCategorySlugRouteImport.update({
+  id: '/products/category/$slug',
+  path: '/products/category/$slug',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const ApiPublicSlaTickRoute = ApiPublicSlaTickRouteImport.update({
   id: '/api/public/sla-tick',
@@ -994,6 +1000,7 @@ export interface FileRoutesByFullPath {
   '/customer/reviews': typeof AuthenticatedCustomerReviewsRoute
   '/customer/settings': typeof AuthenticatedCustomerSettingsRoute
   '/api/public/sla-tick': typeof ApiPublicSlaTickRoute
+  '/products/category/$slug': typeof ProductsCategorySlugRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/broker/': typeof AuthenticatedBrokerIndexRoute
   '/company/': typeof AuthenticatedCompanyIndexRoute
@@ -1126,6 +1133,7 @@ export interface FileRoutesByTo {
   '/customer/reviews': typeof AuthenticatedCustomerReviewsRoute
   '/customer/settings': typeof AuthenticatedCustomerSettingsRoute
   '/api/public/sla-tick': typeof ApiPublicSlaTickRoute
+  '/products/category/$slug': typeof ProductsCategorySlugRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/broker': typeof AuthenticatedBrokerIndexRoute
   '/company': typeof AuthenticatedCompanyIndexRoute
@@ -1261,6 +1269,7 @@ export interface FileRoutesById {
   '/_authenticated/customer/reviews': typeof AuthenticatedCustomerReviewsRoute
   '/_authenticated/customer/settings': typeof AuthenticatedCustomerSettingsRoute
   '/api/public/sla-tick': typeof ApiPublicSlaTickRoute
+  '/products/category/$slug': typeof ProductsCategorySlugRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/broker/': typeof AuthenticatedBrokerIndexRoute
   '/_authenticated/company/': typeof AuthenticatedCompanyIndexRoute
@@ -1396,6 +1405,7 @@ export interface FileRouteTypes {
     | '/customer/reviews'
     | '/customer/settings'
     | '/api/public/sla-tick'
+    | '/products/category/$slug'
     | '/admin/'
     | '/broker/'
     | '/company/'
@@ -1528,6 +1538,7 @@ export interface FileRouteTypes {
     | '/customer/reviews'
     | '/customer/settings'
     | '/api/public/sla-tick'
+    | '/products/category/$slug'
     | '/admin'
     | '/broker'
     | '/company'
@@ -1662,6 +1673,7 @@ export interface FileRouteTypes {
     | '/_authenticated/customer/reviews'
     | '/_authenticated/customer/settings'
     | '/api/public/sla-tick'
+    | '/products/category/$slug'
     | '/_authenticated/admin/'
     | '/_authenticated/broker/'
     | '/_authenticated/company/'
@@ -1721,6 +1733,7 @@ export interface RootRouteChildren {
   RoutesIndexRoute: typeof RoutesIndexRoute
   StatesIndexRoute: typeof StatesIndexRoute
   ApiPublicSlaTickRoute: typeof ApiPublicSlaTickRoute
+  ProductsCategorySlugRoute: typeof ProductsCategorySlugRoute
   ApiPublicHooksCityProductionTickRoute: typeof ApiPublicHooksCityProductionTickRoute
 }
 
@@ -2103,6 +2116,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/'
       preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/products/category/$slug': {
+      id: '/products/category/$slug'
+      path: '/products/category/$slug'
+      fullPath: '/products/category/$slug'
+      preLoaderRoute: typeof ProductsCategorySlugRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/api/public/sla-tick': {
       id: '/api/public/sla-tick'
@@ -2888,6 +2908,7 @@ const rootRouteChildren: RootRouteChildren = {
   RoutesIndexRoute: RoutesIndexRoute,
   StatesIndexRoute: StatesIndexRoute,
   ApiPublicSlaTickRoute: ApiPublicSlaTickRoute,
+  ProductsCategorySlugRoute: ProductsCategorySlugRoute,
   ApiPublicHooksCityProductionTickRoute: ApiPublicHooksCityProductionTickRoute,
 }
 export const routeTree = rootRouteImport

@@ -230,7 +230,11 @@ export async function runWorkerTick(
   const { gateFor, gatePassed } = await import("./pilot");
 
   result.reclaimed = await reclaimStaleLeases(db);
-  result.refilled = await refillQueue(db, settings);
+  const refill = await refillQueue(db, settings);
+  result.refilled = refill.refilled;
+  result.statesScanned = refill.statesScanned;
+  result.refillErrors = refill.errors;
+
 
   const jobsWanted = Math.max(1, Math.min(opts.jobs ?? settings.jobs_per_tick, 12));
   const nowIso = new Date().toISOString();

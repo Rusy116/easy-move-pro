@@ -578,17 +578,22 @@ export function QuoteCalculator(
           contactMethod: form.contactMethod,
           contactTime: form.contactTime,
         } as unknown as never,
-      })
-      .select("id, quote_number, portal_token")
-      .single();
+      });
     if (error) throw error;
-    if (!inserted?.quote_number || !inserted?.portal_token) {
+    // Anonymous visitors cannot read `quotes` directly. Fetch the portal ticket for
+    // the row we just created via a token-issuing function scoped to this quote id.
+    const { data: ticket, error: ticketError } = await supabase.rpc("fn_quote_ticket", {
+      _id: clientQuoteId,
+    });
+    if (ticketError) throw ticketError;
+    const issued = ticket as { id?: string; quote_number?: string; portal_token?: string } | null;
+    if (!issued?.quote_number || !issued?.portal_token) {
       throw new Error("Quote saved but identifiers missing. Please contact support.");
     }
     return {
-      id: inserted.id,
-      quoteNumber: inserted.quote_number,
-      portalToken: inserted.portal_token,
+      id: issued.id ?? clientQuoteId,
+      quoteNumber: issued.quote_number,
+      portalToken: issued.portal_token,
     };
   }
 

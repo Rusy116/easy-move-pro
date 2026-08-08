@@ -6083,6 +6083,10 @@ export type Database = {
         Args: { _quote_number: string; _token: string }
         Returns: Json
       }
+      fn_portal_quote: {
+        Args: { _quote_number: string; _token: string }
+        Returns: Json
+      }
       fn_portal_respond_estimate: {
         Args: {
           _accept: boolean
@@ -6092,6 +6096,7 @@ export type Database = {
         }
         Returns: Json
       }
+      fn_quote_ticket: { Args: { _id: string }; Returns: Json }
       fn_reassign_exclusive: {
         Args: {
           _new_company_id: string

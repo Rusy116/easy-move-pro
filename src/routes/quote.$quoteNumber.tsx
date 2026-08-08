@@ -66,8 +66,6 @@ type QuoteRow = {
   details: Record<string, unknown> | null;
 };
 
-const SELECT =
-  "id, quote_number, portal_token, created_at, contact_email, contact_phone, origin_address, origin_city, origin_state, origin_zip, destination_address, destination_city, destination_state, destination_zip, move_date, distance_miles, num_movers, labor_hours, truck_size, estimated_cubic_feet, estimated_weight_lbs, estimated_low, estimated_high, insurance_tier, inventory, breakdown, details";
 
 function money(n: number | null | undefined) {
   return typeof n === "number" ? `$${Math.round(n).toLocaleString("en-US")}` : "—";

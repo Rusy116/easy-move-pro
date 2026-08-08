@@ -105,13 +105,23 @@ export function StorefrontPage({ data }: { data: any }) {
         </>
       )}
 
-      {data?.total === 0 && (
+      {data?.unavailable ? (
         <div className="mx-auto max-w-6xl px-4 py-16 text-center sm:px-6">
-          <p className="font-serif text-xl">The store is being stocked</p>
+          <p className="font-serif text-xl">The store is temporarily unavailable</p>
           <p className="mt-2 text-sm text-muted-foreground">
-            Our product factory is generating the first titles. Check back shortly.
+            We couldn't load the catalog just now. Please refresh in a moment — your downloads and
+            purchases are unaffected.
           </p>
         </div>
+      ) : (
+        all.length === 0 && (
+          <div className="mx-auto max-w-6xl px-4 py-16 text-center sm:px-6">
+            <p className="font-serif text-xl">The store is being stocked</p>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Our product factory is generating the first titles. Check back shortly.
+            </p>
+          </div>
+        )
       )}
 
       <Cta />

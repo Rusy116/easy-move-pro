@@ -55,15 +55,21 @@ export function resolveCityHero(
     };
   }
 
-  // 2 — an image produced earlier by the image pipeline.
+  // 2 — an image produced earlier by the image pipeline (binary must exist).
   const optimized = Array.isArray(m["optimized"]) ? (m["optimized"] as OptimizedImage[]) : [];
-  const generated =
-    optimized.find((o) => o.role === "hero") ??
-    optimized.find((o) => o.role === "skyline") ??
-    optimized.find((o) => o.role === "featured");
-  if (generated && isUsableUrl(generated.schema?.contentUrl)) {
-    return { url: generated.schema!.contentUrl!, alt: generated.alt || alt, source: "generated" };
+  const generated = [
+    optimized.find((o) => o.role === "hero"),
+    optimized.find((o) => o.role === "skyline"),
+    optimized.find((o) => o.role === "featured"),
+  ].find((o) => o?.available === true && isUsableUrl(o?.schema?.contentUrl));
+  if (generated) {
+    return {
+      url: generated.schema!.contentUrl!,
+      alt: generated.alt || alt,
+      source: "generated",
+    };
   }
+
 
   // 3 — safe generic moving fallback (bundled asset, resolved by the page).
   return { url: null, alt, source: "fallback" };

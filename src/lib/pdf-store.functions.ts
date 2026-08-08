@@ -131,6 +131,7 @@ export const getStoreProduct = createServerFn({ method: "GET" })
   .inputValidator((d: { slug: string }) => ({ slug: String(d.slug).slice(0, 100) }))
   .handler(async ({ data }) => {
     const db = await publicClient();
+    if (!db) return null;
     const { data: product } = await db
       .from("pdf_products")
       .select("*")

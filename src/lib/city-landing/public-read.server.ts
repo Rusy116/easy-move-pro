@@ -23,6 +23,7 @@ export interface CityPageRow {
   facts: unknown;
   content: unknown;
   seo_content: unknown;
+  media: unknown;
   status: string;
   seo_status: string | null;
   published_at: string | null;
@@ -42,7 +43,7 @@ export interface CityListItem {
 }
 
 const ROW_COLUMNS =
-  "slug, city, state_code, state_name, county, population, zip_codes, neighborhoods, highways, nearby_cities, facts, content, seo_content, status, seo_status, published_at, seo_published_at, word_count, seo_score";
+  "slug, city, state_code, state_name, county, population, zip_codes, neighborhoods, highways, nearby_cities, facts, content, seo_content, media, status, seo_status, published_at, seo_published_at, word_count, seo_score";
 
 const LIST_COLUMNS = "slug, city, state_code, state_name, county, population, seo_status";
 

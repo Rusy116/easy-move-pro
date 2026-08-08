@@ -489,6 +489,9 @@ export function QuoteCalculator(
       .from("quotes")
       .insert({
         id: clientQuoteId,
+        // City-page attribution: which landing page produced this lead.
+        ...attributionColumns(landing),
+
         user_id: userId,
         origin_zip: o.zip,
         destination_zip: d.zip,

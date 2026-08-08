@@ -345,7 +345,26 @@ export async function runWorkerTick(
         supervisor_state: done ? "done" : status === "failed" ? "failed" : "waiting",
       })
       .eq("id", job.id);
+    } catch (err) {
+      // One broken city must never stop the line. Release the lease and keep
+      // the job retryable (status "failed" + attempts increment).
+      const message = err instanceof Error ? err.message : String(err);
+      result.failed += 1;
+      result.processed += 1;
+      await db
+        .from("city_production_jobs")
+        .update({
+          status: "failed",
+          last_error: message.slice(0, 500),
+          attempts: job.attempts + 1,
+          leased_until: null,
+          worker_id: null,
+          supervisor_state: "failed",
+        })
+        .eq("id", job.id);
+    }
   }
+
 
   result.durationMs = Date.now() - t0;
 

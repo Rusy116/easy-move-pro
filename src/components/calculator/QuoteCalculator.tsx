@@ -491,7 +491,7 @@ export function QuoteCalculator(
         ? crypto.randomUUID()
         : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 
-    const { data: inserted, error } = await supabase
+    const { error } = await supabase
       .from("quotes")
       .insert({
         id: clientQuoteId,

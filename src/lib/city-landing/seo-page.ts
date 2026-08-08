@@ -105,7 +105,10 @@ export interface SeoPageValidation {
 export function validateMoversSeoContent(seo: MoversSeoContent): SeoPageValidation {
   const blockers: string[] = [];
   if (!seo.h1) blockers.push("Missing H1");
-  if (seo.title.length < 25 || seo.title.length > 70) blockers.push("SEO title length out of range");
+  // Validate the FINAL generated title. buildMoversTitle() already shortens
+  // the template for long city names, so this can only fail on real defects.
+  if (!isPublishableTitle(seo.title)) blockers.push("SEO title length out of range");
+
   if (seo.metaDescription.length < 110) blockers.push("Meta description too short");
   if (seo.faq.length < 5) blockers.push("Fewer than 5 FAQ entries");
   if (seo.internalLinks.length < 4) blockers.push("Fewer than 4 internal links");

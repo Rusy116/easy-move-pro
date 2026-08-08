@@ -64,7 +64,7 @@ export const Route = createFileRoute("/sitemap.xml")({
           for (const r of rows) {
             seenCity.add(r.slug);
             entries.push({
-              path: `/moving-calculator/${r.slug}`,
+              path: `/moving-calculator-${r.slug}`,
               changefreq: "weekly",
               priority: "0.8",
             });

@@ -183,7 +183,7 @@ export const submitForIndexing = createServerFn({ method: "POST" })
     for (const r of list) {
       const facts = factsFromSlug(String(r["slug"]));
       if (!facts) continue;
-      paths.push(`/moving-calculator/${facts.landingSlug}`);
+      paths.push(`/moving-calculator-${facts.landingSlug}`);
       paths.push(moversPathFor(facts.slug, facts.stateCode));
     }
 

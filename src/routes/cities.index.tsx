@@ -48,8 +48,8 @@ function CitiesIndex() {
           {CITIES.map((c, i) => (
             <Link
               key={c.slug}
-              to="/cities/$city"
-              params={{ city: c.slug }}
+              to="/moving-calculator-{$city}"
+              params={{ city: `${c.slug}-${c.state.toLowerCase()}` }}
               className="group relative overflow-hidden rounded-2xl border border-border p-6 transition-shadow hover:shadow-md"
               style={{
                 background: `linear-gradient(135deg, oklch(0.42 0.03 155 / 0.06), oklch(0.65 0.13 55 / ${0.05 + (i % 4) * 0.03}))`,

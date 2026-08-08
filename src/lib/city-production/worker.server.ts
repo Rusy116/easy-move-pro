@@ -378,6 +378,8 @@ export async function runWorkerTick(
     refilled: result.refilled,
     reclaimed: result.reclaimed,
     duration_ms: result.durationMs,
+    error: result.refillErrors.length ? result.refillErrors.slice(0, 5).join(" | ").slice(0, 500) : null,
+
   });
 
   return result;

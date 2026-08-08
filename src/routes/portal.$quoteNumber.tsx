@@ -106,14 +106,12 @@ function PortalPage() {
         setLoading(false);
         return;
       }
-      const { data, error } = await supabase
-        .from("quotes")
-        .select(
-          "id, quote_number, portal_token, status, accepted_at, created_at, contact_email, contact_phone, origin_address, origin_city, origin_state, origin_zip, destination_address, destination_city, destination_state, destination_zip, move_date, distance_miles, num_movers, labor_hours, truck_size, estimated_cubic_feet, estimated_weight_lbs, estimated_low, estimated_high, insurance_tier, inventory, breakdown, details, job_status, final_price, final_move_date, arrival_window, crew_size, final_truck_size, company_notes, final_quote_sent_at, customer_response_at",
-        )
-        .eq("quote_number", quoteNumber)
-        .eq("portal_token", token)
-        .maybeSingle();
+      // Secure exact-token lookup: the DB function only returns the single quote
+      // whose portal_token matches exactly. Anon cannot read `quotes` directly.
+      const { data, error } = await supabase.rpc("fn_portal_quote", {
+        _quote_number: quoteNumber,
+        _token: token,
+      });
       if (cancelled) return;
       if (error) {
         setError("Could not load your quote. Please check your link.");
@@ -131,23 +129,20 @@ function PortalPage() {
   }, [quoteNumber, token]);
 
   // Live updates: the assigned moving company can send a final quote at any time.
+  // Anonymous portal visitors have no direct read access to `quotes`, so we poll
+  // the same token-scoped function instead of subscribing to realtime.
   useEffect(() => {
-    if (!quote?.id) return;
-    const channel = supabase
-      .channel(`portal-quote-${quote.id}`)
-      .on(
-        "postgres_changes",
-        { event: "UPDATE", schema: "public", table: "quotes", filter: `id=eq.${quote.id}` },
-        (payload) => {
-          const row = payload.new as Partial<QuoteRow>;
-          setQuote((prev) => (prev ? { ...prev, ...row } : prev));
-        },
-      )
-      .subscribe();
-    return () => {
-      void supabase.removeChannel(channel);
-    };
-  }, [quote?.id]);
+    if (!quote?.id || !token) return;
+    const id = window.setInterval(async () => {
+      const { data } = await supabase.rpc("fn_portal_quote", {
+        _quote_number: quoteNumber,
+        _token: token,
+      });
+      if (data) setQuote((prev) => (prev ? { ...prev, ...(data as Partial<QuoteRow>) } : prev));
+    }, 20000);
+    return () => window.clearInterval(id);
+  }, [quote?.id, quoteNumber, token]);
+
 
   // Load the current company estimate (also marks it viewed and alerts the broker).
   useEffect(() => {

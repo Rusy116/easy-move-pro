@@ -20,8 +20,11 @@ interface OptimizedImage {
   role?: string;
   filename?: string;
   alt?: string;
+  /** Only true once the binary actually exists at `schema.contentUrl`. */
+  available?: boolean;
   schema?: { contentUrl?: string };
 }
+
 
 function isUsableUrl(v: unknown): v is string {
   return typeof v === "string" && /^(https?:\/\/|\/)\S+\.(jpe?g|png|webp|avif)$/i.test(v.trim());

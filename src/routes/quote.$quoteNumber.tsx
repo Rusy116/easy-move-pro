@@ -136,12 +136,11 @@ function QuoteConfirmationPage() {
         setLoading(false);
         return;
       }
-      const { data, error } = await supabase
-        .from("quotes")
-        .select(SELECT)
-        .eq("quote_number", quoteNumber)
-        .eq("portal_token", token)
-        .maybeSingle();
+      // Secure exact-token lookup (no direct anon read of `quotes`).
+      const { data, error } = await supabase.rpc("fn_portal_quote", {
+        _quote_number: quoteNumber,
+        _token: token,
+      });
       if (cancelled) return;
       if (error) setError("Could not load your quote. Please try again.");
       else if (!data) setError("Quote not found or the link is invalid.");

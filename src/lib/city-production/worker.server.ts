@@ -263,6 +263,7 @@ export async function runWorkerTick(
       .select("id");
     if (!(leased ?? []).length) continue;
 
+    try {
     const facts = await resolveFacts(db, job.landing_slug);
     if (!facts) {
       await db

@@ -29,6 +29,7 @@ import {
 import { InsuranceInfoModal } from "./InsuranceInfoModal";
 import {
   attributionColumns,
+  readUtmParams,
   type LandingContext,
 } from "@/lib/city-landing/attribution";
 
@@ -256,6 +257,11 @@ export function QuoteCalculator(
   props: { compact?: boolean; landing?: LandingContext | null } = {},
 ) {
   const landing = props.landing ?? null;
+
+  // Capture campaign params on arrival so attribution survives navigation.
+  useEffect(() => {
+    readUtmParams();
+  }, []);
   const [form, setForm] = useState<FormState>(() => createInitialForm());
   const hasUserEditedRef = useRef(false);
 

@@ -28,6 +28,11 @@ import {
 } from "lucide-react";
 import { InsuranceInfoModal } from "./InsuranceInfoModal";
 import {
+  attributionColumns,
+  type LandingContext,
+} from "@/lib/city-landing/attribution";
+
+import {
   computeQuote,
   type InsuranceTier,
   type MoveType,

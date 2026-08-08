@@ -9,6 +9,8 @@ import type { CityFacts } from "./data";
 import { moversPathFor, landingPathFor } from "./data";
 import type { CityLandingContent, CityFaqItem, CitySection } from "./content";
 import { SITE_ORIGIN } from "./validation";
+import { buildMoversTitle, isPublishableTitle } from "./seo-title";
+
 
 export interface MoversSeoContent {
   title: string;
@@ -77,7 +79,7 @@ export function buildMoversSeoContent(
   );
 
   return {
-    title: `Movers in ${f.city}, ${f.stateCode} — Licensed Moving Companies & Instant Quote`,
+    title: buildMoversTitle(f.city, f.stateCode),
     metaDescription: `Compare licensed movers in ${f.city}, ${f.stateCode}. Get an instant, itemized moving quote in under 60 seconds — no spam calls, one verified local moving company.`.slice(0, 175),
     h1: `Movers in ${f.city}, ${f.stateCode}`,
     intro,
@@ -103,7 +105,10 @@ export interface SeoPageValidation {
 export function validateMoversSeoContent(seo: MoversSeoContent): SeoPageValidation {
   const blockers: string[] = [];
   if (!seo.h1) blockers.push("Missing H1");
-  if (seo.title.length < 25 || seo.title.length > 70) blockers.push("SEO title length out of range");
+  // Validate the FINAL generated title. buildMoversTitle() already shortens
+  // the template for long city names, so this can only fail on real defects.
+  if (!isPublishableTitle(seo.title)) blockers.push("SEO title length out of range");
+
   if (seo.metaDescription.length < 110) blockers.push("Meta description too short");
   if (seo.faq.length < 5) blockers.push("Fewer than 5 FAQ entries");
   if (seo.internalLinks.length < 4) blockers.push("Fewer than 4 internal links");

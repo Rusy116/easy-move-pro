@@ -64,34 +64,72 @@ async function reclaimStaleLeases(db: Db): Promise<number> {
   return (data ?? []).length;
 }
 
-/** Keep the line fed straight from the master USA dataset. */
-async function refillQueue(db: Db, settings: WorkerSettings): Promise<number> {
+/** Slugs from `candidates` that are already queued or already published. */
+async function alreadyTaken(db: Db, candidates: string[]): Promise<Set<string>> {
+  const taken = new Set<string>();
+  const CHUNK = 200;
+  for (let i = 0; i < candidates.length; i += CHUNK) {
+    const slice = candidates.slice(i, i + CHUNK);
+    const [{ data: jobs }, { data: pages }] = await Promise.all([
+      db.from("city_production_jobs").select("landing_slug").in("landing_slug", slice),
+      db.from("city_landing_pages").select("slug").in("slug", slice),
+    ]);
+    for (const r of (jobs ?? []) as Array<{ landing_slug: string }>) taken.add(r.landing_slug);
+    for (const r of (pages ?? []) as Array<{ slug: string }>) taken.add(r.slug);
+  }
+  return taken;
+}
+
+/**
+ * Keep the line fed straight from the master USA dataset.
+ *
+ * Walks states in rollout order and NEVER stops on the first state that has no
+ * remaining work — an exhausted state simply rolls on to the next one. Upsert
+ * failures are logged and skipped so one bad city cannot stall the factory.
+ * Idempotent: `landing_slug` is unique and existing slugs are filtered out, so
+ * re-running can never duplicate a city.
+ */
+async function refillQueue(
+  db: Db,
+  settings: WorkerSettings,
+): Promise<{ refilled: number; statesScanned: number; errors: string[] }> {
+  const errors: string[] = [];
   const { count: openCount } = await db
     .from("city_production_jobs")
     .select("id", { count: "exact", head: true })
     .in("status", ["queued", "running"]);
-  if ((openCount ?? 0) >= settings.queue_floor) return 0;
+  let need = settings.queue_floor - (openCount ?? 0);
+  if (need <= 0) return { refilled: 0, statesScanned: 0, errors };
+  need = Math.min(need, settings.refill_batch);
 
   const { masterFactsForState } = await import("../city-landing/master.server");
   const { ROLLOUT_STATES } = await import("./mass");
   const { cityTier } = await import("../city-landing/hierarchy");
   const { priorityFor } = await import("./stages");
 
-  const [{ data: existing }, { data: published }] = await Promise.all([
-    db.from("city_production_jobs").select("landing_slug"),
-    db.from("city_landing_pages").select("slug").eq("status", "published"),
-  ]);
-  const taken = new Set(((existing ?? []) as Array<{ landing_slug: string }>).map((r) => r.landing_slug));
-  for (const p of (published ?? []) as Array<{ slug: string }>) taken.add(p.slug);
+  let refilled = 0;
+  let statesScanned = 0;
 
-  // Roll state by state (CA → TX → FL → NY → rest) until we find open work.
   for (const state of ROLLOUT_STATES) {
-    const pool = (await masterFactsForState(db, state.code, settings.refill_batch * 4)).filter(
-      (f) => !taken.has(f.landingSlug),
-    );
+    if (refilled >= need) break;
+    statesScanned += 1;
+
+    let pool: Awaited<ReturnType<typeof masterFactsForState>>;
+    try {
+      // Read the WHOLE state — a partial read makes an exhausted state look
+      // full and used to freeze the factory on its first state.
+      pool = await masterFactsForState(db, state.code, 10000);
+    } catch (err) {
+      errors.push(`${state.code}: ${err instanceof Error ? err.message : String(err)}`);
+      continue; // never terminate the run because of one state
+    }
     if (!pool.length) continue;
 
-    const rows = pool
+    const taken = await alreadyTaken(db, pool.map((f) => f.landingSlug));
+    const open = pool.filter((f) => !taken.has(f.landingSlug));
+    if (!open.length) continue; // state fully produced → roll to the next state
+
+    const rows = open
       .map((f) => {
         const tier = cityTier(f.population);
         return {
@@ -103,20 +141,38 @@ async function refillQueue(db: Db, settings: WorkerSettings): Promise<number> {
           tier,
           priority: 100 + priorityFor(f.population, tier),
           population: f.population,
+          status: "queued",
         };
       })
       .sort((a, b) => a.priority - b.priority || b.population - a.population)
-      .slice(0, settings.refill_batch);
+      .slice(0, need - refilled);
 
     // onConflict → duplicate slugs can never be produced twice.
-    const { data: inserted } = await db
+    const { data: inserted, error } = await db
       .from("city_production_jobs")
       .upsert(rows, { onConflict: "landing_slug", ignoreDuplicates: true })
       .select("id");
-    return (inserted ?? []).length;
+
+    if (error) {
+      errors.push(`${state.code}: ${error.message}`);
+      // Fall back to one-by-one so a single bad row cannot block the state.
+      for (const row of rows) {
+        const { error: rowErr } = await db
+          .from("city_production_jobs")
+          .upsert([row], { onConflict: "landing_slug", ignoreDuplicates: true });
+        if (rowErr) errors.push(`${row.landing_slug}: ${rowErr.message}`);
+        else refilled += 1;
+        if (refilled >= need) break;
+      }
+      continue;
+    }
+
+    refilled += (inserted ?? []).length;
   }
-  return 0;
+
+  return { refilled, statesScanned, errors };
 }
+
 
 export interface WorkerTickResult {
   ok: boolean;
@@ -124,6 +180,9 @@ export interface WorkerTickResult {
   enabled: boolean;
   reclaimed: number;
   refilled: number;
+  statesScanned: number;
+  refillErrors: string[];
+
   processed: number;
   stagesRun: number;
   published: number;
@@ -150,6 +209,9 @@ export async function runWorkerTick(
     enabled: settings.enabled,
     reclaimed: 0,
     refilled: 0,
+    statesScanned: 0,
+    refillErrors: [],
+
     processed: 0,
     stagesRun: 0,
     published: 0,
@@ -168,7 +230,11 @@ export async function runWorkerTick(
   const { gateFor, gatePassed } = await import("./pilot");
 
   result.reclaimed = await reclaimStaleLeases(db);
-  result.refilled = await refillQueue(db, settings);
+  const refill = await refillQueue(db, settings);
+  result.refilled = refill.refilled;
+  result.statesScanned = refill.statesScanned;
+  result.refillErrors = refill.errors;
+
 
   const jobsWanted = Math.max(1, Math.min(opts.jobs ?? settings.jobs_per_tick, 12));
   const nowIso = new Date().toISOString();
@@ -197,6 +263,7 @@ export async function runWorkerTick(
       .select("id");
     if (!(leased ?? []).length) continue;
 
+    try {
     const facts = await resolveFacts(db, job.landing_slug);
     if (!facts) {
       await db
@@ -278,7 +345,26 @@ export async function runWorkerTick(
         supervisor_state: done ? "done" : status === "failed" ? "failed" : "waiting",
       })
       .eq("id", job.id);
+    } catch (err) {
+      // One broken city must never stop the line. Release the lease and keep
+      // the job retryable (status "failed" + attempts increment).
+      const message = err instanceof Error ? err.message : String(err);
+      result.failed += 1;
+      result.processed += 1;
+      await db
+        .from("city_production_jobs")
+        .update({
+          status: "failed",
+          last_error: message.slice(0, 500),
+          attempts: job.attempts + 1,
+          leased_until: null,
+          worker_id: null,
+          supervisor_state: "failed",
+        })
+        .eq("id", job.id);
+    }
   }
+
 
   result.durationMs = Date.now() - t0;
 
@@ -292,6 +378,8 @@ export async function runWorkerTick(
     refilled: result.refilled,
     reclaimed: result.reclaimed,
     duration_ms: result.durationMs,
+    error: result.refillErrors.length ? result.refillErrors.slice(0, 5).join(" | ").slice(0, 500) : null,
+
   });
 
   return result;

@@ -13,6 +13,7 @@ export const getCityPageData = createServerFn({ method: "GET" })
     const { readCityPage, readCitiesByState } = await import("./public-read.server");
     const { factsFromRow, contentFromRow, seoFromRow } = await import("./record-adapter");
     const { buildCityHierarchy } = await import("./hierarchy");
+    const { resolveCityHero } = await import("./media");
 
     const row = await readCityPage(data.slug);
     if (!row) return null;
@@ -34,10 +35,12 @@ export const getCityPageData = createServerFn({ method: "GET" })
       facts,
       content,
       seo,
+      hero: resolveCityHero(row.media, facts),
       hierarchy: buildCityHierarchy(facts, peers),
       seoPublished: row.seo_status === "published",
     };
   });
+
 
 export const listPublishedCityPages = createServerFn({ method: "GET" })
   .inputValidator((input: { stateCode?: string; limit?: number; offset?: number }) => ({

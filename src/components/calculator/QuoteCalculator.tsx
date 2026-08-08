@@ -28,6 +28,12 @@ import {
 } from "lucide-react";
 import { InsuranceInfoModal } from "./InsuranceInfoModal";
 import {
+  attributionColumns,
+  readUtmParams,
+  type LandingContext,
+} from "@/lib/city-landing/attribution";
+
+import {
   computeQuote,
   type InsuranceTier,
   type MoveType,
@@ -247,15 +253,43 @@ function isEmptyDraft(form: FormState): boolean {
   );
 }
 
-export function QuoteCalculator(_props: { compact?: boolean } = {}) {
+export function QuoteCalculator(
+  props: { compact?: boolean; landing?: LandingContext | null } = {},
+) {
+  const landing = props.landing ?? null;
+
+  // Capture campaign params on arrival so attribution survives navigation.
+  useEffect(() => {
+    readUtmParams();
+  }, []);
   const [form, setForm] = useState<FormState>(() => createInitialForm());
   const hasUserEditedRef = useRef(false);
 
-  // Restore any saved draft after hydration (avoids SSR mismatch).
+  // Restore any saved draft after hydration (avoids SSR mismatch), otherwise
+  // prefill the origin from the city page the visitor is standing on.
   useEffect(() => {
     const draft = loadDraftForm();
-    if (draft && !hasUserEditedRef.current && !isEmptyDraft(draft)) setForm(draft);
-  }, []);
+    if (draft && !hasUserEditedRef.current && !isEmptyDraft(draft)) {
+      setForm(draft);
+      return;
+    }
+    if (!landing) return;
+    setForm((prev) =>
+      prev.origin.city || prev.origin.zip
+        ? prev
+        : {
+            ...prev,
+            origin: {
+              ...prev.origin,
+              city: landing.city,
+              state: landing.stateCode,
+              zip: landing.zip ?? prev.origin.zip,
+            },
+          },
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [landing?.citySlug]);
+
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -461,6 +495,9 @@ export function QuoteCalculator(_props: { compact?: boolean } = {}) {
       .from("quotes")
       .insert({
         id: clientQuoteId,
+        // City-page attribution: which landing page produced this lead.
+        ...attributionColumns(landing),
+
         user_id: userId,
         origin_zip: o.zip,
         destination_zip: d.zip,

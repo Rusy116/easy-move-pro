@@ -18,6 +18,9 @@ import { buildCityLandingContent } from "@/lib/city-landing/content";
 import { buildMoversSeoContent, type MoversSeoContent } from "@/lib/city-landing/seo-page";
 import { buildCityHierarchy, type CityHierarchy } from "@/lib/city-landing/hierarchy";
 import { getCityPageData } from "@/lib/city-landing/public.functions";
+import { CityHeroImage } from "@/components/site/CityHeroImage";
+import { resolveCityHero, type CityHero } from "@/lib/city-landing/media";
+import type { LandingContext } from "@/lib/city-landing/attribution";
 
 
 /**
@@ -31,7 +34,12 @@ export const Route = createFileRoute("/movers/$city")({
   loader: async ({ params }) => {
     const record = await getCityPageData({ data: { slug: params.city.toLowerCase() } });
     if (record) {
-      return { facts: record.facts, seo: record.seo, hierarchy: record.hierarchy };
+      return {
+        facts: record.facts,
+        seo: record.seo,
+        hierarchy: record.hierarchy,
+        hero: record.hero,
+      };
     }
     const parsed = parseLandingParam(params.city);
     const facts = parsed ? findCityFacts(parsed.citySlug, parsed.stateCode) : null;
@@ -40,6 +48,7 @@ export const Route = createFileRoute("/movers/$city")({
       facts,
       seo: buildMoversSeoContent(facts, buildCityLandingContent(facts)),
       hierarchy: buildCityHierarchy(facts),
+      hero: resolveCityHero(null, facts),
     };
 
   },
@@ -97,10 +106,20 @@ export const Route = createFileRoute("/movers/$city")({
 });
 
 function MoversCityPage() {
-  const { facts, seo, hierarchy } = Route.useLoaderData() as {
+  const { facts, seo, hierarchy, hero } = Route.useLoaderData() as {
     facts: CityFacts;
     seo: MoversSeoContent;
     hierarchy: CityHierarchy;
+    hero: CityHero;
+  };
+
+  // Everything the CRM needs to credit this city page for the lead.
+  const landing: LandingContext = {
+    citySlug: facts.landingSlug,
+    city: facts.city,
+    stateCode: facts.stateCode,
+    path: `/movers/${facts.landingSlug}`,
+    zip: facts.zipCodes[0] ?? null,
   };
 
   return (
@@ -141,11 +160,26 @@ function MoversCityPage() {
             {p}
           </p>
         ))}
+        <CityHeroImage
+          hero={hero}
+          city={facts.city}
+          stateCode={facts.stateCode}
+          className="mt-8 aspect-[16/7]"
+        />
+        <a
+          href="#calculator"
+          className="mt-6 inline-flex h-12 items-center justify-center rounded-xl bg-primary px-7 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
+        >
+          Get My {facts.city} Moving Quote
+        </a>
       </section>
 
       {/* The one official Easy Move Pro calculator — embedded, never cloned */}
       <section id="calculator" className="mx-auto max-w-5xl px-4 sm:px-6 pt-10 pb-6">
-        <QuoteCalculator />
+        <p className="mb-4 text-sm font-semibold text-foreground">
+          Price your move from {facts.city}, {facts.stateCode} — instant, itemized, no spam calls.
+        </p>
+        <QuoteCalculator landing={landing} />
         <p className="mt-4 text-sm text-muted-foreground">
           Prefer the dedicated calculator page?{" "}
           <Link to={seo.calculatorPath as "/"} className="text-primary underline">

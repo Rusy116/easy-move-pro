@@ -15,17 +15,20 @@ import { findCityFacts, parseLandingParam, type CityFacts } from "@/lib/city-lan
 import { buildCityLandingContent, type CityLandingContent } from "@/lib/city-landing/content";
 import { routesForCity, routePath } from "@/lib/seo/geo";
 import { getCityPageData } from "@/lib/city-landing/public.functions";
+import { CityHeroImage } from "@/components/site/CityHeroImage";
+import { resolveCityHero, type CityHero } from "@/lib/city-landing/media";
+import type { LandingContext } from "@/lib/city-landing/attribution";
 
 // Source of truth: `public.city_landing_pages`. The bundled dataset only
 // covers legacy slugs that predate the City Factory.
 export const Route = createFileRoute("/moving-calculator/$city")({
   loader: async ({ params }) => {
     const record = await getCityPageData({ data: { slug: params.city.toLowerCase() } });
-    if (record) return { facts: record.facts, content: record.content };
+    if (record) return { facts: record.facts, content: record.content, hero: record.hero };
     const parsed = parseLandingParam(params.city);
     const facts = parsed ? findCityFacts(parsed.citySlug, parsed.stateCode) : null;
     if (!facts) throw notFound();
-    return { facts, content: buildCityLandingContent(facts) };
+    return { facts, content: buildCityLandingContent(facts), hero: resolveCityHero(null, facts) };
   },
   head: ({ loaderData, params }) => {
     if (!loaderData) {
@@ -77,11 +80,21 @@ export const Route = createFileRoute("/moving-calculator/$city")({
 });
 
 function CityCalculatorPage() {
-  const { facts, content } = Route.useLoaderData() as {
+  const { facts, content, hero } = Route.useLoaderData() as {
     facts: CityFacts;
     content: CityLandingContent;
+    hero: CityHero;
   };
   const relatedRoutes = routesForCity(facts.slug).slice(0, 8);
+
+  // Everything the CRM needs to credit this city page for the lead.
+  const landing: LandingContext = {
+    citySlug: facts.landingSlug,
+    city: facts.city,
+    stateCode: facts.stateCode,
+    path: facts.path,
+    zip: facts.zipCodes[0] ?? null,
+  };
 
   return (
     <SiteLayout>
@@ -117,11 +130,20 @@ function CityCalculatorPage() {
             <BadgeCheck className="h-4 w-4" /> No spam call blasts
           </span>
         </div>
+        <CityHeroImage
+          hero={hero}
+          city={facts.city}
+          stateCode={facts.stateCode}
+          className="mt-8 aspect-[16/7]"
+        />
       </section>
 
       {/* 3 · The one official Easy Moving calculator — never duplicated */}
       <section id="calculator" className="mx-auto max-w-5xl px-4 sm:px-6 pt-8 pb-4">
-        <QuoteCalculator />
+        <p className="mb-4 text-sm font-semibold text-foreground">
+          Get your instant {facts.city} moving quote — takes under 60 seconds.
+        </p>
+        <QuoteCalculator landing={landing} />
       </section>
 
       {/* 4 · CTA */}

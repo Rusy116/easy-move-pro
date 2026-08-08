@@ -79,7 +79,7 @@ export function buildMoversSeoContent(
   );
 
   return {
-    title: `Movers in ${f.city}, ${f.stateCode} — Licensed Moving Companies & Instant Quote`,
+    title: buildMoversTitle(f.city, f.stateCode),
     metaDescription: `Compare licensed movers in ${f.city}, ${f.stateCode}. Get an instant, itemized moving quote in under 60 seconds — no spam calls, one verified local moving company.`.slice(0, 175),
     h1: `Movers in ${f.city}, ${f.stateCode}`,
     intro,

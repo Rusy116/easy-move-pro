@@ -66,8 +66,6 @@ type QuoteRow = {
   details: Record<string, unknown> | null;
 };
 
-const SELECT =
-  "id, quote_number, portal_token, created_at, contact_email, contact_phone, origin_address, origin_city, origin_state, origin_zip, destination_address, destination_city, destination_state, destination_zip, move_date, distance_miles, num_movers, labor_hours, truck_size, estimated_cubic_feet, estimated_weight_lbs, estimated_low, estimated_high, insurance_tier, inventory, breakdown, details";
 
 function money(n: number | null | undefined) {
   return typeof n === "number" ? `$${Math.round(n).toLocaleString("en-US")}` : "—";
@@ -136,12 +134,11 @@ function QuoteConfirmationPage() {
         setLoading(false);
         return;
       }
-      const { data, error } = await supabase
-        .from("quotes")
-        .select(SELECT)
-        .eq("quote_number", quoteNumber)
-        .eq("portal_token", token)
-        .maybeSingle();
+      // Secure exact-token lookup (no direct anon read of `quotes`).
+      const { data, error } = await supabase.rpc("fn_portal_quote", {
+        _quote_number: quoteNumber,
+        _token: token,
+      });
       if (cancelled) return;
       if (error) setError("Could not load your quote. Please try again.");
       else if (!data) setError("Quote not found or the link is invalid.");

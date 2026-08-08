@@ -13,10 +13,36 @@ import type { PdfCategory, PdfProduct } from "./pdf-store/catalog";
 const LIST_COLUMNS =
   "slug,title,subtitle,category_slug,collection_slug,tags,difficulty,language,version,page_count,price_cents,compare_at_cents,quality_score,seo_score,cover_spec,cover_url,alt_text,is_featured,is_bestseller,downloads,views,published_at,status,description";
 
+const EMPTY_STOREFRONT = {
+  categories: [] as PdfCategory[],
+  featured: [] as PdfProduct[],
+  bestsellers: [] as PdfProduct[],
+  newest: [] as PdfProduct[],
+  total: 0,
+  unavailable: false,
+};
+
+/**
+ * Publishable-key client for public store reads.
+ *
+ * Returns `null` instead of throwing when backend config is missing (for
+ * example during static prerender, where server env is not injected). Public
+ * store pages then render an empty/unavailable state rather than a 500.
+ */
 async function publicClient() {
+  const env = (import.meta as unknown as { env?: Record<string, string | undefined> }).env ?? {};
+  const url =
+    (typeof process !== "undefined" ? process.env["SUPABASE_URL"] : undefined) ??
+    env["VITE_SUPABASE_URL"];
+  const key =
+    (typeof process !== "undefined" ? process.env["SUPABASE_PUBLISHABLE_KEY"] : undefined) ??
+    env["VITE_SUPABASE_PUBLISHABLE_KEY"] ??
+    env["VITE_SUPABASE_ANON_KEY"];
+  if (!url || !key) {
+    console.error("[pdf-store] missing backend config for public store reads");
+    return null;
+  }
   const { createClient } = await import("@supabase/supabase-js");
-  const key = process.env["SUPABASE_PUBLISHABLE_KEY"]!;
-  const url = process.env["SUPABASE_URL"]!;
   return createClient(url, key, {
     auth: { persistSession: false, autoRefreshToken: false },
     global: {
@@ -32,24 +58,33 @@ async function publicClient() {
 
 /** Storefront home payload: categories + curated shelves. */
 export const storefront = createServerFn({ method: "GET" }).handler(async () => {
-  const db = await publicClient();
-  const [cats, products] = await Promise.all([
-    db.from("pdf_categories").select("*").order("sort_order"),
-    db
-      .from("pdf_products")
-      .select(LIST_COLUMNS)
-      .eq("status", "published")
-      .order("published_at", { ascending: false })
-      .limit(120),
-  ]);
-  const all = (products.data ?? []) as unknown as PdfProduct[];
-  return {
-    categories: (cats.data ?? []) as unknown as PdfCategory[],
-    featured: all.filter((p) => p.is_featured).slice(0, 6),
-    bestsellers: [...all].sort((a, b) => b.downloads - a.downloads).slice(0, 8),
-    newest: all.slice(0, 8),
-    total: all.length,
-  };
+  try {
+    const db = await publicClient();
+    if (!db) return { ...EMPTY_STOREFRONT, unavailable: true };
+    const [cats, products] = await Promise.all([
+      db.from("pdf_categories").select("*").order("sort_order"),
+      db
+        .from("pdf_products")
+        .select(LIST_COLUMNS)
+        .eq("status", "published")
+        .order("published_at", { ascending: false })
+        .limit(120),
+    ]);
+    if (products.error) console.error("[pdf-store] products read failed:", products.error.message);
+    if (cats.error) console.error("[pdf-store] categories read failed:", cats.error.message);
+    const all = (products.data ?? []) as unknown as PdfProduct[];
+    return {
+      categories: (cats.data ?? []) as unknown as PdfCategory[],
+      featured: all.filter((p) => p.is_featured).slice(0, 6),
+      bestsellers: [...all].sort((a, b) => Number(b.downloads ?? 0) - Number(a.downloads ?? 0)).slice(0, 8),
+      newest: all.slice(0, 8),
+      total: all.length,
+      unavailable: Boolean(products.error),
+    };
+  } catch (error) {
+    console.error("[pdf-store] storefront failed:", error);
+    return { ...EMPTY_STOREFRONT, unavailable: true };
+  }
 });
 
 /** Category / search / collection listing. */
@@ -61,21 +96,34 @@ export const listStoreProducts = createServerFn({ method: "GET" })
     limit: Math.min(Math.max(Number(d?.limit ?? 48), 1), 200),
   }))
   .handler(async ({ data }) => {
-    const db = await publicClient();
-    let query = db.from("pdf_products").select(LIST_COLUMNS).eq("status", "published");
-    if (data.category) query = query.eq("category_slug", data.category);
-    if (data.q) query = query.or(`title.ilike.%${data.q}%,description.ilike.%${data.q}%`);
-    if (data.sort === "popular") query = query.order("downloads", { ascending: false });
-    else if (data.sort === "price") query = query.order("price_cents", { ascending: true });
-    else query = query.order("published_at", { ascending: false });
-    const { data: rows } = await query.limit(data.limit);
-    return (rows ?? []) as unknown as PdfProduct[];
+    try {
+      const db = await publicClient();
+      if (!db) return [] as PdfProduct[];
+      let query = db.from("pdf_products").select(LIST_COLUMNS).eq("status", "published");
+      if (data.category) query = query.eq("category_slug", data.category);
+      if (data.q) query = query.or(`title.ilike.%${data.q}%,description.ilike.%${data.q}%`);
+      if (data.sort === "popular") query = query.order("downloads", { ascending: false });
+      else if (data.sort === "price") query = query.order("price_cents", { ascending: true });
+      else query = query.order("published_at", { ascending: false });
+      const { data: rows, error } = await query.limit(data.limit);
+      if (error) console.error("[pdf-store] listStoreProducts failed:", error.message);
+      return (rows ?? []) as unknown as PdfProduct[];
+    } catch (error) {
+      console.error("[pdf-store] listStoreProducts failed:", error);
+      return [] as PdfProduct[];
+    }
   });
 
 export const storeCategories = createServerFn({ method: "GET" }).handler(async () => {
-  const db = await publicClient();
-  const { data } = await db.from("pdf_categories").select("*").order("sort_order");
-  return (data ?? []) as unknown as PdfCategory[];
+  try {
+    const db = await publicClient();
+    if (!db) return [] as PdfCategory[];
+    const { data } = await db.from("pdf_categories").select("*").order("sort_order");
+    return (data ?? []) as unknown as PdfCategory[];
+  } catch (error) {
+    console.error("[pdf-store] storeCategories failed:", error);
+    return [] as PdfCategory[];
+  }
 });
 
 /** Full product detail + related shelf. */

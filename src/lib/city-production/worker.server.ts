@@ -180,6 +180,9 @@ export interface WorkerTickResult {
   enabled: boolean;
   reclaimed: number;
   refilled: number;
+  statesScanned: number;
+  refillErrors: string[];
+
   processed: number;
   stagesRun: number;
   published: number;

@@ -226,16 +226,28 @@ function imageBriefs(facts: CityFacts) {
 }
 
 async function stageImageFactory({ db, facts, landingSlug }: StageContext): Promise<StageResult> {
+  const { resolveCityHero } = await import("./city-landing/media");
   const briefs = imageBriefs(facts);
   const row = await pageRow(db, landingSlug);
-  const media = { ...((row?.["media"] as Record<string, unknown>) ?? {}), briefs, briefed_at: new Date().toISOString() };
-  await db.from("city_landing_pages").update({ media: media as never }).eq("slug", landingSlug);
+  const current = (row?.["media"] as Record<string, unknown>) ?? {};
+
+  // Reuse an existing valid image; never regenerate one we already have.
+  const hero = resolveCityHero(current, facts);
+  const media = { ...current, briefs, hero, briefed_at: new Date().toISOString() };
+
+  const { error } = await db
+    .from("city_landing_pages")
+    .update({ media: media as never })
+    .eq("slug", landingSlug);
+  if (error) return { ok: false, summary: `Media write failed: ${error.message}` };
+
   return {
     ok: briefs.length === 7,
-    summary: `${briefs.length} image briefs generated (hero, skyline, truck, packing, icons, social, featured)`,
-    data: { briefs },
+    summary: `${briefs.length} image briefs generated · hero source: ${hero.source}`,
+    data: { briefs, hero },
   };
 }
+
 
 // ── 6. Image SEO Agent ─────────────────────────────────────────────────────
 async function stageImageSeo({ db, facts, landingSlug }: StageContext): Promise<StageResult> {

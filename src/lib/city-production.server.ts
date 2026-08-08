@@ -252,6 +252,7 @@ async function stageImageFactory({ db, facts, landingSlug }: StageContext): Prom
 // ── 6. Image SEO Agent ─────────────────────────────────────────────────────
 async function stageImageSeo({ db, facts, landingSlug }: StageContext): Promise<StageResult> {
   const c = `${facts.city}, ${facts.stateCode}`;
+  const { resolveCityHero } = await import("./city-landing/media");
   const optimized = imageBriefs(facts).map((b) => {
     const filename = `${facts.slug}-${facts.stateCode.toLowerCase()}-${b.role}`;
     return {
@@ -262,6 +263,9 @@ async function stageImageSeo({ db, facts, landingSlug }: StageContext): Promise<
       formats: ["avif", "webp", "jpg"],
       responsive: [400, 800, 1200, 1600].filter((w) => w <= b.w),
       compression: { quality: 72, strip_metadata: true },
+      // The binary is not rendered yet — the page uses the safe fallback until
+      // a real file is uploaded and this flag flips to true.
+      available: false,
       schema: {
         "@context": "https://schema.org",
         "@type": "ImageObject",
@@ -274,15 +278,23 @@ async function stageImageSeo({ db, facts, landingSlug }: StageContext): Promise<
   });
 
   const row = await pageRow(db, landingSlug);
-  const media = { ...((row?.["media"] as Record<string, unknown>) ?? {}), optimized };
-  await db.from("city_landing_pages").update({ media: media as never }).eq("slug", landingSlug);
+  const current = (row?.["media"] as Record<string, unknown>) ?? {};
+  const merged = { ...current, optimized };
+  const media = { ...merged, hero: resolveCityHero(merged, facts) };
+
+  const { error } = await db
+    .from("city_landing_pages")
+    .update({ media: media as never })
+    .eq("slug", landingSlug);
+  if (error) return { ok: false, summary: `Image SEO write failed: ${error.message}` };
 
   return {
     ok: optimized.length > 0,
     summary: `${optimized.length} images optimised — ALT, captions, ImageObject schema, WebP + AVIF, responsive sets`,
-    data: { optimized },
+    data: { optimized, hero: media.hero },
   };
 }
+
 
 // ── 7. Blog Agent ──────────────────────────────────────────────────────────
 async function stageBlog({ db, facts }: StageContext): Promise<StageResult> {

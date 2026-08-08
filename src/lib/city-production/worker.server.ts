@@ -209,6 +209,9 @@ export async function runWorkerTick(
     enabled: settings.enabled,
     reclaimed: 0,
     refilled: 0,
+    statesScanned: 0,
+    refillErrors: [],
+
     processed: 0,
     stagesRun: 0,
     published: 0,

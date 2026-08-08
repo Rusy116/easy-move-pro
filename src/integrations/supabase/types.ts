@@ -859,6 +859,7 @@ export type Database = {
           internal_links: number
           last_crawl: string | null
           last_improved_at: string | null
+          media: Json
           monitor_health: string | null
           monitored_at: string | null
           nearby_cities: Json
@@ -918,6 +919,7 @@ export type Database = {
           internal_links?: number
           last_crawl?: string | null
           last_improved_at?: string | null
+          media?: Json
           monitor_health?: string | null
           monitored_at?: string | null
           nearby_cities?: Json
@@ -977,6 +979,7 @@ export type Database = {
           internal_links?: number
           last_crawl?: string | null
           last_improved_at?: string | null
+          media?: Json
           monitor_health?: string | null
           monitored_at?: string | null
           nearby_cities?: Json
@@ -4584,6 +4587,10 @@ export type Database = {
           job_status: string
           junk_removal: boolean
           labor_hours: number | null
+          landing_city: string | null
+          landing_city_slug: string | null
+          landing_path: string | null
+          landing_state: string | null
           last_activity_at: string
           lead_phase: Database["public"]["Enums"]["lead_phase_enum"]
           lead_status: Database["public"]["Enums"]["lead_status_enum"]
@@ -4632,6 +4639,7 @@ export type Database = {
           truck_size: string | null
           unpacking: boolean
           user_id: string | null
+          utm: Json | null
           visibility_mask: Json
         }
         Insert: {
@@ -4720,6 +4728,10 @@ export type Database = {
           job_status?: string
           junk_removal?: boolean
           labor_hours?: number | null
+          landing_city?: string | null
+          landing_city_slug?: string | null
+          landing_path?: string | null
+          landing_state?: string | null
           last_activity_at?: string
           lead_phase?: Database["public"]["Enums"]["lead_phase_enum"]
           lead_status?: Database["public"]["Enums"]["lead_status_enum"]
@@ -4768,6 +4780,7 @@ export type Database = {
           truck_size?: string | null
           unpacking?: boolean
           user_id?: string | null
+          utm?: Json | null
           visibility_mask?: Json
         }
         Update: {
@@ -4856,6 +4869,10 @@ export type Database = {
           job_status?: string
           junk_removal?: boolean
           labor_hours?: number | null
+          landing_city?: string | null
+          landing_city_slug?: string | null
+          landing_path?: string | null
+          landing_state?: string | null
           last_activity_at?: string
           lead_phase?: Database["public"]["Enums"]["lead_phase_enum"]
           lead_status?: Database["public"]["Enums"]["lead_status_enum"]
@@ -4904,6 +4921,7 @@ export type Database = {
           truck_size?: string | null
           unpacking?: boolean
           user_id?: string | null
+          utm?: Json | null
           visibility_mask?: Json
         }
         Relationships: [
@@ -5639,6 +5657,10 @@ export type Database = {
           job_status: string
           junk_removal: boolean
           labor_hours: number | null
+          landing_city: string | null
+          landing_city_slug: string | null
+          landing_path: string | null
+          landing_state: string | null
           last_activity_at: string
           lead_phase: Database["public"]["Enums"]["lead_phase_enum"]
           lead_status: Database["public"]["Enums"]["lead_status_enum"]
@@ -5687,6 +5709,7 @@ export type Database = {
           truck_size: string | null
           unpacking: boolean
           user_id: string | null
+          utm: Json | null
           visibility_mask: Json
         }[]
         SetofOptions: {
@@ -6213,6 +6236,10 @@ export type Database = {
           job_status: string
           junk_removal: boolean
           labor_hours: number | null
+          landing_city: string | null
+          landing_city_slug: string | null
+          landing_path: string | null
+          landing_state: string | null
           last_activity_at: string
           lead_phase: Database["public"]["Enums"]["lead_phase_enum"]
           lead_status: Database["public"]["Enums"]["lead_status_enum"]
@@ -6261,6 +6288,7 @@ export type Database = {
           truck_size: string | null
           unpacking: boolean
           user_id: string | null
+          utm: Json | null
           visibility_mask: Json
         }
         SetofOptions: {

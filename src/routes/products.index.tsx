@@ -17,9 +17,13 @@ export const Route = createFileRoute("/products/")({
     scripts: [jsonLd(breadcrumbSchema([{ name: "Home", url: "/" }, { name: "Store", url: "/products" }]))],
   }),
   component: StoreHome,
+  errorComponent: () => <StorefrontPage data={{ ...EMPTY, unavailable: true }} />,
+  notFoundComponent: () => <StorefrontPage data={EMPTY} />,
 });
+
+const EMPTY = { categories: [], featured: [], bestsellers: [], newest: [], total: 0 };
 
 function StoreHome() {
   const data = Route.useLoaderData() as any;
-  return <StorefrontPage data={data} />;
+  return <StorefrontPage data={data ?? EMPTY} />;
 }

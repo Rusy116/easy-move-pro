@@ -9,6 +9,8 @@ import type { CityFacts } from "./data";
 import { moversPathFor, landingPathFor } from "./data";
 import type { CityLandingContent, CityFaqItem, CitySection } from "./content";
 import { SITE_ORIGIN } from "./validation";
+import { buildMoversTitle, isPublishableTitle } from "./seo-title";
+
 
 export interface MoversSeoContent {
   title: string;

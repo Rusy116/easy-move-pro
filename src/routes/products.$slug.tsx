@@ -64,6 +64,22 @@ export const Route = createFileRoute("/products/$slug")({
     };
   },
   component: ProductDetail,
+  errorComponent: () => (
+    <SiteLayout>
+      <section className="mx-auto max-w-4xl px-4 py-20 text-center sm:px-6">
+        <p className="font-serif text-xl">This product is temporarily unavailable</p>
+        <p className="mt-2 text-sm text-muted-foreground">Please refresh in a moment.</p>
+      </section>
+    </SiteLayout>
+  ),
+  notFoundComponent: () => (
+    <SiteLayout>
+      <section className="mx-auto max-w-4xl px-4 py-20 text-center sm:px-6">
+        <p className="font-serif text-xl">Product not found</p>
+        <p className="mt-2 text-sm text-muted-foreground">It may have been unpublished.</p>
+      </section>
+    </SiteLayout>
+  ),
 });
 
 function ProductDetail() {

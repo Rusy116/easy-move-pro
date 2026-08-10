@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as StoreRouteImport } from './routes/store'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as SitemapPagesDotxmlRouteImport } from './routes/sitemap-pages[.]xml'
 import { Route as SitemapRouteImport } from './routes/sitemap'
 import { Route as ServicesRouteImport } from './routes/services'
 import { Route as SearchRouteImport } from './routes/search'
@@ -154,6 +155,11 @@ const StoreRoute = StoreRouteImport.update({
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapPagesDotxmlRoute = SitemapPagesDotxmlRouteImport.update({
+  id: '/sitemap-pages.xml',
+  path: '/sitemap-pages.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SitemapRoute = SitemapRouteImport.update({
@@ -920,6 +926,7 @@ export interface FileRoutesByFullPath {
   '/search': typeof SearchRoute
   '/services': typeof ServicesRoute
   '/sitemap': typeof SitemapRoute
+  '/sitemap-pages.xml': typeof SitemapPagesDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/store': typeof StoreRoute
   '/$state/$city': typeof StateCityRoute
@@ -1057,6 +1064,7 @@ export interface FileRoutesByTo {
   '/search': typeof SearchRoute
   '/services': typeof ServicesRoute
   '/sitemap': typeof SitemapRoute
+  '/sitemap-pages.xml': typeof SitemapPagesDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/store': typeof StoreRoute
   '/$state/$city': typeof StateCityRoute
@@ -1195,6 +1203,7 @@ export interface FileRoutesById {
   '/search': typeof SearchRoute
   '/services': typeof ServicesRoute
   '/sitemap': typeof SitemapRoute
+  '/sitemap-pages.xml': typeof SitemapPagesDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/store': typeof StoreRoute
   '/$state/$city': typeof StateCityRoute
@@ -1334,6 +1343,7 @@ export interface FileRouteTypes {
     | '/search'
     | '/services'
     | '/sitemap'
+    | '/sitemap-pages.xml'
     | '/sitemap.xml'
     | '/store'
     | '/$state/$city'
@@ -1471,6 +1481,7 @@ export interface FileRouteTypes {
     | '/search'
     | '/services'
     | '/sitemap'
+    | '/sitemap-pages.xml'
     | '/sitemap.xml'
     | '/store'
     | '/$state/$city'
@@ -1608,6 +1619,7 @@ export interface FileRouteTypes {
     | '/search'
     | '/services'
     | '/sitemap'
+    | '/sitemap-pages.xml'
     | '/sitemap.xml'
     | '/store'
     | '/$state/$city'
@@ -1747,6 +1759,7 @@ export interface RootRouteChildren {
   SearchRoute: typeof SearchRoute
   ServicesRoute: typeof ServicesRoute
   SitemapRoute: typeof SitemapRoute
+  SitemapPagesDotxmlRoute: typeof SitemapPagesDotxmlRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   StoreRoute: typeof StoreRoute
   StateCityRoute: typeof StateCityRoute
@@ -1791,6 +1804,13 @@ declare module '@tanstack/react-router' {
       path: '/sitemap.xml'
       fullPath: '/sitemap.xml'
       preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap-pages.xml': {
+      id: '/sitemap-pages.xml'
+      path: '/sitemap-pages.xml'
+      fullPath: '/sitemap-pages.xml'
+      preLoaderRoute: typeof SitemapPagesDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sitemap': {
@@ -2947,6 +2967,7 @@ const rootRouteChildren: RootRouteChildren = {
   SearchRoute: SearchRoute,
   ServicesRoute: ServicesRoute,
   SitemapRoute: SitemapRoute,
+  SitemapPagesDotxmlRoute: SitemapPagesDotxmlRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   StoreRoute: StoreRoute,
   StateCityRoute: StateCityRoute,

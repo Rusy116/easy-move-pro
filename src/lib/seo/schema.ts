@@ -101,7 +101,7 @@ export function seoMeta(opts: {
 }
 
 /** WebSite + SearchAction (sitelinks search box). */
-export function websiteSchema(origin = "https://mycity-move.lovable.app") {
+export function websiteSchema(origin = "https://easymove.pro") {
   return {
     "@context": "https://schema.org",
     "@type": "WebSite",

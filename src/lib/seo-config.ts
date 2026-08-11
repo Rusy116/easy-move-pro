@@ -7,7 +7,7 @@
 //
 // Flip this to `true` at launch. Nothing else needs to change.
 // ---------------------------------------------------------------------------
-export const ENABLE_INDEXING = false;
+export const ENABLE_INDEXING = true;
 
 /** Robots meta entries to spread into a route's `head().meta` array. */
 export const ROBOTS_META = ENABLE_INDEXING

@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import type {} from "@tanstack/react-start";
 import { ENABLE_INDEXING } from "@/lib/seo-config";
 
-const SITEMAP = "Sitemap: https://mycity-move.lovable.app/sitemap.xml";
+const SITEMAP = "Sitemap: https://easymove.pro/sitemap.xml";
 
 const ALLOW_BODY = `User-agent: *
 Allow: /

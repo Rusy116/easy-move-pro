@@ -102,7 +102,9 @@ function toListItem(r: RawListRow): CityListItem {
 /** One city page by its storage slug ("glendale-ca"). Published rows only. */
 export async function readCityPage(slug: string): Promise<CityPageRow | null> {
   try {
-    const { data } = await client()
+    const db = client();
+    if (!db) return null;
+    const { data } = await db
       .from("city_landing_pages")
       .select(ROW_COLUMNS)
       .eq("slug", slug)
@@ -120,7 +122,9 @@ export async function readCitiesByState(
   limit = 400,
 ): Promise<CityListItem[]> {
   try {
-    const { data } = await client()
+    const db = client();
+    if (!db) return [];
+    const { data } = await db
       .from("city_landing_pages")
       .select(LIST_COLUMNS)
       .eq("status", "published")
@@ -139,7 +143,9 @@ export async function readPublishedCities(
   offset = 0,
 ): Promise<CityListItem[]> {
   try {
-    const { data } = await client()
+    const db = client();
+    if (!db) return [];
+    const { data } = await db
       .from("city_landing_pages")
       .select(LIST_COLUMNS)
       .eq("status", "published")
@@ -154,7 +160,9 @@ export async function readPublishedCities(
 /** Total published city pages (for the /cities hub copy + pagination). */
 export async function countPublishedCities(): Promise<number> {
   try {
-    const { count } = await client()
+    const db = client();
+    if (!db) return 0;
+    const { count } = await db
       .from("city_landing_pages")
       .select("slug", { count: "exact", head: true })
       .eq("status", "published");
@@ -173,9 +181,11 @@ export async function readAllPublishedSlugs(): Promise<
 > {
   const out: Array<{ slug: string; seoPublished: boolean }> = [];
   const page = 1000;
+  const db = client();
+  if (!db) return out;
   try {
     for (let offset = 0; offset < 60_000; offset += page) {
-      const { data } = await client()
+      const { data } = await db
         .from("city_landing_pages")
         .select("slug, seo_status")
         .eq("status", "published")

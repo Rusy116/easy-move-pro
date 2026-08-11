@@ -48,8 +48,21 @@ const ROW_COLUMNS =
 const LIST_COLUMNS = "slug, city, state_code, state_name, county, population, seo_status";
 
 function client() {
-  const key = process.env["SUPABASE_PUBLISHABLE_KEY"]!;
-  return createClient<Database>(process.env["SUPABASE_URL"]!, key, {
+  // Server env vars are not injected on every host that serves this app, so fall
+  // back to the build-inlined publishable config (same pattern as the store reads).
+  const env = (import.meta as unknown as { env?: Record<string, string | undefined> }).env ?? {};
+  const url =
+    (typeof process !== "undefined" ? process.env["SUPABASE_URL"] : undefined) ??
+    env["VITE_SUPABASE_URL"];
+  const key =
+    (typeof process !== "undefined" ? process.env["SUPABASE_PUBLISHABLE_KEY"] : undefined) ??
+    env["VITE_SUPABASE_PUBLISHABLE_KEY"] ??
+    env["VITE_SUPABASE_ANON_KEY"];
+  if (!url || !key) {
+    console.error("[city-landing] missing backend config for public city reads");
+    return null;
+  }
+  return createClient<Database>(url, key, {
     auth: { persistSession: false, autoRefreshToken: false },
     global: {
       fetch: (input: RequestInfo | URL, init?: RequestInit) => {

@@ -9,7 +9,7 @@ import type { CityFacts } from "./data";
 import { landingPathForSlug } from "./data";
 import { validateCityContent, contentWordCount, type CityLandingContent } from "./content";
 
-export const SITE_ORIGIN = "https://mycity-move.lovable.app";
+export const SITE_ORIGIN = "https://easymove.pro";
 export const MIN_SEO_SCORE = 95;
 export const MIN_PERFORMANCE = 90;
 export const MIN_ACCESSIBILITY = 90;

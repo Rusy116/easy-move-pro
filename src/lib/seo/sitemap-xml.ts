@@ -5,7 +5,7 @@ export interface SitemapEntry {
   priority?: string;
 }
 
-export const SITEMAP_BASE_URL = "https://mycity-move.lovable.app";
+export const SITEMAP_BASE_URL = "https://easymove.pro";
 
 /** Slugs per city sitemap part (each slug yields up to 2 URLs). */
 export const CITY_SLUGS_PER_PART = 20_000;

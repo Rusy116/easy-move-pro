@@ -8,6 +8,7 @@
 // ---------------------------------------------------------------------------
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
+import { MIN_INDEX_WORDS, MIN_INDEX_SEO_SCORE, MIN_INDEX_POPULATION } from "./quality";
 
 export interface CityPageRow {
   slug: string;

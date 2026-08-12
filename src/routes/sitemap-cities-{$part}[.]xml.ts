@@ -3,8 +3,9 @@ import type {} from "@tanstack/react-start";
 import { renderUrlset, CITY_SLUGS_PER_PART, type SitemapEntry } from "@/lib/seo/sitemap-xml";
 
 /**
- * City sitemap part N. Database-driven: only published city records.
- * /moving-calculator-{slug} always; /movers/{slug} only when SEO-published.
+ * City sitemap part N. Database-driven and quality-gated: only city records
+ * that clear the SEO quality gate are listed, and the slice is paged in the
+ * database so building one file never loads the whole city table.
  */
 export const Route = createFileRoute("/sitemap-cities-{$part}.xml")({
   server: {
@@ -15,26 +16,21 @@ export const Route = createFileRoute("/sitemap-cities-{$part}.xml")({
 
         let rows: Array<{ slug: string; seoPublished: boolean }> = [];
         try {
-          const { readAllPublishedSlugs } = await import(
-            "@/lib/city-landing/public-read.server"
-          );
-          rows = await readAllPublishedSlugs();
+          const { readIndexableSlugs } = await import("@/lib/city-landing/public-read.server");
+          rows = await readIndexableSlugs(CITY_SLUGS_PER_PART, (part - 1) * CITY_SLUGS_PER_PART);
         } catch {
           rows = [];
         }
 
-        const start = (part - 1) * CITY_SLUGS_PER_PART;
-        const slice = rows.slice(start, start + CITY_SLUGS_PER_PART);
-
         const entries: SitemapEntry[] = [];
-        for (const r of slice) {
+        for (const r of rows) {
           entries.push({
             path: `/moving-calculator-${r.slug}`,
             changefreq: "weekly",
             priority: "0.8",
           });
           if (r.seoPublished) {
-            entries.push({ path: `/movers/${r.slug}`, changefreq: "weekly", priority: "0.8" });
+            entries.push({ path: `/movers/${r.slug}`, changefreq: "weekly", priority: "0.7" });
           }
         }
         return renderUrlset(entries);

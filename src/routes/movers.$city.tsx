@@ -38,6 +38,7 @@ export const Route = createFileRoute("/movers/$city")({
         seo: record.seo,
         hierarchy: record.hierarchy,
         hero: record.hero,
+        indexable: record.moversIndexable,
       };
     }
     const parsed = parseLandingParam(params.city);
@@ -48,6 +49,7 @@ export const Route = createFileRoute("/movers/$city")({
       seo: buildMoversSeoContent(facts, buildCityLandingContent(facts)),
       hierarchy: buildCityHierarchy(facts),
       hero: resolveCityHero(null, facts),
+      indexable: true,
     };
 
   },
@@ -55,10 +57,19 @@ export const Route = createFileRoute("/movers/$city")({
     if (!loaderData) {
       return { meta: [{ title: "Page not found" }, { name: "robots", content: "noindex" }] };
     }
-    const { facts, seo } = loaderData as { facts: CityFacts; seo: MoversSeoContent };
+    const { facts, seo, indexable } = loaderData as {
+      facts: CityFacts;
+      seo: MoversSeoContent;
+      indexable: boolean;
+    };
     const path = `/movers/${params.city}`;
     return {
-      meta: seoMeta({ title: seo.title, description: seo.metaDescription, path }),
+      meta: seoMeta({
+        title: seo.title,
+        description: seo.metaDescription,
+        path,
+        index: indexable,
+      }),
       links: [{ rel: "canonical", href: absoluteUrl(path) }],
       scripts: [
         jsonLd(

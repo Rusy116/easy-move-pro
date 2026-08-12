@@ -12,8 +12,13 @@
 export const MIN_INDEX_WORDS = 1500;
 /** Minimum deterministic SEO score produced by the pre-publish validator. */
 export const MIN_INDEX_SEO_SCORE = 95;
-/** Below this population a page is almost always thin/near-duplicate. */
-export const MIN_INDEX_POPULATION = 5000;
+/**
+ * Below this population a place is usually an unincorporated hamlet where the
+ * generated guide has no distinct local substance. Kept deliberately low so the
+ * real city network (tens of thousands of genuine towns) stays indexable — the
+ * word-count and SEO-score gates do the heavy lifting.
+ */
+export const MIN_INDEX_POPULATION = 1000;
 
 export interface CityQualitySignals {
   status?: string | null;
@@ -24,15 +29,18 @@ export interface CityQualitySignals {
   zip_codes?: string[] | null;
 }
 
-/** Is the /moving-calculator-{slug} page good enough to index? */
+/**
+ * Is the /moving-calculator-{slug} page good enough to index?
+ * Mirrors `indexableQuery()` in public-read.server.ts one-for-one so the robots
+ * directive and the sitemap can never disagree.
+ */
 export function isIndexableCity(s: CityQualitySignals): boolean {
   return (
     s.status === "published" &&
     (s.word_count ?? 0) >= MIN_INDEX_WORDS &&
     (s.seo_score ?? 0) >= MIN_INDEX_SEO_SCORE &&
     (s.population ?? 0) >= MIN_INDEX_POPULATION &&
-    Array.isArray(s.zip_codes) &&
-    s.zip_codes.length > 0
+    s.zip_codes != null
   );
 }
 

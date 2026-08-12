@@ -4,12 +4,25 @@ import { ENABLE_INDEXING } from "@/lib/seo-config";
 
 const SITEMAP = "Sitemap: https://easymove.pro/sitemap.xml";
 
+// Private, transactional and internal surfaces stay out of the index. Public
+// SEO pages (home, services, states, counties, routes, cities, products,
+// blog, city calculators) remain fully crawlable.
 const ALLOW_BODY = `User-agent: *
 Allow: /
 
-Disallow: /dashboard
 Disallow: /admin
+Disallow: /dashboard
 Disallow: /auth
+Disallow: /company
+Disallow: /broker
+Disallow: /customer
+Disallow: /ai
+Disallow: /portal
+Disallow: /quote
+Disallow: /register-company
+Disallow: /api/
+Disallow: /search
+Disallow: /*?
 
 ${SITEMAP}
 `;

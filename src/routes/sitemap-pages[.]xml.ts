@@ -48,10 +48,28 @@ export const Route = createFileRoute("/sitemap-pages.xml")({
 
         try {
           const { createClient } = await import("@supabase/supabase-js");
-          const key = process.env["SUPABASE_PUBLISHABLE_KEY"] ?? "";
-          const url = process.env["SUPABASE_URL"] ?? "";
+          const env = (import.meta as unknown as { env?: Record<string, string | undefined> }).env ?? {};
+          const url =
+            (typeof process !== "undefined" ? process.env["SUPABASE_URL"] : undefined) ??
+            env["VITE_SUPABASE_URL"];
+          const key =
+            (typeof process !== "undefined" ? process.env["SUPABASE_PUBLISHABLE_KEY"] : undefined) ??
+            env["VITE_SUPABASE_PUBLISHABLE_KEY"] ??
+            env["VITE_SUPABASE_ANON_KEY"];
           if (key && url) {
-            const db = createClient(url, key, { auth: { persistSession: false } });
+            const db = createClient(url, key, {
+              auth: { persistSession: false, autoRefreshToken: false },
+              global: {
+                fetch: (input: RequestInfo | URL, init?: RequestInit) => {
+                  const h = new Headers(init?.headers);
+                  if (key.startsWith("sb_") && h.get("Authorization") === `Bearer ${key}`) {
+                    h.delete("Authorization");
+                  }
+                  h.set("apikey", key);
+                  return fetch(input, { ...init, headers: h });
+                },
+              },
+            });
             const { data } = await db
               .from("pdf_products")
               .select("slug")
@@ -64,6 +82,7 @@ export const Route = createFileRoute("/sitemap-pages.xml")({
         } catch {
           /* stay valid if the store is unreachable */
         }
+
 
         STATES.forEach((s) =>
           entries.push({ path: `/partners/${s.slug}`, changefreq: "monthly", priority: "0.7" }),

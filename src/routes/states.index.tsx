@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { Breadcrumbs, InternalLinks, Cta } from "@/components/seo/blocks";
-import { seoMeta, jsonLd, breadcrumbSchema } from "@/lib/seo/schema";
+import { seoMeta, jsonLd, breadcrumbSchema, absoluteUrl } from "@/lib/seo/schema";
 import { ACTIVE_STATES, citiesInStateSlug } from "@/lib/seo/geo";
 
 const TITLE = "Movers by State — Moving Companies in All 50 States | Easy Moving";
@@ -11,7 +11,7 @@ const DESC =
 export const Route = createFileRoute("/states/")({
   head: () => ({
     meta: seoMeta({ title: TITLE, description: DESC, path: "/states" }),
-    links: [{ rel: "canonical", href: "/states" }],
+    links: [{ rel: "canonical", href: absoluteUrl("/states") }],
     scripts: [
       jsonLd(
         breadcrumbSchema([

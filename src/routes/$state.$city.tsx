@@ -8,8 +8,7 @@ import {
   jsonLd,
   breadcrumbSchema,
   faqSchema,
-  localBusinessSchema,
-} from "@/lib/seo/schema";
+  localBusinessSchema, absoluteUrl } from "@/lib/seo/schema";
 import { neighborhoodsFor } from "@/lib/seo/city-content";
 import {
   findCity,
@@ -39,7 +38,7 @@ export const Route = createFileRoute("/$state/$city")({
     const description = `Compare licensed ${c.name}, ${c.stateCode} moving companies and get an instant itemized quote. Average two-bedroom move about $${a.twoBed.toLocaleString()}. Local, long-distance and interstate.`;
     return {
       meta: seoMeta({ title, description, path }),
-      links: [{ rel: "canonical", href: path }],
+      links: [{ rel: "canonical", href: absoluteUrl(path) }],
       scripts: [
         jsonLd(
           localBusinessSchema({

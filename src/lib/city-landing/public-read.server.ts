@@ -8,6 +8,7 @@
 // ---------------------------------------------------------------------------
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
+import { MIN_INDEX_WORDS, MIN_INDEX_SEO_SCORE, MIN_INDEX_POPULATION } from "./quality";
 
 export interface CityPageRow {
   slug: string;
@@ -173,30 +174,52 @@ export async function countPublishedCities(): Promise<number> {
 }
 
 /**
- * Every published slug, for the XML sitemap. Paged internally so the network
- * scales past PostgREST's per-request row cap without code changes.
+ * Quality gate applied in the database so low-value pages never reach the
+ * sitemap and we never transfer rows we are going to throw away.
  */
-export async function readAllPublishedSlugs(): Promise<
-  Array<{ slug: string; seoPublished: boolean }>
-> {
-  const out: Array<{ slug: string; seoPublished: boolean }> = [];
-  const page = 1000;
-  const db = client();
-  if (!db) return out;
-  try {
-    for (let offset = 0; offset < 60_000; offset += page) {
-      const { data } = await db
-        .from("city_landing_pages")
-        .select("slug, seo_status")
-        .eq("status", "published")
-        .order("slug", { ascending: true })
-        .range(offset, offset + page - 1);
-      const rows = (data ?? []) as unknown as Array<{ slug: string; seo_status: string | null }>;
-      rows.forEach((r) => out.push({ slug: r.slug, seoPublished: r.seo_status === "published" }));
-      if (rows.length < page) break;
-    }
-  } catch {
-    /* fall through with whatever we collected */
-  }
-  return out;
+function indexableQuery(db: NonNullable<ReturnType<typeof client>>, columns: string, head = false) {
+  return db
+    .from("city_landing_pages")
+    .select(columns, head ? { count: "exact", head: true } : undefined)
+    .eq("status", "published")
+    .gte("word_count", MIN_INDEX_WORDS)
+    .gte("seo_score", MIN_INDEX_SEO_SCORE)
+    .gte("population", MIN_INDEX_POPULATION)
+    .not("zip_codes", "is", null);
 }
+
+/** How many city pages currently qualify for indexing. */
+export async function countIndexableCities(): Promise<number> {
+  try {
+    const db = client();
+    if (!db) return 0;
+    const { count } = await indexableQuery(db, "slug", true);
+    return count ?? 0;
+  } catch {
+    return 0;
+  }
+}
+
+/**
+ * One page of indexable slugs for an XML sitemap part. Paged in the database
+ * (LIMIT/OFFSET) — we never load the whole city table to build one file.
+ */
+export async function readIndexableSlugs(
+  limit: number,
+  offset: number,
+): Promise<Array<{ slug: string; seoPublished: boolean }>> {
+  try {
+    const db = client();
+    if (!db) return [];
+    const { data } = await indexableQuery(db, "slug, seo_status")
+      .order("population", { ascending: false })
+      .order("slug", { ascending: true })
+      .range(offset, offset + limit - 1);
+    return ((data ?? []) as unknown as Array<{ slug: string; seo_status: string | null }>).map(
+      (r) => ({ slug: r.slug, seoPublished: r.seo_status === "published" }),
+    );
+  } catch {
+    return [];
+  }
+}
+

@@ -9,8 +9,7 @@ import {
   breadcrumbSchema,
   faqSchema,
   serviceSchema,
-  localBusinessSchema,
-} from "@/lib/seo/schema";
+  localBusinessSchema, absoluteUrl } from "@/lib/seo/schema";
 import { findCityFacts, parseLandingParam, type CityFacts } from "@/lib/city-landing/data";
 import { buildCityLandingContent, type CityLandingContent } from "@/lib/city-landing/content";
 import { routesForCity, routePath } from "@/lib/seo/geo";
@@ -24,21 +23,41 @@ import type { LandingContext } from "@/lib/city-landing/attribution";
 export const Route = createFileRoute("/moving-calculator-{$city}")({
   loader: async ({ params }) => {
     const record = await getCityPageData({ data: { slug: params.city.toLowerCase() } });
-    if (record) return { facts: record.facts, content: record.content, hero: record.hero };
+    if (record)
+      return {
+        facts: record.facts,
+        content: record.content,
+        hero: record.hero,
+        indexable: record.indexable,
+      };
     const parsed = parseLandingParam(params.city);
     const facts = parsed ? findCityFacts(parsed.citySlug, parsed.stateCode) : null;
     if (!facts) throw notFound();
-    return { facts, content: buildCityLandingContent(facts), hero: resolveCityHero(null, facts) };
+    return {
+      facts,
+      content: buildCityLandingContent(facts),
+      hero: resolveCityHero(null, facts),
+      indexable: true,
+    };
   },
   head: ({ loaderData, params }) => {
     if (!loaderData) {
       return { meta: [{ title: "Page not found" }, { name: "robots", content: "noindex" }] };
     }
-    const { facts, content } = loaderData as { facts: CityFacts; content: CityLandingContent };
+    const { facts, content, indexable } = loaderData as {
+      facts: CityFacts;
+      content: CityLandingContent;
+      indexable: boolean;
+    };
     const path = `/moving-calculator-${params.city}`;
     return {
-      meta: seoMeta({ title: content.title, description: content.metaDescription, path }),
-      links: [{ rel: "canonical", href: path }],
+      meta: seoMeta({
+        title: content.title,
+        description: content.metaDescription,
+        path,
+        index: indexable,
+      }),
+      links: [{ rel: "canonical", href: absoluteUrl(path) }],
       scripts: [
         jsonLd(
           serviceSchema({
@@ -131,6 +150,7 @@ function CityCalculatorPage() {
           </span>
         </div>
         <CityHeroImage
+          priority
           hero={hero}
           city={facts.city}
           stateCode={facts.stateCode}

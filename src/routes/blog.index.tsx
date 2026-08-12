@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { supabase } from "@/integrations/supabase/client";
 import { Breadcrumbs, InternalLinks, Cta } from "@/components/seo/blocks";
-import { seoMeta, jsonLd, breadcrumbSchema } from "@/lib/seo/schema";
+import { seoMeta, jsonLd, breadcrumbSchema, absoluteUrl } from "@/lib/seo/schema";
 import { BLOG_CATEGORIES, categorizePost, type BlogCategory } from "@/lib/seo/public-content";
 
 const postsQueryOptions = queryOptions({
@@ -27,7 +27,7 @@ const DESC =
 export const Route = createFileRoute("/blog/")({
   head: () => ({
     meta: seoMeta({ title: TITLE, description: DESC, path: "/blog" }),
-    links: [{ rel: "canonical", href: "/blog" }],
+    links: [{ rel: "canonical", href: absoluteUrl("/blog") }],
     scripts: [
       jsonLd(
         breadcrumbSchema([

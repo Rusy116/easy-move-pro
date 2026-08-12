@@ -2,7 +2,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { StorefrontPage } from "@/components/store/StorefrontPage";
 import { storefront } from "@/lib/pdf-store.functions";
-import { seoMeta, jsonLd, breadcrumbSchema } from "@/lib/seo/schema";
+import { seoMeta, jsonLd, breadcrumbSchema, absoluteUrl } from "@/lib/seo/schema";
 
 // /store is the historical storefront URL. It renders the real AI-produced
 // catalog (same data as /products) instead of throwing a redirect, which had
@@ -16,7 +16,7 @@ export const Route = createFileRoute("/store")({
         "Browse the Easy Moving digital store: printable moving checklists, budget worksheets, packing guides and inventory sheets. Instant PDF downloads.",
       path: "/store",
     }),
-    links: [{ rel: "canonical", href: "/products" }],
+    links: [{ rel: "canonical", href: absoluteUrl("/products") }],
     scripts: [jsonLd(breadcrumbSchema([{ name: "Home", url: "/" }, { name: "Store", url: "/store" }]))],
   }),
   component: StorePage,

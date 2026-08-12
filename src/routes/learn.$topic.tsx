@@ -1,7 +1,7 @@
 import { createFileRoute, notFound, Link } from "@tanstack/react-router";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { SeoHero, Faq, Cta, Breadcrumbs, InternalLinks } from "@/components/seo/blocks";
-import { seoMeta, jsonLd, breadcrumbSchema, faqSchema } from "@/lib/seo/schema";
+import { seoMeta, jsonLd, breadcrumbSchema, faqSchema, absoluteUrl } from "@/lib/seo/schema";
 import { educationBySlug, EDUCATION_PAGES } from "@/lib/seo/content";
 
 export const Route = createFileRoute("/learn/$topic")({
@@ -17,7 +17,7 @@ export const Route = createFileRoute("/learn/$topic")({
     const path = `/learn/${params.topic}`;
     return {
       meta: seoMeta({ title: p.title, description: p.description, path, type: "article" }),
-      links: [{ rel: "canonical", href: path }],
+      links: [{ rel: "canonical", href: absoluteUrl(path) }],
       scripts: [
         jsonLd(
           breadcrumbSchema([

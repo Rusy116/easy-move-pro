@@ -12,7 +12,7 @@ import {
   Breadcrumbs,
   InternalLinks,
 } from "@/components/seo/blocks";
-import { seoMeta, jsonLd, breadcrumbSchema, faqSchema, organizationSchema } from "@/lib/seo/schema";
+import { seoMeta, jsonLd, breadcrumbSchema, faqSchema, organizationSchema, absoluteUrl } from "@/lib/seo/schema";
 import { STATES, CITIES } from "@/lib/seo/locations";
 import { PRODUCT_PAGES, EDUCATION_PAGES } from "@/lib/seo/content";
 
@@ -47,7 +47,7 @@ export const Route = createFileRoute("/partners/")({
         "Join the Easy Moving partner network. Get exclusive moving leads, a full CRM, dispatch, estimator, and invoicing — with no monthly minimums.",
       path: "/partners",
     }),
-    links: [{ rel: "canonical", href: "/partners" }],
+    links: [{ rel: "canonical", href: absoluteUrl("/partners") }],
     scripts: [
       jsonLd(organizationSchema()),
       jsonLd(faqSchema(FAQ)),

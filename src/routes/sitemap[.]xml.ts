@@ -3,8 +3,9 @@ import type {} from "@tanstack/react-start";
 import { renderSitemapIndex, CITY_SLUGS_PER_PART } from "@/lib/seo/sitemap-xml";
 
 /**
- * Sitemap index. City URLs come from the database only (published records),
- * split across parts so no single file exceeds the 50,000-URL limit.
+ * Sitemap index. City URLs come from the database only, and only for records
+ * that pass the SEO quality gate, split across parts so no single file
+ * exceeds the 50,000-URL limit.
  */
 export const Route = createFileRoute("/sitemap.xml")({
   server: {
@@ -12,10 +13,10 @@ export const Route = createFileRoute("/sitemap.xml")({
       GET: async () => {
         let total = 0;
         try {
-          const { countPublishedCities } = await import(
+          const { countIndexableCities } = await import(
             "@/lib/city-landing/public-read.server"
           );
-          total = await countPublishedCities();
+          total = await countIndexableCities();
         } catch {
           total = 0;
         }

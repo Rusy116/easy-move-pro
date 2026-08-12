@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Breadcrumbs } from "@/components/seo/blocks";
-import { seoMeta, jsonLd, breadcrumbSchema } from "@/lib/seo/schema";
+import { seoMeta, jsonLd, breadcrumbSchema, absoluteUrl } from "@/lib/seo/schema";
 import { supabase } from "@/integrations/supabase/client";
 import { STATES } from "@/lib/seo/locations";
 
@@ -20,7 +20,7 @@ export const Route = createFileRoute("/join")({
         "Apply to become an Easy Moving partner. Get exclusive moving leads, a CRM, dispatch, and invoicing. Approval in 1–3 business days.",
       path: "/join",
     }),
-    links: [{ rel: "canonical", href: "/join" }],
+    links: [{ rel: "canonical", href: absoluteUrl("/join") }],
     scripts: [
       jsonLd(
         breadcrumbSchema([

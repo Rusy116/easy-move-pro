@@ -1,7 +1,7 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { Breadcrumbs, InternalLinks, Cta } from "@/components/seo/blocks";
-import { seoMeta, jsonLd, breadcrumbSchema, serviceSchema } from "@/lib/seo/schema";
+import { seoMeta, jsonLd, breadcrumbSchema, serviceSchema, absoluteUrl } from "@/lib/seo/schema";
 import { ROBOTS_META } from "@/lib/seo-config";
 import { landingPathFor, moversPathFor } from "@/lib/city-landing/data";
 import { findCounty, parseCountyParam } from "@/lib/city-landing/hierarchy";
@@ -26,7 +26,7 @@ export const Route = createFileRoute("/counties/$county")({
     const description = `Licensed moving companies across ${node.name}, ${node.stateName}. Compare instant, itemized moving quotes for ${node.cities.length} cities in the county.`;
     return {
       meta: [...seoMeta({ title, description, path }), ...ROBOTS_META],
-      links: [{ rel: "canonical", href: path }],
+      links: [{ rel: "canonical", href: absoluteUrl(path) }],
       scripts: [
         jsonLd(serviceSchema({ name: `Moving services in ${node.name}`, description, areaServed: `${node.name}, ${node.stateCode}` })),
         jsonLd(

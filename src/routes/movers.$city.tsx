@@ -11,8 +11,7 @@ import {
   serviceSchema,
   localBusinessSchema,
   organizationSchema,
-  websiteSchema,
-} from "@/lib/seo/schema";
+  websiteSchema, absoluteUrl } from "@/lib/seo/schema";
 import { findCityFacts, parseLandingParam, type CityFacts } from "@/lib/city-landing/data";
 import { buildCityLandingContent } from "@/lib/city-landing/content";
 import { buildMoversSeoContent, type MoversSeoContent } from "@/lib/city-landing/seo-page";
@@ -39,6 +38,7 @@ export const Route = createFileRoute("/movers/$city")({
         seo: record.seo,
         hierarchy: record.hierarchy,
         hero: record.hero,
+        indexable: record.moversIndexable,
       };
     }
     const parsed = parseLandingParam(params.city);
@@ -49,6 +49,7 @@ export const Route = createFileRoute("/movers/$city")({
       seo: buildMoversSeoContent(facts, buildCityLandingContent(facts)),
       hierarchy: buildCityHierarchy(facts),
       hero: resolveCityHero(null, facts),
+      indexable: true,
     };
 
   },
@@ -56,11 +57,20 @@ export const Route = createFileRoute("/movers/$city")({
     if (!loaderData) {
       return { meta: [{ title: "Page not found" }, { name: "robots", content: "noindex" }] };
     }
-    const { facts, seo } = loaderData as { facts: CityFacts; seo: MoversSeoContent };
+    const { facts, seo, indexable } = loaderData as {
+      facts: CityFacts;
+      seo: MoversSeoContent;
+      indexable: boolean;
+    };
     const path = `/movers/${params.city}`;
     return {
-      meta: seoMeta({ title: seo.title, description: seo.metaDescription, path }),
-      links: [{ rel: "canonical", href: path }],
+      meta: seoMeta({
+        title: seo.title,
+        description: seo.metaDescription,
+        path,
+        index: indexable,
+      }),
+      links: [{ rel: "canonical", href: absoluteUrl(path) }],
       scripts: [
         jsonLd(
           localBusinessSchema({
@@ -161,6 +171,7 @@ function MoversCityPage() {
           </p>
         ))}
         <CityHeroImage
+          priority
           hero={hero}
           city={facts.city}
           stateCode={facts.stateCode}

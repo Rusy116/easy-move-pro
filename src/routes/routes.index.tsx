@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { Breadcrumbs, InternalLinks, Cta } from "@/components/seo/blocks";
-import { seoMeta, jsonLd, breadcrumbSchema } from "@/lib/seo/schema";
+import { seoMeta, jsonLd, breadcrumbSchema, absoluteUrl } from "@/lib/seo/schema";
 import { GEO_ROUTES } from "@/lib/seo/geo";
 
 const TITLE = "Popular Moving Routes — Costs, Distance & Transit Times | Easy Moving";
@@ -11,7 +11,7 @@ const DESC =
 export const Route = createFileRoute("/routes/")({
   head: () => ({
     meta: seoMeta({ title: TITLE, description: DESC, path: "/routes" }),
-    links: [{ rel: "canonical", href: "/routes" }],
+    links: [{ rel: "canonical", href: absoluteUrl("/routes") }],
     scripts: [
       jsonLd(
         breadcrumbSchema([

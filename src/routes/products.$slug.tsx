@@ -8,7 +8,7 @@ import { ProductCard } from "@/components/store/ProductCard";
 import { getStoreProduct } from "@/lib/pdf-store.functions";
 import { money, DIFFICULTY_LABEL, type PdfDifficulty } from "@/lib/pdf-store/catalog";
 import { PAYMENTS_ENABLED, checkoutLabel, isPaid } from "@/lib/pdf-store/checkout";
-import { seoMeta, jsonLd, breadcrumbSchema, faqSchema } from "@/lib/seo/schema";
+import { seoMeta, jsonLd, breadcrumbSchema, faqSchema, absoluteUrl } from "@/lib/seo/schema";
 
 export const Route = createFileRoute("/products/$slug")({
   loader: async ({ params }) => {
@@ -27,7 +27,7 @@ export const Route = createFileRoute("/products/$slug")({
         description: p.meta_description ?? p.subtitle ?? `${p.title}: a printable PDF from Easy Moving.`,
         path: `/products/${p.slug}`,
       }),
-      links: [{ rel: "canonical", href: `/products/${p.slug}` }],
+      links: [{ rel: "canonical", href: absoluteUrl(`/products/${p.slug}`) }],
       scripts: [
         jsonLd({
           "@context": "https://schema.org",

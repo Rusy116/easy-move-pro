@@ -14,6 +14,7 @@ export const getCityPageData = createServerFn({ method: "GET" })
     const { factsFromRow, contentFromRow, seoFromRow } = await import("./record-adapter");
     const { buildCityHierarchy } = await import("./hierarchy");
     const { resolveCityHero } = await import("./media");
+    const { isIndexableCity, isIndexableMovers } = await import("./quality");
 
     const row = await readCityPage(data.slug);
     if (!row) return null;
@@ -21,7 +22,9 @@ export const getCityPageData = createServerFn({ method: "GET" })
     const facts = factsFromRow(row);
     const content = contentFromRow(row, facts);
     const seo = seoFromRow(row, facts, content);
-    const peers = (await readCitiesByState(facts.stateCode, 400))
+    // Peers only feed the internal-link blocks — a small, population-ordered
+    // slice is enough and keeps the per-page query cheap at 30k+ cities.
+    const peers = (await readCitiesByState(facts.stateCode, 24))
       .filter((p) => p.slug !== row.slug)
       .map((p) => ({
         slug: p.slug.replace(new RegExp(`-${p.stateCode.toLowerCase()}$`), ""),
@@ -38,6 +41,8 @@ export const getCityPageData = createServerFn({ method: "GET" })
       hero: resolveCityHero(row.media, facts),
       hierarchy: buildCityHierarchy(facts, peers),
       seoPublished: row.seo_status === "published",
+      indexable: isIndexableCity(row),
+      moversIndexable: isIndexableMovers(row),
     };
   });
 
@@ -58,7 +63,3 @@ export const listPublishedCityPages = createServerFn({ method: "GET" })
     return { cities, total: await countPublishedCities() };
   });
 
-export const listCitySitemapEntries = createServerFn({ method: "GET" }).handler(async () => {
-  const { readAllPublishedSlugs } = await import("./public-read.server");
-  return await readAllPublishedSlugs();
-});

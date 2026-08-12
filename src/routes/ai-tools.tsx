@@ -3,7 +3,7 @@ import { Sparkles, Lock } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { Button } from "@/components/ui/button";
 import { Breadcrumbs, InternalLinks, Cta } from "@/components/seo/blocks";
-import { seoMeta, jsonLd, breadcrumbSchema, faqSchema } from "@/lib/seo/schema";
+import { seoMeta, jsonLd, breadcrumbSchema, faqSchema, absoluteUrl } from "@/lib/seo/schema";
 import { AI_TOOLS } from "@/lib/seo/public-content";
 import { isFeatureEnabled } from "@/lib/feature-flags";
 
@@ -29,7 +29,7 @@ const FAQ = [
 export const Route = createFileRoute("/ai-tools")({
   head: () => ({
     meta: seoMeta({ title: TITLE, description: DESC, path: "/ai-tools" }),
-    links: [{ rel: "canonical", href: "/ai-tools" }],
+    links: [{ rel: "canonical", href: absoluteUrl("/ai-tools") }],
     scripts: [
       jsonLd(
         breadcrumbSchema([

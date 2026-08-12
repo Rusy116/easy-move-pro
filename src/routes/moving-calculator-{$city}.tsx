@@ -9,8 +9,7 @@ import {
   breadcrumbSchema,
   faqSchema,
   serviceSchema,
-  localBusinessSchema,
-} from "@/lib/seo/schema";
+  localBusinessSchema, absoluteUrl } from "@/lib/seo/schema";
 import { findCityFacts, parseLandingParam, type CityFacts } from "@/lib/city-landing/data";
 import { buildCityLandingContent, type CityLandingContent } from "@/lib/city-landing/content";
 import { routesForCity, routePath } from "@/lib/seo/geo";
@@ -38,7 +37,7 @@ export const Route = createFileRoute("/moving-calculator-{$city}")({
     const path = `/moving-calculator-${params.city}`;
     return {
       meta: seoMeta({ title: content.title, description: content.metaDescription, path }),
-      links: [{ rel: "canonical", href: path }],
+      links: [{ rel: "canonical", href: absoluteUrl(path) }],
       scripts: [
         jsonLd(
           serviceSchema({

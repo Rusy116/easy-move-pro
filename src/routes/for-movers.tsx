@@ -12,7 +12,7 @@ import {
   Cta,
   Breadcrumbs,
 } from "@/components/seo/blocks";
-import { seoMeta, jsonLd, breadcrumbSchema, faqSchema, serviceSchema } from "@/lib/seo/schema";
+import { seoMeta, jsonLd, breadcrumbSchema, faqSchema, serviceSchema, absoluteUrl } from "@/lib/seo/schema";
 
 const TITLE = "Join Easy Moving — Exclusive Moving Leads & Free Mover CRM";
 const DESC =
@@ -102,7 +102,7 @@ const CRM_FEATURES = [
 export const Route = createFileRoute("/for-movers")({
   head: () => ({
     meta: seoMeta({ title: TITLE, description: DESC, path: "/for-movers" }),
-    links: [{ rel: "canonical", href: "/for-movers" }],
+    links: [{ rel: "canonical", href: absoluteUrl("/for-movers") }],
     scripts: [
       jsonLd(
         serviceSchema({

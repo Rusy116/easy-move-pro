@@ -2,7 +2,7 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { QuoteCalculator } from "@/components/calculator/QuoteCalculator";
 import { Breadcrumbs, Faq, InternalLinks, Cta } from "@/components/seo/blocks";
-import { seoMeta, jsonLd, breadcrumbSchema, faqSchema, serviceSchema } from "@/lib/seo/schema";
+import { seoMeta, jsonLd, breadcrumbSchema, faqSchema, serviceSchema, absoluteUrl } from "@/lib/seo/schema";
 import { findRoute, routeFaq, GEO_ROUTES, cityPath } from "@/lib/seo/geo";
 
 export const Route = createFileRoute("/routes/$route")({
@@ -21,7 +21,7 @@ export const Route = createFileRoute("/routes/$route")({
     const description = `Moving from ${r.from.name}, ${r.from.stateCode} to ${r.to.name}, ${r.to.stateCode}? Distance ${r.miles.toLocaleString()} miles, typical cost $${r.low.toLocaleString()}–$${r.high.toLocaleString()}. Get an instant itemized quote.`;
     return {
       meta: seoMeta({ title, description, path }),
-      links: [{ rel: "canonical", href: path }],
+      links: [{ rel: "canonical", href: absoluteUrl(path) }],
       scripts: [
         jsonLd(
           serviceSchema({

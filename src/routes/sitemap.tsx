@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { Breadcrumbs } from "@/components/seo/blocks";
-import { seoMeta, jsonLd, breadcrumbSchema } from "@/lib/seo/schema";
+import { seoMeta, jsonLd, breadcrumbSchema, absoluteUrl } from "@/lib/seo/schema";
 import { ROBOTS_META } from "@/lib/seo-config";
 import { GEO_STATES } from "@/lib/seo/geo";
 import { landingPathFor, moversPathFor } from "@/lib/city-landing/data";
@@ -22,7 +22,7 @@ export const Route = createFileRoute("/sitemap")({
       }),
       ...ROBOTS_META,
     ],
-    links: [{ rel: "canonical", href: "/sitemap" }],
+    links: [{ rel: "canonical", href: absoluteUrl("/sitemap") }],
     scripts: [
       jsonLd(
         breadcrumbSchema([

@@ -9,7 +9,7 @@ import {
   InternalLinks,
   Statistics,
 } from "@/components/seo/blocks";
-import { seoMeta, jsonLd, breadcrumbSchema, faqSchema, serviceSchema } from "@/lib/seo/schema";
+import { seoMeta, jsonLd, breadcrumbSchema, faqSchema, serviceSchema, absoluteUrl } from "@/lib/seo/schema";
 import { findLocation, citiesInState, CITIES } from "@/lib/seo/locations";
 
 export const Route = createFileRoute("/partners/$location")({
@@ -35,7 +35,7 @@ export const Route = createFileRoute("/partners/$location")({
     const path = `/partners/${params.location}`;
     return {
       meta: seoMeta({ title, description, path }),
-      links: [{ rel: "canonical", href: path }],
+      links: [{ rel: "canonical", href: absoluteUrl(path) }],
       scripts: [
         jsonLd(
           serviceSchema({

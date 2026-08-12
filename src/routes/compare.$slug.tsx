@@ -8,7 +8,7 @@ import {
   Breadcrumbs,
   InternalLinks,
 } from "@/components/seo/blocks";
-import { seoMeta, jsonLd, breadcrumbSchema, faqSchema } from "@/lib/seo/schema";
+import { seoMeta, jsonLd, breadcrumbSchema, faqSchema, absoluteUrl } from "@/lib/seo/schema";
 import { comparisonBySlug, COMPARISON_PAGES } from "@/lib/seo/content";
 
 export const Route = createFileRoute("/compare/$slug")({
@@ -24,7 +24,7 @@ export const Route = createFileRoute("/compare/$slug")({
     const path = `/compare/${params.slug}`;
     return {
       meta: seoMeta({ title: p.title, description: p.description, path, type: "article" }),
-      links: [{ rel: "canonical", href: path }],
+      links: [{ rel: "canonical", href: absoluteUrl(path) }],
       scripts: [
         jsonLd(
           breadcrumbSchema([

@@ -5,7 +5,7 @@ import { Search as SearchIcon } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { Input } from "@/components/ui/input";
 import { Breadcrumbs, InternalLinks } from "@/components/seo/blocks";
-import { seoMeta } from "@/lib/seo/schema";
+import { seoMeta, absoluteUrl } from "@/lib/seo/schema";
 import { supabase } from "@/integrations/supabase/client";
 import { GEO_CITIES, GEO_ROUTES, cityPath } from "@/lib/seo/geo";
 import { RESOURCES } from "@/lib/seo/public-content";
@@ -22,7 +22,7 @@ export const Route = createFileRoute("/search")({
       ...seoMeta({ title: TITLE, description: DESC, path: "/search" }),
       { name: "robots", content: "noindex" },
     ],
-    links: [{ rel: "canonical", href: "/search" }],
+    links: [{ rel: "canonical", href: absoluteUrl("/search") }],
   }),
   component: SearchPage,
 });

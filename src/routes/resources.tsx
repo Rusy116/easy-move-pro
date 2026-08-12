@@ -3,7 +3,7 @@ import { useState } from "react";
 import { BookOpen, CheckSquare, Play, Download, HelpCircle, Lightbulb } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { Breadcrumbs, InternalLinks, Cta, Faq } from "@/components/seo/blocks";
-import { seoMeta, jsonLd, breadcrumbSchema, faqSchema } from "@/lib/seo/schema";
+import { seoMeta, jsonLd, breadcrumbSchema, faqSchema, absoluteUrl } from "@/lib/seo/schema";
 import { RESOURCES, RESOURCE_KINDS, type ResourceItem } from "@/lib/seo/public-content";
 
 const TITLE = "Moving Resources — Free Guides, Checklists & Downloads | Easy Moving";
@@ -37,7 +37,7 @@ const ICONS: Record<ResourceItem["kind"], typeof BookOpen> = {
 export const Route = createFileRoute("/resources")({
   head: () => ({
     meta: seoMeta({ title: TITLE, description: DESC, path: "/resources" }),
-    links: [{ rel: "canonical", href: "/resources" }],
+    links: [{ rel: "canonical", href: absoluteUrl("/resources") }],
     scripts: [
       jsonLd(
         breadcrumbSchema([

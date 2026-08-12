@@ -2,7 +2,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { StorefrontPage } from "@/components/store/StorefrontPage";
 import { storefront } from "@/lib/pdf-store.functions";
-import { seoMeta, jsonLd, breadcrumbSchema } from "@/lib/seo/schema";
+import { seoMeta, jsonLd, breadcrumbSchema, absoluteUrl } from "@/lib/seo/schema";
 
 export const Route = createFileRoute("/products/")({
   loader: () => storefront(),
@@ -13,7 +13,7 @@ export const Route = createFileRoute("/products/")({
         "Download printable moving checklists, budget worksheets, packing guides and inventory sheets built by the Easy Moving team. Instant PDF downloads.",
       path: "/products",
     }),
-    links: [{ rel: "canonical", href: "/products" }],
+    links: [{ rel: "canonical", href: absoluteUrl("/products") }],
     scripts: [jsonLd(breadcrumbSchema([{ name: "Home", url: "/" }, { name: "Store", url: "/products" }]))],
   }),
   component: StoreHome,

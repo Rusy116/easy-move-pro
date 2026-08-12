@@ -11,8 +11,7 @@ import {
   serviceSchema,
   localBusinessSchema,
   organizationSchema,
-  websiteSchema,
-} from "@/lib/seo/schema";
+  websiteSchema, absoluteUrl } from "@/lib/seo/schema";
 import { findCityFacts, parseLandingParam, type CityFacts } from "@/lib/city-landing/data";
 import { buildCityLandingContent } from "@/lib/city-landing/content";
 import { buildMoversSeoContent, type MoversSeoContent } from "@/lib/city-landing/seo-page";
@@ -60,7 +59,7 @@ export const Route = createFileRoute("/movers/$city")({
     const path = `/movers/${params.city}`;
     return {
       meta: seoMeta({ title: seo.title, description: seo.metaDescription, path }),
-      links: [{ rel: "canonical", href: path }],
+      links: [{ rel: "canonical", href: absoluteUrl(path) }],
       scripts: [
         jsonLd(
           localBusinessSchema({

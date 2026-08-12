@@ -1,7 +1,7 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { Breadcrumbs, Faq, InternalLinks, Cta, Statistics } from "@/components/seo/blocks";
-import { seoMeta, jsonLd, breadcrumbSchema, faqSchema, serviceSchema } from "@/lib/seo/schema";
+import { seoMeta, jsonLd, breadcrumbSchema, faqSchema, serviceSchema, absoluteUrl } from "@/lib/seo/schema";
 import { findState, citiesInStateSlug, cityAverages, cityPath, GEO_ROUTES } from "@/lib/seo/geo";
 
 export const Route = createFileRoute("/states/$state")({
@@ -20,7 +20,7 @@ export const Route = createFileRoute("/states/$state")({
     const description = `Licensed ${s.name} moving companies for local, long-distance and interstate moves. Compare city-level moving costs and get an instant itemized quote.`;
     return {
       meta: seoMeta({ title, description, path }),
-      links: [{ rel: "canonical", href: path }],
+      links: [{ rel: "canonical", href: absoluteUrl(path) }],
       scripts: [
         jsonLd(
           serviceSchema({ name: `${s.name} Moving Services`, description, areaServed: s.name }),

@@ -9,14 +9,14 @@ import {
   Breadcrumbs,
   InternalLinks,
 } from "@/components/seo/blocks";
-import { seoMeta, jsonLd, breadcrumbSchema, faqSchema, serviceSchema } from "@/lib/seo/schema";
+import { seoMeta, jsonLd, breadcrumbSchema, faqSchema, serviceSchema, absoluteUrl } from "@/lib/seo/schema";
 import { PRODUCT_PAGES, type ProductPage } from "@/lib/seo/content";
 
 export function productHead(slug: string) {
   const p = PRODUCT_PAGES.find((x) => x.slug === slug)!;
   return {
     meta: seoMeta({ title: p.title, description: p.description, path: p.route }),
-    links: [{ rel: "canonical", href: p.route }],
+    links: [{ rel: "canonical", href: absoluteUrl(p.route) }],
     scripts: [
       jsonLd(serviceSchema({ name: p.h1, description: p.description })),
       jsonLd(

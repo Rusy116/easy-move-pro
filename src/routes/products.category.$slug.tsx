@@ -4,7 +4,7 @@ import { SeoHero, Breadcrumbs, Cta } from "@/components/seo/blocks";
 import { ProductCard } from "@/components/store/ProductCard";
 import { listStoreProducts } from "@/lib/pdf-store.functions";
 import { FALLBACK_CATEGORIES, type PdfProduct } from "@/lib/pdf-store/catalog";
-import { seoMeta, jsonLd, breadcrumbSchema } from "@/lib/seo/schema";
+import { seoMeta, jsonLd, breadcrumbSchema, absoluteUrl } from "@/lib/seo/schema";
 
 const catFor = (slug: string) =>
   FALLBACK_CATEGORIES.find((c) => c.slug === slug) ?? {
@@ -23,7 +23,7 @@ export const Route = createFileRoute("/products/category/$slug")({
         description: `${c.description} Download ${c.name.toLowerCase()} as print-ready PDFs from Easy Moving.`,
         path: `/products/category/${params.slug}`,
       }),
-      links: [{ rel: "canonical", href: `/products/category/${params.slug}` }],
+      links: [{ rel: "canonical", href: absoluteUrl(`/products/category/${params.slug}`) }],
       scripts: [
         jsonLd(
           breadcrumbSchema([

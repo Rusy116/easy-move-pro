@@ -12,11 +12,14 @@ export function CityHeroImage({
   city,
   stateCode,
   className = "",
+  priority = false,
 }: {
   hero?: CityHero | null;
   city: string;
   stateCode: string;
   className?: string;
+  /** Set on the page's LCP image so the browser fetches it immediately. */
+  priority?: boolean;
 }) {
   const [broken, setBroken] = useState(false);
   const src = !hero?.url || broken ? fallbackHero : hero.url;
@@ -30,7 +33,8 @@ export function CityHeroImage({
         alt={alt}
         width={1200}
         height={630}
-        loading="lazy"
+        loading={priority ? "eager" : "lazy"}
+        fetchPriority={priority ? "high" : "auto"}
         decoding="async"
         onError={() => setBroken(true)}
         className="h-full w-full object-cover"

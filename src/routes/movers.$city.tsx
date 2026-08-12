@@ -171,7 +171,9 @@ function MoversCityPage() {
           </p>
         ))}
         <CityHeroImage
+          priority
           hero={hero}
+          priority
           city={facts.city}
           stateCode={facts.stateCode}
           className="mt-8 aspect-[16/7]"

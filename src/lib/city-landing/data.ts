@@ -45,7 +45,7 @@ interface CityMeta {
 }
 
 export const CITY_META: Record<string, CityMeta> = {
-  "los-angeles": {
+  "los-angeles-ca": {
     county: "Los Angeles County",
     zips: ["90001", "90012", "90024", "90026", "90034", "90045", "90064", "90068"],
     highways: ["I-5", "I-10", "I-405", "US-101", "I-110"],
@@ -54,7 +54,7 @@ export const CITY_META: Record<string, CityMeta> = {
     parking:
       "Street parking is tight in Hollywood, Koreatown and Downtown. Most moves need an LADOT temporary no-parking permit or a reserved loading dock.",
   },
-  "new-york": {
+  "new-york-ny": {
     county: "New York County",
     zips: ["10001", "10011", "10016", "10021", "10025", "11201", "11215", "11222"],
     highways: ["I-95", "I-278", "I-495", "FDR Drive", "BQE"],
@@ -63,46 +63,55 @@ export const CITY_META: Record<string, CityMeta> = {
     parking:
       "Alternate-side parking rules and loading-zone limits make early-morning starts essential. Crews often stage on the avenue and long-carry to the door.",
   },
-  chicago: {
+  "chicago-il": {
     county: "Cook County",
     zips: ["60601", "60614", "60618", "60622", "60625", "60640", "60647", "60657"],
     highways: ["I-90", "I-94", "I-290", "I-55", "Lake Shore Drive"],
     regulations:
       "Chicago requires a moving-truck parking permit in most residential permit zones; the city issues temporary signs that must be posted 24 hours ahead.",
   },
-  houston: { county: "Harris County", highways: ["I-45", "I-10", "I-610", "US-59"] },
-  phoenix: { county: "Maricopa County", highways: ["I-10", "I-17", "Loop 101", "Loop 202"] },
-  philadelphia: { county: "Philadelphia County", highways: ["I-95", "I-76", "I-676"] },
-  "san-antonio": { county: "Bexar County", highways: ["I-10", "I-35", "I-410", "Loop 1604"] },
-  "san-diego": { county: "San Diego County", highways: ["I-5", "I-8", "I-15", "I-805"] },
-  dallas: { county: "Dallas County", highways: ["I-30", "I-35E", "I-45", "US-75"] },
-  austin: { county: "Travis County", highways: ["I-35", "US-183", "MoPac (Loop 1)", "SH-71"] },
-  "san-francisco": {
+  "houston-tx": { county: "Harris County", highways: ["I-45", "I-10", "I-610", "US-59"] },
+  "phoenix-az": { county: "Maricopa County", highways: ["I-10", "I-17", "Loop 101", "Loop 202"] },
+  "philadelphia-pa": { county: "Philadelphia County", highways: ["I-95", "I-76", "I-676"] },
+  "san-antonio-tx": { county: "Bexar County", highways: ["I-10", "I-35", "I-410", "Loop 1604"] },
+  "san-diego-ca": { county: "San Diego County", highways: ["I-5", "I-8", "I-15", "I-805"] },
+  "dallas-tx": { county: "Dallas County", highways: ["I-30", "I-35E", "I-45", "US-75"] },
+  "austin-tx": { county: "Travis County", highways: ["I-35", "US-183", "MoPac (Loop 1)", "SH-71"] },
+  "san-francisco-ca": {
     county: "San Francisco County",
     zips: ["94102", "94110", "94114", "94117", "94123", "94131"],
     highways: ["US-101", "I-80", "I-280"],
     parking:
       "SFMTA temporary no-parking permits are required for most curbside moves and must be posted 72 hours in advance.",
   },
-  seattle: { county: "King County", highways: ["I-5", "I-90", "SR-99", "SR-520"] },
-  denver: { county: "Denver County", highways: ["I-25", "I-70", "I-225", "US-6"] },
-  boston: { county: "Suffolk County", highways: ["I-93", "I-90 (Mass Pike)", "US-1"] },
-  miami: { county: "Miami-Dade County", highways: ["I-95", "I-195", "I-395", "US-1"] },
-  atlanta: { county: "Fulton County", highways: ["I-75", "I-85", "I-20", "I-285"] },
-  portland: { county: "Multnomah County", highways: ["I-5", "I-84", "I-405", "US-26"] },
-  washington: { county: "District of Columbia", highways: ["I-395", "I-295", "US-50"] },
-  "las-vegas": { county: "Clark County", highways: ["I-15", "US-95", "I-215"] },
-  nashville: { county: "Davidson County", highways: ["I-40", "I-24", "I-65", "I-440"] },
-  charlotte: { county: "Mecklenburg County", highways: ["I-77", "I-85", "I-485"] },
-  pasadena: { county: "Los Angeles County", highways: ["I-210", "SR-134", "SR-110"] },
-  glendale: { county: "Los Angeles County", highways: ["I-5", "SR-134", "SR-2"] },
-  burbank: { county: "Los Angeles County", highways: ["I-5", "SR-134", "SR-170"] },
-  irvine: { county: "Orange County", highways: ["I-5", "I-405", "SR-133"] },
-  scottsdale: { county: "Maricopa County", highways: ["Loop 101", "SR-51"] },
-  tempe: { county: "Maricopa County", highways: ["I-10", "US-60", "Loop 202"] },
-  plano: { county: "Collin County", highways: ["US-75", "SH-121", "Dallas North Tollway"] },
-  frisco: { county: "Collin County", highways: ["SH-121", "Dallas North Tollway"] },
+  "seattle-wa": { county: "King County", highways: ["I-5", "I-90", "SR-99", "SR-520"] },
+  "denver-co": { county: "Denver County", highways: ["I-25", "I-70", "I-225", "US-6"] },
+  "boston-ma": { county: "Suffolk County", highways: ["I-93", "I-90 (Mass Pike)", "US-1"] },
+  "miami-fl": { county: "Miami-Dade County", highways: ["I-95", "I-195", "I-395", "US-1"] },
+  "atlanta-ga": { county: "Fulton County", highways: ["I-75", "I-85", "I-20", "I-285"] },
+  "portland-or": { county: "Multnomah County", highways: ["I-5", "I-84", "I-405", "US-26"] },
+  "washington-dc": { county: "District of Columbia", highways: ["I-395", "I-295", "US-50"] },
+  "las-vegas-nv": { county: "Clark County", highways: ["I-15", "US-95", "I-215"] },
+  "nashville-tn": { county: "Davidson County", highways: ["I-40", "I-24", "I-65", "I-440"] },
+  "charlotte-nc": { county: "Mecklenburg County", highways: ["I-77", "I-85", "I-485"] },
+  "pasadena-ca": { county: "Los Angeles County", highways: ["I-210", "SR-134", "SR-110"] },
+  "glendale-ca": { county: "Los Angeles County", highways: ["I-5", "SR-134", "SR-2"] },
+  "burbank-ca": { county: "Los Angeles County", highways: ["I-5", "SR-134", "SR-170"] },
+  "irvine-ca": { county: "Orange County", highways: ["I-5", "I-405", "SR-133"] },
+  "scottsdale-az": { county: "Maricopa County", highways: ["Loop 101", "SR-51"] },
+  "tempe-az": { county: "Maricopa County", highways: ["I-10", "US-60", "Loop 202"] },
+  "plano-tx": { county: "Collin County", highways: ["US-75", "SH-121", "Dallas North Tollway"] },
+  "frisco-tx": { county: "Collin County", highways: ["SH-121", "Dallas North Tollway"] },
 };
+
+/**
+ * Curated metadata lookup. Keyed by "{city-slug}-{state-code}" so same-named
+ * cities in different states never inherit each other's county/highways/ZIPs.
+ */
+export function cityMetaFor(slug: string, stateCode?: string | null): CityMeta {
+  if (!stateCode) return {};
+  return CITY_META[`${slug}-${stateCode.toLowerCase()}`] ?? {};
+}
 
 // ── Time zones by state ────────────────────────────────────────────────────
 const TZ_BY_STATE: Record<string, string> = {
@@ -171,7 +180,7 @@ export function moversPathForSlug(slug: string): string {
 
 // ── Fact builder ───────────────────────────────────────────────────────────
 export function buildCityFacts(c: GeoCity): CityFacts {
-  const meta = CITY_META[c.slug] ?? {};
+  const meta = cityMetaFor(c.slug, c.stateCode);
   const nearby = GEO_CITIES.filter(
     (o) => o.slug !== c.slug && (o.stateCode === c.stateCode || o.stateSlug === c.stateSlug),
   )
@@ -195,7 +204,7 @@ export function buildCityFacts(c: GeoCity): CityFacts {
     population: c.population,
     timezone: timezoneFor(c.stateCode),
     zipCodes: meta.zips ?? [],
-    neighborhoods: neighborhoodsFor(c.slug, c.name),
+    neighborhoods: neighborhoodsFor(c.slug, c.name, c.stateCode),
     highways: meta.highways ?? [],
     nearbyCities: nearby,
     parkingNotes:

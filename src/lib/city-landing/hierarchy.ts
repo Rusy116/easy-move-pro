@@ -11,7 +11,7 @@
 // Nothing here performs I/O — it scales to 50,000+ cities unchanged.
 // ---------------------------------------------------------------------------
 import { GEO_CITIES, type GeoCity } from "@/lib/seo/geo";
-import { CITY_META, landingPathFor, moversPathFor, buildCityFacts, type CityFacts } from "./data";
+import { cityMetaFor, landingPathFor, moversPathFor, buildCityFacts, type CityFacts } from "./data";
 
 export type CityTier = "neighborhood" | "small" | "medium" | "large" | "metro";
 
@@ -50,7 +50,7 @@ export function parseCountyParam(param: string): { countySlug: string; stateCode
 
 /** County of a city (curated metadata, else derived from the state name). */
 export function countyOf(c: GeoCity): string {
-  return CITY_META[c.slug]?.county ?? `${c.name} area`;
+  return cityMetaFor(c.slug, c.stateCode).county ?? `${c.name} area`;
 }
 
 export interface CountyNode {

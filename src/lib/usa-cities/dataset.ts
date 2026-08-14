@@ -13,7 +13,7 @@
 // ---------------------------------------------------------------------------
 import { GEO_CITIES, type GeoCity } from "@/lib/seo/geo";
 import {
-  CITY_META,
+  cityMetaFor,
   timezoneFor,
   landingSlugFor,
   moversSlugFor,
@@ -94,7 +94,7 @@ export function seoPriority(population: number, demand: number): number {
 }
 
 export function toMasterCity(c: GeoCity): MasterCity {
-  const meta = CITY_META[c.slug] ?? {};
+  const meta = cityMetaFor(c.slug, c.stateCode);
   const extra = GEO_EXTRA[c.slug];
   const demand = demandScore(c.population, c.stateCode);
   const nearby = GEO_CITIES.filter(

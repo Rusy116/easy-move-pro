@@ -2,7 +2,7 @@
 // Neighborhood lists and tips are curated per metro, with a sensible fallback.
 
 export const CITY_NEIGHBORHOODS: Record<string, string[]> = {
-  "new-york": [
+  "new-york-ny": [
     "Upper East Side",
     "Williamsburg",
     "Harlem",
@@ -12,7 +12,7 @@ export const CITY_NEIGHBORHOODS: Record<string, string[]> = {
     "Long Island City",
     "Bushwick",
   ],
-  "los-angeles": [
+  "los-angeles-ca": [
     "Santa Monica",
     "Silver Lake",
     "Downtown LA",
@@ -22,7 +22,7 @@ export const CITY_NEIGHBORHOODS: Record<string, string[]> = {
     "Koreatown",
     "Culver City",
   ],
-  chicago: [
+  "chicago-il": [
     "Lincoln Park",
     "Wicker Park",
     "Lakeview",
@@ -32,7 +32,7 @@ export const CITY_NEIGHBORHOODS: Record<string, string[]> = {
     "Pilsen",
     "West Loop",
   ],
-  austin: [
+  "austin-tx": [
     "South Congress",
     "East Austin",
     "Mueller",
@@ -42,7 +42,7 @@ export const CITY_NEIGHBORHOODS: Record<string, string[]> = {
     "Westlake",
     "Cedar Park",
   ],
-  "san-francisco": [
+  "san-francisco-ca": [
     "Mission District",
     "SoMa",
     "Noe Valley",
@@ -52,7 +52,7 @@ export const CITY_NEIGHBORHOODS: Record<string, string[]> = {
     "Bernal Heights",
     "Richmond",
   ],
-  miami: [
+  "miami-fl": [
     "Brickell",
     "Wynwood",
     "Coral Gables",
@@ -62,7 +62,7 @@ export const CITY_NEIGHBORHOODS: Record<string, string[]> = {
     "Edgewater",
     "Doral",
   ],
-  seattle: [
+  "seattle-wa": [
     "Capitol Hill",
     "Ballard",
     "Fremont",
@@ -72,7 +72,7 @@ export const CITY_NEIGHBORHOODS: Record<string, string[]> = {
     "Greenwood",
     "Beacon Hill",
   ],
-  denver: [
+  "denver-co": [
     "LoDo",
     "Capitol Hill",
     "Highlands",
@@ -82,7 +82,7 @@ export const CITY_NEIGHBORHOODS: Record<string, string[]> = {
     "Stapleton",
     "Baker",
   ],
-  boston: [
+  "boston-ma": [
     "Back Bay",
     "South End",
     "Beacon Hill",
@@ -92,7 +92,7 @@ export const CITY_NEIGHBORHOODS: Record<string, string[]> = {
     "Charlestown",
     "Allston",
   ],
-  atlanta: [
+  "atlanta-ga": [
     "Midtown",
     "Buckhead",
     "Old Fourth Ward",
@@ -102,7 +102,7 @@ export const CITY_NEIGHBORHOODS: Record<string, string[]> = {
     "Inman Park",
     "Grant Park",
   ],
-  phoenix: [
+  "phoenix-az": [
     "Arcadia",
     "Downtown Phoenix",
     "Ahwatukee",
@@ -112,7 +112,7 @@ export const CITY_NEIGHBORHOODS: Record<string, string[]> = {
     "Roosevelt Row",
     "Chandler",
   ],
-  portland: [
+  "portland-or": [
     "Pearl District",
     "Alberta Arts",
     "Sellwood",
@@ -122,7 +122,7 @@ export const CITY_NEIGHBORHOODS: Record<string, string[]> = {
     "Beaverton",
     "Division",
   ],
-  washington: [
+  "washington-dc": [
     "Dupont Circle",
     "Capitol Hill",
     "Georgetown",
@@ -132,7 +132,7 @@ export const CITY_NEIGHBORHOODS: Record<string, string[]> = {
     "Petworth",
     "Adams Morgan",
   ],
-  dallas: [
+  "dallas-tx": [
     "Uptown",
     "Deep Ellum",
     "Bishop Arts",

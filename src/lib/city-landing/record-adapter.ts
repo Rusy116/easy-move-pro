@@ -29,7 +29,16 @@ export function citySlugOf(row: Pick<CityPageRow, "slug" | "state_code">): strin
 /** Full CityFacts for a stored row — stored `facts` first, derived as fallback. */
 export function factsFromRow(row: CityPageRow): CityFacts {
   const stored = (row.facts ?? null) as Partial<CityFacts> | null;
-  if (stored && stored.slug && stored.city && stored.averages) {
+  // Stored JSON only wins when it actually describes THIS city + state. A row
+  // whose facts were generated for a same-named city in another state is
+  // discarded and rebuilt from the row itself (cross-city contamination guard).
+  const storedMatches =
+    !!stored &&
+    !!stored.city &&
+    !!stored.stateCode &&
+    stored.city.toLowerCase() === row.city.toLowerCase() &&
+    stored.stateCode.toUpperCase() === row.state_code.toUpperCase();
+  if (storedMatches && stored!.slug && stored!.averages) {
     return stored as CityFacts;
   }
 
@@ -51,28 +60,28 @@ export function factsFromRow(row: CityPageRow): CityFacts {
     stateSlug: stateSlugFor(stateCode, stateName),
     county: row.county,
     population,
-    timezone: (stored?.timezone as string) ?? "Eastern Time (ET)",
+    timezone: (storedMatches ? (stored?.timezone as string) : undefined) ?? "Eastern Time (ET)",
     zipCodes: row.zip_codes ?? [],
     neighborhoods: row.neighborhoods?.length
       ? row.neighborhoods
-      : neighborhoodsFor(slug, row.city),
+      : neighborhoodsFor(slug, row.city, stateCode),
     highways: row.highways ?? [],
     nearbyCities: nearby,
     parkingNotes:
-      stored?.parkingNotes ??
+      (storedMatches ? stored?.parkingNotes : undefined) ??
       `Curbside access in ${row.city} varies by neighborhood. Where a permit or reserved loading zone is required, your assigned ${row.city} mover arranges it before move day and includes it in the quote.`,
     apartmentTips:
-      stored?.apartmentTips ??
+      (storedMatches ? stored?.apartmentTips : undefined) ??
       `Most ${row.city} apartment buildings require an elevator reservation and a certificate of insurance. Book the freight elevator 24–48 hours ahead and confirm loading-dock hours with management.`,
     officeTips:
-      stored?.officeTips ??
+      (storedMatches ? stored?.officeTips : undefined) ??
       `Office moves in ${row.city} are usually scheduled after hours or over a weekend to avoid building traffic. Plan IT disconnect/reconnect, floor protection and a certificate of insurance for both buildings.`,
     storageInfo:
-      stored?.storageInfo ??
+      (storedMatches ? stored?.storageInfo : undefined) ??
       `Short-term storage-in-transit is available across ${row.city} in climate-controlled warehouse vaults, with the first 30 days often discounted on long-distance moves.`,
-    regulations: stored?.regulations ?? null,
+    regulations: (storedMatches ? stored?.regulations : undefined) ?? null,
     averages:
-      stored?.averages ??
+      (storedMatches ? stored?.averages : undefined) ??
       cityAverages({
         slug,
         name: row.city,

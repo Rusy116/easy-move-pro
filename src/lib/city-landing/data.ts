@@ -104,6 +104,15 @@ export const CITY_META: Record<string, CityMeta> = {
   "frisco-tx": { county: "Collin County", highways: ["SH-121", "Dallas North Tollway"] },
 };
 
+/**
+ * Curated metadata lookup. Keyed by "{city-slug}-{state-code}" so same-named
+ * cities in different states never inherit each other's county/highways/ZIPs.
+ */
+export function cityMetaFor(slug: string, stateCode?: string | null): CityMeta {
+  if (!stateCode) return {};
+  return CITY_META[`${slug}-${stateCode.toLowerCase()}`] ?? {};
+}
+
 // ── Time zones by state ────────────────────────────────────────────────────
 const TZ_BY_STATE: Record<string, string> = {
   CA: "Pacific Time (PT)", WA: "Pacific Time (PT)", OR: "Pacific Time (PT)",
@@ -171,7 +180,7 @@ export function moversPathForSlug(slug: string): string {
 
 // ── Fact builder ───────────────────────────────────────────────────────────
 export function buildCityFacts(c: GeoCity): CityFacts {
-  const meta = CITY_META[c.slug] ?? {};
+  const meta = cityMetaFor(c.slug, c.stateCode);
   const nearby = GEO_CITIES.filter(
     (o) => o.slug !== c.slug && (o.stateCode === c.stateCode || o.stateSlug === c.stateSlug),
   )
@@ -195,7 +204,7 @@ export function buildCityFacts(c: GeoCity): CityFacts {
     population: c.population,
     timezone: timezoneFor(c.stateCode),
     zipCodes: meta.zips ?? [],
-    neighborhoods: neighborhoodsFor(c.slug, c.name),
+    neighborhoods: neighborhoodsFor(c.slug, c.name, c.stateCode),
     highways: meta.highways ?? [],
     nearbyCities: nearby,
     parkingNotes:

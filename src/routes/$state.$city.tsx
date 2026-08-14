@@ -84,7 +84,7 @@ function CityMoversPage() {
   const { city, state } = Route.useLoaderData();
   const a = cityAverages(city);
   const where = `${city.name}, ${city.stateCode}`;
-  const neighborhoods = neighborhoodsFor(city.slug, city.name);
+  const neighborhoods = neighborhoodsFor(city.slug, city.name, city.stateCode);
   const faq = cityFaq(city);
   const nearby = citiesInStateSlug(state.slug)
     .filter((c) => c.slug !== city.slug)

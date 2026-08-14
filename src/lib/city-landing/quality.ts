@@ -27,6 +27,22 @@ export interface CityQualitySignals {
   seo_score?: number | null;
   population?: number | null;
   zip_codes?: string[] | null;
+  city?: string | null;
+  state_code?: string | null;
+  state_name?: string | null;
+}
+
+/**
+ * Geography sanity: the record must carry a real US state code, and when a
+ * state name is stored it must be that code's state. Guards against rows whose
+ * geography was filled from a same-named city in another state.
+ */
+export function hasConsistentGeography(s: CityQualitySignals): boolean {
+  const code = (s.state_code ?? "").toUpperCase();
+  const name = stateName(code);
+  if (!name) return false;
+  if (s.state_name && s.state_name.trim().toLowerCase() !== name.toLowerCase()) return false;
+  return true;
 }
 
 /**
@@ -40,7 +56,8 @@ export function isIndexableCity(s: CityQualitySignals): boolean {
     (s.word_count ?? 0) >= MIN_INDEX_WORDS &&
     (s.seo_score ?? 0) >= MIN_INDEX_SEO_SCORE &&
     (s.population ?? 0) >= MIN_INDEX_POPULATION &&
-    s.zip_codes != null
+    s.zip_codes != null &&
+    hasConsistentGeography(s)
   );
 }
 

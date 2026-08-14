@@ -144,17 +144,41 @@ export const CITY_NEIGHBORHOODS: Record<string, string[]> = {
   ],
 };
 
-export function neighborhoodsFor(slug: string, cityName: string): string[] {
-  return (
-    CITY_NEIGHBORHOODS[slug] ?? [
-      `Downtown ${cityName}`,
-      `North ${cityName}`,
-      `South ${cityName}`,
-      `East ${cityName}`,
-      `West ${cityName}`,
-      `${cityName} Suburbs`,
-    ]
-  );
+/**
+ * Curated neighborhoods are keyed by "{city-slug}-{state-code}" so two cities
+ * that share a name (Portland OR vs Portland ME) can never inherit each
+ * other's geography. Without a state code we never fall back to a bare slug.
+ */
+export function curatedNeighborhoods(slug: string, stateCode?: string | null): string[] | null {
+  if (!stateCode) return null;
+  return CITY_NEIGHBORHOODS[`${slug}-${stateCode.toLowerCase()}`] ?? null;
+}
+
+/** Generic "North {City}" style list — placeholder geography, never real data. */
+export function placeholderNeighborhoods(cityName: string): string[] {
+  return [
+    `Downtown ${cityName}`,
+    `North ${cityName}`,
+    `South ${cityName}`,
+    `East ${cityName}`,
+    `West ${cityName}`,
+    `${cityName} Suburbs`,
+  ];
+}
+
+/** True when the list is the generic compass-point fallback, not real data. */
+export function isPlaceholderNeighborhoods(list: string[] | null | undefined, cityName: string) {
+  if (!list || list.length === 0) return true;
+  const generic = new Set(placeholderNeighborhoods(cityName));
+  return list.every((n) => generic.has(n));
+}
+
+export function neighborhoodsFor(
+  slug: string,
+  cityName: string,
+  stateCode?: string | null,
+): string[] {
+  return curatedNeighborhoods(slug, stateCode) ?? placeholderNeighborhoods(cityName);
 }
 
 export function costTable(avg: number) {

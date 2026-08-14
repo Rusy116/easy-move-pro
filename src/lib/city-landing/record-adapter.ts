@@ -93,10 +93,17 @@ export function factsFromRow(row: CityPageRow): CityFacts {
   };
 }
 
+/** Does stored copy actually name this city (and not a different state)? */
+function mentionsCity(title: string, row: CityPageRow): boolean {
+  const t = title.toLowerCase();
+  return t.includes(row.city.toLowerCase()) && t.includes(row.state_code.toLowerCase());
+}
+
 /** Calculator-page copy — stored `content` first. */
 export function contentFromRow(row: CityPageRow, facts: CityFacts): CityLandingContent {
   const stored = (row.content ?? null) as Partial<CityLandingContent> | null;
-  if (stored && stored.title && Array.isArray(stored.sections)) {
+  // Reject copy generated for a different city (same-name/other-state rows).
+  if (stored && stored.title && Array.isArray(stored.sections) && mentionsCity(stored.title, row)) {
     return stored as CityLandingContent;
   }
   return buildCityLandingContent(facts);
@@ -109,7 +116,7 @@ export function seoFromRow(
   content: CityLandingContent,
 ): MoversSeoContent {
   const stored = (row.seo_content ?? null) as Partial<MoversSeoContent> | null;
-  if (stored && stored.title && Array.isArray(stored.sections)) {
+  if (stored && stored.title && Array.isArray(stored.sections) && mentionsCity(stored.title, row)) {
     return stored as MoversSeoContent;
   }
   return buildMoversSeoContent(facts, content);

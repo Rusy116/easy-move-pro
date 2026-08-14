@@ -8,7 +8,7 @@
 // disagree.
 // ---------------------------------------------------------------------------
 
-import { stateName } from "@/lib/us-states";
+import { stateName, isValidStateCode } from "@/lib/us-states";
 
 /** Minimum stored word count for an indexable city page. */
 export const MIN_INDEX_WORDS = 1500;
@@ -41,8 +41,8 @@ export interface CityQualitySignals {
  */
 export function hasConsistentGeography(s: CityQualitySignals): boolean {
   const code = (s.state_code ?? "").toUpperCase();
+  if (!isValidStateCode(code)) return false;
   const name = stateName(code);
-  if (!name) return false;
   if (s.state_name && s.state_name.trim().toLowerCase() !== name.toLowerCase()) return false;
   return true;
 }

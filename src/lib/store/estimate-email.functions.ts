@@ -22,7 +22,7 @@ export const sendCalculatorEstimateEmail = createServerFn({ method: "POST" })
     const { data: quote } = await db
       .from("quotes")
       .select(
-        "quote_number,portal_token,contact_email,contact_name,estimated_total_low,estimated_total_high",
+        "quote_number,portal_token,contact_email,details,estimated_low,estimated_high",
       )
       .eq("quote_number", data.quoteNumber)
       .maybeSingle();
@@ -42,8 +42,8 @@ export const sendCalculatorEstimateEmail = createServerFn({ method: "POST" })
     const origin = siteOrigin();
     return sendEstimateEmail({
       to: quote.contact_email,
-      firstName: String(quote.contact_name ?? "").split(" ")[0] || null,
-      amountLabel: `${usd(quote.estimated_total_low)} – ${usd(quote.estimated_total_high)}`,
+      firstName: String((quote.details as any)?.fullName ?? "").split(" ")[0] || null,
+      amountLabel: `${usd(quote.estimated_low)} – ${usd(quote.estimated_high)}`,
       quoteNumber: quote.quote_number,
       quoteUrl: `${origin}/portal/${quote.quote_number}?token=${quote.portal_token}`,
       accountUrl: `${origin}/auth?signup=1&email=${encodeURIComponent(quote.contact_email)}`,

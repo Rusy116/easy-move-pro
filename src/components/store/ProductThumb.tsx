@@ -26,16 +26,13 @@ export function ProductThumb({
         className,
       )}
     >
-      {coverUrl ? (
-        <img
-          src={coverUrl}
-          alt={`${title} — printable moving PDF cover`}
-          loading="lazy"
-          className="h-full w-full object-cover"
-        />
-      ) : (
-        <CoverArt slug={slug} title={title} spec={spec ?? null} className="h-full w-full" />
-      )}
+      <CoverImage
+        slug={slug}
+        title={title}
+        coverUrl={coverUrl}
+        spec={spec ?? null}
+        sizes="64px"
+      />
     </div>
   );
 }

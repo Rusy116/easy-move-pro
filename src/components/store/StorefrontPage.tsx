@@ -4,6 +4,8 @@ import { useState } from "react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { SeoHero, StoreCta, Breadcrumbs } from "@/components/seo/blocks";
 import { ProductCard } from "@/components/store/ProductCard";
+import { StorePromoCarousel } from "@/components/store/StorePromoCarousel";
+import { PopularProducts } from "@/components/store/PopularProducts";
 import { Input } from "@/components/ui/input";
 import { money, type PdfProduct } from "@/lib/pdf-store/catalog";
 

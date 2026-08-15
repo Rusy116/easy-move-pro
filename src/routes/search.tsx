@@ -44,16 +44,17 @@ function SearchPage() {
   });
 
   const { data: products = [] } = useQuery({
-    queryKey: ["search", "digital_products"],
+    queryKey: ["search", "pdf_products"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("digital_products")
-        .select("slug,title,description")
-        .eq("published", true);
+        .from("pdf_products")
+        .select("slug,title,subtitle")
+        .eq("status", "published");
       if (error) throw error;
       return data;
     },
   });
+
 
   const hits = useMemo<Hit[]>(() => {
     if (term.length < 2) return [];

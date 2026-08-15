@@ -32,6 +32,7 @@ import { Route as LeadGenerationRouteImport } from './routes/lead-generation'
 import { Route as JoinRouteImport } from './routes/join'
 import { Route as ForMoversRouteImport } from './routes/for-movers'
 import { Route as ExclusiveMovingLeadsRouteImport } from './routes/exclusive-moving-leads'
+import { Route as DownloadRouteImport } from './routes/download'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as CalculatorRouteImport } from './routes/calculator'
 import { Route as AuthRouteImport } from './routes/auth'
@@ -58,6 +59,7 @@ import { Route as LearnTopicRouteImport } from './routes/learn.$topic'
 import { Route as CountiesCountyRouteImport } from './routes/counties.$county'
 import { Route as CompareSlugRouteImport } from './routes/compare.$slug'
 import { Route as CitiesCityRouteImport } from './routes/cities.$city'
+import { Route as CheckoutReturnRouteImport } from './routes/checkout.return'
 import { Route as CheckoutSlugRouteImport } from './routes/checkout.$slug'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
@@ -268,6 +270,11 @@ const ExclusiveMovingLeadsRoute = ExclusiveMovingLeadsRouteImport.update({
   path: '/exclusive-moving-leads',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DownloadRoute = DownloadRouteImport.update({
+  id: '/download',
+  path: '/download',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ContactRoute = ContactRouteImport.update({
   id: '/contact',
   path: '/contact',
@@ -395,6 +402,11 @@ const CompareSlugRoute = CompareSlugRouteImport.update({
 const CitiesCityRoute = CitiesCityRouteImport.update({
   id: '/cities/$city',
   path: '/cities/$city',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CheckoutReturnRoute = CheckoutReturnRouteImport.update({
+  id: '/checkout/return',
+  path: '/checkout/return',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CheckoutSlugRoute = CheckoutSlugRouteImport.update({
@@ -934,6 +946,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/calculator': typeof CalculatorRoute
   '/contact': typeof ContactRoute
+  '/download': typeof DownloadRoute
   '/exclusive-moving-leads': typeof ExclusiveMovingLeadsRoute
   '/for-movers': typeof ForMoversRoute
   '/join': typeof JoinRoute
@@ -962,6 +975,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/checkout/$slug': typeof CheckoutSlugRoute
+  '/checkout/return': typeof CheckoutReturnRoute
   '/cities/$city': typeof CitiesCityRoute
   '/compare/$slug': typeof CompareSlugRoute
   '/counties/$county': typeof CountiesCountyRoute
@@ -1076,6 +1090,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/calculator': typeof CalculatorRoute
   '/contact': typeof ContactRoute
+  '/download': typeof DownloadRoute
   '/exclusive-moving-leads': typeof ExclusiveMovingLeadsRoute
   '/for-movers': typeof ForMoversRoute
   '/join': typeof JoinRoute
@@ -1103,6 +1118,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/checkout/$slug': typeof CheckoutSlugRoute
+  '/checkout/return': typeof CheckoutReturnRoute
   '/cities/$city': typeof CitiesCityRoute
   '/compare/$slug': typeof CompareSlugRoute
   '/counties/$county': typeof CountiesCountyRoute
@@ -1219,6 +1235,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/calculator': typeof CalculatorRoute
   '/contact': typeof ContactRoute
+  '/download': typeof DownloadRoute
   '/exclusive-moving-leads': typeof ExclusiveMovingLeadsRoute
   '/for-movers': typeof ForMoversRoute
   '/join': typeof JoinRoute
@@ -1247,6 +1264,7 @@ export interface FileRoutesById {
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/checkout/$slug': typeof CheckoutSlugRoute
+  '/checkout/return': typeof CheckoutReturnRoute
   '/cities/$city': typeof CitiesCityRoute
   '/compare/$slug': typeof CompareSlugRoute
   '/counties/$county': typeof CountiesCountyRoute
@@ -1363,6 +1381,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/calculator'
     | '/contact'
+    | '/download'
     | '/exclusive-moving-leads'
     | '/for-movers'
     | '/join'
@@ -1391,6 +1410,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/blog/$slug'
     | '/checkout/$slug'
+    | '/checkout/return'
     | '/cities/$city'
     | '/compare/$slug'
     | '/counties/$county'
@@ -1505,6 +1525,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/calculator'
     | '/contact'
+    | '/download'
     | '/exclusive-moving-leads'
     | '/for-movers'
     | '/join'
@@ -1532,6 +1553,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/blog/$slug'
     | '/checkout/$slug'
+    | '/checkout/return'
     | '/cities/$city'
     | '/compare/$slug'
     | '/counties/$county'
@@ -1647,6 +1669,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/calculator'
     | '/contact'
+    | '/download'
     | '/exclusive-moving-leads'
     | '/for-movers'
     | '/join'
@@ -1675,6 +1698,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard'
     | '/blog/$slug'
     | '/checkout/$slug'
+    | '/checkout/return'
     | '/cities/$city'
     | '/compare/$slug'
     | '/counties/$county'
@@ -1791,6 +1815,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   CalculatorRoute: typeof CalculatorRoute
   ContactRoute: typeof ContactRoute
+  DownloadRoute: typeof DownloadRoute
   ExclusiveMovingLeadsRoute: typeof ExclusiveMovingLeadsRoute
   ForMoversRoute: typeof ForMoversRoute
   JoinRoute: typeof JoinRoute
@@ -1817,6 +1842,7 @@ export interface RootRouteChildren {
   StateCityRoute: typeof StateCityRoute
   BlogSlugRoute: typeof BlogSlugRoute
   CheckoutSlugRoute: typeof CheckoutSlugRoute
+  CheckoutReturnRoute: typeof CheckoutReturnRoute
   CitiesCityRoute: typeof CitiesCityRoute
   CompareSlugRoute: typeof CompareSlugRoute
   CountiesCountyRoute: typeof CountiesCountyRoute
@@ -2007,6 +2033,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ExclusiveMovingLeadsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/download': {
+      id: '/download'
+      path: '/download'
+      fullPath: '/download'
+      preLoaderRoute: typeof DownloadRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/contact': {
       id: '/contact'
       path: '/contact'
@@ -2187,6 +2220,13 @@ declare module '@tanstack/react-router' {
       path: '/cities/$city'
       fullPath: '/cities/$city'
       preLoaderRoute: typeof CitiesCityRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/checkout/return': {
+      id: '/checkout/return'
+      path: '/checkout/return'
+      fullPath: '/checkout/return'
+      preLoaderRoute: typeof CheckoutReturnRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/checkout/$slug': {
@@ -3030,6 +3070,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   CalculatorRoute: CalculatorRoute,
   ContactRoute: ContactRoute,
+  DownloadRoute: DownloadRoute,
   ExclusiveMovingLeadsRoute: ExclusiveMovingLeadsRoute,
   ForMoversRoute: ForMoversRoute,
   JoinRoute: JoinRoute,
@@ -3058,6 +3099,7 @@ const rootRouteChildren: RootRouteChildren = {
   StateCityRoute: StateCityRoute,
   BlogSlugRoute: BlogSlugRoute,
   CheckoutSlugRoute: CheckoutSlugRoute,
+  CheckoutReturnRoute: CheckoutReturnRoute,
   CitiesCityRoute: CitiesCityRoute,
   CompareSlugRoute: CompareSlugRoute,
   CountiesCountyRoute: CountiesCountyRoute,

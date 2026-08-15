@@ -324,6 +324,42 @@ export function Cta({
   );
 }
 
+/**
+ * Store-specific CTA. The public digital store must never send customers to
+ * the mover/partner marketplace, so it keeps its own copy and links.
+ */
+export function StoreCta() {
+  return (
+    <section className="border-b border-border bg-primary text-primary-foreground">
+      <div className="mx-auto max-w-4xl px-4 sm:px-6 py-16 text-center">
+        <h2 className="font-serif text-3xl md:text-4xl font-semibold tracking-tight">
+          Plan your move with print-ready documents
+        </h2>
+        <p className="mt-4 text-base opacity-90">
+          Checklists, budget planners, inventory sheets and labels — download instantly and keep
+          them in your library.
+        </p>
+        <div className="mt-8 flex flex-wrap justify-center gap-3">
+          <Link to="/products">
+            <Button size="lg" variant="secondary" className="rounded-full">
+              Browse all products
+            </Button>
+          </Link>
+          <Link to="/calculator">
+            <Button
+              size="lg"
+              variant="outline"
+              className="rounded-full border-primary-foreground/40 bg-transparent text-primary-foreground hover:bg-primary-foreground/10"
+            >
+              Get a moving quote
+            </Button>
+          </Link>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 // ────────────────────────────── Breadcrumbs ──────────────────────────────
 export function Breadcrumbs({ items }: { items: Array<{ label: string; to?: string }> }) {
   return (

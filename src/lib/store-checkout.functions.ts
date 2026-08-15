@@ -9,8 +9,8 @@
 import { createServerFn } from "@tanstack/react-start";
 import type { StripeEnv } from "@/lib/stripe.server";
 
-/** Stripe tax code for downloadable digital documents. */
-const DIGITAL_TAX_CODE = "txcd_10103001";
+/** Shared Stripe catalog entry carrying the digital-goods tax code. */
+const STRIPE_PRICE_LOOKUP = "easy_moving_digital_docs_base";
 
 function clean(value: unknown, max: number): string {
   return String(value ?? "").trim().slice(0, max);
@@ -73,14 +73,19 @@ export const createStoreCheckout = createServerFn({ method: "POST" })
     try {
       const stripe = createStripeClient(data.environment);
 
-      // Inline product data keeps the tax code under this app's control —
-      // managed payments requires an eligible digital-goods code.
+      // Charge the catalog price of this specific title against the shared
+      // digital-goods Stripe product, which carries the eligible tax code.
+      const prices = await stripe.prices.list({ lookup_keys: [STRIPE_PRICE_LOOKUP], limit: 1 });
+      const basePrice = prices.data[0];
+      const stripeProductId = basePrice
+        ? typeof basePrice.product === "string"
+          ? basePrice.product
+          : (basePrice.product as any).id
+        : null;
+      if (!stripeProductId) return { error: "Payments are not fully configured yet." };
+
       const lineItem = {
-        price_data: {
-          currency: "usd",
-          unit_amount: amount,
-          product_data: { name: product.title, tax_code: DIGITAL_TAX_CODE },
-        },
+        price_data: { currency: "usd", product: stripeProductId, unit_amount: amount },
         quantity: 1,
       };
 

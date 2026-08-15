@@ -11,7 +11,7 @@ import type { StripeEnv } from "@/lib/stripe.server";
 
 const STRIPE_PRODUCT_LOOKUP = "easy_moving_digital_pdf_default";
 /** Stripe tax code for downloadable digital documents. */
-const DIGITAL_TAX_CODE = "txcd_10502000";
+const DIGITAL_TAX_CODE = "txcd_10000000";
 
 function clean(value: unknown, max: number): string {
   return String(value ?? "").trim().slice(0, max);

@@ -10,7 +10,7 @@ import { createServerFn } from "@tanstack/react-start";
 import type { StripeEnv } from "@/lib/stripe.server";
 
 /** Stripe tax code for downloadable digital documents. */
-const DIGITAL_TAX_CODE = "txcd_10000000";
+const DIGITAL_TAX_CODE = "txcd_10103001";
 
 function clean(value: unknown, max: number): string {
   return String(value ?? "").trim().slice(0, max);

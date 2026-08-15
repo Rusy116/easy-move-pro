@@ -10,6 +10,8 @@ import { createServerFn } from "@tanstack/react-start";
 import type { StripeEnv } from "@/lib/stripe.server";
 
 const STRIPE_PRODUCT_LOOKUP = "easy_moving_digital_pdf_default";
+/** Stripe tax code for downloadable digital documents. */
+const DIGITAL_TAX_CODE = "txcd_10502000";
 
 function clean(value: unknown, max: number): string {
   return String(value ?? "").trim().slice(0, max);
@@ -72,32 +74,44 @@ export const createStoreCheckout = createServerFn({ method: "POST" })
     try {
       const stripe = createStripeClient(data.environment);
 
-      // Resolve the shared digital-goods Stripe product (carries the tax code)
-      // and charge the catalog price for this specific title.
-      const prices = await stripe.prices.list({ lookup_keys: [STRIPE_PRODUCT_LOOKUP], limit: 1 });
-      const stripeProductId =
-        prices.data.length
-          ? typeof prices.data[0]!.product === "string"
-            ? prices.data[0]!.product
-            : prices.data[0]!.product.id
-          : undefined;
-      if (!stripeProductId) return { error: "Payments are not fully configured yet." };
+      // Prefer the shared digital-goods Stripe product (it carries the tax
+      // code). If that catalog entry is missing, fall back to inline product
+      // data with the same tax code so checkout never hard-fails.
+      let stripeProductId: string | undefined;
+      try {
+        const prices = await stripe.prices.list({ lookup_keys: [STRIPE_PRODUCT_LOOKUP], limit: 1 });
+        const first = prices.data[0];
+        if (first) {
+          stripeProductId =
+            typeof first.product === "string" ? first.product : (first.product as any).id;
+        }
+      } catch (lookupError) {
+        console.warn("[store-checkout] product lookup failed:", lookupError);
+      }
+
+      const lineItem = stripeProductId
+        ? {
+            price_data: { currency: "usd", product: stripeProductId, unit_amount: amount },
+            quantity: 1,
+          }
+        : {
+            price_data: {
+              currency: "usd",
+              unit_amount: amount,
+              product_data: {
+                name: product.title,
+                tax_code: DIGITAL_TAX_CODE,
+              },
+            },
+            quantity: 1,
+          };
 
       const session = await stripe.checkout.sessions.create({
         mode: "payment",
         ui_mode: "embedded_page",
         return_url: data.returnUrl,
         customer_email: data.email,
-        line_items: [
-          {
-            price_data: {
-              currency: "usd",
-              product: stripeProductId,
-              unit_amount: amount,
-            },
-            quantity: 1,
-          },
-        ],
+        line_items: [lineItem],
         payment_intent_data: { description: product.title },
         managed_payments: { enabled: true },
         metadata: {

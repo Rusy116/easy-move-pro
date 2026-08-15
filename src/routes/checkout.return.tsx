@@ -133,15 +133,14 @@ function CheckoutReturn() {
               <p className="mt-1 text-sm text-muted-foreground">
                 Optional — it keeps every purchase, download and moving estimate in one place.
               </p>
-              <Link
-                to="/auth"
-                search={{ signup: "1", email: state.email }}
+              <a
+                href={`/auth?signup=1&email=${encodeURIComponent(state.email ?? "")}`}
                 className="mt-3 inline-block"
               >
                 <Button variant="secondary" className="rounded-full">
                   <UserPlus className="mr-2 h-4 w-4" /> Create your free account
                 </Button>
-              </Link>
+              </a>
             </div>
           </div>
         )}

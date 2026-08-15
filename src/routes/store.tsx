@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { cachePublicPage } from "@/lib/http-cache";
 import { createFileRoute } from "@tanstack/react-router";
 import { StorefrontPage } from "@/components/store/StorefrontPage";
 import { storefront } from "@/lib/pdf-store.functions";
@@ -9,10 +8,7 @@ import { seoMeta, jsonLd, breadcrumbSchema, absoluteUrl } from "@/lib/seo/schema
 // catalog (same data as /products) instead of throwing a redirect, which had
 // no route output and made the page fail to load on built deployments.
 export const Route = createFileRoute("/store")({
-  loader: async () => {
-    await cachePublicPage(600);
-    return storefront();
-  },
+  loader: () => storefront(),
   head: () => ({
     meta: seoMeta({
       title: "Moving PDF Store — Printable Checklists & Planners | Easy Moving",

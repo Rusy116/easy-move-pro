@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { Badge } from "@/components/ui/badge";
-import { CoverArt } from "@/components/store/CoverArt";
+import { CoverImage } from "@/components/store/CoverImage";
 import { money, type PdfProduct } from "@/lib/pdf-store/catalog";
 
 export function ProductCard({ p }: { p: PdfProduct }) {
@@ -11,22 +11,14 @@ export function ProductCard({ p }: { p: PdfProduct }) {
       className="group flex flex-col overflow-hidden rounded-2xl border border-border/60 bg-card transition hover:shadow-lg"
     >
       <div className="relative aspect-[3/4] overflow-hidden">
-        {p.cover_url ? (
-          <img
-            src={p.cover_url}
-            alt={p.alt_text ?? `${p.title} — printable moving PDF cover`}
-            loading="lazy"
-            decoding="async"
-            className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.03]"
-          />
-        ) : (
-          <CoverArt
-            slug={p.slug}
-            title={p.title}
-            spec={p.cover_spec}
-            className="h-full w-full transition duration-300 group-hover:scale-[1.03]"
-          />
-        )}
+        <CoverImage
+          slug={p.slug}
+          title={p.title}
+          coverUrl={p.cover_url}
+          spec={p.cover_spec}
+          alt={p.alt_text}
+          className="transition duration-300 group-hover:scale-[1.03]"
+        />
         {p.is_bestseller && <Badge className="absolute left-3 top-3 rounded-full">Bestseller</Badge>}
       </div>
       <div className="flex flex-1 flex-col gap-1.5 p-4">

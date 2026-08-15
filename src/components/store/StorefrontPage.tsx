@@ -4,6 +4,8 @@ import { useState } from "react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { SeoHero, StoreCta, Breadcrumbs } from "@/components/seo/blocks";
 import { ProductCard } from "@/components/store/ProductCard";
+import { StorePromoCarousel } from "@/components/store/StorePromoCarousel";
+import { PopularProducts } from "@/components/store/PopularProducts";
 import { Input } from "@/components/ui/input";
 import { money, type PdfProduct } from "@/lib/pdf-store/catalog";
 
@@ -75,6 +77,36 @@ export function StorefrontPage({ data }: { data: any }) {
         subhead="Every document is built from real US moves, print-ready and yours to keep. Download instantly."
         hidePrimary
       />
+
+      <section className="mx-auto max-w-6xl px-4 pt-6 sm:px-6">
+        <div className="rounded-3xl border border-border/60 bg-card px-6 py-12 text-center sm:px-10 sm:py-16">
+          <h2 className="font-serif text-3xl leading-tight sm:text-5xl">Make Your Move Easier</h2>
+          <p className="mt-3 text-base text-muted-foreground sm:text-lg">
+            Printable Moving Checklists, Planners &amp; Templates
+          </p>
+          <p className="mx-auto mt-2 max-w-2xl text-sm text-muted-foreground">
+            Practical tools to make your move simpler, more organized and stress-free.
+          </p>
+          <button
+            type="button"
+            onClick={() =>
+              document
+                .getElementById("popular-products")
+                ?.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" })
+            }
+            className="mt-7 inline-flex h-11 items-center rounded-full bg-primary px-7 text-sm font-medium text-primary-foreground transition hover:opacity-90"
+          >
+            Shop Popular Products
+          </button>
+        </div>
+      </section>
+
+      {all.length > 0 && !needle && (
+        <>
+          <StorePromoCarousel products={all} />
+          <PopularProducts products={all} />
+        </>
+      )}
 
       <section className="mx-auto max-w-6xl px-4 pt-4 sm:px-6">
         <label className="sr-only" htmlFor="store-search">

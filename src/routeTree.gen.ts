@@ -32,6 +32,7 @@ import { Route as LeadGenerationRouteImport } from './routes/lead-generation'
 import { Route as JoinRouteImport } from './routes/join'
 import { Route as ForMoversRouteImport } from './routes/for-movers'
 import { Route as ExclusiveMovingLeadsRouteImport } from './routes/exclusive-moving-leads'
+import { Route as DownloadRouteImport } from './routes/download'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as CalculatorRouteImport } from './routes/calculator'
 import { Route as AuthRouteImport } from './routes/auth'
@@ -58,6 +59,8 @@ import { Route as LearnTopicRouteImport } from './routes/learn.$topic'
 import { Route as CountiesCountyRouteImport } from './routes/counties.$county'
 import { Route as CompareSlugRouteImport } from './routes/compare.$slug'
 import { Route as CitiesCityRouteImport } from './routes/cities.$city'
+import { Route as CheckoutReturnRouteImport } from './routes/checkout.return'
+import { Route as CheckoutSlugRouteImport } from './routes/checkout.$slug'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedCompanyRouteImport } from './routes/_authenticated/company'
@@ -144,6 +147,7 @@ import { Route as AuthenticatedAdminCustomersRouteImport } from './routes/_authe
 import { Route as AuthenticatedAdminCompaniesRouteImport } from './routes/_authenticated/admin.companies'
 import { Route as AuthenticatedAdminBrokersRouteImport } from './routes/_authenticated/admin.brokers'
 import { Route as ApiPublicPdfCoverFileRouteImport } from './routes/api/public/pdf-cover.$file'
+import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
 import { Route as ApiPublicHooksPdfFactoryTickRouteImport } from './routes/api/public/hooks/pdf-factory-tick'
 import { Route as ApiPublicHooksCityProductionTickRouteImport } from './routes/api/public/hooks/city-production-tick'
 import { Route as AuthenticatedCompanyJobJobIdRouteImport } from './routes/_authenticated/company.job.$jobId'
@@ -264,6 +268,11 @@ const ForMoversRoute = ForMoversRouteImport.update({
 const ExclusiveMovingLeadsRoute = ExclusiveMovingLeadsRouteImport.update({
   id: '/exclusive-moving-leads',
   path: '/exclusive-moving-leads',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DownloadRoute = DownloadRouteImport.update({
+  id: '/download',
+  path: '/download',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ContactRoute = ContactRouteImport.update({
@@ -393,6 +402,16 @@ const CompareSlugRoute = CompareSlugRouteImport.update({
 const CitiesCityRoute = CitiesCityRouteImport.update({
   id: '/cities/$city',
   path: '/cities/$city',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CheckoutReturnRoute = CheckoutReturnRouteImport.update({
+  id: '/checkout/return',
+  path: '/checkout/return',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CheckoutSlugRoute = CheckoutSlugRouteImport.update({
+  id: '/checkout/$slug',
+  path: '/checkout/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BlogSlugRoute = BlogSlugRouteImport.update({
@@ -889,6 +908,12 @@ const ApiPublicPdfCoverFileRoute = ApiPublicPdfCoverFileRouteImport.update({
   path: '/api/public/pdf-cover/$file',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicPaymentsWebhookRoute =
+  ApiPublicPaymentsWebhookRouteImport.update({
+    id: '/api/public/payments/webhook',
+    path: '/api/public/payments/webhook',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicHooksPdfFactoryTickRoute =
   ApiPublicHooksPdfFactoryTickRouteImport.update({
     id: '/api/public/hooks/pdf-factory-tick',
@@ -921,6 +946,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/calculator': typeof CalculatorRoute
   '/contact': typeof ContactRoute
+  '/download': typeof DownloadRoute
   '/exclusive-moving-leads': typeof ExclusiveMovingLeadsRoute
   '/for-movers': typeof ForMoversRoute
   '/join': typeof JoinRoute
@@ -948,6 +974,8 @@ export interface FileRoutesByFullPath {
   '/company': typeof AuthenticatedCompanyRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/blog/$slug': typeof BlogSlugRoute
+  '/checkout/$slug': typeof CheckoutSlugRoute
+  '/checkout/return': typeof CheckoutReturnRoute
   '/cities/$city': typeof CitiesCityRoute
   '/compare/$slug': typeof CompareSlugRoute
   '/counties/$county': typeof CountiesCountyRoute
@@ -1052,6 +1080,7 @@ export interface FileRoutesByFullPath {
   '/company/job/$jobId': typeof AuthenticatedCompanyJobJobIdRoute
   '/api/public/hooks/city-production-tick': typeof ApiPublicHooksCityProductionTickRoute
   '/api/public/hooks/pdf-factory-tick': typeof ApiPublicHooksPdfFactoryTickRoute
+  '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/api/public/pdf-cover/$file': typeof ApiPublicPdfCoverFileRoute
 }
 export interface FileRoutesByTo {
@@ -1061,6 +1090,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/calculator': typeof CalculatorRoute
   '/contact': typeof ContactRoute
+  '/download': typeof DownloadRoute
   '/exclusive-moving-leads': typeof ExclusiveMovingLeadsRoute
   '/for-movers': typeof ForMoversRoute
   '/join': typeof JoinRoute
@@ -1087,6 +1117,8 @@ export interface FileRoutesByTo {
   '/$state/$city': typeof StateCityRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/blog/$slug': typeof BlogSlugRoute
+  '/checkout/$slug': typeof CheckoutSlugRoute
+  '/checkout/return': typeof CheckoutReturnRoute
   '/cities/$city': typeof CitiesCityRoute
   '/compare/$slug': typeof CompareSlugRoute
   '/counties/$county': typeof CountiesCountyRoute
@@ -1191,6 +1223,7 @@ export interface FileRoutesByTo {
   '/company/job/$jobId': typeof AuthenticatedCompanyJobJobIdRoute
   '/api/public/hooks/city-production-tick': typeof ApiPublicHooksCityProductionTickRoute
   '/api/public/hooks/pdf-factory-tick': typeof ApiPublicHooksPdfFactoryTickRoute
+  '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/api/public/pdf-cover/$file': typeof ApiPublicPdfCoverFileRoute
 }
 export interface FileRoutesById {
@@ -1202,6 +1235,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/calculator': typeof CalculatorRoute
   '/contact': typeof ContactRoute
+  '/download': typeof DownloadRoute
   '/exclusive-moving-leads': typeof ExclusiveMovingLeadsRoute
   '/for-movers': typeof ForMoversRoute
   '/join': typeof JoinRoute
@@ -1229,6 +1263,8 @@ export interface FileRoutesById {
   '/_authenticated/company': typeof AuthenticatedCompanyRouteWithChildren
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/blog/$slug': typeof BlogSlugRoute
+  '/checkout/$slug': typeof CheckoutSlugRoute
+  '/checkout/return': typeof CheckoutReturnRoute
   '/cities/$city': typeof CitiesCityRoute
   '/compare/$slug': typeof CompareSlugRoute
   '/counties/$county': typeof CountiesCountyRoute
@@ -1333,6 +1369,7 @@ export interface FileRoutesById {
   '/_authenticated/company/job/$jobId': typeof AuthenticatedCompanyJobJobIdRoute
   '/api/public/hooks/city-production-tick': typeof ApiPublicHooksCityProductionTickRoute
   '/api/public/hooks/pdf-factory-tick': typeof ApiPublicHooksPdfFactoryTickRoute
+  '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/api/public/pdf-cover/$file': typeof ApiPublicPdfCoverFileRoute
 }
 export interface FileRouteTypes {
@@ -1344,6 +1381,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/calculator'
     | '/contact'
+    | '/download'
     | '/exclusive-moving-leads'
     | '/for-movers'
     | '/join'
@@ -1371,6 +1409,8 @@ export interface FileRouteTypes {
     | '/company'
     | '/dashboard'
     | '/blog/$slug'
+    | '/checkout/$slug'
+    | '/checkout/return'
     | '/cities/$city'
     | '/compare/$slug'
     | '/counties/$county'
@@ -1475,6 +1515,7 @@ export interface FileRouteTypes {
     | '/company/job/$jobId'
     | '/api/public/hooks/city-production-tick'
     | '/api/public/hooks/pdf-factory-tick'
+    | '/api/public/payments/webhook'
     | '/api/public/pdf-cover/$file'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -1484,6 +1525,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/calculator'
     | '/contact'
+    | '/download'
     | '/exclusive-moving-leads'
     | '/for-movers'
     | '/join'
@@ -1510,6 +1552,8 @@ export interface FileRouteTypes {
     | '/$state/$city'
     | '/dashboard'
     | '/blog/$slug'
+    | '/checkout/$slug'
+    | '/checkout/return'
     | '/cities/$city'
     | '/compare/$slug'
     | '/counties/$county'
@@ -1614,6 +1658,7 @@ export interface FileRouteTypes {
     | '/company/job/$jobId'
     | '/api/public/hooks/city-production-tick'
     | '/api/public/hooks/pdf-factory-tick'
+    | '/api/public/payments/webhook'
     | '/api/public/pdf-cover/$file'
   id:
     | '__root__'
@@ -1624,6 +1669,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/calculator'
     | '/contact'
+    | '/download'
     | '/exclusive-moving-leads'
     | '/for-movers'
     | '/join'
@@ -1651,6 +1697,8 @@ export interface FileRouteTypes {
     | '/_authenticated/company'
     | '/_authenticated/dashboard'
     | '/blog/$slug'
+    | '/checkout/$slug'
+    | '/checkout/return'
     | '/cities/$city'
     | '/compare/$slug'
     | '/counties/$county'
@@ -1755,6 +1803,7 @@ export interface FileRouteTypes {
     | '/_authenticated/company/job/$jobId'
     | '/api/public/hooks/city-production-tick'
     | '/api/public/hooks/pdf-factory-tick'
+    | '/api/public/payments/webhook'
     | '/api/public/pdf-cover/$file'
   fileRoutesById: FileRoutesById
 }
@@ -1766,6 +1815,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   CalculatorRoute: typeof CalculatorRoute
   ContactRoute: typeof ContactRoute
+  DownloadRoute: typeof DownloadRoute
   ExclusiveMovingLeadsRoute: typeof ExclusiveMovingLeadsRoute
   ForMoversRoute: typeof ForMoversRoute
   JoinRoute: typeof JoinRoute
@@ -1791,6 +1841,8 @@ export interface RootRouteChildren {
   StoreRoute: typeof StoreRoute
   StateCityRoute: typeof StateCityRoute
   BlogSlugRoute: typeof BlogSlugRoute
+  CheckoutSlugRoute: typeof CheckoutSlugRoute
+  CheckoutReturnRoute: typeof CheckoutReturnRoute
   CitiesCityRoute: typeof CitiesCityRoute
   CompareSlugRoute: typeof CompareSlugRoute
   CountiesCountyRoute: typeof CountiesCountyRoute
@@ -1814,6 +1866,7 @@ export interface RootRouteChildren {
   ProductsCategorySlugRoute: typeof ProductsCategorySlugRoute
   ApiPublicHooksCityProductionTickRoute: typeof ApiPublicHooksCityProductionTickRoute
   ApiPublicHooksPdfFactoryTickRoute: typeof ApiPublicHooksPdfFactoryTickRoute
+  ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
   ApiPublicPdfCoverFileRoute: typeof ApiPublicPdfCoverFileRoute
 }
 
@@ -1978,6 +2031,13 @@ declare module '@tanstack/react-router' {
       path: '/exclusive-moving-leads'
       fullPath: '/exclusive-moving-leads'
       preLoaderRoute: typeof ExclusiveMovingLeadsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/download': {
+      id: '/download'
+      path: '/download'
+      fullPath: '/download'
+      preLoaderRoute: typeof DownloadRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/contact': {
@@ -2160,6 +2220,20 @@ declare module '@tanstack/react-router' {
       path: '/cities/$city'
       fullPath: '/cities/$city'
       preLoaderRoute: typeof CitiesCityRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/checkout/return': {
+      id: '/checkout/return'
+      path: '/checkout/return'
+      fullPath: '/checkout/return'
+      preLoaderRoute: typeof CheckoutReturnRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/checkout/$slug': {
+      id: '/checkout/$slug'
+      path: '/checkout/$slug'
+      fullPath: '/checkout/$slug'
+      preLoaderRoute: typeof CheckoutSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/blog/$slug': {
@@ -2764,6 +2838,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicPdfCoverFileRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/payments/webhook': {
+      id: '/api/public/payments/webhook'
+      path: '/api/public/payments/webhook'
+      fullPath: '/api/public/payments/webhook'
+      preLoaderRoute: typeof ApiPublicPaymentsWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hooks/pdf-factory-tick': {
       id: '/api/public/hooks/pdf-factory-tick'
       path: '/api/public/hooks/pdf-factory-tick'
@@ -2989,6 +3070,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   CalculatorRoute: CalculatorRoute,
   ContactRoute: ContactRoute,
+  DownloadRoute: DownloadRoute,
   ExclusiveMovingLeadsRoute: ExclusiveMovingLeadsRoute,
   ForMoversRoute: ForMoversRoute,
   JoinRoute: JoinRoute,
@@ -3016,6 +3098,8 @@ const rootRouteChildren: RootRouteChildren = {
   StoreRoute: StoreRoute,
   StateCityRoute: StateCityRoute,
   BlogSlugRoute: BlogSlugRoute,
+  CheckoutSlugRoute: CheckoutSlugRoute,
+  CheckoutReturnRoute: CheckoutReturnRoute,
   CitiesCityRoute: CitiesCityRoute,
   CompareSlugRoute: CompareSlugRoute,
   CountiesCountyRoute: CountiesCountyRoute,
@@ -3039,6 +3123,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProductsCategorySlugRoute: ProductsCategorySlugRoute,
   ApiPublicHooksCityProductionTickRoute: ApiPublicHooksCityProductionTickRoute,
   ApiPublicHooksPdfFactoryTickRoute: ApiPublicHooksPdfFactoryTickRoute,
+  ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
   ApiPublicPdfCoverFileRoute: ApiPublicPdfCoverFileRoute,
 }
 export const routeTree = rootRouteImport

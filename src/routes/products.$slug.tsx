@@ -7,7 +7,7 @@ import { CoverArt } from "@/components/store/CoverArt";
 import { ProductCard } from "@/components/store/ProductCard";
 import { getStoreProduct } from "@/lib/pdf-store.functions";
 import { money, DIFFICULTY_LABEL, type PdfDifficulty } from "@/lib/pdf-store/catalog";
-import { PAYMENTS_ENABLED, checkoutLabel, isPaid } from "@/lib/pdf-store/checkout";
+import { checkoutHref, checkoutLabel, isPaid } from "@/lib/pdf-store/checkout";
 import { seoMeta, jsonLd, breadcrumbSchema, faqSchema, absoluteUrl } from "@/lib/seo/schema";
 
 export const Route = createFileRoute("/products/$slug")({
@@ -130,12 +130,12 @@ function ProductDetail() {
 
           <div className="mt-5 flex flex-wrap gap-3">
             <Button asChild size="lg" className="rounded-full">
-              <a href={`/customer/library?claim=${p.slug}`}>{checkoutLabel(p.price_cents)}</a>
+              <a href={checkoutHref(p.slug, p.price_cents)}>{checkoutLabel(p.price_cents)}</a>
             </Button>
             <span className="self-center text-xs text-muted-foreground">
               {p.page_count} pages ·{" "}
-              {isPaid(p.price_cents) && !PAYMENTS_ENABLED
-                ? "reserve now, pay when checkout opens"
+              {isPaid(p.price_cents)
+                ? "secure checkout · instant download · emailed link"
                 : "instant download · saved to your library"}
             </span>
           </div>

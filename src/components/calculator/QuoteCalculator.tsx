@@ -705,6 +705,14 @@ export function QuoteCalculator(
       generateEstimatePdf(snapshot.pdfInput);
       setSubmitStep(4);
       confirmation = { quoteNumber: saved.quoteNumber, token: saved.portalToken };
+      // Email the estimate + optional account link. Never blocks the redirect.
+      void import("@/lib/store/estimate-email.functions")
+        .then(({ sendCalculatorEstimateEmail }) =>
+          sendCalculatorEstimateEmail({
+            data: { quoteNumber: saved.quoteNumber, token: saved.portalToken },
+          }),
+        )
+        .catch(() => undefined);
       resetCalculatorForm();
       toast.success("Your moving quote request was submitted.");
     } catch (e) {

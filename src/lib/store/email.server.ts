@@ -1,0 +1,101 @@
+// ---------------------------------------------------------------------------
+// Digital store — outbound customer email.
+//
+// Sending runs through Lovable's managed email API, which requires a verified
+// sender domain for this project. Until that domain is configured the helper
+// reports `email_not_configured` honestly instead of pretending to deliver;
+// callers surface the download link on screen either way.
+//
+// When the domain is verified the template registry is scaffolded at
+// src/lib/email-templates/ and this module dispatches through it.
+// ---------------------------------------------------------------------------
+
+export type EmailResult = { sent: boolean; reason?: string };
+
+const REGISTRY_MODULE = "@/lib/email-templates/send-email";
+
+async function loadSender(): Promise<
+  | ((
+      template: string,
+      to: string,
+      options: { templateData?: Record<string, unknown>; idempotencyKey?: string },
+    ) => Promise<{ sent: boolean; reason?: string }>)
+  | null
+> {
+  try {
+    const mod = (await import(/* @vite-ignore */ REGISTRY_MODULE)) as {
+      sendTemplateEmail?: (
+        template: string,
+        to: string,
+        options: { templateData?: Record<string, unknown>; idempotencyKey?: string },
+      ) => Promise<{ sent: boolean; reason?: string }>;
+    };
+    return mod.sendTemplateEmail ?? null;
+  } catch {
+    return null;
+  }
+}
+
+async function send(
+  template: string,
+  to: string,
+  templateData: Record<string, unknown>,
+  idempotencyKey: string,
+): Promise<EmailResult> {
+  const sender = await loadSender();
+  if (!sender) {
+    console.warn(`[email] '${template}' not sent to ${to}: sender domain not configured yet`);
+    return { sent: false, reason: "email_not_configured" };
+  }
+  try {
+    const result = await sender(template, to, { templateData, idempotencyKey });
+    return { sent: Boolean(result?.sent), reason: result?.reason };
+  } catch (error) {
+    console.error(`[email] '${template}' failed for ${to}:`, error);
+    return { sent: false, reason: "send_failed" };
+  }
+}
+
+export function sendOrderDownloadEmail(input: {
+  to: string;
+  firstName?: string | null;
+  productTitle: string;
+  orderNumber: string;
+  downloadUrl: string;
+  accountUrl: string;
+}): Promise<EmailResult> {
+  return send(
+    "order-download",
+    input.to,
+    {
+      firstName: input.firstName ?? null,
+      productTitle: input.productTitle,
+      orderNumber: input.orderNumber,
+      downloadUrl: input.downloadUrl,
+      accountUrl: input.accountUrl,
+    },
+    `order-download-${input.orderNumber}`,
+  );
+}
+
+export function sendEstimateEmail(input: {
+  to: string;
+  firstName?: string | null;
+  amountLabel: string;
+  quoteNumber: string;
+  quoteUrl: string;
+  accountUrl: string;
+}): Promise<EmailResult> {
+  return send(
+    "moving-estimate",
+    input.to,
+    {
+      firstName: input.firstName ?? null,
+      amountLabel: input.amountLabel,
+      quoteNumber: input.quoteNumber,
+      quoteUrl: input.quoteUrl,
+      accountUrl: input.accountUrl,
+    },
+    `moving-estimate-${input.quoteNumber}`,
+  );
+}

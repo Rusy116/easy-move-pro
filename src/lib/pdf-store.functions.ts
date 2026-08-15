@@ -297,8 +297,10 @@ export const claimProduct = createServerFn({ method: "POST" })
       .eq("product_slug", data.slug)
       .maybeSingle();
 
-    const { PAYMENTS_ENABLED, isPaid } = await import("./pdf-store/checkout");
-    const requiresPayment = isPaid(product.price_cents) && !PAYMENTS_ENABLED;
+    const { isPaid } = await import("./pdf-store/checkout");
+    // Paid titles unlock only when this account already owns a completed
+    // purchase (bought directly, or claimed by email after a guest checkout).
+    const requiresPayment = isPaid(product.price_cents) && owned?.status !== "completed";
 
     if (!owned) {
       await db.from("customer_purchases").insert({
@@ -313,7 +315,7 @@ export const claimProduct = createServerFn({ method: "POST" })
       });
     }
 
-    const unlocked = !requiresPayment || owned?.status === "completed";
+    const unlocked = !requiresPayment;
     if (unlocked) {
       await db.from("pdf_downloads").insert({
         user_id: context.userId,

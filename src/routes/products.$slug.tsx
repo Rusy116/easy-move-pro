@@ -1,6 +1,6 @@
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { SiteLayout } from "@/components/site/SiteLayout";
-import { Breadcrumbs, Faq, Cta } from "@/components/seo/blocks";
+import { Breadcrumbs, Faq, StoreCta } from "@/components/seo/blocks";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { CoverArt } from "@/components/store/CoverArt";
@@ -190,7 +190,7 @@ function ProductDetail() {
         </section>
       ) : null}
 
-      <Cta />
+      <StoreCta />
     </SiteLayout>
   );
 }

@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { SiteLayout } from "@/components/site/SiteLayout";
-import { SeoHero, Breadcrumbs, Cta } from "@/components/seo/blocks";
+import { SeoHero, Breadcrumbs, StoreCta } from "@/components/seo/blocks";
 import { ProductCard } from "@/components/store/ProductCard";
 import { listStoreProducts } from "@/lib/pdf-store.functions";
 import { FALLBACK_CATEGORIES, type PdfProduct } from "@/lib/pdf-store/catalog";
@@ -75,7 +75,7 @@ function CategoryPage() {
           </p>
         )}
       </section>
-      <Cta />
+      <StoreCta />
     </SiteLayout>
   );
 }

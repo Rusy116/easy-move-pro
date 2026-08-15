@@ -117,6 +117,48 @@ export function StorefrontPage({ data }: { data: any }) {
           <Shelf title="Bestsellers" items={data?.bestsellers ?? []} />
           <Shelf title="Free downloads" blurb="Start here — no payment required." items={free} />
           <Shelf title="New releases" items={data?.newest ?? []} />
+
+          {all.length > 0 && (
+            <section className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <h2 className="font-serif text-2xl">All products ({browse.length})</h2>
+                <select
+                  aria-label="Sort products"
+                  value={sort}
+                  onChange={(e) => setSort(e.target.value as typeof sort)}
+                  className="h-9 rounded-full border border-border/70 bg-background px-3 text-sm"
+                >
+                  <option value="newest">Newest</option>
+                  <option value="popular">Most downloaded</option>
+                  <option value="price">Price: low to high</option>
+                </select>
+              </div>
+              <div className="mt-4 flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={() => setCat(null)}
+                  className={`rounded-full border px-4 py-1.5 text-sm transition ${cat === null ? "border-primary bg-primary/10" : "border-border/70 hover:bg-muted"}`}
+                >
+                  All
+                </button>
+                {(data?.categories ?? []).map((c: { slug: string; name: string }) => (
+                  <button
+                    key={c.slug}
+                    type="button"
+                    onClick={() => setCat(c.slug)}
+                    className={`rounded-full border px-4 py-1.5 text-sm transition ${cat === c.slug ? "border-primary bg-primary/10" : "border-border/70 hover:bg-muted"}`}
+                  >
+                    {c.name}
+                  </button>
+                ))}
+              </div>
+              <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+                {browse.map((p) => (
+                  <ProductCard key={p.slug} p={p} />
+                ))}
+              </div>
+            </section>
+          )}
         </>
       )}
 

@@ -12,6 +12,7 @@ export function SeoHero({
   primaryLabel = "Become a partner",
   secondaryHref,
   secondaryLabel,
+  hidePrimary = false,
 }: {
   eyebrow?: string;
   title: string;
@@ -20,6 +21,8 @@ export function SeoHero({
   primaryLabel?: string;
   secondaryHref?: string;
   secondaryLabel?: string;
+  /** Digital store pages hide the partner CTA — it belongs to mover pages. */
+  hidePrimary?: boolean;
 }) {
   return (
     <section className="relative overflow-hidden border-b border-border bg-gradient-to-br from-background via-background to-primary/5">
@@ -35,11 +38,13 @@ export function SeoHero({
           </h1>
           <p className="mt-6 text-lg text-muted-foreground leading-relaxed">{subhead}</p>
           <div className="mt-8 flex flex-wrap gap-3">
-            <Link to={primaryHref as "/join"}>
-              <Button size="lg" className="rounded-full">
-                {primaryLabel}
-              </Button>
-            </Link>
+            {!hidePrimary && (
+              <Link to={primaryHref as "/join"}>
+                <Button size="lg" className="rounded-full">
+                  {primaryLabel}
+                </Button>
+              </Link>
+            )}
             {secondaryHref && secondaryLabel && (
               <Link to={secondaryHref as "/moving-leads"}>
                 <Button variant="outline" size="lg" className="rounded-full">
@@ -316,6 +321,42 @@ export function Cta({
           <Link to={primaryHref as "/join"}>
             <Button size="lg" variant="secondary" className="rounded-full">
               {primaryLabel}
+            </Button>
+          </Link>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/**
+ * Store-specific CTA. The public digital store must never send customers to
+ * the mover/partner marketplace, so it keeps its own copy and links.
+ */
+export function StoreCta() {
+  return (
+    <section className="border-b border-border bg-primary text-primary-foreground">
+      <div className="mx-auto max-w-4xl px-4 sm:px-6 py-16 text-center">
+        <h2 className="font-serif text-3xl md:text-4xl font-semibold tracking-tight">
+          Plan your move with print-ready documents
+        </h2>
+        <p className="mt-4 text-base opacity-90">
+          Checklists, budget planners, inventory sheets and labels — download instantly and keep
+          them in your library.
+        </p>
+        <div className="mt-8 flex flex-wrap justify-center gap-3">
+          <Link to="/products">
+            <Button size="lg" variant="secondary" className="rounded-full">
+              Browse all products
+            </Button>
+          </Link>
+          <Link to="/calculator">
+            <Button
+              size="lg"
+              variant="outline"
+              className="rounded-full border-primary-foreground/40 bg-transparent text-primary-foreground hover:bg-primary-foreground/10"
+            >
+              Get a moving quote
             </Button>
           </Link>
         </div>

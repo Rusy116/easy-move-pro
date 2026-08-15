@@ -2,10 +2,12 @@
 import { Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { SiteLayout } from "@/components/site/SiteLayout";
-import { SeoHero, Cta, Breadcrumbs } from "@/components/seo/blocks";
+import { SeoHero, StoreCta, Breadcrumbs } from "@/components/seo/blocks";
 import { ProductCard } from "@/components/store/ProductCard";
 import { Input } from "@/components/ui/input";
 import { money, type PdfProduct } from "@/lib/pdf-store/catalog";
+
+const PAGE_SIZE = 24;
 
 function Shelf({ title, blurb, items }: { title: string; blurb?: string; items: PdfProduct[] }) {
   if (!items.length) return null;
@@ -27,6 +29,7 @@ export function StorefrontPage({ data }: { data: any }) {
   const [q, setQ] = useState("");
   const [cat, setCat] = useState<string | null>(null);
   const [sort, setSort] = useState<"newest" | "popular" | "price">("newest");
+  const [visible, setVisible] = useState(PAGE_SIZE);
 
   const all: PdfProduct[] = (
     data?.all?.length
@@ -70,6 +73,7 @@ export function StorefrontPage({ data }: { data: any }) {
         eyebrow="Digital store"
         title="Printable moving checklists, planners and templates"
         subhead="Every document is built from real US moves, print-ready and yours to keep. Download instantly."
+        hidePrimary
       />
 
       <section className="mx-auto max-w-6xl px-4 pt-4 sm:px-6">
@@ -125,7 +129,7 @@ export function StorefrontPage({ data }: { data: any }) {
                 <select
                   aria-label="Sort products"
                   value={sort}
-                  onChange={(e) => setSort(e.target.value as typeof sort)}
+                  onChange={(e) => { setSort(e.target.value as typeof sort); setVisible(PAGE_SIZE); }}
                   className="h-9 rounded-full border border-border/70 bg-background px-3 text-sm"
                 >
                   <option value="newest">Newest</option>
@@ -136,7 +140,7 @@ export function StorefrontPage({ data }: { data: any }) {
               <div className="mt-4 flex flex-wrap gap-2">
                 <button
                   type="button"
-                  onClick={() => setCat(null)}
+                  onClick={() => { setCat(null); setVisible(PAGE_SIZE); }}
                   className={`rounded-full border px-4 py-1.5 text-sm transition ${cat === null ? "border-primary bg-primary/10" : "border-border/70 hover:bg-muted"}`}
                 >
                   All
@@ -145,7 +149,7 @@ export function StorefrontPage({ data }: { data: any }) {
                   <button
                     key={c.slug}
                     type="button"
-                    onClick={() => setCat(c.slug)}
+                    onClick={() => { setCat(c.slug); setVisible(PAGE_SIZE); }}
                     className={`rounded-full border px-4 py-1.5 text-sm transition ${cat === c.slug ? "border-primary bg-primary/10" : "border-border/70 hover:bg-muted"}`}
                   >
                     {c.name}
@@ -153,10 +157,21 @@ export function StorefrontPage({ data }: { data: any }) {
                 ))}
               </div>
               <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-                {browse.map((p) => (
+                {browse.slice(0, visible).map((p) => (
                   <ProductCard key={p.slug} p={p} />
                 ))}
               </div>
+              {visible < browse.length && (
+                <div className="mt-8 text-center">
+                  <button
+                    type="button"
+                    onClick={() => setVisible((v) => v + PAGE_SIZE)}
+                    className="rounded-full border border-border/70 px-6 py-2 text-sm transition hover:bg-muted"
+                  >
+                    Load more ({browse.length - visible} left)
+                  </button>
+                </div>
+              )}
             </section>
           )}
         </>
@@ -181,7 +196,7 @@ export function StorefrontPage({ data }: { data: any }) {
         )
       )}
 
-      <Cta />
+      <StoreCta />
     </SiteLayout>
   );
 }

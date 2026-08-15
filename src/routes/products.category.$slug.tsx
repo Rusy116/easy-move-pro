@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { SiteLayout } from "@/components/site/SiteLayout";
-import { SeoHero, Breadcrumbs, Cta } from "@/components/seo/blocks";
+import { SeoHero, Breadcrumbs, StoreCta } from "@/components/seo/blocks";
 import { ProductCard } from "@/components/store/ProductCard";
 import { listStoreProducts } from "@/lib/pdf-store.functions";
 import { FALLBACK_CATEGORIES, type PdfProduct } from "@/lib/pdf-store/catalog";
@@ -61,7 +61,7 @@ function CategoryPage() {
   return (
     <SiteLayout>
       <Breadcrumbs items={[{ label: "Home", to: "/" }, { label: "Store", to: "/products" }, { label: c.name }]} />
-      <SeoHero eyebrow="Digital store" title={c.name} subhead={c.description ?? ""} />
+      <SeoHero eyebrow="Digital store" title={c.name} subhead={c.description ?? ""} hidePrimary />
       <section className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
         {products.length ? (
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
@@ -75,7 +75,7 @@ function CategoryPage() {
           </p>
         )}
       </section>
-      <Cta />
+      <StoreCta />
     </SiteLayout>
   );
 }

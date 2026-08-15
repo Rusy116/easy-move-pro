@@ -27,6 +27,7 @@ import { Route as MovingDispatchSoftwareRouteImport } from './routes/moving-disp
 import { Route as MovingCompanySoftwareRouteImport } from './routes/moving-company-software'
 import { Route as MovingCompanyCrmRouteImport } from './routes/moving-company-crm'
 import { Route as MovingCalculatorChar123cityChar125RouteImport } from './routes/moving-calculator-{$city}'
+import { Route as MarketplaceRouteImport } from './routes/marketplace'
 import { Route as LeadGenerationRouteImport } from './routes/lead-generation'
 import { Route as JoinRouteImport } from './routes/join'
 import { Route as ForMoversRouteImport } from './routes/for-movers'
@@ -240,6 +241,11 @@ const MovingCalculatorChar123cityChar125Route =
     path: '/moving-calculator-{$city}',
     getParentRoute: () => rootRouteImport,
   } as any)
+const MarketplaceRoute = MarketplaceRouteImport.update({
+  id: '/marketplace',
+  path: '/marketplace',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LeadGenerationRoute = LeadGenerationRouteImport.update({
   id: '/lead-generation',
   path: '/lead-generation',
@@ -919,6 +925,7 @@ export interface FileRoutesByFullPath {
   '/for-movers': typeof ForMoversRoute
   '/join': typeof JoinRoute
   '/lead-generation': typeof LeadGenerationRoute
+  '/marketplace': typeof MarketplaceRoute
   '/moving-calculator-{$city}': typeof MovingCalculatorChar123cityChar125Route
   '/moving-company-crm': typeof MovingCompanyCrmRoute
   '/moving-company-software': typeof MovingCompanySoftwareRoute
@@ -1058,6 +1065,7 @@ export interface FileRoutesByTo {
   '/for-movers': typeof ForMoversRoute
   '/join': typeof JoinRoute
   '/lead-generation': typeof LeadGenerationRoute
+  '/marketplace': typeof MarketplaceRoute
   '/moving-calculator-{$city}': typeof MovingCalculatorChar123cityChar125Route
   '/moving-company-crm': typeof MovingCompanyCrmRoute
   '/moving-company-software': typeof MovingCompanySoftwareRoute
@@ -1198,6 +1206,7 @@ export interface FileRoutesById {
   '/for-movers': typeof ForMoversRoute
   '/join': typeof JoinRoute
   '/lead-generation': typeof LeadGenerationRoute
+  '/marketplace': typeof MarketplaceRoute
   '/moving-calculator-{$city}': typeof MovingCalculatorChar123cityChar125Route
   '/moving-company-crm': typeof MovingCompanyCrmRoute
   '/moving-company-software': typeof MovingCompanySoftwareRoute
@@ -1339,6 +1348,7 @@ export interface FileRouteTypes {
     | '/for-movers'
     | '/join'
     | '/lead-generation'
+    | '/marketplace'
     | '/moving-calculator-{$city}'
     | '/moving-company-crm'
     | '/moving-company-software'
@@ -1478,6 +1488,7 @@ export interface FileRouteTypes {
     | '/for-movers'
     | '/join'
     | '/lead-generation'
+    | '/marketplace'
     | '/moving-calculator-{$city}'
     | '/moving-company-crm'
     | '/moving-company-software'
@@ -1617,6 +1628,7 @@ export interface FileRouteTypes {
     | '/for-movers'
     | '/join'
     | '/lead-generation'
+    | '/marketplace'
     | '/moving-calculator-{$city}'
     | '/moving-company-crm'
     | '/moving-company-software'
@@ -1758,6 +1770,7 @@ export interface RootRouteChildren {
   ForMoversRoute: typeof ForMoversRoute
   JoinRoute: typeof JoinRoute
   LeadGenerationRoute: typeof LeadGenerationRoute
+  MarketplaceRoute: typeof MarketplaceRoute
   MovingCalculatorChar123cityChar125Route: typeof MovingCalculatorChar123cityChar125Route
   MovingCompanyCrmRoute: typeof MovingCompanyCrmRoute
   MovingCompanySoftwareRoute: typeof MovingCompanySoftwareRoute
@@ -1930,6 +1943,13 @@ declare module '@tanstack/react-router' {
       path: '/moving-calculator-{$city}'
       fullPath: '/moving-calculator-{$city}'
       preLoaderRoute: typeof MovingCalculatorChar123cityChar125RouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/marketplace': {
+      id: '/marketplace'
+      path: '/marketplace'
+      fullPath: '/marketplace'
+      preLoaderRoute: typeof MarketplaceRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/lead-generation': {
@@ -2973,6 +2993,7 @@ const rootRouteChildren: RootRouteChildren = {
   ForMoversRoute: ForMoversRoute,
   JoinRoute: JoinRoute,
   LeadGenerationRoute: LeadGenerationRoute,
+  MarketplaceRoute: MarketplaceRoute,
   MovingCalculatorChar123cityChar125Route:
     MovingCalculatorChar123cityChar125Route,
   MovingCompanyCrmRoute: MovingCompanyCrmRoute,

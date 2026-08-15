@@ -44,16 +44,17 @@ function SearchPage() {
   });
 
   const { data: products = [] } = useQuery({
-    queryKey: ["search", "digital_products"],
+    queryKey: ["search", "pdf_products"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("digital_products")
-        .select("slug,title,description")
-        .eq("published", true);
+        .from("pdf_products")
+        .select("slug,title,subtitle")
+        .eq("status", "published");
       if (error) throw error;
       return data;
     },
   });
+
 
   const hits = useMemo<Hit[]>(() => {
     if (term.length < 2) return [];
@@ -93,11 +94,17 @@ function SearchPage() {
         out.push({ group: "Resources", label: r.title, sub: r.description, to: "/resources" }),
       );
     products
-      .filter((p) => match(p.title, p.description))
+      .filter((p) => match(p.title, p.subtitle))
       .slice(0, 8)
       .forEach((p) =>
-        out.push({ group: "Store", label: p.title, sub: p.description ?? undefined, to: "/products" }),
+        out.push({
+          group: "Store",
+          label: p.title,
+          sub: p.subtitle ?? undefined,
+          to: `/products/${p.slug}`,
+        }),
       );
+
     return out;
   }, [term, posts, products]);
 

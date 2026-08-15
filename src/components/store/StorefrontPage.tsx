@@ -25,12 +25,17 @@ function Shelf({ title, blurb, items }: { title: string; blurb?: string; items: 
 /** Shared storefront body used by both /products and /store. */
 export function StorefrontPage({ data }: { data: any }) {
   const [q, setQ] = useState("");
+  const [cat, setCat] = useState<string | null>(null);
+  const [sort, setSort] = useState<"newest" | "popular" | "price">("newest");
 
-  const all: PdfProduct[] = [
-    ...(data?.featured ?? []),
-    ...(data?.bestsellers ?? []),
-    ...(data?.newest ?? []),
-  ].filter((p, i, arr) => arr.findIndex((x) => x.slug === p.slug) === i);
+  const all: PdfProduct[] = (
+    data?.all?.length
+      ? data.all
+      : [...(data?.featured ?? []), ...(data?.bestsellers ?? []), ...(data?.newest ?? [])]
+  ).filter(
+    (p: PdfProduct, i: number, arr: PdfProduct[]) =>
+      arr.findIndex((x) => x.slug === p.slug) === i,
+  );
 
   const needle = q.trim().toLowerCase();
   const results = needle

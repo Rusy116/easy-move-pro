@@ -9,7 +9,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import type { StripeEnv } from "@/lib/stripe.server";
 
-const STRIPE_PRODUCT_LOOKUP = "easy_moving_digital_pdf_default";
 /** Stripe tax code for downloadable digital documents. */
 const DIGITAL_TAX_CODE = "txcd_10000000";
 
@@ -74,37 +73,16 @@ export const createStoreCheckout = createServerFn({ method: "POST" })
     try {
       const stripe = createStripeClient(data.environment);
 
-      // Prefer the shared digital-goods Stripe product (it carries the tax
-      // code). If that catalog entry is missing, fall back to inline product
-      // data with the same tax code so checkout never hard-fails.
-      let stripeProductId: string | undefined;
-      try {
-        const prices = await stripe.prices.list({ lookup_keys: [STRIPE_PRODUCT_LOOKUP], limit: 1 });
-        const first = prices.data[0];
-        if (first) {
-          stripeProductId =
-            typeof first.product === "string" ? first.product : (first.product as any).id;
-        }
-      } catch (lookupError) {
-        console.warn("[store-checkout] product lookup failed:", lookupError);
-      }
-
-      const lineItem = stripeProductId
-        ? {
-            price_data: { currency: "usd", product: stripeProductId, unit_amount: amount },
-            quantity: 1,
-          }
-        : {
-            price_data: {
-              currency: "usd",
-              unit_amount: amount,
-              product_data: {
-                name: product.title,
-                tax_code: DIGITAL_TAX_CODE,
-              },
-            },
-            quantity: 1,
-          };
+      // Inline product data keeps the tax code under this app's control —
+      // managed payments requires an eligible digital-goods code.
+      const lineItem = {
+        price_data: {
+          currency: "usd",
+          unit_amount: amount,
+          product_data: { name: product.title, tax_code: DIGITAL_TAX_CODE },
+        },
+        quantity: 1,
+      };
 
       const session = await stripe.checkout.sessions.create({
         mode: "payment",

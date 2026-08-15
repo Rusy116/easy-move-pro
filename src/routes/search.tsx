@@ -94,11 +94,17 @@ function SearchPage() {
         out.push({ group: "Resources", label: r.title, sub: r.description, to: "/resources" }),
       );
     products
-      .filter((p) => match(p.title, p.description))
+      .filter((p) => match(p.title, p.subtitle))
       .slice(0, 8)
       .forEach((p) =>
-        out.push({ group: "Store", label: p.title, sub: p.description ?? undefined, to: "/products" }),
+        out.push({
+          group: "Store",
+          label: p.title,
+          sub: p.subtitle ?? undefined,
+          to: `/products/${p.slug}`,
+        }),
       );
+
     return out;
   }, [term, posts, products]);
 

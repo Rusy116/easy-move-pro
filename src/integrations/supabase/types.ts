@@ -4971,6 +4971,69 @@ export type Database = {
         }
         Relationships: []
       }
+      store_orders: {
+        Row: {
+          amount_cents: number
+          created_at: string
+          currency: string
+          email: string
+          email_sent_at: string | null
+          environment: string
+          first_name: string | null
+          id: string
+          last_name: string | null
+          order_number: string
+          paid_at: string | null
+          product_slug: string
+          product_title: string
+          status: string
+          stripe_payment_intent: string | null
+          stripe_session_id: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          amount_cents?: number
+          created_at?: string
+          currency?: string
+          email: string
+          email_sent_at?: string | null
+          environment?: string
+          first_name?: string | null
+          id?: string
+          last_name?: string | null
+          order_number: string
+          paid_at?: string | null
+          product_slug: string
+          product_title: string
+          status?: string
+          stripe_payment_intent?: string | null
+          stripe_session_id?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          amount_cents?: number
+          created_at?: string
+          currency?: string
+          email?: string
+          email_sent_at?: string | null
+          environment?: string
+          first_name?: string | null
+          id?: string
+          last_name?: string | null
+          order_number?: string
+          paid_at?: string | null
+          product_slug?: string
+          product_title?: string
+          status?: string
+          stripe_payment_intent?: string | null
+          stripe_session_id?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       usa_cities: {
         Row: {
           aliases: string[]
@@ -5497,6 +5560,7 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      fn_claim_my_records: { Args: never; Returns: Json }
       fn_close_lead: {
         Args: { _quote_id: string; _reason: string }
         Returns: undefined

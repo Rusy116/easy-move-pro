@@ -53,6 +53,16 @@ export function StorefrontPage({ data }: { data: any }) {
     ? Math.round(priced.reduce((n, p) => n + p.price_cents, 0) / priced.length)
     : 0;
 
+  const browse = [...all]
+    .filter((p) => (cat ? p.category_slug === cat : true))
+    .sort((a, b) =>
+      sort === "popular"
+        ? Number(b.downloads ?? 0) - Number(a.downloads ?? 0)
+        : sort === "price"
+          ? a.price_cents - b.price_cents
+          : String(b.published_at ?? "").localeCompare(String(a.published_at ?? "")),
+    );
+
   return (
     <SiteLayout>
       <Breadcrumbs items={[{ label: "Home", to: "/" }, { label: "Store" }]} />

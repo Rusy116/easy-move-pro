@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { Badge } from "@/components/ui/badge";
-import { CoverArt } from "@/components/store/CoverArt";
+import { CoverImage } from "@/components/store/CoverImage";
 import { money, type PdfProduct } from "@/lib/pdf-store/catalog";
 
 export function ProductCard({ p }: { p: PdfProduct }) {

@@ -25,7 +25,7 @@ export interface CheckoutIntent {
  * Provider currently wired up. Payments are not enabled yet, so paid products
  * collect interest instead of silently giving away priced work.
  */
-export const ACTIVE_PROVIDER = "preorder" as CheckoutProvider;
+export const ACTIVE_PROVIDER = "stripe" as CheckoutProvider;
 
 export const PAYMENTS_ENABLED = ACTIVE_PROVIDER === "stripe";
 
@@ -48,6 +48,16 @@ export function checkoutLabel(priceCents: number) {
  * Stripe-ready seam. Returns everything the UI needs to render and run the
  * buy action for a single product.
  */
+/**
+ * Where the buy button should point. Paid products go through the hosted
+ * Stripe checkout (guest-friendly); free lead magnets unlock in the library.
+ */
+export function checkoutHref(slug: string, priceCents: number) {
+  return providerFor(priceCents) === "free"
+    ? `/customer/library?claim=${slug}`
+    : `/checkout/${slug}`;
+}
+
 export function describeCheckout(slug: string, title: string, priceCents: number): CheckoutIntent {
   return {
     slug,
@@ -55,5 +65,6 @@ export function describeCheckout(slug: string, title: string, priceCents: number
     priceCents,
     provider: providerFor(priceCents),
     label: checkoutLabel(priceCents),
+    redirectUrl: checkoutHref(slug, priceCents),
   };
 }

@@ -1,4 +1,4 @@
-import { CoverArt } from "@/components/store/CoverArt";
+import { CoverImage } from "@/components/store/CoverImage";
 import type { CoverSpec } from "@/lib/pdf-store/catalog";
 import { cn } from "@/lib/utils";
 

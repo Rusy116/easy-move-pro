@@ -10,7 +10,7 @@ export function PaymentTestModeBanner() {
   }
   if (clientToken.startsWith("pk_test_")) {
     return (
-      <div className="w-full border-b border-ochre/40 bg-ochre/10 px-4 py-2 text-center text-sm text-ochre-foreground">
+      <div className="w-full border-b border-ochre/40 bg-ochre/10 px-4 py-2 text-center text-sm text-foreground">
         Test mode — payments made here are not real. Use card 4242 4242 4242 4242.
       </div>
     );

@@ -73,6 +73,7 @@ export function StorefrontPage({ data }: { data: any }) {
         eyebrow="Digital store"
         title="Printable moving checklists, planners and templates"
         subhead="Every document is built from real US moves, print-ready and yours to keep. Download instantly."
+        hidePrimary
       />
 
       <section className="mx-auto max-w-6xl px-4 pt-4 sm:px-6">

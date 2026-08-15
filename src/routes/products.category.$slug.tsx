@@ -61,7 +61,7 @@ function CategoryPage() {
   return (
     <SiteLayout>
       <Breadcrumbs items={[{ label: "Home", to: "/" }, { label: "Store", to: "/products" }, { label: c.name }]} />
-      <SeoHero eyebrow="Digital store" title={c.name} subhead={c.description ?? ""} />
+      <SeoHero eyebrow="Digital store" title={c.name} subhead={c.description ?? ""} hidePrimary />
       <section className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
         {products.length ? (
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">

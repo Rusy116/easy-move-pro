@@ -12,6 +12,7 @@ export function SeoHero({
   primaryLabel = "Become a partner",
   secondaryHref,
   secondaryLabel,
+  hidePrimary = false,
 }: {
   eyebrow?: string;
   title: string;
@@ -20,6 +21,8 @@ export function SeoHero({
   primaryLabel?: string;
   secondaryHref?: string;
   secondaryLabel?: string;
+  /** Digital store pages hide the partner CTA — it belongs to mover pages. */
+  hidePrimary?: boolean;
 }) {
   return (
     <section className="relative overflow-hidden border-b border-border bg-gradient-to-br from-background via-background to-primary/5">
@@ -35,11 +38,13 @@ export function SeoHero({
           </h1>
           <p className="mt-6 text-lg text-muted-foreground leading-relaxed">{subhead}</p>
           <div className="mt-8 flex flex-wrap gap-3">
-            <Link to={primaryHref as "/join"}>
-              <Button size="lg" className="rounded-full">
-                {primaryLabel}
-              </Button>
-            </Link>
+            {!hidePrimary && (
+              <Link to={primaryHref as "/join"}>
+                <Button size="lg" className="rounded-full">
+                  {primaryLabel}
+                </Button>
+              </Link>
+            )}
             {secondaryHref && secondaryLabel && (
               <Link to={secondaryHref as "/moving-leads"}>
                 <Button variant="outline" size="lg" className="rounded-full">

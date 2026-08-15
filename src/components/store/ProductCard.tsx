@@ -16,6 +16,7 @@ export function ProductCard({ p }: { p: PdfProduct }) {
             src={p.cover_url}
             alt={p.alt_text ?? `${p.title} — printable moving PDF cover`}
             loading="lazy"
+            decoding="async"
             className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.03]"
           />
         ) : (

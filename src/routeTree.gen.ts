@@ -58,6 +58,7 @@ import { Route as LearnTopicRouteImport } from './routes/learn.$topic'
 import { Route as CountiesCountyRouteImport } from './routes/counties.$county'
 import { Route as CompareSlugRouteImport } from './routes/compare.$slug'
 import { Route as CitiesCityRouteImport } from './routes/cities.$city'
+import { Route as CheckoutSlugRouteImport } from './routes/checkout.$slug'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedCompanyRouteImport } from './routes/_authenticated/company'
@@ -394,6 +395,11 @@ const CompareSlugRoute = CompareSlugRouteImport.update({
 const CitiesCityRoute = CitiesCityRouteImport.update({
   id: '/cities/$city',
   path: '/cities/$city',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CheckoutSlugRoute = CheckoutSlugRouteImport.update({
+  id: '/checkout/$slug',
+  path: '/checkout/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BlogSlugRoute = BlogSlugRouteImport.update({
@@ -955,6 +961,7 @@ export interface FileRoutesByFullPath {
   '/company': typeof AuthenticatedCompanyRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/blog/$slug': typeof BlogSlugRoute
+  '/checkout/$slug': typeof CheckoutSlugRoute
   '/cities/$city': typeof CitiesCityRoute
   '/compare/$slug': typeof CompareSlugRoute
   '/counties/$county': typeof CountiesCountyRoute
@@ -1095,6 +1102,7 @@ export interface FileRoutesByTo {
   '/$state/$city': typeof StateCityRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/blog/$slug': typeof BlogSlugRoute
+  '/checkout/$slug': typeof CheckoutSlugRoute
   '/cities/$city': typeof CitiesCityRoute
   '/compare/$slug': typeof CompareSlugRoute
   '/counties/$county': typeof CountiesCountyRoute
@@ -1238,6 +1246,7 @@ export interface FileRoutesById {
   '/_authenticated/company': typeof AuthenticatedCompanyRouteWithChildren
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/blog/$slug': typeof BlogSlugRoute
+  '/checkout/$slug': typeof CheckoutSlugRoute
   '/cities/$city': typeof CitiesCityRoute
   '/compare/$slug': typeof CompareSlugRoute
   '/counties/$county': typeof CountiesCountyRoute
@@ -1381,6 +1390,7 @@ export interface FileRouteTypes {
     | '/company'
     | '/dashboard'
     | '/blog/$slug'
+    | '/checkout/$slug'
     | '/cities/$city'
     | '/compare/$slug'
     | '/counties/$county'
@@ -1521,6 +1531,7 @@ export interface FileRouteTypes {
     | '/$state/$city'
     | '/dashboard'
     | '/blog/$slug'
+    | '/checkout/$slug'
     | '/cities/$city'
     | '/compare/$slug'
     | '/counties/$county'
@@ -1663,6 +1674,7 @@ export interface FileRouteTypes {
     | '/_authenticated/company'
     | '/_authenticated/dashboard'
     | '/blog/$slug'
+    | '/checkout/$slug'
     | '/cities/$city'
     | '/compare/$slug'
     | '/counties/$county'
@@ -1804,6 +1816,7 @@ export interface RootRouteChildren {
   StoreRoute: typeof StoreRoute
   StateCityRoute: typeof StateCityRoute
   BlogSlugRoute: typeof BlogSlugRoute
+  CheckoutSlugRoute: typeof CheckoutSlugRoute
   CitiesCityRoute: typeof CitiesCityRoute
   CompareSlugRoute: typeof CompareSlugRoute
   CountiesCountyRoute: typeof CountiesCountyRoute
@@ -2174,6 +2187,13 @@ declare module '@tanstack/react-router' {
       path: '/cities/$city'
       fullPath: '/cities/$city'
       preLoaderRoute: typeof CitiesCityRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/checkout/$slug': {
+      id: '/checkout/$slug'
+      path: '/checkout/$slug'
+      fullPath: '/checkout/$slug'
+      preLoaderRoute: typeof CheckoutSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/blog/$slug': {
@@ -3037,6 +3057,7 @@ const rootRouteChildren: RootRouteChildren = {
   StoreRoute: StoreRoute,
   StateCityRoute: StateCityRoute,
   BlogSlugRoute: BlogSlugRoute,
+  CheckoutSlugRoute: CheckoutSlugRoute,
   CitiesCityRoute: CitiesCityRoute,
   CompareSlugRoute: CompareSlugRoute,
   CountiesCountyRoute: CountiesCountyRoute,

@@ -1,3 +1,4 @@
+import { cachePublicPage } from "@/lib/http-cache";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { ShieldCheck, Clock, BadgeCheck, Star } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
@@ -31,6 +32,7 @@ import type { LandingContext } from "@/lib/city-landing/attribution";
  */
 export const Route = createFileRoute("/movers/$city")({
   loader: async ({ params }) => {
+    await cachePublicPage();
     const record = await getCityPageData({ data: { slug: params.city.toLowerCase() } });
     if (record) {
       return {

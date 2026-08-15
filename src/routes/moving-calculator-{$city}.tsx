@@ -1,3 +1,4 @@
+import { cachePublicPage } from "@/lib/http-cache";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { Star, ShieldCheck, Clock, BadgeCheck } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
@@ -22,6 +23,7 @@ import type { LandingContext } from "@/lib/city-landing/attribution";
 // covers legacy slugs that predate the City Factory.
 export const Route = createFileRoute("/moving-calculator-{$city}")({
   loader: async ({ params }) => {
+    await cachePublicPage();
     const record = await getCityPageData({ data: { slug: params.city.toLowerCase() } });
     if (record)
       return {

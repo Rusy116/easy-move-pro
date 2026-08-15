@@ -1,11 +1,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { cachePublicPage } from "@/lib/http-cache";
 import { createFileRoute } from "@tanstack/react-router";
 import { StorefrontPage } from "@/components/store/StorefrontPage";
 import { storefront } from "@/lib/pdf-store.functions";
 import { seoMeta, jsonLd, breadcrumbSchema, absoluteUrl } from "@/lib/seo/schema";
 
 export const Route = createFileRoute("/products/")({
-  loader: () => storefront(),
+  loader: async () => {
+    await cachePublicPage(600);
+    return storefront();
+  },
   head: () => ({
     meta: seoMeta({
       title: "Printable Moving Checklists, Planners & Templates — Easy Moving",

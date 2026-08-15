@@ -9,8 +9,31 @@
 import { createServerFn } from "@tanstack/react-start";
 import type { StripeEnv } from "@/lib/stripe.server";
 
-/** Shared Stripe catalog entry carrying the digital-goods tax code. */
-const STRIPE_PRICE_LOOKUP = "easy_moving_digital_docs_base";
+/** Eligible digital-goods tax code (required for managed payments). */
+const DIGITAL_TAX_CODE = "txcd_10103001";
+
+/**
+ * Resolves the Stripe product for one catalog title, creating it on first
+ * sale. Each product carries the digital-goods tax code so Stripe can handle
+ * tax, disputes and fraud, and the buyer sees the real title at checkout.
+ */
+async function resolveStripeProduct(
+  stripe: any,
+  slug: string,
+  title: string,
+): Promise<string> {
+  const found = await stripe.products.search({
+    query: `metadata['lovable_external_id']:'${slug}'`,
+    limit: 1,
+  });
+  if (found.data.length) return found.data[0].id;
+  const created = await stripe.products.create({
+    name: title,
+    tax_code: DIGITAL_TAX_CODE,
+    metadata: { lovable_external_id: slug },
+  });
+  return created.id;
+}
 
 function clean(value: unknown, max: number): string {
   return String(value ?? "").trim().slice(0, max);
@@ -73,17 +96,7 @@ export const createStoreCheckout = createServerFn({ method: "POST" })
     try {
       const stripe = createStripeClient(data.environment);
 
-      // Charge the catalog price of this specific title against the shared
-      // digital-goods Stripe product, which carries the eligible tax code.
-      const prices = await stripe.prices.list({ lookup_keys: [STRIPE_PRICE_LOOKUP], limit: 1 });
-      const basePrice = prices.data[0];
-      const stripeProductId = basePrice
-        ? typeof basePrice.product === "string"
-          ? basePrice.product
-          : (basePrice.product as any).id
-        : null;
-      if (!stripeProductId) return { error: "Payments are not fully configured yet." };
-
+      const stripeProductId = await resolveStripeProduct(stripe, product.slug, product.title);
       const lineItem = {
         price_data: { currency: "usd", product: stripeProductId, unit_amount: amount },
         quantity: 1,

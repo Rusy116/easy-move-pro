@@ -1,0 +1,2 @@
+CREATE INDEX IF NOT EXISTS city_landing_pages_pub_state_pop_idx ON public.city_landing_pages (state_code, population DESC) WHERE status = 'published';
+CREATE INDEX IF NOT EXISTS city_landing_pages_pub_pop_idx ON public.city_landing_pages (population DESC) WHERE status = 'published';

@@ -44,11 +44,35 @@ function isH3SwallowedErrorBody(body: string): boolean {
   }
 }
 
+// Anonymous, database-driven SEO documents. They carry no per-user data, so
+// the edge may serve a cached copy while revalidating in the background.
+const PUBLIC_CACHEABLE = [
+  /^\/moving-calculator-/,
+  /^\/movers\//,
+  /^\/cities(\/|$)/,
+  /^\/states(\/|$)/,
+  /^\/counties\//,
+  /^\/routes(\/|$)/,
+  /^\/products(\/|$)/,
+  /^\/store$/,
+];
+
+function applyPublicCache(request: Request, response: Response): Response {
+  if (request.method !== "GET" || response.status !== 200) return response;
+  if (response.headers.has("cache-control")) return response;
+  const { pathname } = new URL(request.url);
+  if (!PUBLIC_CACHEABLE.some((re) => re.test(pathname))) return response;
+  const headers = new Headers(response.headers);
+  headers.set("Cache-Control", "public, max-age=0, s-maxage=3600, stale-while-revalidate=86400");
+  return new Response(response.body, { status: response.status, headers });
+}
+
 export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
     try {
       const handler = await getServerEntry();
-      const response = await handler.fetch(request, env, ctx);
+      const raw = await handler.fetch(request, env, ctx);
+      const response = applyPublicCache(request, raw);
       return await normalizeCatastrophicSsrResponse(response);
     } catch (error) {
       console.error(error);

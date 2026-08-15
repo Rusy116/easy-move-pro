@@ -15,6 +15,7 @@ const LIST_COLUMNS =
 
 const EMPTY_STOREFRONT = {
   categories: [] as PdfCategory[],
+  all: [] as PdfProduct[],
   featured: [] as PdfProduct[],
   bestsellers: [] as PdfProduct[],
   newest: [] as PdfProduct[],
@@ -75,6 +76,9 @@ export const storefront = createServerFn({ method: "GET" }).handler(async () => 
     const all = (products.data ?? []) as unknown as PdfProduct[];
     return {
       categories: (cats.data ?? []) as unknown as PdfCategory[],
+      // Full published catalog — the storefront browses all titles, not just
+      // the curated shelves (shelves overlap heavily, so they showed ~8 of 56).
+      all,
       featured: all.filter((p) => p.is_featured).slice(0, 6),
       bestsellers: [...all].sort((a, b) => Number(b.downloads ?? 0) - Number(a.downloads ?? 0)).slice(0, 8),
       newest: all.slice(0, 8),

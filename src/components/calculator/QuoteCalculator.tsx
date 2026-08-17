@@ -265,6 +265,22 @@ export function QuoteCalculator(
   const [form, setForm] = useState<FormState>(() => createInitialForm());
   const hasUserEditedRef = useRef(false);
 
+  // Sticky live-estimate panel: collapses to a compact bar once the page is
+  // scrolled past the top of the calculator card. Purely presentational —
+  // the price itself always comes from the single `quote` computation below.
+  const stickySentinelRef = useRef<HTMLDivElement | null>(null);
+  const [stuck, setStuck] = useState(false);
+  useEffect(() => {
+    const el = stickySentinelRef.current;
+    if (!el || typeof IntersectionObserver === "undefined") return;
+    const io = new IntersectionObserver(
+      ([entry]) => setStuck(!entry.isIntersecting),
+      { rootMargin: "-64px 0px 0px 0px", threshold: 0 },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
   // Restore any saved draft after hydration (avoids SSR mismatch), otherwise
   // prefill the origin from the city page the visitor is standing on.
   useEffect(() => {

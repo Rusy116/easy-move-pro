@@ -1783,7 +1783,7 @@ function LocationBlock({
       </div>
 
       {/* House number + State */}
-      <div className="grid grid-cols-2 gap-2">
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
         <div>
           <Label className="mb-1 block text-[11px] font-medium text-muted-foreground">
             House number
@@ -1795,10 +1795,21 @@ function LocationBlock({
           />
         </div>
         <div>
+          <Label className="mb-1 block text-[11px] font-medium text-muted-foreground">
+            Apartment / Unit / Suite
+          </Label>
+          <Input
+            placeholder="Apt, Unit, Suite (optional)"
+            value={side.unit}
+            onChange={(e) => onChange({ unit: e.target.value.slice(0, 20) })}
+          />
+        </div>
+        <div className="col-span-2 sm:col-span-1">
           <Label className="mb-1 block text-[11px] font-medium text-muted-foreground">State</Label>
           <StateSelect value={side.state} onChange={(v) => onChange({ state: v })} />
         </div>
       </div>
+
 
       {/* Floor */}
       <div className="flex items-center justify-between rounded-md border border-border bg-card px-3 py-2">

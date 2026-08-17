@@ -683,13 +683,13 @@ export function QuoteCalculator(
             phone: form.phone,
           },
           origin: {
-            fullAddress: form.origin.fullAddress,
+            fullAddress: withUnit(form.origin.fullAddress, form.origin.unit),
             city: form.origin.city,
             state: form.origin.state,
             zip: form.origin.zip,
           },
           destination: {
-            fullAddress: form.destination.fullAddress,
+            fullAddress: withUnit(form.destination.fullAddress, form.destination.unit),
             city: form.destination.city,
             state: form.destination.state,
             zip: form.destination.zip,

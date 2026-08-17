@@ -169,7 +169,8 @@ function AuthPage() {
               <Label htmlFor="identifier">{t("auth.identifier")}</Label>
               <Input
                 id="identifier"
-                autoComplete="username"
+                autoComplete={mode === "signup" ? "email" : "username"}
+                type={mode === "signup" ? "email" : "text"}
                 required
                 value={identifier}
                 onChange={(e) => setIdentifier(e.target.value)}

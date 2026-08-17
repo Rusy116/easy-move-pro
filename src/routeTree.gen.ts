@@ -19,6 +19,7 @@ import { Route as SearchRouteImport } from './routes/search'
 import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
 import { Route as ResourcesRouteImport } from './routes/resources'
 import { Route as RegisterCompanyRouteImport } from './routes/register-company'
+import { Route as OrdersRouteImport } from './routes/orders'
 import { Route as OpenMarketplaceRouteImport } from './routes/open-marketplace'
 import { Route as MovingScheduleSoftwareRouteImport } from './routes/moving-schedule-software'
 import { Route as MovingLeadsRouteImport } from './routes/moving-leads'
@@ -202,6 +203,11 @@ const ResourcesRoute = ResourcesRouteImport.update({
 const RegisterCompanyRoute = RegisterCompanyRouteImport.update({
   id: '/register-company',
   path: '/register-company',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OrdersRoute = OrdersRouteImport.update({
+  id: '/orders',
+  path: '/orders',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OpenMarketplaceRoute = OpenMarketplaceRouteImport.update({
@@ -960,6 +966,7 @@ export interface FileRoutesByFullPath {
   '/moving-leads': typeof MovingLeadsRoute
   '/moving-schedule-software': typeof MovingScheduleSoftwareRoute
   '/open-marketplace': typeof OpenMarketplaceRoute
+  '/orders': typeof OrdersRoute
   '/register-company': typeof RegisterCompanyRoute
   '/resources': typeof ResourcesRoute
   '/robots.txt': typeof RobotsDottxtRoute
@@ -1104,6 +1111,7 @@ export interface FileRoutesByTo {
   '/moving-leads': typeof MovingLeadsRoute
   '/moving-schedule-software': typeof MovingScheduleSoftwareRoute
   '/open-marketplace': typeof OpenMarketplaceRoute
+  '/orders': typeof OrdersRoute
   '/register-company': typeof RegisterCompanyRoute
   '/resources': typeof ResourcesRoute
   '/robots.txt': typeof RobotsDottxtRoute
@@ -1249,6 +1257,7 @@ export interface FileRoutesById {
   '/moving-leads': typeof MovingLeadsRoute
   '/moving-schedule-software': typeof MovingScheduleSoftwareRoute
   '/open-marketplace': typeof OpenMarketplaceRoute
+  '/orders': typeof OrdersRoute
   '/register-company': typeof RegisterCompanyRoute
   '/resources': typeof ResourcesRoute
   '/robots.txt': typeof RobotsDottxtRoute
@@ -1395,6 +1404,7 @@ export interface FileRouteTypes {
     | '/moving-leads'
     | '/moving-schedule-software'
     | '/open-marketplace'
+    | '/orders'
     | '/register-company'
     | '/resources'
     | '/robots.txt'
@@ -1539,6 +1549,7 @@ export interface FileRouteTypes {
     | '/moving-leads'
     | '/moving-schedule-software'
     | '/open-marketplace'
+    | '/orders'
     | '/register-company'
     | '/resources'
     | '/robots.txt'
@@ -1683,6 +1694,7 @@ export interface FileRouteTypes {
     | '/moving-leads'
     | '/moving-schedule-software'
     | '/open-marketplace'
+    | '/orders'
     | '/register-company'
     | '/resources'
     | '/robots.txt'
@@ -1829,6 +1841,7 @@ export interface RootRouteChildren {
   MovingLeadsRoute: typeof MovingLeadsRoute
   MovingScheduleSoftwareRoute: typeof MovingScheduleSoftwareRoute
   OpenMarketplaceRoute: typeof OpenMarketplaceRoute
+  OrdersRoute: typeof OrdersRoute
   RegisterCompanyRoute: typeof RegisterCompanyRoute
   ResourcesRoute: typeof ResourcesRoute
   RobotsDottxtRoute: typeof RobotsDottxtRoute
@@ -1940,6 +1953,13 @@ declare module '@tanstack/react-router' {
       path: '/register-company'
       fullPath: '/register-company'
       preLoaderRoute: typeof RegisterCompanyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/orders': {
+      id: '/orders'
+      path: '/orders'
+      fullPath: '/orders'
+      preLoaderRoute: typeof OrdersRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/open-marketplace': {
@@ -3085,6 +3105,7 @@ const rootRouteChildren: RootRouteChildren = {
   MovingLeadsRoute: MovingLeadsRoute,
   MovingScheduleSoftwareRoute: MovingScheduleSoftwareRoute,
   OpenMarketplaceRoute: OpenMarketplaceRoute,
+  OrdersRoute: OrdersRoute,
   RegisterCompanyRoute: RegisterCompanyRoute,
   ResourcesRoute: ResourcesRoute,
   RobotsDottxtRoute: RobotsDottxtRoute,

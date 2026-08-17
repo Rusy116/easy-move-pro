@@ -119,11 +119,13 @@ export const createStoreCheckout = createServerFn({ method: "POST" })
         quantity: 1,
       };
 
+      const customerId = await resolveStripeCustomer(stripe, data.email);
+
       const session = await stripe.checkout.sessions.create({
         mode: "payment",
         ui_mode: "embedded_page",
         return_url: data.returnUrl,
-        customer_email: data.email,
+        ...(customerId ? { customer: customerId } : { customer_email: data.email }),
         line_items: [lineItem],
         payment_intent_data: { description: product.title },
         managed_payments: { enabled: true },
@@ -146,6 +148,7 @@ export const createStoreCheckout = createServerFn({ method: "POST" })
         status: "pending",
         environment: data.environment,
         stripe_session_id: session.id,
+        stripe_customer_id: customerId ?? null,
       });
       if (error) {
         console.error("[store-checkout] order insert failed:", error.message);
@@ -161,7 +164,7 @@ export const createStoreCheckout = createServerFn({ method: "POST" })
 
 export type OrderStatusResult =
   | {
-      status: "paid" | "pending" | "failed" | "unknown";
+      status: "paid" | "pending" | "failed" | "refunded" | "disputed" | "unknown";
       orderNumber?: string;
       productTitle?: string;
       productSlug?: string;
@@ -221,7 +224,8 @@ export const getCheckoutStatus = createServerFn({ method: "POST" })
         : null;
 
     return {
-      status: (current.status as "paid" | "pending" | "failed") ?? "pending",
+      status:
+        (current.status as "paid" | "pending" | "failed" | "refunded" | "disputed") ?? "pending",
       orderNumber: current.order_number,
       productTitle: current.product_title,
       productSlug: current.product_slug,

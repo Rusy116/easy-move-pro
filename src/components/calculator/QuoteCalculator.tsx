@@ -114,6 +114,7 @@ const EMPTY_SIDE: SideState = {
   state: "",
   street: "",
   houseNumber: "",
+  unit: "",
   fullAddress: "",
   lat: null,
   lng: null,

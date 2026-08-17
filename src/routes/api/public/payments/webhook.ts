@@ -80,11 +80,11 @@ async function handleWebhook(req: Request, env: StripeEnv) {
         typeof object?.payment_intent === "string" ? object.payment_intent : null;
       if (!paymentIntent) break;
       const db = getSupabase();
-      const { data: order } = await db
+      const { data: order } = (await db
         .from("store_orders")
         .select("id")
         .eq("stripe_payment_intent", paymentIntent)
-        .maybeSingle();
+        .maybeSingle()) as { data: { id: string } | null };
       if (!order?.id) break;
       const { fulfilOrder } = await import("@/lib/store/fulfilment.server");
       await fulfilOrder(db, order.id, { paymentIntent });

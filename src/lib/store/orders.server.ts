@@ -7,8 +7,14 @@
 
 const encoder = new TextEncoder();
 
-/** 30 days — a guest can re-download for a month, then must sign in. */
+/**
+ * 30 days per emailed link. Access itself is permanent: a fresh link can
+ * always be re-issued from /orders (by email) or the account library.
+ */
 export const DOWNLOAD_TTL_MS = 30 * 24 * 60 * 60 * 1000;
+
+/** Receipts stay reachable for a year from the emailed/confirmation link. */
+export const RECEIPT_TTL_MS = 365 * 24 * 60 * 60 * 1000;
 
 function signingSecret(): string {
   const secret =
@@ -103,4 +109,41 @@ export function siteOrigin(): string {
     process.env["PUBLIC_SITE_ORIGIN"] ??
     "https://easymove.pro"
   );
+}
+
+export interface ReceiptClaim {
+  /** order id */
+  o: string;
+  /** token kind */
+  k: "receipt";
+  /** expiry (ms epoch) */
+  e: number;
+}
+
+/** Signs a read-only receipt token for one order. */
+export async function signReceiptToken(orderId: string, ttlMs = RECEIPT_TTL_MS): Promise<string> {
+  const claim: ReceiptClaim = { o: orderId, k: "receipt", e: Date.now() + ttlMs };
+  const payload = b64url(encoder.encode(JSON.stringify(claim)));
+  return `${payload}.${await hmac(payload)}`;
+}
+
+/** Verifies a receipt token. Returns null when tampered, expired or wrong kind. */
+export async function verifyReceiptToken(token: string): Promise<ReceiptClaim | null> {
+  const [payload, signature] = String(token ?? "").split(".");
+  if (!payload || !signature) return null;
+  const expected = await hmac(payload);
+  if (expected.length !== signature.length) return null;
+  let diff = 0;
+  for (let i = 0; i < expected.length; i += 1) {
+    diff |= expected.charCodeAt(i) ^ signature.charCodeAt(i);
+  }
+  if (diff !== 0) return null;
+  try {
+    const claim = JSON.parse(new TextDecoder().decode(fromB64url(payload))) as ReceiptClaim;
+    if (claim?.k !== "receipt" || !claim?.o || !claim?.e) return null;
+    if (Date.now() > Number(claim.e)) return null;
+    return claim;
+  } catch {
+    return null;
+  }
 }

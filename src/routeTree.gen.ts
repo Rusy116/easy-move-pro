@@ -19,6 +19,7 @@ import { Route as SearchRouteImport } from './routes/search'
 import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
 import { Route as ResourcesRouteImport } from './routes/resources'
 import { Route as RegisterCompanyRouteImport } from './routes/register-company'
+import { Route as ReceiptRouteImport } from './routes/receipt'
 import { Route as OrdersRouteImport } from './routes/orders'
 import { Route as OpenMarketplaceRouteImport } from './routes/open-marketplace'
 import { Route as MovingScheduleSoftwareRouteImport } from './routes/moving-schedule-software'
@@ -203,6 +204,11 @@ const ResourcesRoute = ResourcesRouteImport.update({
 const RegisterCompanyRoute = RegisterCompanyRouteImport.update({
   id: '/register-company',
   path: '/register-company',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ReceiptRoute = ReceiptRouteImport.update({
+  id: '/receipt',
+  path: '/receipt',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OrdersRoute = OrdersRouteImport.update({
@@ -967,6 +973,7 @@ export interface FileRoutesByFullPath {
   '/moving-schedule-software': typeof MovingScheduleSoftwareRoute
   '/open-marketplace': typeof OpenMarketplaceRoute
   '/orders': typeof OrdersRoute
+  '/receipt': typeof ReceiptRoute
   '/register-company': typeof RegisterCompanyRoute
   '/resources': typeof ResourcesRoute
   '/robots.txt': typeof RobotsDottxtRoute
@@ -1112,6 +1119,7 @@ export interface FileRoutesByTo {
   '/moving-schedule-software': typeof MovingScheduleSoftwareRoute
   '/open-marketplace': typeof OpenMarketplaceRoute
   '/orders': typeof OrdersRoute
+  '/receipt': typeof ReceiptRoute
   '/register-company': typeof RegisterCompanyRoute
   '/resources': typeof ResourcesRoute
   '/robots.txt': typeof RobotsDottxtRoute
@@ -1258,6 +1266,7 @@ export interface FileRoutesById {
   '/moving-schedule-software': typeof MovingScheduleSoftwareRoute
   '/open-marketplace': typeof OpenMarketplaceRoute
   '/orders': typeof OrdersRoute
+  '/receipt': typeof ReceiptRoute
   '/register-company': typeof RegisterCompanyRoute
   '/resources': typeof ResourcesRoute
   '/robots.txt': typeof RobotsDottxtRoute
@@ -1405,6 +1414,7 @@ export interface FileRouteTypes {
     | '/moving-schedule-software'
     | '/open-marketplace'
     | '/orders'
+    | '/receipt'
     | '/register-company'
     | '/resources'
     | '/robots.txt'
@@ -1550,6 +1560,7 @@ export interface FileRouteTypes {
     | '/moving-schedule-software'
     | '/open-marketplace'
     | '/orders'
+    | '/receipt'
     | '/register-company'
     | '/resources'
     | '/robots.txt'
@@ -1695,6 +1706,7 @@ export interface FileRouteTypes {
     | '/moving-schedule-software'
     | '/open-marketplace'
     | '/orders'
+    | '/receipt'
     | '/register-company'
     | '/resources'
     | '/robots.txt'
@@ -1842,6 +1854,7 @@ export interface RootRouteChildren {
   MovingScheduleSoftwareRoute: typeof MovingScheduleSoftwareRoute
   OpenMarketplaceRoute: typeof OpenMarketplaceRoute
   OrdersRoute: typeof OrdersRoute
+  ReceiptRoute: typeof ReceiptRoute
   RegisterCompanyRoute: typeof RegisterCompanyRoute
   ResourcesRoute: typeof ResourcesRoute
   RobotsDottxtRoute: typeof RobotsDottxtRoute
@@ -1953,6 +1966,13 @@ declare module '@tanstack/react-router' {
       path: '/register-company'
       fullPath: '/register-company'
       preLoaderRoute: typeof RegisterCompanyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/receipt': {
+      id: '/receipt'
+      path: '/receipt'
+      fullPath: '/receipt'
+      preLoaderRoute: typeof ReceiptRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/orders': {
@@ -3106,6 +3126,7 @@ const rootRouteChildren: RootRouteChildren = {
   MovingScheduleSoftwareRoute: MovingScheduleSoftwareRoute,
   OpenMarketplaceRoute: OpenMarketplaceRoute,
   OrdersRoute: OrdersRoute,
+  ReceiptRoute: ReceiptRoute,
   RegisterCompanyRoute: RegisterCompanyRoute,
   ResourcesRoute: ResourcesRoute,
   RobotsDottxtRoute: RobotsDottxtRoute,

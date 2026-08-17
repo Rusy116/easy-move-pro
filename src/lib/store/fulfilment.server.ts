@@ -42,14 +42,18 @@ export async function fulfilOrder(
     if (current.user_id) {
       await db
         .from("customer_purchases")
-        .insert({
-          user_id: current.user_id,
-          product_slug: current.product_slug,
-          title: current.product_title,
-          amount_cents: current.amount_cents,
-          currency: current.currency,
-          status: "completed",
-        })
+        .upsert(
+          {
+            user_id: current.user_id,
+            product_slug: current.product_slug,
+            title: current.product_title,
+            amount_cents: current.amount_cents,
+            currency: current.currency,
+            status: "completed",
+            refunded_at: null,
+          },
+          { onConflict: "user_id,product_slug" },
+        )
         .then(() => undefined, () => undefined);
     }
 

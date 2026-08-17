@@ -1,11 +1,14 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { BookOpen, Download } from "lucide-react";
+import { useState } from "react";
+import { BookOpen, Download, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { CustomerShell } from "@/components/customer/CustomerShell";
 import { PageHeader, SectionShell, SkeletonRows } from "@/components/shell/Chrome";
 import { ProductThumb } from "@/components/store/ProductThumb";
 import { useCustomerPurchases } from "@/lib/customer-portal";
+import { issueLibraryDownload } from "@/lib/store/entitlements.functions";
 
 export const Route = createFileRoute("/_authenticated/customer/library")({
   head: () => ({
@@ -22,6 +25,23 @@ export const Route = createFileRoute("/_authenticated/customer/library")({
 
 function MyLibraryPage() {
   const { items, loading } = useCustomerPurchases();
+  const [busySlug, setBusySlug] = useState<string | null>(null);
+
+  // Ownership never expires: mint a fresh, signed link on every click rather
+  // than reusing the (deliberately short-lived) link stored at purchase time.
+  async function openDownload(slug: string | null) {
+    if (!slug || busySlug) return;
+    setBusySlug(slug);
+    try {
+      const res = await issueLibraryDownload({ data: { productSlug: slug } });
+      if ("error" in res) throw new Error(res.error);
+      window.open(res.url, "_blank", "noopener");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Could not prepare your download");
+    } finally {
+      setBusySlug(null);
+    }
+  }
 
   return (
     <CustomerShell>
@@ -73,20 +93,17 @@ function MyLibraryPage() {
                       </div>
                       <div className="mt-3">
                         <Button
-                          asChild={!!p.download_url}
                           size="sm"
                           className="rounded-full"
-                          disabled={!p.download_url}
+                          disabled={!p.product_slug || busySlug === p.product_slug}
+                          onClick={() => void openDownload(p.product_slug ?? null)}
                         >
-                          {p.download_url ? (
-                            <a href={p.download_url} target="_blank" rel="noreferrer">
-                              <Download className="mr-1.5 h-4 w-4" /> Download
-                            </a>
+                          {busySlug === p.product_slug ? (
+                            <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
                           ) : (
-                            <span>
-                              <Download className="mr-1.5 h-4 w-4" /> Preparing
-                            </span>
+                            <Download className="mr-1.5 h-4 w-4" />
                           )}
+                          Download
                         </Button>
                       </div>
                     </li>

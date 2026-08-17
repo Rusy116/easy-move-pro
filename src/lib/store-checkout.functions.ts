@@ -171,6 +171,7 @@ export type OrderStatusResult =
       email?: string;
       amountCents?: number;
       downloadUrl?: string | null;
+      receiptUrl?: string | null;
       emailSent?: boolean;
     }
   | { error: string };
@@ -217,11 +218,18 @@ export const getCheckoutStatus = createServerFn({ method: "POST" })
       }
     }
 
-    const { signDownloadToken, siteOrigin } = await import("@/lib/store/orders.server");
+    const { signDownloadToken, signReceiptToken, siteOrigin } = await import(
+      "@/lib/store/orders.server"
+    );
     const downloadUrl =
       current.status === "paid"
         ? `${siteOrigin()}/download?t=${await signDownloadToken(current.id, current.product_slug)}`
         : null;
+
+    const receiptUrl =
+      current.status === "pending"
+        ? null
+        : `${siteOrigin()}/receipt?t=${await signReceiptToken(current.id)}`;
 
     return {
       status:
@@ -232,6 +240,7 @@ export const getCheckoutStatus = createServerFn({ method: "POST" })
       email: current.email,
       amountCents: current.amount_cents,
       downloadUrl,
+      receiptUrl,
       emailSent: Boolean(current.email_sent_at),
     };
   });

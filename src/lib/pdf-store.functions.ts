@@ -105,7 +105,11 @@ export const listStoreProducts = createServerFn({ method: "GET" })
       if (!db) return [] as PdfProduct[];
       let query = db.from("pdf_products").select(LIST_COLUMNS).eq("status", "published");
       if (data.category) query = query.eq("category_slug", data.category);
-      if (data.q) query = query.or(`title.ilike.%${data.q}%,description.ilike.%${data.q}%`);
+      if (data.q) {
+        // Neutralise PostgREST filter syntax and LIKE wildcards in user input.
+        const term = data.q.replace(/[%_,()\\*]/g, " ").trim();
+        if (term) query = query.or(`title.ilike.%${term}%,description.ilike.%${term}%`);
+      }
       if (data.sort === "popular") query = query.order("downloads", { ascending: false });
       else if (data.sort === "price") query = query.order("price_cents", { ascending: true });
       else query = query.order("published_at", { ascending: false });
@@ -303,7 +307,7 @@ export const claimProduct = createServerFn({ method: "POST" })
     const requiresPayment = isPaid(product.price_cents) && owned?.status !== "completed";
 
     if (!owned) {
-      await db.from("customer_purchases").insert({
+      await db.from("customer_purchases").upsert({
         user_id: context.userId,
         product_slug: data.slug,
         title: product.title,
@@ -312,7 +316,7 @@ export const claimProduct = createServerFn({ method: "POST" })
         currency: "usd",
         // Paid titles are reserved until checkout opens — never given away.
         status: requiresPayment ? "reserved" : "completed",
-      });
+      }, { onConflict: "user_id,product_slug" });
     }
 
     const unlocked = !requiresPayment;

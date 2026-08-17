@@ -128,6 +128,12 @@ function CheckoutReturn() {
                 : `Keep this page open to download now — your emailed copy is being sent to ${state.email}.`}
             </p>
 
+            {state.receiptUrl && (
+              <Button asChild variant="outline" size="lg" className="mt-3 w-full rounded-full">
+                <a href={state.receiptUrl}>View receipt</a>
+              </Button>
+            )}
+
             <p className="mt-2 text-xs text-muted-foreground">
               Lost this link later?{" "}
               <Link to="/orders" className="underline">

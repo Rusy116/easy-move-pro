@@ -143,12 +143,28 @@ function AuthPage() {
           ← {t("auth.backHome")}
         </Link>
         <div className="rounded-2xl border border-border bg-card p-8">
-          <h1 className="font-serif text-3xl font-medium">{t("auth.heading")}</h1>
+          <h1 className="font-serif text-3xl font-medium">
+            {mode === "signup" ? "Create your account" : t("auth.heading")}
+          </h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            {t("auth.intro")}
+            {mode === "signup"
+              ? "Set a password to save your estimate and track your move. We'll link the quote you already submitted with this email — nothing is duplicated."
+              : t("auth.intro")}
           </p>
 
-          <form onSubmit={onSubmit} className="mt-6 space-y-4">
+          {confirmSent ? (
+            <div className="mt-6 rounded-xl border border-border bg-muted/40 p-4 text-sm">
+              <p className="font-medium">Confirm your email</p>
+              <p className="mt-1 text-muted-foreground">
+                We sent a confirmation link to <span className="font-medium">{identifier}</span>.
+                Open it and you'll land straight in your dashboard with your estimate attached.
+              </p>
+            </div>
+          ) : (
+          <form
+            onSubmit={mode === "signup" ? onSignUp : onSubmit}
+            className="mt-6 space-y-4"
+          >
             <div>
               <Label htmlFor="identifier">{t("auth.identifier")}</Label>
               <Input

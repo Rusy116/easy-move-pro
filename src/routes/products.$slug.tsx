@@ -91,16 +91,16 @@ function ProductDetail() {
       <Breadcrumbs items={[{ label: "Home", to: "/" }, { label: "Store", to: "/products" }, { label: p.title }]} />
 
       <section className="mx-auto grid max-w-6xl gap-10 px-4 py-10 sm:px-6 lg:grid-cols-2">
-        <div className="aspect-[3/4] overflow-hidden rounded-2xl border border-border/60">
-          {p.cover_url ? (
-            <img
-              src={p.cover_url}
-              alt={p.alt_text ?? `${p.title} — printable moving PDF cover`}
-              className="h-full w-full object-cover"
-            />
-          ) : (
-            <CoverArt slug={p.slug} title={p.title} spec={p.cover_spec} className="h-full w-full" />
-          )}
+        <div className="aspect-[3/4] overflow-hidden rounded-2xl border border-border/60 bg-muted/30">
+          <CoverImage
+            slug={p.slug}
+            title={p.title}
+            coverUrl={p.cover_url}
+            spec={p.cover_spec}
+            alt={p.alt_text}
+            eager
+            sizes="(min-width: 1024px) 40vw, 100vw"
+          />
         </div>
 
         <div>

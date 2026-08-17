@@ -77,7 +77,10 @@ function DownloadPage() {
               It may have expired or been altered. Sign in to your account to re-download any
               purchase, or contact us with your order number.
             </p>
-            <div className="mt-5 flex justify-center gap-3">
+            <div className="mt-5 flex flex-wrap justify-center gap-3">
+              <Link to="/orders">
+                <Button className="rounded-full">Resend my download link</Button>
+              </Link>
               <Link to="/auth">
                 <Button variant="secondary" className="rounded-full">
                   Sign in

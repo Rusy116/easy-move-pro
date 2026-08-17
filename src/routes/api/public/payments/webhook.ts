@@ -53,6 +53,20 @@ async function handleWebhook(req: Request, env: StripeEnv) {
       });
       break;
     }
+    case "charge.refunded":
+    case "charge.dispute.created":
+    case "charge.dispute.funds_withdrawn": {
+      const paymentIntent =
+        typeof object?.payment_intent === "string" ? object.payment_intent : null;
+      if (!paymentIntent) break;
+      const { revokeOrder } = await import("@/lib/store/fulfilment.server");
+      await revokeOrder(
+        getSupabase(),
+        { paymentIntent },
+        event.type === "charge.refunded" ? "refunded" : "disputed",
+      );
+      break;
+    }
     case "checkout.session.async_payment_failed":
     case "checkout.session.expired":
     case "transaction.payment_failed": {

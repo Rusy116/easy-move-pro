@@ -128,6 +128,14 @@ function CheckoutReturn() {
                 : `Keep this page open to download now — your emailed copy is being sent to ${state.email}.`}
             </p>
 
+            <p className="mt-2 text-xs text-muted-foreground">
+              Lost this link later?{" "}
+              <Link to="/orders" className="underline">
+                Resend it to your email
+              </Link>
+              .
+            </p>
+
             <div className="mt-8 rounded-xl bg-sage-soft/50 p-5">
               <p className="font-serif text-lg">Create your free account</p>
               <p className="mt-1 text-sm text-muted-foreground">

@@ -774,12 +774,14 @@ export function QuoteCalculator(
 
   return (
     <div className="rounded-3xl bg-card shadow-[0_30px_80px_-40px_rgba(20,40,25,0.35)] ring-1 ring-black/5">
-      <div className="sticky top-0 z-30 overflow-hidden rounded-t-3xl">
+      <div ref={stickySentinelRef} aria-hidden className="h-px w-full" />
+      <div className="sticky top-16 z-30 overflow-hidden rounded-t-3xl">
         <PriceHeader
           quote={quote}
           distance={distance}
           propertyType={form.origin.propertyType}
           selectedServices={selectedServices}
+          compact={stuck}
         />
       </div>
 

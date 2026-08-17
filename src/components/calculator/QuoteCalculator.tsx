@@ -94,6 +94,7 @@ interface SideState {
   state: string;
   street: string; // route (street name only)
   houseNumber: string; // separate input
+  unit: string; // apartment / unit / suite (optional, kept separate from houseNumber)
   fullAddress: string; // formatted (for storage / distance)
   lat: number | null;
   lng: number | null;

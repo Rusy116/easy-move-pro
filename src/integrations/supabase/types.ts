@@ -2668,6 +2668,7 @@ export type Database = {
           product_id: string | null
           product_slug: string | null
           purchased_at: string
+          refunded_at: string | null
           status: string
           title: string
           user_id: string
@@ -2682,6 +2683,7 @@ export type Database = {
           product_id?: string | null
           product_slug?: string | null
           purchased_at?: string
+          refunded_at?: string | null
           status?: string
           title: string
           user_id: string
@@ -2696,6 +2698,7 @@ export type Database = {
           product_id?: string | null
           product_slug?: string | null
           purchased_at?: string
+          refunded_at?: string | null
           status?: string
           title?: string
           user_id?: string
@@ -4986,7 +4989,9 @@ export type Database = {
           paid_at: string | null
           product_slug: string
           product_title: string
+          refunded_at: string | null
           status: string
+          stripe_customer_id: string | null
           stripe_payment_intent: string | null
           stripe_session_id: string | null
           updated_at: string
@@ -5006,7 +5011,9 @@ export type Database = {
           paid_at?: string | null
           product_slug: string
           product_title: string
+          refunded_at?: string | null
           status?: string
+          stripe_customer_id?: string | null
           stripe_payment_intent?: string | null
           stripe_session_id?: string | null
           updated_at?: string
@@ -5026,7 +5033,9 @@ export type Database = {
           paid_at?: string | null
           product_slug?: string
           product_title?: string
+          refunded_at?: string | null
           status?: string
+          stripe_customer_id?: string | null
           stripe_payment_intent?: string | null
           stripe_session_id?: string | null
           updated_at?: string

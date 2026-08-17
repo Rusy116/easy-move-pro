@@ -93,3 +93,39 @@ export async function fulfilOrder(
 
   return current;
 }
+
+/**
+ * Revokes access after a refund or dispute. Flipping the order off "paid"
+ * makes every issued download token stop working immediately (redeemDownload
+ * re-checks status), and the item is marked refunded in the customer library.
+ */
+export async function revokeOrder(
+  db: any,
+  match: { orderId?: string; paymentIntent?: string | null },
+  reason: "refunded" | "disputed" = "refunded",
+) {
+  let query = db.from("store_orders").select("*").limit(1);
+  query = match.orderId
+    ? query.eq("id", match.orderId)
+    : query.eq("stripe_payment_intent", match.paymentIntent ?? "__none__");
+  const { data: rows } = await query;
+  const order = rows?.[0];
+  if (!order || order.status === reason) return order ?? null;
+
+  const now = new Date().toISOString();
+  await db
+    .from("store_orders")
+    .update({ status: reason, refunded_at: now })
+    .eq("id", order.id);
+
+  if (order.user_id) {
+    await db
+      .from("customer_purchases")
+      .update({ status: reason, refunded_at: now })
+      .eq("user_id", order.user_id)
+      .eq("product_slug", order.product_slug)
+      .then(() => undefined, () => undefined);
+  }
+
+  return { ...order, status: reason, refunded_at: now };
+}

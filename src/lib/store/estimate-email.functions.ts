@@ -40,12 +40,35 @@ export const sendCalculatorEstimateEmail = createServerFn({ method: "POST" })
       }).format(Number(cents ?? 0));
 
     const origin = siteOrigin();
-    return sendEstimateEmail({
-      to: quote.contact_email,
-      firstName: String((quote.details as any)?.fullName ?? "").split(" ")[0] || null,
-      amountLabel: `${usd(quote.estimated_low)} – ${usd(quote.estimated_high)}`,
-      quoteNumber: quote.quote_number,
-      quoteUrl: `${origin}/portal/${quote.quote_number}?token=${quote.portal_token}`,
-      accountUrl: `${origin}/auth?signup=1&email=${encodeURIComponent(quote.contact_email)}`,
-    });
+    let result: { sent: boolean; reason?: string };
+    try {
+      result = await sendEstimateEmail({
+        to: quote.contact_email,
+        firstName: String((quote.details as any)?.fullName ?? "").split(" ")[0] || null,
+        amountLabel: `${usd(quote.estimated_low)} – ${usd(quote.estimated_high)}`,
+        quoteNumber: quote.quote_number,
+        quoteUrl: `${origin}/portal/${quote.quote_number}?token=${quote.portal_token}`,
+        accountUrl: `${origin}/auth?signup=1&email=${encodeURIComponent(quote.contact_email)}`,
+      });
+    } catch (err) {
+      result = { sent: false, reason: err instanceof Error ? err.message : "send_failed" };
+    }
+
+    // Audit the delivery attempt so support can see whether the customer was
+    // ever emailed, and re-send from the same server function if not.
+    const { data: row } = await db
+      .from("quotes")
+      .select("id")
+      .eq("quote_number", data.quoteNumber)
+      .maybeSingle();
+    if (row?.id) {
+      await db.from("lead_events").insert({
+        quote_id: row.id,
+        actor_type: "system",
+        event_type: result.sent ? "estimate_email_sent" : "estimate_email_failed",
+        payload: { to: quote.contact_email, reason: result.reason ?? null },
+        is_public: false,
+      });
+    }
+    return result;
   });

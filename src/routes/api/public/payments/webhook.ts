@@ -59,12 +59,35 @@ async function handleWebhook(req: Request, env: StripeEnv) {
       const paymentIntent =
         typeof object?.payment_intent === "string" ? object.payment_intent : null;
       if (!paymentIntent) break;
+      // Partial refunds keep the download alive — only a full refund revokes.
+      if (event.type === "charge.refunded") {
+        const amount = Number(object?.amount ?? 0);
+        const refunded = Number(object?.amount_refunded ?? 0);
+        if (amount > 0 && refunded > 0 && refunded < amount) break;
+      }
       const { revokeOrder } = await import("@/lib/store/fulfilment.server");
       await revokeOrder(
         getSupabase(),
         { paymentIntent },
         event.type === "charge.refunded" ? "refunded" : "disputed",
       );
+      break;
+    }
+    case "charge.dispute.closed": {
+      // Dispute resolved in our favour: give the buyer their access back.
+      if (object?.status !== "won") break;
+      const paymentIntent =
+        typeof object?.payment_intent === "string" ? object.payment_intent : null;
+      if (!paymentIntent) break;
+      const db = getSupabase();
+      const { data: order } = await db
+        .from("store_orders")
+        .select("id")
+        .eq("stripe_payment_intent", paymentIntent)
+        .maybeSingle();
+      if (!order?.id) break;
+      const { fulfilOrder } = await import("@/lib/store/fulfilment.server");
+      await fulfilOrder(db, order.id, { paymentIntent });
       break;
     }
     case "checkout.session.async_payment_failed":

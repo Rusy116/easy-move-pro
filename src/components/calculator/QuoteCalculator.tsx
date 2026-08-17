@@ -1690,6 +1690,7 @@ function LocationBlock({
                 city: "",
                 street: "",
                 houseNumber: "",
+                unit: "",
                 fullAddress: "",
                 lat: null,
                 lng: null,

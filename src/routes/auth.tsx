@@ -182,17 +182,29 @@ function AuthPage() {
               <Input
                 id="password"
                 type="password"
-                autoComplete="current-password"
+                autoComplete={mode === "signup" ? "new-password" : "current-password"}
                 required
+                minLength={mode === "signup" ? 8 : undefined}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
             </div>
             <Button type="submit" disabled={busy} className="w-full rounded-full">
               {busy && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {t("common.signIn")}
+              {mode === "signup" ? "Create account" : t("common.signIn")}
             </Button>
+            <button
+              type="button"
+              className="w-full text-center text-xs text-muted-foreground underline"
+              onClick={() => setMode(mode === "signup" ? "signin" : "signup")}
+            >
+              {mode === "signup"
+                ? "Already have an account? Sign in"
+                : "New here? Create an account"}
+            </button>
           </form>
+          )}
+
 
           {DEV_LOGIN_ENABLED && (
             <div className="mt-6 rounded-xl border border-dashed border-border bg-muted/40 p-4">

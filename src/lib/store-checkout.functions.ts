@@ -35,9 +35,26 @@ async function resolveStripeProduct(
   return created.id;
 }
 
+/**
+ * Resolves a Stripe Customer for the buyer's email so repeat purchases share
+ * one customer record (searchable payment history, receipts, refunds).
+ */
+async function resolveStripeCustomer(stripe: any, email: string): Promise<string | undefined> {
+  try {
+    const existing = await stripe.customers.list({ email, limit: 1 });
+    if (existing.data.length) return existing.data[0].id;
+    const created = await stripe.customers.create({ email });
+    return created.id;
+  } catch (error) {
+    console.error("[store-checkout] customer resolve failed:", error);
+    return undefined;
+  }
+}
+
 function clean(value: unknown, max: number): string {
   return String(value ?? "").trim().slice(0, max);
 }
+
 
 function validEmail(value: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(value);

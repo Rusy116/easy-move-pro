@@ -2369,9 +2369,13 @@ function ReviewScreen({
         : "Full value protection";
 
   function addressLine(s: SideState): string {
-    const line1 = [s.houseNumber, s.street].filter(Boolean).join(" ");
+    const line1 = [[s.houseNumber, s.street].filter(Boolean).join(" "), s.unit.trim()]
+      .filter(Boolean)
+      .join(", ");
     const line2 = [s.city, s.state, s.zip].filter(Boolean).join(", ");
-    return [line1, line2].filter(Boolean).join(" · ") || s.fullAddress || "—";
+    return (
+      [line1, line2].filter(Boolean).join(" · ") || withUnit(s.fullAddress, s.unit) || "—"
+    );
   }
 
   return (

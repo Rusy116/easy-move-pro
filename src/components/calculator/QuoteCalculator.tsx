@@ -87,6 +87,20 @@ const CARRY_OPTIONS: { value: CarryDistance; label: string }[] = [
   { value: "long", label: "Over 150 ft" },
 ];
 
+/**
+ * Merge an optional apartment/unit/suite into a formatted address.
+ * The unit is inserted after the street line so the result reads naturally,
+ * and an empty unit leaves the address byte-identical (no stray punctuation).
+ */
+function withUnit(address: string, unit: string): string {
+  const a = (address ?? "").trim();
+  const u = (unit ?? "").trim();
+  if (!u) return a;
+  if (!a) return u;
+  const i = a.indexOf(",");
+  return i === -1 ? `${a}, ${u}` : `${a.slice(0, i)}, ${u}${a.slice(i)}`;
+}
+
 interface SideState {
   propertyType: PropertyType;
   zip: string;

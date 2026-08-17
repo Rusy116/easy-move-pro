@@ -33,18 +33,57 @@ export const Route = createFileRoute("/auth")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
+  // `?signup=1&email=...` comes from the estimate email. It only pre-fills the
+  // sign-up form — the quote itself is linked server-side by email through
+  // fn_claim_my_records, never through anything passed in the URL.
+  validateSearch: (search: Record<string, unknown>) => ({
+    signup: search['signup'] === "1" || search['signup'] === 1 || search['signup'] === true ? true : undefined,
+    email: typeof search['email'] === "string" ? search['email'].slice(0, 200) : undefined,
+  }),
   component: AuthPage,
 });
 
 function AuthPage() {
   const navigate = useNavigate();
   const { t } = useI18n();
+  const search = Route.useSearch();
   const signIn = useServerFn(signInWithIdentifier);
   const devSignIn = useServerFn(devQuickSignIn);
   const [busy, setBusy] = useState(false);
   const [devBusy, setDevBusy] = useState<DevRole | null>(null);
-  const [identifier, setIdentifier] = useState("");
+  const [identifier, setIdentifier] = useState(search.email ?? "");
   const [password, setPassword] = useState("");
+  const [mode, setMode] = useState<"signin" | "signup">(search.signup ? "signup" : "signin");
+  const [confirmSent, setConfirmSent] = useState(false);
+
+  async function onSignUp(e: React.FormEvent) {
+    e.preventDefault();
+    setBusy(true);
+    try {
+      const email = identifier.trim();
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: { emailRedirectTo: `${window.location.origin}/customer/dashboard` },
+      });
+      if (error) throw new Error(error.message);
+      if (!data.session) {
+        setConfirmSent(true);
+        toast.success("Check your email to confirm your account.");
+        return;
+      }
+      // Session is live: attach any guest quotes/orders placed with this email.
+      await (supabase as unknown as { rpc: (fn: string) => Promise<unknown> })
+        .rpc("fn_claim_my_records")
+        .catch(() => undefined);
+      toast.success("Your account is ready.");
+      navigate({ to: "/customer/dashboard" });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "We couldn't create your account.");
+    } finally {
+      setBusy(false);
+    }
+  }
 
   useEffect(() => {
     loadRoleContext().then((ctx) => {

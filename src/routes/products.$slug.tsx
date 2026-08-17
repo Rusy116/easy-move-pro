@@ -3,7 +3,7 @@ import { SiteLayout } from "@/components/site/SiteLayout";
 import { Breadcrumbs, Faq, StoreCta } from "@/components/seo/blocks";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { CoverArt } from "@/components/store/CoverArt";
+import { CoverImage } from "@/components/store/CoverImage";
 import { ProductCard } from "@/components/store/ProductCard";
 import { getStoreProduct } from "@/lib/pdf-store.functions";
 import { money, DIFFICULTY_LABEL, type PdfDifficulty } from "@/lib/pdf-store/catalog";

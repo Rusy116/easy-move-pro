@@ -33,18 +33,59 @@ export const Route = createFileRoute("/auth")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
+  // `?signup=1&email=...` comes from the estimate email. It only pre-fills the
+  // sign-up form — the quote itself is linked server-side by email through
+  // fn_claim_my_records, never through anything passed in the URL.
+  validateSearch: (
+    search: Record<string, unknown>,
+  ): { signup?: boolean; email?: string } => ({
+    ...(search['signup'] === "1" || search['signup'] === true ? { signup: true } : {}),
+    ...(typeof search['email'] === "string" ? { email: search['email'].slice(0, 200) } : {}),
+  }),
   component: AuthPage,
 });
 
 function AuthPage() {
   const navigate = useNavigate();
   const { t } = useI18n();
+  const search = Route.useSearch();
   const signIn = useServerFn(signInWithIdentifier);
   const devSignIn = useServerFn(devQuickSignIn);
   const [busy, setBusy] = useState(false);
   const [devBusy, setDevBusy] = useState<DevRole | null>(null);
-  const [identifier, setIdentifier] = useState("");
+  const [identifier, setIdentifier] = useState(search.email ?? "");
   const [password, setPassword] = useState("");
+  const [mode, setMode] = useState<"signin" | "signup">(search.signup ? "signup" : "signin");
+  const [confirmSent, setConfirmSent] = useState(false);
+
+  async function onSignUp(e: React.FormEvent) {
+    e.preventDefault();
+    setBusy(true);
+    try {
+      const email = identifier.trim();
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: { emailRedirectTo: `${window.location.origin}/customer/dashboard` },
+      });
+      if (error) throw new Error(error.message);
+      if (!data.session) {
+        setConfirmSent(true);
+        toast.success("Check your email to confirm your account.");
+        return;
+      }
+      // Session is live: attach any guest quotes/orders placed with this email.
+      await (supabase as unknown as { rpc: (fn: string) => Promise<unknown> })
+        .rpc("fn_claim_my_records")
+        .catch(() => undefined);
+      toast.success("Your account is ready.");
+      navigate({ to: "/customer/dashboard" });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "We couldn't create your account.");
+    } finally {
+      setBusy(false);
+    }
+  }
 
   useEffect(() => {
     loadRoleContext().then((ctx) => {
@@ -102,17 +143,34 @@ function AuthPage() {
           ← {t("auth.backHome")}
         </Link>
         <div className="rounded-2xl border border-border bg-card p-8">
-          <h1 className="font-serif text-3xl font-medium">{t("auth.heading")}</h1>
+          <h1 className="font-serif text-3xl font-medium">
+            {mode === "signup" ? "Create your account" : t("auth.heading")}
+          </h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            {t("auth.intro")}
+            {mode === "signup"
+              ? "Set a password to save your estimate and track your move. We'll link the quote you already submitted with this email — nothing is duplicated."
+              : t("auth.intro")}
           </p>
 
-          <form onSubmit={onSubmit} className="mt-6 space-y-4">
+          {confirmSent ? (
+            <div className="mt-6 rounded-xl border border-border bg-muted/40 p-4 text-sm">
+              <p className="font-medium">Confirm your email</p>
+              <p className="mt-1 text-muted-foreground">
+                We sent a confirmation link to <span className="font-medium">{identifier}</span>.
+                Open it and you'll land straight in your dashboard with your estimate attached.
+              </p>
+            </div>
+          ) : (
+          <form
+            onSubmit={mode === "signup" ? onSignUp : onSubmit}
+            className="mt-6 space-y-4"
+          >
             <div>
               <Label htmlFor="identifier">{t("auth.identifier")}</Label>
               <Input
                 id="identifier"
-                autoComplete="username"
+                autoComplete={mode === "signup" ? "email" : "username"}
+                type={mode === "signup" ? "email" : "text"}
                 required
                 value={identifier}
                 onChange={(e) => setIdentifier(e.target.value)}
@@ -124,17 +182,29 @@ function AuthPage() {
               <Input
                 id="password"
                 type="password"
-                autoComplete="current-password"
+                autoComplete={mode === "signup" ? "new-password" : "current-password"}
                 required
+                minLength={mode === "signup" ? 8 : undefined}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
             </div>
             <Button type="submit" disabled={busy} className="w-full rounded-full">
               {busy && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {t("common.signIn")}
+              {mode === "signup" ? "Create account" : t("common.signIn")}
             </Button>
+            <button
+              type="button"
+              className="w-full text-center text-xs text-muted-foreground underline"
+              onClick={() => setMode(mode === "signup" ? "signin" : "signup")}
+            >
+              {mode === "signup"
+                ? "Already have an account? Sign in"
+                : "New here? Create an account"}
+            </button>
           </form>
+          )}
+
 
           {DEV_LOGIN_ENABLED && (
             <div className="mt-6 rounded-xl border border-dashed border-border bg-muted/40 p-4">

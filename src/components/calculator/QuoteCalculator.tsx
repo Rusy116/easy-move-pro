@@ -265,6 +265,22 @@ export function QuoteCalculator(
   const [form, setForm] = useState<FormState>(() => createInitialForm());
   const hasUserEditedRef = useRef(false);
 
+  // Sticky live-estimate panel: collapses to a compact bar once the page is
+  // scrolled past the top of the calculator card. Purely presentational —
+  // the price itself always comes from the single `quote` computation below.
+  const stickySentinelRef = useRef<HTMLDivElement | null>(null);
+  const [stuck, setStuck] = useState(false);
+  useEffect(() => {
+    const el = stickySentinelRef.current;
+    if (!el || typeof IntersectionObserver === "undefined") return;
+    const io = new IntersectionObserver(
+      ([entry]) => setStuck(!entry.isIntersecting),
+      { rootMargin: "-64px 0px 0px 0px", threshold: 0 },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
   // Restore any saved draft after hydration (avoids SSR mismatch), otherwise
   // prefill the origin from the city page the visitor is standing on.
   useEffect(() => {
@@ -774,12 +790,14 @@ export function QuoteCalculator(
 
   return (
     <div className="rounded-3xl bg-card shadow-[0_30px_80px_-40px_rgba(20,40,25,0.35)] ring-1 ring-black/5">
-      <div className="sticky top-0 z-30 overflow-hidden rounded-t-3xl">
+      <div ref={stickySentinelRef} aria-hidden className="h-px w-full" />
+      <div className="sticky top-16 z-30 overflow-hidden rounded-t-3xl">
         <PriceHeader
           quote={quote}
           distance={distance}
           propertyType={form.origin.propertyType}
           selectedServices={selectedServices}
+          compact={stuck}
         />
       </div>
 
@@ -1347,15 +1365,21 @@ function PriceHeader({
   distance,
   propertyType,
   selectedServices,
+  compact = false,
 }: {
   quote: QuoteResult | null;
   distance: { miles: number; type: MoveType } | null;
   propertyType: PropertyType;
   selectedServices: string[];
+  compact?: boolean;
 }) {
   const propertyLabel = PROPERTY_TYPES.find((p) => p.value === propertyType)?.label ?? "";
   return (
-    <div className="relative overflow-hidden bg-primary px-4 py-4 text-primary-foreground shadow-lg sm:px-8 sm:py-6">
+    <div
+      className={`relative overflow-hidden bg-primary text-primary-foreground shadow-lg transition-all duration-200 ${
+        compact ? "px-4 py-2.5 sm:px-8 sm:py-3.5" : "px-4 py-4 sm:px-8 sm:py-6"
+      }`}
+    >
       <div
         className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-ochre/30 blur-3xl"
         aria-hidden
@@ -1366,27 +1390,45 @@ function PriceHeader({
       />
       <div className="relative grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 sm:items-end sm:gap-4">
         <div className="min-w-0">
-          <span className="inline-flex max-w-full items-center gap-1.5 truncate rounded-full bg-primary-foreground/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-widest">
-            <Sparkles className="h-3 w-3 shrink-0 text-ochre" /> Live estimate
-          </span>
-          <h3 className="mt-2 truncate font-serif text-base font-medium leading-tight sm:text-2xl">
-            Instant Moving Quote
+          {!compact && (
+            <span className="inline-flex max-w-full items-center gap-1.5 truncate rounded-full bg-primary-foreground/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-widest">
+              <Sparkles className="h-3 w-3 shrink-0 text-ochre" /> Live estimate
+            </span>
+          )}
+          <h3
+            className={`truncate font-serif font-medium leading-tight ${
+              compact ? "text-sm sm:text-lg" : "mt-2 text-base sm:text-2xl"
+            }`}
+          >
+            {compact ? "Live estimate" : "Instant Moving Quote"}
           </h3>
-          <p className="mt-1 truncate text-[11px] leading-snug opacity-70 sm:text-sm">
+          <p
+            className={`mt-1 truncate leading-snug opacity-70 ${
+              compact ? "hidden text-[11px] sm:block sm:text-xs" : "text-[11px] sm:text-sm"
+            }`}
+          >
             {distance
               ? `${distance.miles} mi ${distance.type} · ${propertyLabel}${quote ? ` · ${quote.numMovers} movers · ${quote.truckSize}` : ""}`
               : "Enter ZIPs to see your live price"}
           </p>
         </div>
         <div className="w-[136px] shrink-0 text-right sm:w-auto sm:min-w-[210px]">
-          <div className="text-[10px] uppercase tracking-widest opacity-60">Total</div>
+          {!compact && (
+            <div className="text-[10px] uppercase tracking-widest opacity-60">Total</div>
+          )}
           <div
             key={quote ? `total-${quote.total}` : "total-empty"}
-            className="font-serif text-[32px] font-semibold leading-none tabular-nums animate-fade-up whitespace-nowrap sm:text-5xl"
+            className={`font-serif font-semibold leading-none tabular-nums animate-fade-up whitespace-nowrap ${
+              compact ? "text-2xl sm:text-3xl" : "text-[32px] sm:text-5xl"
+            }`}
           >
             {quote ? <>${quote.total.toLocaleString()}</> : <span className="opacity-40">$——</span>}
           </div>
-          <div className="mt-1.5 min-h-[14px] whitespace-nowrap text-[10px] uppercase tracking-widest tabular-nums opacity-60">
+          <div
+            className={`whitespace-nowrap uppercase tracking-widest tabular-nums opacity-60 ${
+              compact ? "mt-0.5 text-[9px]" : "mt-1.5 min-h-[14px] text-[10px]"
+            }`}
+          >
             {quote ? (
               <>
                 ${quote.low.toLocaleString()} – ${quote.high.toLocaleString()}
@@ -1398,23 +1440,25 @@ function PriceHeader({
         </div>
       </div>
 
-      <div className="relative mt-3 flex min-h-[22px] flex-wrap gap-1">
-        {selectedServices.length > 0 ? (
-          selectedServices.map((s) => (
-            <span
-              key={s}
-              className="inline-flex items-center gap-1 rounded-full bg-primary-foreground/10 px-2 py-0.5 text-[10px] font-medium"
-            >
-              <Check className="h-2.5 w-2.5 text-ochre" />
-              {s}
+      {!compact && (
+        <div className="relative mt-3 flex min-h-[22px] flex-wrap gap-1">
+          {selectedServices.length > 0 ? (
+            selectedServices.map((s) => (
+              <span
+                key={s}
+                className="inline-flex items-center gap-1 rounded-full bg-primary-foreground/10 px-2 py-0.5 text-[10px] font-medium"
+              >
+                <Check className="h-2.5 w-2.5 text-ochre" />
+                {s}
+              </span>
+            ))
+          ) : (
+            <span className="text-[10px] uppercase tracking-widest opacity-50">
+              Add services to see them here
             </span>
-          ))
-        ) : (
-          <span className="text-[10px] uppercase tracking-widest opacity-50">
-            Add services to see them here
-          </span>
-        )}
-      </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

@@ -35,9 +35,11 @@ function useClaimGuestRecords() {
   useEffect(() => {
     if (done.current) return;
     done.current = true;
-    void (supabase as unknown as { rpc: (fn: string) => Promise<unknown> })
-      .rpc("fn_claim_my_records")
-      .catch(() => undefined);
+    void Promise.resolve(
+      (supabase as unknown as { rpc: (fn: string) => PromiseLike<unknown> }).rpc(
+        "fn_claim_my_records",
+      ),
+    ).catch(() => undefined);
   }, []);
 }
 

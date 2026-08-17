@@ -87,6 +87,20 @@ const CARRY_OPTIONS: { value: CarryDistance; label: string }[] = [
   { value: "long", label: "Over 150 ft" },
 ];
 
+/**
+ * Merge an optional apartment/unit/suite into a formatted address.
+ * The unit is inserted after the street line so the result reads naturally,
+ * and an empty unit leaves the address byte-identical (no stray punctuation).
+ */
+function withUnit(address: string, unit: string): string {
+  const a = (address ?? "").trim();
+  const u = (unit ?? "").trim();
+  if (!u) return a;
+  if (!a) return u;
+  const i = a.indexOf(",");
+  return i === -1 ? `${a}, ${u}` : `${a.slice(0, i)}, ${u}${a.slice(i)}`;
+}
+
 interface SideState {
   propertyType: PropertyType;
   zip: string;
@@ -94,6 +108,7 @@ interface SideState {
   state: string;
   street: string; // route (street name only)
   houseNumber: string; // separate input
+  unit: string; // apartment / unit / suite (optional, kept separate from houseNumber)
   fullAddress: string; // formatted (for storage / distance)
   lat: number | null;
   lng: number | null;
@@ -113,6 +128,7 @@ const EMPTY_SIDE: SideState = {
   state: "",
   street: "",
   houseNumber: "",
+  unit: "",
   fullAddress: "",
   lat: null,
   lng: null,
@@ -517,8 +533,8 @@ export function QuoteCalculator(
         user_id: userId,
         origin_zip: o.zip,
         destination_zip: d.zip,
-        origin_address: o.fullAddress || null,
-        destination_address: d.fullAddress || null,
+        origin_address: withUnit(o.fullAddress, o.unit) || null,
+        destination_address: withUnit(d.fullAddress, d.unit) || null,
         origin_lat: o.lat,
         origin_lng: o.lng,
         destination_lat: d.lat,
@@ -587,8 +603,10 @@ export function QuoteCalculator(
           provider: distance.provider,
           clientQuoteId,
           originHouseNumber: o.houseNumber,
+          originUnit: o.unit || null,
           originStreet: o.street,
           destinationHouseNumber: d.houseNumber,
+          destinationUnit: d.unit || null,
           destinationStreet: d.street,
           fullName: form.fullName,
           contactMethod: form.contactMethod,
@@ -665,13 +683,13 @@ export function QuoteCalculator(
             phone: form.phone,
           },
           origin: {
-            fullAddress: form.origin.fullAddress,
+            fullAddress: withUnit(form.origin.fullAddress, form.origin.unit),
             city: form.origin.city,
             state: form.origin.state,
             zip: form.origin.zip,
           },
           destination: {
-            fullAddress: form.destination.fullAddress,
+            fullAddress: withUnit(form.destination.fullAddress, form.destination.unit),
             city: form.destination.city,
             state: form.destination.state,
             zip: form.destination.zip,
@@ -1672,6 +1690,7 @@ function LocationBlock({
                 city: "",
                 street: "",
                 houseNumber: "",
+                unit: "",
                 fullAddress: "",
                 lat: null,
                 lng: null,
@@ -1765,7 +1784,7 @@ function LocationBlock({
       </div>
 
       {/* House number + State */}
-      <div className="grid grid-cols-2 gap-2">
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
         <div>
           <Label className="mb-1 block text-[11px] font-medium text-muted-foreground">
             House number
@@ -1777,10 +1796,21 @@ function LocationBlock({
           />
         </div>
         <div>
+          <Label className="mb-1 block text-[11px] font-medium text-muted-foreground">
+            Apartment / Unit / Suite
+          </Label>
+          <Input
+            placeholder="Apt, Unit, Suite (optional)"
+            value={side.unit}
+            onChange={(e) => onChange({ unit: e.target.value.slice(0, 20) })}
+          />
+        </div>
+        <div className="col-span-2 sm:col-span-1">
           <Label className="mb-1 block text-[11px] font-medium text-muted-foreground">State</Label>
           <StateSelect value={side.state} onChange={(v) => onChange({ state: v })} />
         </div>
       </div>
+
 
       {/* Floor */}
       <div className="flex items-center justify-between rounded-md border border-border bg-card px-3 py-2">
@@ -2339,9 +2369,13 @@ function ReviewScreen({
         : "Full value protection";
 
   function addressLine(s: SideState): string {
-    const line1 = [s.houseNumber, s.street].filter(Boolean).join(" ");
+    const line1 = [[s.houseNumber, s.street].filter(Boolean).join(" "), s.unit.trim()]
+      .filter(Boolean)
+      .join(", ");
     const line2 = [s.city, s.state, s.zip].filter(Boolean).join(", ");
-    return [line1, line2].filter(Boolean).join(" · ") || s.fullAddress || "—";
+    return (
+      [line1, line2].filter(Boolean).join(" · ") || withUnit(s.fullAddress, s.unit) || "—"
+    );
   }
 
   return (

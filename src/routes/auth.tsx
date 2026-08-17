@@ -36,9 +36,11 @@ export const Route = createFileRoute("/auth")({
   // `?signup=1&email=...` comes from the estimate email. It only pre-fills the
   // sign-up form — the quote itself is linked server-side by email through
   // fn_claim_my_records, never through anything passed in the URL.
-  validateSearch: (search: Record<string, unknown>) => ({
-    signup: search['signup'] === "1" || search['signup'] === 1 || search['signup'] === true ? true : undefined,
-    email: typeof search['email'] === "string" ? search['email'].slice(0, 200) : undefined,
+  validateSearch: (
+    search: Record<string, unknown>,
+  ): { signup?: boolean; email?: string } => ({
+    ...(search['signup'] === "1" || search['signup'] === true ? { signup: true } : {}),
+    ...(typeof search['email'] === "string" ? { email: search['email'].slice(0, 200) } : {}),
   }),
   component: AuthPage,
 });

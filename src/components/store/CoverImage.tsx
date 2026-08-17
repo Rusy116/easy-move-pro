@@ -44,7 +44,7 @@ export function CoverImage({
       decoding="async"
       sizes={sizes}
       onError={() => setFailed(true)}
-      className={cn("h-full w-full object-cover", className, imgClassName)}
+      className={cn("h-full w-full bg-muted/30 object-contain", className, imgClassName)}
     />
   ) : (
     <CoverArt slug={slug} title={title} spec={spec ?? null} className={cn("h-full w-full", className)} />

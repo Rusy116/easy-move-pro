@@ -5,6 +5,8 @@
 // Never imported from client code (filename is *.server.ts).
 // ---------------------------------------------------------------------------
 
+import { getRequest } from "@tanstack/react-start/server";
+
 const encoder = new TextEncoder();
 
 /**
@@ -156,12 +158,29 @@ export async function admin() {
   return supabaseAdmin as any;
 }
 
+/**
+ * Origin used to build download / receipt links.
+ *
+ * The links must point back at the deployment that signed them (preview and
+ * production have separate hosts), so the live request wins. Falls back to an
+ * explicit override, then the published domain.
+ */
 export function siteOrigin(): string {
-  return (
-    process.env["PUBLIC_SITE_ORIGIN"] ??
-    "https://easymove.pro"
-  );
+  try {
+    const request = getRequest();
+    const headers = request?.headers;
+    const forwardedHost = headers?.get("x-forwarded-host") ?? headers?.get("host");
+    if (forwardedHost) {
+      const proto = headers?.get("x-forwarded-proto") ?? "https";
+      return `${proto}://${forwardedHost}`;
+    }
+    if (request?.url) return new URL(request.url).origin;
+  } catch {
+    // no active request (webhook retries outside request scope, cron, tests)
+  }
+  return process.env["PUBLIC_SITE_ORIGIN"] ?? "https://mycity-move.lovable.app";
 }
+
 
 export interface ReceiptClaim {
   /** order id */

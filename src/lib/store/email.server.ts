@@ -42,16 +42,31 @@ async function send(
   templateData: Record<string, unknown>,
   idempotencyKey: string,
 ): Promise<EmailResult> {
+  const { logDelivery } = await import("@/lib/notify/deliveries.server");
+  const audit = (status: "sent" | "skipped" | "failed", reason?: string) =>
+    logDelivery({
+      channel: "email",
+      template,
+      recipient: to,
+      status,
+      reason: reason ?? null,
+      idempotencyKey,
+    });
+
   const sender = await loadSender();
   if (!sender) {
     console.warn(`[email] '${template}' not sent to ${to}: sender domain not configured yet`);
+    await audit("skipped", "email_not_configured");
     return { sent: false, reason: "email_not_configured" };
   }
   try {
     const result = await sender(template, to, { templateData, idempotencyKey });
-    return { sent: Boolean(result?.sent), reason: result?.reason };
+    const sent = Boolean(result?.sent);
+    await audit(sent ? "sent" : "skipped", result?.reason);
+    return { sent, reason: result?.reason };
   } catch (error) {
     console.error(`[email] '${template}' failed for ${to}:`, error);
+    await audit("failed", error instanceof Error ? error.message.slice(0, 300) : "send_failed");
     return { sent: false, reason: "send_failed" };
   }
 }

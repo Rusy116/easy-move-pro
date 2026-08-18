@@ -3647,6 +3647,54 @@ export type Database = {
         }
         Relationships: []
       }
+      notification_deliveries: {
+        Row: {
+          channel: string
+          created_at: string
+          id: string
+          idempotency_key: string | null
+          provider_id: string | null
+          reason: string | null
+          recipient: string
+          ref_id: string | null
+          ref_type: string | null
+          status: string
+          template: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          channel: string
+          created_at?: string
+          id?: string
+          idempotency_key?: string | null
+          provider_id?: string | null
+          reason?: string | null
+          recipient: string
+          ref_id?: string | null
+          ref_type?: string | null
+          status?: string
+          template: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          channel?: string
+          created_at?: string
+          id?: string
+          idempotency_key?: string | null
+          provider_id?: string | null
+          reason?: string | null
+          recipient?: string
+          ref_id?: string | null
+          ref_type?: string | null
+          status?: string
+          template?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       partner_applications: {
         Row: {
           admin_notes: string | null
@@ -4277,6 +4325,42 @@ export type Database = {
         }
         Relationships: []
       }
+      phone_verifications: {
+        Row: {
+          attempts: number
+          code_hash: string
+          created_at: string
+          expires_at: string
+          id: string
+          phone: string
+          updated_at: string
+          user_id: string | null
+          verified_at: string | null
+        }
+        Insert: {
+          attempts?: number
+          code_hash: string
+          created_at?: string
+          expires_at: string
+          id?: string
+          phone: string
+          updated_at?: string
+          user_id?: string | null
+          verified_at?: string | null
+        }
+        Update: {
+          attempts?: number
+          code_hash?: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          phone?: string
+          updated_at?: string
+          user_id?: string | null
+          verified_at?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -4287,6 +4371,7 @@ export type Database = {
           language: string
           last_name: string | null
           phone: string | null
+          phone_verified_at: string | null
           status: string
           updated_at: string
         }
@@ -4299,6 +4384,7 @@ export type Database = {
           language?: string
           last_name?: string | null
           phone?: string | null
+          phone_verified_at?: string | null
           status?: string
           updated_at?: string
         }
@@ -4311,6 +4397,7 @@ export type Database = {
           language?: string
           last_name?: string | null
           phone?: string | null
+          phone_verified_at?: string | null
           status?: string
           updated_at?: string
         }

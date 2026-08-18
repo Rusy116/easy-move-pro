@@ -3,10 +3,12 @@
 //
 // Idempotent: an order already marked paid is returned untouched, so Stripe
 // webhook retries and the return-page reconcile can both call this safely.
+// Orders may contain several products; every line item is fulfilled.
 // ---------------------------------------------------------------------------
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { signDownloadToken, siteOrigin } from "./orders.server";
 import { sendOrderDownloadEmail } from "./email.server";
+import { loadOrderItems } from "./items.server";
 
 export async function fulfilOrder(
   db: any,
@@ -22,6 +24,7 @@ export async function fulfilOrder(
   if (order.status === "paid" && order.email_sent_at) return order;
 
   let current = order;
+  const items = await loadOrderItems(db, order);
 
   if (current.status !== "paid") {
     const { data: updated } = await db
@@ -40,51 +43,59 @@ export async function fulfilOrder(
     // Mirror into the signed-in customer library when the buyer already has
     // an account (linked now, or later by fn_claim_my_records).
     if (current.user_id) {
-      await db
-        .from("customer_purchases")
-        .upsert(
-          {
-            user_id: current.user_id,
-            product_slug: current.product_slug,
-            title: current.product_title,
-            amount_cents: current.amount_cents,
-            currency: current.currency,
-            status: "completed",
-            refunded_at: null,
-          },
-          { onConflict: "user_id,product_slug" },
-        )
-        .then(() => undefined, () => undefined);
+      for (const item of items) {
+        await db
+          .from("customer_purchases")
+          .upsert(
+            {
+              user_id: current.user_id,
+              product_slug: item.slug,
+              title: item.title,
+              amount_cents: item.amountCents,
+              currency: current.currency,
+              status: "completed",
+              refunded_at: null,
+            },
+            { onConflict: "user_id,product_slug" },
+          )
+          .then(() => undefined, () => undefined);
+      }
     }
 
-    const { data: product } = await db
-      .from("pdf_products")
-      .select("downloads,revenue_cents")
-      .eq("slug", current.product_slug)
-      .maybeSingle();
-    if (product) {
+    for (const item of items) {
+      const { data: product } = await db
+        .from("pdf_products")
+        .select("downloads,revenue_cents")
+        .eq("slug", item.slug)
+        .maybeSingle();
+      if (!product) continue;
       await db
         .from("pdf_products")
         .update({
           downloads: Number(product.downloads ?? 0) + 1,
-          revenue_cents: Number(product.revenue_cents ?? 0) + Number(current.amount_cents ?? 0),
+          revenue_cents: Number(product.revenue_cents ?? 0) + Number(item.amountCents ?? 0),
         })
-        .eq("slug", current.product_slug);
+        .eq("slug", item.slug);
     }
   }
 
   if (!current.email_sent_at) {
-    const token = await signDownloadToken(current.id, current.product_slug);
     const origin = siteOrigin();
-    const result = await sendOrderDownloadEmail({
-      to: current.email,
-      firstName: current.first_name,
-      productTitle: current.product_title,
-      orderNumber: current.order_number,
-      downloadUrl: `${origin}/download?t=${token}`,
-      accountUrl: `${origin}/auth?signup=1&email=${encodeURIComponent(current.email)}`,
-    });
-    if (result.sent) {
+    let anySent = false;
+    for (const item of items) {
+      const token = await signDownloadToken(current.id, item.slug);
+      const result = await sendOrderDownloadEmail({
+        to: current.email,
+        firstName: current.first_name,
+        productTitle: item.title,
+        orderNumber:
+          items.length > 1 ? `${current.order_number}-${item.slug}` : current.order_number,
+        downloadUrl: `${origin}/download?t=${token}`,
+        accountUrl: `${origin}/auth?signup=1&email=${encodeURIComponent(current.email)}`,
+      });
+      if (result.sent) anySent = true;
+    }
+    if (anySent) {
       const { data: sent } = await db
         .from("store_orders")
         .update({ email_sent_at: new Date().toISOString() })
@@ -97,7 +108,7 @@ export async function fulfilOrder(
 
   // Optional payment-confirmation text, only for a signed-in buyer with a
   // verified phone who has not opted out of status updates.
-  if (current.user_id) {
+  if (current.user_id && Number(current.amount_cents ?? 0) > 0) {
     try {
       const { data: profile } = await db
         .from("profiles")
@@ -126,7 +137,7 @@ export async function fulfilOrder(
 /**
  * Revokes access after a refund or dispute. Flipping the order off "paid"
  * makes every issued download token stop working immediately (redeemDownload
- * re-checks status), and the item is marked refunded in the customer library.
+ * re-checks status), and every item is marked refunded in the library.
  */
 export async function revokeOrder(
   db: any,
@@ -148,12 +159,15 @@ export async function revokeOrder(
     .eq("id", order.id);
 
   if (order.user_id) {
-    await db
-      .from("customer_purchases")
-      .update({ status: reason, refunded_at: now })
-      .eq("user_id", order.user_id)
-      .eq("product_slug", order.product_slug)
-      .then(() => undefined, () => undefined);
+    const items = await loadOrderItems(db, order);
+    for (const item of items) {
+      await db
+        .from("customer_purchases")
+        .update({ status: reason, refunded_at: now })
+        .eq("user_id", order.user_id)
+        .eq("product_slug", item.slug)
+        .then(() => undefined, () => undefined);
+    }
   }
 
   return { ...order, status: reason, refunded_at: now };

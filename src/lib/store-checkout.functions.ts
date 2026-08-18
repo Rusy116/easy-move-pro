@@ -4,6 +4,9 @@
 // Nothing here trusts a client-supplied price: the amount always comes from
 // the published pdf_products row. Card data never touches this app — Stripe's
 // embedded checkout collects it inside Stripe's own iframe.
+//
+// An order can carry several products (cart checkout); each one becomes a
+// store_order_items row and gets its own signed download link.
 // ---------------------------------------------------------------------------
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { createServerFn } from "@tanstack/react-start";
@@ -11,6 +14,9 @@ import type { StripeEnv } from "@/lib/stripe.server";
 
 /** Eligible digital-goods tax code (required for managed payments). */
 const DIGITAL_TAX_CODE = "txcd_10103001";
+
+/** Hard cap on basket size — protects the Stripe session and the emails. */
+const MAX_ITEMS = 10;
 
 /**
  * Resolves the Stripe product for one catalog title, creating it on first
@@ -55,21 +61,36 @@ function clean(value: unknown, max: number): string {
   return String(value ?? "").trim().slice(0, max);
 }
 
-
 function validEmail(value: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(value);
+}
+
+/** Normalises, de-duplicates and validates a basket of product slugs. */
+function cleanSlugs(input: unknown): string[] {
+  const raw = Array.isArray(input) ? input : [input];
+  const slugs: string[] = [];
+  for (const value of raw) {
+    const slug = clean(value, 100);
+    if (!/^[a-z0-9-]+$/.test(slug)) throw new Error("Invalid product");
+    if (!slugs.includes(slug)) slugs.push(slug);
+  }
+  if (!slugs.length) throw new Error("No products selected");
+  if (slugs.length > MAX_ITEMS) throw new Error(`You can buy up to ${MAX_ITEMS} items at once`);
+  return slugs;
 }
 
 type CheckoutResult = { clientSecret: string; orderNumber: string } | { error: string };
 
 /**
- * Starts a guest checkout for one published product and records a pending
- * order keyed to the Stripe session. The webhook flips it to paid.
+ * Starts a guest checkout for one or more published products and records a
+ * pending order (plus its line items) keyed to the Stripe session. The
+ * webhook — or the return-page reconcile — flips it to paid.
  */
 export const createStoreCheckout = createServerFn({ method: "POST" })
   .inputValidator(
     (d: {
-      slug: string;
+      slug?: string;
+      slugs?: string[];
       email: string;
       firstName: string;
       lastName?: string;
@@ -78,12 +99,11 @@ export const createStoreCheckout = createServerFn({ method: "POST" })
     }) => {
       const email = clean(d.email, 160).toLowerCase();
       if (!validEmail(email)) throw new Error("A valid email address is required");
-      const slug = clean(d.slug, 100);
-      if (!/^[a-z0-9-]+$/.test(slug)) throw new Error("Invalid product");
+      const slugs = cleanSlugs(d.slugs ?? d.slug);
       const firstName = clean(d.firstName, 60);
       if (!firstName) throw new Error("First name is required");
       return {
-        slug,
+        slugs,
         email,
         firstName,
         lastName: clean(d.lastName, 60),
@@ -97,61 +117,95 @@ export const createStoreCheckout = createServerFn({ method: "POST" })
     const { admin, newOrderNumber } = await import("@/lib/store/orders.server");
     const db = await admin();
 
-    const { data: product } = await db
+    const { data: rows } = await db
       .from("pdf_products")
       .select("slug,title,price_cents,status")
-      .eq("slug", data.slug)
-      .eq("status", "published")
-      .maybeSingle();
-    if (!product) return { error: "This product is not available." };
+      .in("slug", data.slugs)
+      .eq("status", "published");
 
-    const amount = Number(product.price_cents ?? 0);
-    if (amount < 50) return { error: "This product cannot be purchased right now." };
+    const products = (rows ?? []) as any[];
+    if (products.length !== data.slugs.length) {
+      return { error: "One of these products is no longer available." };
+    }
+    if (products.some((p) => Number(p.price_cents ?? 0) < 50)) {
+      return { error: "Free products don't need checkout — claim them with your email." };
+    }
 
+    const total = products.reduce((sum, p) => sum + Number(p.price_cents ?? 0), 0);
     const orderNumber = newOrderNumber();
 
     try {
       const stripe = createStripeClient(data.environment);
 
-      const stripeProductId = await resolveStripeProduct(stripe, product.slug, product.title);
-      const lineItem = {
-        price_data: { currency: "usd", product: stripeProductId, unit_amount: amount },
-        quantity: 1,
-      };
+      const lineItems = [] as any[];
+      for (const product of products) {
+        const stripeProductId = await resolveStripeProduct(stripe, product.slug, product.title);
+        lineItems.push({
+          price_data: {
+            currency: "usd",
+            product: stripeProductId,
+            unit_amount: Number(product.price_cents),
+          },
+          quantity: 1,
+        });
+      }
 
       const customerId = await resolveStripeCustomer(stripe, data.email);
+      const description =
+        products.length === 1
+          ? products[0].title
+          : `${products.length} Easy Moving PDFs`;
 
       const session = await stripe.checkout.sessions.create({
         mode: "payment",
         ui_mode: "embedded_page",
         return_url: data.returnUrl,
         ...(customerId ? { customer: customerId } : { customer_email: data.email }),
-        line_items: [lineItem],
-        payment_intent_data: { description: product.title },
+        line_items: lineItems,
+        payment_intent_data: { description },
         managed_payments: { enabled: true },
         metadata: {
           order_number: orderNumber,
-          product_slug: product.slug,
+          product_slug: products[0].slug,
+          item_count: String(products.length),
           managed_payments: "true",
         },
       } as any);
 
-      const { error } = await db.from("store_orders").insert({
-        order_number: orderNumber,
-        email: data.email,
-        first_name: data.firstName,
-        last_name: data.lastName || null,
-        product_slug: product.slug,
-        product_title: product.title,
-        amount_cents: amount,
-        currency: "usd",
-        status: "pending",
-        environment: data.environment,
-        stripe_session_id: session.id,
-        stripe_customer_id: customerId ?? null,
-      });
-      if (error) {
-        console.error("[store-checkout] order insert failed:", error.message);
+      const { data: order, error } = await db
+        .from("store_orders")
+        .insert({
+          order_number: orderNumber,
+          email: data.email,
+          first_name: data.firstName,
+          last_name: data.lastName || null,
+          product_slug: products[0].slug,
+          product_title: description,
+          amount_cents: total,
+          currency: "usd",
+          status: "pending",
+          environment: data.environment,
+          stripe_session_id: session.id,
+          stripe_customer_id: customerId ?? null,
+        })
+        .select("id")
+        .maybeSingle();
+
+      if (error || !order) {
+        console.error("[store-checkout] order insert failed:", error?.message);
+        return { error: "Could not start checkout. Please try again." };
+      }
+
+      const { error: itemsError } = await db.from("store_order_items").insert(
+        products.map((p) => ({
+          order_id: order.id,
+          product_slug: p.slug,
+          product_title: p.title,
+          amount_cents: Number(p.price_cents ?? 0),
+        })),
+      );
+      if (itemsError) {
+        console.error("[store-checkout] items insert failed:", itemsError.message);
         return { error: "Could not start checkout. Please try again." };
       }
 
@@ -162,6 +216,13 @@ export const createStoreCheckout = createServerFn({ method: "POST" })
     }
   });
 
+export type CheckoutItemView = {
+  slug: string;
+  title: string;
+  amountCents: number;
+  downloadUrl: string | null;
+};
+
 export type OrderStatusResult =
   | {
       status: "paid" | "pending" | "failed" | "refunded" | "disputed" | "unknown";
@@ -170,6 +231,7 @@ export type OrderStatusResult =
       productSlug?: string;
       email?: string;
       amountCents?: number;
+      items?: CheckoutItemView[];
       downloadUrl?: string | null;
       receiptUrl?: string | null;
       emailSent?: boolean;
@@ -178,7 +240,7 @@ export type OrderStatusResult =
 
 /**
  * Return-page poller. Reconciles directly with Stripe so the buyer is never
- * stuck waiting on webhook latency, then returns a signed download link.
+ * stuck waiting on webhook latency, then returns a signed link per product.
  */
 export const getCheckoutStatus = createServerFn({ method: "POST" })
   .inputValidator((d: { sessionId: string; environment: StripeEnv }) => ({
@@ -221,15 +283,24 @@ export const getCheckoutStatus = createServerFn({ method: "POST" })
     const { signDownloadToken, signReceiptToken, siteOrigin } = await import(
       "@/lib/store/orders.server"
     );
-    const downloadUrl =
-      current.status === "paid"
-        ? `${siteOrigin()}/download?t=${await signDownloadToken(current.id, current.product_slug)}`
-        : null;
+    const { loadOrderItems } = await import("@/lib/store/items.server");
+    const origin = siteOrigin();
+    const paid = current.status === "paid";
+
+    const items: CheckoutItemView[] = [];
+    for (const item of await loadOrderItems(db, current)) {
+      items.push({
+        slug: item.slug,
+        title: item.title,
+        amountCents: item.amountCents,
+        downloadUrl: paid
+          ? `${origin}/download?t=${await signDownloadToken(current.id, item.slug)}`
+          : null,
+      });
+    }
 
     const receiptUrl =
-      current.status === "pending"
-        ? null
-        : `${siteOrigin()}/receipt?t=${await signReceiptToken(current.id)}`;
+      current.status === "pending" ? null : `${origin}/receipt?t=${await signReceiptToken(current.id)}`;
 
     return {
       status:
@@ -239,21 +310,116 @@ export const getCheckoutStatus = createServerFn({ method: "POST" })
       productSlug: current.product_slug,
       email: current.email,
       amountCents: current.amount_cents,
-      downloadUrl,
+      items,
+      downloadUrl: items[0]?.downloadUrl ?? null,
       receiptUrl,
       emailSent: Boolean(current.email_sent_at),
     };
   });
 
+export type FreeClaimResult =
+  | { ok: true; orderNumber: string; emailSent: boolean; items: CheckoutItemView[] }
+  | { error: string };
+
+/**
+ * Email-gated delivery for free lead magnets. No account, no payment: the
+ * address is captured as a real order so the same download, receipt, resend
+ * and library machinery applies.
+ */
+export const claimFreeProducts = createServerFn({ method: "POST" })
+  .inputValidator((d: { slug?: string; slugs?: string[]; email: string; firstName?: string }) => {
+    const email = clean(d.email, 160).toLowerCase();
+    if (!validEmail(email)) throw new Error("A valid email address is required");
+    return {
+      slugs: cleanSlugs(d.slugs ?? d.slug),
+      email,
+      firstName: clean(d.firstName, 60),
+    };
+  })
+  .handler(async ({ data }): Promise<FreeClaimResult> => {
+    const { admin, newOrderNumber, signDownloadToken, siteOrigin } = await import(
+      "@/lib/store/orders.server"
+    );
+    const db = await admin();
+
+    const { data: rows } = await db
+      .from("pdf_products")
+      .select("slug,title,price_cents,status")
+      .in("slug", data.slugs)
+      .eq("status", "published");
+
+    const products = (rows ?? []) as any[];
+    if (products.length !== data.slugs.length) {
+      return { error: "One of these products is no longer available." };
+    }
+    if (products.some((p) => Number(p.price_cents ?? 0) > 0)) {
+      return { error: "These products are not free — please use checkout." };
+    }
+
+    const orderNumber = newOrderNumber();
+    const title =
+      products.length === 1 ? products[0].title : `${products.length} free Easy Moving PDFs`;
+
+    const { data: order, error } = await db
+      .from("store_orders")
+      .insert({
+        order_number: orderNumber,
+        email: data.email,
+        first_name: data.firstName || null,
+        product_slug: products[0].slug,
+        product_title: title,
+        amount_cents: 0,
+        currency: "usd",
+        status: "pending",
+      })
+      .select("id")
+      .maybeSingle();
+    if (error || !order) {
+      console.error("[store-checkout] free order insert failed:", error?.message);
+      return { error: "Could not prepare your download. Please try again." };
+    }
+
+    await db.from("store_order_items").insert(
+      products.map((p) => ({
+        order_id: order.id,
+        product_slug: p.slug,
+        product_title: p.title,
+        amount_cents: 0,
+      })),
+    );
+
+    const { fulfilOrder } = await import("@/lib/store/fulfilment.server");
+    const fulfilled = await fulfilOrder(db, order.id, {});
+
+    const origin = siteOrigin();
+    const items: CheckoutItemView[] = [];
+    for (const p of products) {
+      items.push({
+        slug: p.slug,
+        title: p.title,
+        amountCents: 0,
+        downloadUrl: `${origin}/download?t=${await signDownloadToken(order.id, p.slug)}`,
+      });
+    }
+
+    return {
+      ok: true,
+      orderNumber,
+      emailSent: Boolean(fulfilled?.email_sent_at),
+      items,
+    };
+  });
+
 /**
  * Redeems a signed download token and returns the purchased product record so
- * the browser can render the PDF. The token is order-scoped: it only ever
- * unlocks the single product that order paid for.
+ * the browser can render the PDF. The token is order-scoped: it only unlocks
+ * a product that this specific order actually paid for.
  */
 export const redeemDownload = createServerFn({ method: "POST" })
   .inputValidator((d: { token: string }) => ({ token: clean(d.token, 800) }))
   .handler(async ({ data }) => {
     const { verifyDownloadToken, admin } = await import("@/lib/store/orders.server");
+    const { orderIncludes } = await import("@/lib/store/items.server");
     const claim = await verifyDownloadToken(data.token);
     if (!claim) return { ok: false as const, reason: "invalid" };
 
@@ -263,14 +429,15 @@ export const redeemDownload = createServerFn({ method: "POST" })
       .select("id,status,product_slug,product_title,order_number")
       .eq("id", claim.o)
       .maybeSingle();
-    if (!order || order.status !== "paid" || order.product_slug !== claim.s) {
+    if (!order || order.status !== "paid") return { ok: false as const, reason: "invalid" };
+    if (!(await orderIncludes(db, order, claim.s))) {
       return { ok: false as const, reason: "invalid" };
     }
 
     const { data: product } = await db
       .from("pdf_products")
       .select("*")
-      .eq("slug", order.product_slug)
+      .eq("slug", claim.s)
       .maybeSingle();
     if (!product) return { ok: false as const, reason: "missing" };
 

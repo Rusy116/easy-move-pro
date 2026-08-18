@@ -8,6 +8,7 @@ import { ProductCard } from "@/components/store/ProductCard";
 import { getStoreProduct } from "@/lib/pdf-store.functions";
 import { money, DIFFICULTY_LABEL, type PdfDifficulty } from "@/lib/pdf-store/catalog";
 import { checkoutHref, checkoutLabel, isPaid } from "@/lib/pdf-store/checkout";
+import { AddToCartButton } from "@/components/store/AddToCartButton";
 import { seoMeta, jsonLd, breadcrumbSchema, faqSchema, absoluteUrl } from "@/lib/seo/schema";
 
 export const Route = createFileRoute("/products/$slug")({
@@ -132,6 +133,7 @@ function ProductDetail() {
             <Button asChild size="lg" className="rounded-full">
               <a href={checkoutHref(p.slug, p.price_cents)}>{checkoutLabel(p.price_cents)}</a>
             </Button>
+            {isPaid(p.price_cents) && <AddToCartButton p={p} />}
             <span className="self-center text-xs text-muted-foreground">
               {p.page_count} pages ·{" "}
               {isPaid(p.price_cents)

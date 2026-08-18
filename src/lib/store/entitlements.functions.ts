@@ -31,19 +31,33 @@ export const issueLibraryDownload = createServerFn({ method: "POST" })
     const { admin, signDownloadToken, siteOrigin } = await import("@/lib/store/orders.server");
     const db = await admin();
 
-    const { data: orders } = await db
-      .from("store_orders")
-      .select("id,product_slug,status")
-      .eq("user_id", context.userId)
+    const { data: itemRows } = await db
+      .from("store_order_items")
+      .select("order_id,product_slug,store_orders!inner(id,user_id,status,created_at)")
       .eq("product_slug", data.productSlug)
-      .eq("status", "paid")
+      .eq("store_orders.user_id", context.userId)
+      .eq("store_orders.status", "paid")
       .order("created_at", { ascending: false })
       .limit(1);
 
-    const order = (orders ?? [])[0];
-    if (!order) return { error: "This product is not in your library." };
+    let orderId: string | undefined = (itemRows ?? [])[0]?.order_id;
 
-    const token = await signDownloadToken(order.id, order.product_slug);
+    // Legacy orders (pre line items) still carry the slug on the header.
+    if (!orderId) {
+      const { data: orders } = await db
+        .from("store_orders")
+        .select("id")
+        .eq("user_id", context.userId)
+        .eq("product_slug", data.productSlug)
+        .eq("status", "paid")
+        .order("created_at", { ascending: false })
+        .limit(1);
+      orderId = (orders ?? [])[0]?.id;
+    }
+
+    if (!orderId) return { error: "This product is not in your library." };
+
+    const token = await signDownloadToken(orderId, data.productSlug);
     return { url: `${siteOrigin()}/download?t=${token}` };
   });
 

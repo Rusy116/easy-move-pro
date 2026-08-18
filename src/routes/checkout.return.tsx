@@ -95,15 +95,28 @@ function CheckoutReturn() {
             <CheckCircle2 className="h-9 w-9 text-sage" />
             <h1 className="mt-4 font-serif text-3xl">Thank you for your purchase!</h1>
             <p className="mt-2 text-muted-foreground">
-              Your digital moving document is ready.
+              {(state.items?.length ?? 1) > 1
+                ? "Your digital moving documents are ready."
+                : "Your digital moving document is ready."}
             </p>
 
             <div className="mt-6 rounded-xl border border-border/60 p-4 text-sm">
-              <div className="flex justify-between gap-4">
-                <span className="text-muted-foreground">Product</span>
-                <span className="text-right font-medium">{state.productTitle}</span>
-              </div>
-              <div className="mt-2 flex justify-between gap-4">
+              {(state.items?.length ?? 0) > 0 ? (
+                <ul className="space-y-2">
+                  {state.items!.map((item) => (
+                    <li key={item.slug} className="flex justify-between gap-4">
+                      <span className="text-muted-foreground">{item.title}</span>
+                      <span className="font-medium">{money(item.amountCents)}</span>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <div className="flex justify-between gap-4">
+                  <span className="text-muted-foreground">Product</span>
+                  <span className="text-right font-medium">{state.productTitle}</span>
+                </div>
+              )}
+              <div className="mt-3 flex justify-between gap-4 border-t border-border/60 pt-3">
                 <span className="text-muted-foreground">Order number</span>
                 <span className="font-mono">{state.orderNumber}</span>
               </div>
@@ -113,12 +126,32 @@ function CheckoutReturn() {
               </div>
             </div>
 
-            {state.downloadUrl && (
-              <Button asChild size="lg" className="mt-6 w-full rounded-full">
-                <a href={state.downloadUrl}>
-                  <Download className="mr-2 h-4 w-4" /> Download your PDF
-                </a>
-              </Button>
+            {(state.items?.length ?? 0) > 0 ? (
+              <div className="mt-6 space-y-2">
+                {state.items!
+                  .filter((item) => item.downloadUrl)
+                  .map((item) => (
+                    <Button
+                      key={item.slug}
+                      asChild
+                      size="lg"
+                      className="w-full rounded-full"
+                    >
+                      <a href={item.downloadUrl!}>
+                        <Download className="mr-2 h-4 w-4" />
+                        Download “{item.title}”
+                      </a>
+                    </Button>
+                  ))}
+              </div>
+            ) : (
+              state.downloadUrl && (
+                <Button asChild size="lg" className="mt-6 w-full rounded-full">
+                  <a href={state.downloadUrl}>
+                    <Download className="mr-2 h-4 w-4" /> Download your PDF
+                  </a>
+                </Button>
+              )
             )}
 
             <p className="mt-4 flex items-start gap-2 text-xs text-muted-foreground">

@@ -4851,6 +4851,44 @@ export type Database = {
         }
         Relationships: []
       }
+      store_order_items: {
+        Row: {
+          amount_cents: number
+          created_at: string
+          id: string
+          order_id: string
+          product_slug: string
+          product_title: string
+          updated_at: string
+        }
+        Insert: {
+          amount_cents?: number
+          created_at?: string
+          id?: string
+          order_id: string
+          product_slug: string
+          product_title: string
+          updated_at?: string
+        }
+        Update: {
+          amount_cents?: number
+          created_at?: string
+          id?: string
+          order_id?: string
+          product_slug?: string
+          product_title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "store_order_items_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "store_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       store_orders: {
         Row: {
           amount_cents: number

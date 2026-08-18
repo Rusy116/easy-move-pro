@@ -1,10 +1,11 @@
 import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Menu, X } from "lucide-react";
+import { Menu, ShoppingCart, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/i18n";
 import { LanguageSwitcher } from "@/components/i18n/LanguageSwitcher";
+import { useCart } from "@/lib/store/cart";
 
 const nav = [
   { to: "/calculator", key: "site.nav.calculator" },
@@ -21,6 +22,7 @@ export function Header() {
   const { t } = useI18n();
   const [open, setOpen] = useState(false);
   const [authed, setAuthed] = useState<boolean | null>(null);
+  const cart = useCart();
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => setAuthed(!!data.session));
@@ -49,6 +51,14 @@ export function Header() {
           </nav>
         </div>
         <div className="hidden md:flex items-center gap-3">
+          <Link to="/cart" aria-label="Cart" className="relative p-2 text-muted-foreground hover:text-foreground">
+            <ShoppingCart className="h-5 w-5" />
+            {cart.count > 0 && (
+              <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-semibold text-primary-foreground">
+                {cart.count}
+              </span>
+            )}
+          </Link>
           <LanguageSwitcher />
           {authed ? (
             <Link to="/dashboard">
@@ -70,6 +80,14 @@ export function Header() {
           </Link>
         </div>
         <div className="flex items-center gap-1 md:hidden">
+          <Link to="/cart" aria-label="Cart" className="relative p-2 text-muted-foreground">
+            <ShoppingCart className="h-5 w-5" />
+            {cart.count > 0 && (
+              <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-semibold text-primary-foreground">
+                {cart.count}
+              </span>
+            )}
+          </Link>
           <LanguageSwitcher compact />
           <button onClick={() => setOpen((v) => !v)} aria-label={t("shell.toggleMenu")}>
             {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}

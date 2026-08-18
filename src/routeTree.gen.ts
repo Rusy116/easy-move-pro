@@ -36,6 +36,7 @@ import { Route as ForMoversRouteImport } from './routes/for-movers'
 import { Route as ExclusiveMovingLeadsRouteImport } from './routes/exclusive-moving-leads'
 import { Route as DownloadRouteImport } from './routes/download'
 import { Route as ContactRouteImport } from './routes/contact'
+import { Route as CartRouteImport } from './routes/cart'
 import { Route as CalculatorRouteImport } from './routes/calculator'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AiToolsRouteImport } from './routes/ai-tools'
@@ -47,6 +48,7 @@ import { Route as RoutesIndexRouteImport } from './routes/routes.index'
 import { Route as ProductsIndexRouteImport } from './routes/products.index'
 import { Route as PartnersIndexRouteImport } from './routes/partners.index'
 import { Route as CitiesIndexRouteImport } from './routes/cities.index'
+import { Route as CheckoutIndexRouteImport } from './routes/checkout.index'
 import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as StatesStateRouteImport } from './routes/states.$state'
 import { Route as RoutesRouteRouteImport } from './routes/routes.$route'
@@ -139,6 +141,7 @@ import { Route as AuthenticatedAiActivityRouteImport } from './routes/_authentic
 import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin.users'
 import { Route as AuthenticatedAdminSettingsRouteImport } from './routes/_authenticated/admin.settings'
 import { Route as AuthenticatedAdminReportsRouteImport } from './routes/_authenticated/admin.reports'
+import { Route as AuthenticatedAdminOrdersRouteImport } from './routes/_authenticated/admin.orders'
 import { Route as AuthenticatedAdminMarketplaceRouteImport } from './routes/_authenticated/admin.marketplace'
 import { Route as AuthenticatedAdminLeadsRouteImport } from './routes/_authenticated/admin.leads'
 import { Route as AuthenticatedAdminInvoicesRouteImport } from './routes/_authenticated/admin.invoices'
@@ -294,6 +297,11 @@ const ContactRoute = ContactRouteImport.update({
   path: '/contact',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CartRoute = CartRouteImport.update({
+  id: '/cart',
+  path: '/cart',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CalculatorRoute = CalculatorRouteImport.update({
   id: '/calculator',
   path: '/calculator',
@@ -346,6 +354,11 @@ const PartnersIndexRoute = PartnersIndexRouteImport.update({
 const CitiesIndexRoute = CitiesIndexRouteImport.update({
   id: '/cities/',
   path: '/cities/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CheckoutIndexRoute = CheckoutIndexRouteImport.update({
+  id: '/checkout/',
+  path: '/checkout/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BlogIndexRoute = BlogIndexRouteImport.update({
@@ -864,6 +877,12 @@ const AuthenticatedAdminReportsRoute =
     path: '/admin/reports',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedAdminOrdersRoute =
+  AuthenticatedAdminOrdersRouteImport.update({
+    id: '/admin/orders',
+    path: '/admin/orders',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAdminMarketplaceRoute =
   AuthenticatedAdminMarketplaceRouteImport.update({
     id: '/admin/marketplace',
@@ -969,6 +988,7 @@ export interface FileRoutesByFullPath {
   '/ai-tools': typeof AiToolsRoute
   '/auth': typeof AuthRoute
   '/calculator': typeof CalculatorRoute
+  '/cart': typeof CartRoute
   '/contact': typeof ContactRoute
   '/download': typeof DownloadRoute
   '/exclusive-moving-leads': typeof ExclusiveMovingLeadsRoute
@@ -1016,6 +1036,7 @@ export interface FileRoutesByFullPath {
   '/routes/$route': typeof RoutesRouteRoute
   '/states/$state': typeof StatesStateRoute
   '/blog/': typeof BlogIndexRoute
+  '/checkout/': typeof CheckoutIndexRoute
   '/cities/': typeof CitiesIndexRoute
   '/partners/': typeof PartnersIndexRoute
   '/products/': typeof ProductsIndexRoute
@@ -1030,6 +1051,7 @@ export interface FileRoutesByFullPath {
   '/admin/invoices': typeof AuthenticatedAdminInvoicesRoute
   '/admin/leads': typeof AuthenticatedAdminLeadsRoute
   '/admin/marketplace': typeof AuthenticatedAdminMarketplaceRoute
+  '/admin/orders': typeof AuthenticatedAdminOrdersRoute
   '/admin/reports': typeof AuthenticatedAdminReportsRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
@@ -1117,6 +1139,7 @@ export interface FileRoutesByTo {
   '/ai-tools': typeof AiToolsRoute
   '/auth': typeof AuthRoute
   '/calculator': typeof CalculatorRoute
+  '/cart': typeof CartRoute
   '/contact': typeof ContactRoute
   '/download': typeof DownloadRoute
   '/exclusive-moving-leads': typeof ExclusiveMovingLeadsRoute
@@ -1163,6 +1186,7 @@ export interface FileRoutesByTo {
   '/routes/$route': typeof RoutesRouteRoute
   '/states/$state': typeof StatesStateRoute
   '/blog': typeof BlogIndexRoute
+  '/checkout': typeof CheckoutIndexRoute
   '/cities': typeof CitiesIndexRoute
   '/partners': typeof PartnersIndexRoute
   '/products': typeof ProductsIndexRoute
@@ -1177,6 +1201,7 @@ export interface FileRoutesByTo {
   '/admin/invoices': typeof AuthenticatedAdminInvoicesRoute
   '/admin/leads': typeof AuthenticatedAdminLeadsRoute
   '/admin/marketplace': typeof AuthenticatedAdminMarketplaceRoute
+  '/admin/orders': typeof AuthenticatedAdminOrdersRoute
   '/admin/reports': typeof AuthenticatedAdminReportsRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
@@ -1266,6 +1291,7 @@ export interface FileRoutesById {
   '/ai-tools': typeof AiToolsRoute
   '/auth': typeof AuthRoute
   '/calculator': typeof CalculatorRoute
+  '/cart': typeof CartRoute
   '/contact': typeof ContactRoute
   '/download': typeof DownloadRoute
   '/exclusive-moving-leads': typeof ExclusiveMovingLeadsRoute
@@ -1313,6 +1339,7 @@ export interface FileRoutesById {
   '/routes/$route': typeof RoutesRouteRoute
   '/states/$state': typeof StatesStateRoute
   '/blog/': typeof BlogIndexRoute
+  '/checkout/': typeof CheckoutIndexRoute
   '/cities/': typeof CitiesIndexRoute
   '/partners/': typeof PartnersIndexRoute
   '/products/': typeof ProductsIndexRoute
@@ -1327,6 +1354,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/invoices': typeof AuthenticatedAdminInvoicesRoute
   '/_authenticated/admin/leads': typeof AuthenticatedAdminLeadsRoute
   '/_authenticated/admin/marketplace': typeof AuthenticatedAdminMarketplaceRoute
+  '/_authenticated/admin/orders': typeof AuthenticatedAdminOrdersRoute
   '/_authenticated/admin/reports': typeof AuthenticatedAdminReportsRoute
   '/_authenticated/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
@@ -1416,6 +1444,7 @@ export interface FileRouteTypes {
     | '/ai-tools'
     | '/auth'
     | '/calculator'
+    | '/cart'
     | '/contact'
     | '/download'
     | '/exclusive-moving-leads'
@@ -1463,6 +1492,7 @@ export interface FileRouteTypes {
     | '/routes/$route'
     | '/states/$state'
     | '/blog/'
+    | '/checkout/'
     | '/cities/'
     | '/partners/'
     | '/products/'
@@ -1477,6 +1507,7 @@ export interface FileRouteTypes {
     | '/admin/invoices'
     | '/admin/leads'
     | '/admin/marketplace'
+    | '/admin/orders'
     | '/admin/reports'
     | '/admin/settings'
     | '/admin/users'
@@ -1564,6 +1595,7 @@ export interface FileRouteTypes {
     | '/ai-tools'
     | '/auth'
     | '/calculator'
+    | '/cart'
     | '/contact'
     | '/download'
     | '/exclusive-moving-leads'
@@ -1610,6 +1642,7 @@ export interface FileRouteTypes {
     | '/routes/$route'
     | '/states/$state'
     | '/blog'
+    | '/checkout'
     | '/cities'
     | '/partners'
     | '/products'
@@ -1624,6 +1657,7 @@ export interface FileRouteTypes {
     | '/admin/invoices'
     | '/admin/leads'
     | '/admin/marketplace'
+    | '/admin/orders'
     | '/admin/reports'
     | '/admin/settings'
     | '/admin/users'
@@ -1712,6 +1746,7 @@ export interface FileRouteTypes {
     | '/ai-tools'
     | '/auth'
     | '/calculator'
+    | '/cart'
     | '/contact'
     | '/download'
     | '/exclusive-moving-leads'
@@ -1759,6 +1794,7 @@ export interface FileRouteTypes {
     | '/routes/$route'
     | '/states/$state'
     | '/blog/'
+    | '/checkout/'
     | '/cities/'
     | '/partners/'
     | '/products/'
@@ -1773,6 +1809,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/invoices'
     | '/_authenticated/admin/leads'
     | '/_authenticated/admin/marketplace'
+    | '/_authenticated/admin/orders'
     | '/_authenticated/admin/reports'
     | '/_authenticated/admin/settings'
     | '/_authenticated/admin/users'
@@ -1862,6 +1899,7 @@ export interface RootRouteChildren {
   AiToolsRoute: typeof AiToolsRoute
   AuthRoute: typeof AuthRoute
   CalculatorRoute: typeof CalculatorRoute
+  CartRoute: typeof CartRoute
   ContactRoute: typeof ContactRoute
   DownloadRoute: typeof DownloadRoute
   ExclusiveMovingLeadsRoute: typeof ExclusiveMovingLeadsRoute
@@ -1907,6 +1945,7 @@ export interface RootRouteChildren {
   RoutesRouteRoute: typeof RoutesRouteRoute
   StatesStateRoute: typeof StatesStateRoute
   BlogIndexRoute: typeof BlogIndexRoute
+  CheckoutIndexRoute: typeof CheckoutIndexRoute
   CitiesIndexRoute: typeof CitiesIndexRoute
   PartnersIndexRoute: typeof PartnersIndexRoute
   ProductsIndexRoute: typeof ProductsIndexRoute
@@ -2113,6 +2152,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ContactRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/cart': {
+      id: '/cart'
+      path: '/cart'
+      fullPath: '/cart'
+      preLoaderRoute: typeof CartRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/calculator': {
       id: '/calculator'
       path: '/calculator'
@@ -2188,6 +2234,13 @@ declare module '@tanstack/react-router' {
       path: '/cities'
       fullPath: '/cities/'
       preLoaderRoute: typeof CitiesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/checkout/': {
+      id: '/checkout/'
+      path: '/checkout'
+      fullPath: '/checkout/'
+      preLoaderRoute: typeof CheckoutIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/blog/': {
@@ -2834,6 +2887,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminReportsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin/orders': {
+      id: '/_authenticated/admin/orders'
+      path: '/admin/orders'
+      fullPath: '/admin/orders'
+      preLoaderRoute: typeof AuthenticatedAdminOrdersRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/admin/marketplace': {
       id: '/_authenticated/admin/marketplace'
       path: '/admin/marketplace'
@@ -3030,6 +3090,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminInvoicesRoute: typeof AuthenticatedAdminInvoicesRoute
   AuthenticatedAdminLeadsRoute: typeof AuthenticatedAdminLeadsRoute
   AuthenticatedAdminMarketplaceRoute: typeof AuthenticatedAdminMarketplaceRoute
+  AuthenticatedAdminOrdersRoute: typeof AuthenticatedAdminOrdersRoute
   AuthenticatedAdminReportsRoute: typeof AuthenticatedAdminReportsRoute
   AuthenticatedAdminSettingsRoute: typeof AuthenticatedAdminSettingsRoute
   AuthenticatedAdminUsersRoute: typeof AuthenticatedAdminUsersRoute
@@ -3090,6 +3151,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminInvoicesRoute: AuthenticatedAdminInvoicesRoute,
   AuthenticatedAdminLeadsRoute: AuthenticatedAdminLeadsRoute,
   AuthenticatedAdminMarketplaceRoute: AuthenticatedAdminMarketplaceRoute,
+  AuthenticatedAdminOrdersRoute: AuthenticatedAdminOrdersRoute,
   AuthenticatedAdminReportsRoute: AuthenticatedAdminReportsRoute,
   AuthenticatedAdminSettingsRoute: AuthenticatedAdminSettingsRoute,
   AuthenticatedAdminUsersRoute: AuthenticatedAdminUsersRoute,
@@ -3149,6 +3211,7 @@ const rootRouteChildren: RootRouteChildren = {
   AiToolsRoute: AiToolsRoute,
   AuthRoute: AuthRoute,
   CalculatorRoute: CalculatorRoute,
+  CartRoute: CartRoute,
   ContactRoute: ContactRoute,
   DownloadRoute: DownloadRoute,
   ExclusiveMovingLeadsRoute: ExclusiveMovingLeadsRoute,
@@ -3196,6 +3259,7 @@ const rootRouteChildren: RootRouteChildren = {
   RoutesRouteRoute: RoutesRouteRoute,
   StatesStateRoute: StatesStateRoute,
   BlogIndexRoute: BlogIndexRoute,
+  CheckoutIndexRoute: CheckoutIndexRoute,
   CitiesIndexRoute: CitiesIndexRoute,
   PartnersIndexRoute: PartnersIndexRoute,
   ProductsIndexRoute: ProductsIndexRoute,

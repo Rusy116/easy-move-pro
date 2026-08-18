@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import {
+  Receipt,
   Inbox,
   Building2,
   BarChart3,
@@ -26,6 +27,7 @@ const NAV = [
   { to: "/admin/customers", label: "Customers", icon: <Users className="h-4 w-4" /> },
   { to: "/admin/finance", label: "Finance", icon: <Banknote className="h-4 w-4" /> },
   { to: "/admin/invoices", label: "Invoices", icon: <FileText className="h-4 w-4" /> },
+  { to: "/admin/orders", label: "Store orders", icon: <Receipt className="h-4 w-4" /> },
 
   { to: "/admin/reports", label: "Reports", icon: <LineChart className="h-4 w-4" /> },
   { to: "/ai/dashboard", label: "AI Growth", icon: <Sparkles className="h-4 w-4" /> },

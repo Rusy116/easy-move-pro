@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { Badge } from "@/components/ui/badge";
 import { CoverImage } from "@/components/store/CoverImage";
 import { money, type PdfProduct } from "@/lib/pdf-store/catalog";
+import { AddToCartButton } from "@/components/store/AddToCartButton";
 
 export function ProductCard({ p }: { p: PdfProduct }) {
   return (
@@ -35,6 +36,11 @@ export function ProductCard({ p }: { p: PdfProduct }) {
           </span>
           <span className="text-xs text-muted-foreground">{p.page_count} pages</span>
         </div>
+        {p.price_cents > 0 && (
+          <div className="pt-3">
+            <AddToCartButton p={p} size="sm" className="w-full" />
+          </div>
+        )}
       </div>
     </Link>
   );

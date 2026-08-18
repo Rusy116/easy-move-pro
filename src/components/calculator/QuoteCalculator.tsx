@@ -2113,12 +2113,26 @@ function InventoryBuilder({
 
   const totalItems = Object.values(counts).reduce((s, n) => s + n, 0);
 
-  const setQty = (id: string, qty: number) => {
-    const next = { ...counts };
-    if (qty <= 0) delete next[id];
-    else next[id] = qty;
-    onChange(next);
+  // Functional update: rapid taps on +/- must accumulate instead of
+  // overwriting each other with a stale `counts` snapshot.
+  const bumpQty = (id: string, delta: number) => {
+    onChange((prev) => {
+      const next = { ...prev };
+      const qty = (prev[id] ?? 0) + delta;
+      if (qty <= 0) delete next[id];
+      else next[id] = qty;
+      return next;
+    });
   };
+  const setQty = (id: string, qty: number) => {
+    onChange((prev) => {
+      const next = { ...prev };
+      if (qty <= 0) delete next[id];
+      else next[id] = qty;
+      return next;
+    });
+  };
+  void setQty;
 
   return (
     <div className="rounded-xl border border-border bg-card">

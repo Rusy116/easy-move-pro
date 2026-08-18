@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { getCheckoutStatus, type OrderStatusResult } from "@/lib/store-checkout.functions";
 import { getStripeEnvironment } from "@/lib/stripe";
 import { money } from "@/lib/pdf-store/catalog";
+import { clearCart } from "@/lib/store/cart";
 
 export const Route = createFileRoute("/checkout/return")({
   validateSearch: (search: Record<string, unknown>): { session_id?: string } => ({

@@ -19,7 +19,16 @@ export interface CheckoutLine {
  * checkout, free lead magnets are delivered straight away against the same
  * email capture (no account required).
  */
-export function CheckoutForm({ lines, fromCart }: { lines: CheckoutLine[]; fromCart?: boolean }) {
+export function CheckoutForm({
+  lines,
+  fromCart,
+  onStarted,
+}: {
+  lines: CheckoutLine[];
+  fromCart?: boolean;
+  /** Fired the moment checkout starts so the parent can freeze the line items. */
+  onStarted?: () => void;
+}) {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -39,6 +48,9 @@ export function CheckoutForm({ lines, fromCart }: { lines: CheckoutLine[]; fromC
     if (!canSubmit || busy || !lines.length) return;
     setBusy(true);
     setError(null);
+    // Freeze the parent's line items: the cart may be emptied later (only ever
+    // after a successful payment) and must not unmount the live Stripe form.
+    onStarted?.();
     try {
       const slugs = lines.map((l) => l.slug);
       if (isFree) {
@@ -62,7 +74,8 @@ export function CheckoutForm({ lines, fromCart }: { lines: CheckoutLine[]; fromC
         },
       });
       if ("error" in result) throw new Error(result.error);
-      if (fromCart) clearCart();
+      // The cart is intentionally NOT cleared here — only the return page
+      // clears it, once Stripe confirms the payment succeeded.
       setClientSecret(result.clientSecret);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not start checkout");

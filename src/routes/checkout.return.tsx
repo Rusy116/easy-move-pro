@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { getCheckoutStatus, type OrderStatusResult } from "@/lib/store-checkout.functions";
 import { getStripeEnvironment } from "@/lib/stripe";
 import { money } from "@/lib/pdf-store/catalog";
+import { clearCart } from "@/lib/store/cart";
 
 export const Route = createFileRoute("/checkout/return")({
   validateSearch: (search: Record<string, unknown>): { session_id?: string } => ({
@@ -53,6 +54,12 @@ function CheckoutReturn() {
 
   const paid = state && !("error" in state) && state.status === "paid";
   const failed = state && !("error" in state) && state.status === "failed";
+
+  // The cart survives until Stripe confirms the payment, so an abandoned or
+  // failed checkout leaves the customer's items intact.
+  useEffect(() => {
+    if (paid) clearCart();
+  }, [paid]);
 
   return (
     <SiteLayout>

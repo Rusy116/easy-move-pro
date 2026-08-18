@@ -28,7 +28,7 @@ export const issueLibraryDownload = createServerFn({ method: "POST" })
     return { productSlug };
   })
   .handler(async ({ data, context }): Promise<LibraryLinkResult> => {
-    const { admin, signDownloadToken, siteOrigin } = await import("@/lib/store/orders.server");
+    const { admin, getDownloadUrl } = await import("@/lib/store/orders.server");
     const db = await admin();
 
     const { data: itemRows } = await db
@@ -57,8 +57,7 @@ export const issueLibraryDownload = createServerFn({ method: "POST" })
 
     if (!orderId) return { error: "This product is not in your library." };
 
-    const token = await signDownloadToken(orderId, data.productSlug);
-    return { url: `${siteOrigin()}/download?t=${token}` };
+    return { url: await getDownloadUrl(orderId, data.productSlug) };
   });
 
 export type ReceiptView = {

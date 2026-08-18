@@ -24,7 +24,7 @@ export const requestOrderLinks = createServerFn({ method: "POST" })
     return { email };
   })
   .handler(async ({ data }) => {
-    const { admin, signDownloadToken, siteOrigin } = await import("@/lib/store/orders.server");
+    const { admin, getDownloadUrl, siteOrigin } = await import("@/lib/store/orders.server");
     const { loadOrderItems } = await import("@/lib/store/items.server");
     const { sendOrderDownloadEmail } = await import("@/lib/store/email.server");
     const db = await admin();
@@ -45,14 +45,13 @@ export const requestOrderLinks = createServerFn({ method: "POST" })
       const items = await loadOrderItems(db, order);
       for (const item of items) {
         found += 1;
-        const token = await signDownloadToken(order.id, item.slug);
         const result = await sendOrderDownloadEmail({
           to: order.email,
           firstName: order.first_name,
           productTitle: item.title,
           orderNumber:
             items.length > 1 ? `${order.order_number}-${item.slug}` : order.order_number,
-          downloadUrl: `${origin}/download?t=${token}`,
+          downloadUrl: await getDownloadUrl(order.id, item.slug),
           accountUrl: `${origin}/auth?signup=1&email=${encodeURIComponent(order.email)}`,
         });
         if (result.sent) delivered += 1;

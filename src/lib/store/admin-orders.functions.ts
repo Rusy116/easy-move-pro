@@ -149,7 +149,7 @@ export const resendOrderLinks = createServerFn({ method: "POST" })
   })
   .handler(async ({ data, context }): Promise<{ sent: number } | { error: string }> => {
     await assertAdmin(context);
-    const { admin, signDownloadToken, siteOrigin } = await import("@/lib/store/orders.server");
+    const { admin, getDownloadUrl, siteOrigin } = await import("@/lib/store/orders.server");
     const { loadOrderItems } = await import("@/lib/store/items.server");
     const { sendOrderDownloadEmail } = await import("@/lib/store/email.server");
     const db = await admin();
@@ -166,13 +166,12 @@ export const resendOrderLinks = createServerFn({ method: "POST" })
     const items = await loadOrderItems(db, order);
     let sent = 0;
     for (const item of items) {
-      const token = await signDownloadToken(order.id, item.slug);
       const result = await sendOrderDownloadEmail({
         to: order.email,
         firstName: order.first_name,
         productTitle: item.title,
         orderNumber: items.length > 1 ? `${order.order_number}-${item.slug}` : order.order_number,
-        downloadUrl: `${origin}/download?t=${token}`,
+        downloadUrl: await getDownloadUrl(order.id, item.slug),
         accountUrl: `${origin}/auth?signup=1&email=${encodeURIComponent(order.email)}`,
       });
       if (result.sent) sent += 1;

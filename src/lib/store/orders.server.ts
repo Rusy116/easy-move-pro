@@ -181,6 +181,27 @@ export function siteOrigin(): string {
   return process.env["PUBLIC_SITE_ORIGIN"] ?? "https://mycity-move.lovable.app";
 }
 
+/**
+ * THE single place that builds a customer-facing download URL. The return
+ * page, the confirmation email, the account library and admin resends must
+ * all call this so the link always points back at the deployment that signed
+ * (and will verify) the token.
+ */
+export async function getDownloadUrl(
+  orderId: string,
+  slug: string,
+  ttlMs = DOWNLOAD_TTL_MS,
+): Promise<string> {
+  const token = await signDownloadToken(orderId, slug, ttlMs);
+  return `${siteOrigin()}/download?t=${token}`;
+}
+
+/** Single place that builds a receipt URL, for the same reason. */
+export async function getReceiptUrl(orderId: string, ttlMs = RECEIPT_TTL_MS): Promise<string> {
+  const token = await signReceiptToken(orderId, ttlMs);
+  return `${siteOrigin()}/receipt?t=${token}`;
+}
+
 
 export interface ReceiptClaim {
   /** order id */

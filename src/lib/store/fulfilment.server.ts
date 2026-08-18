@@ -6,7 +6,7 @@
 // Orders may contain several products; every line item is fulfilled.
 // ---------------------------------------------------------------------------
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { signDownloadToken, siteOrigin } from "./orders.server";
+import { getDownloadUrl, siteOrigin } from "./orders.server";
 import { sendOrderDownloadEmail } from "./email.server";
 import { loadOrderItems } from "./items.server";
 
@@ -83,14 +83,13 @@ export async function fulfilOrder(
     const origin = siteOrigin();
     let anySent = false;
     for (const item of items) {
-      const token = await signDownloadToken(current.id, item.slug);
       const result = await sendOrderDownloadEmail({
         to: current.email,
         firstName: current.first_name,
         productTitle: item.title,
         orderNumber:
           items.length > 1 ? `${current.order_number}-${item.slug}` : current.order_number,
-        downloadUrl: `${origin}/download?t=${token}`,
+        downloadUrl: await getDownloadUrl(current.id, item.slug),
         accountUrl: `${origin}/auth?signup=1&email=${encodeURIComponent(current.email)}`,
       });
       if (result.sent) anySent = true;

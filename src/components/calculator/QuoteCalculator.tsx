@@ -858,7 +858,10 @@ export function QuoteCalculator(
           >
             <InventoryBuilder
               counts={form.inventory}
-              onChange={(inv) => set("inventory", inv)}
+              onChange={(updater) => {
+                hasUserEditedRef.current = true;
+                setForm((s) => ({ ...s, inventory: updater(s.inventory) }));
+              }}
               cubicFeet={quote?.cubicFeet ?? 0}
               weightLbs={quote?.weightLbs ?? 0}
               truckSize={quote?.truckSize ?? "—"}

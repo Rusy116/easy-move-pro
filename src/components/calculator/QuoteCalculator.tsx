@@ -707,23 +707,13 @@ export function QuoteCalculator(
             phone: form.phone,
           },
           origin: {
-            fullAddress: withUnit(
-              form.origin.fullAddress ||
-                [form.origin.city, form.origin.state].filter(Boolean).join(", ") +
-                  (form.origin.zip ? ` ${form.origin.zip}` : ""),
-              form.origin.unit,
-            ),
+            fullAddress: composeAddress(form.origin),
             city: form.origin.city,
             state: form.origin.state,
             zip: form.origin.zip,
           },
           destination: {
-            fullAddress: withUnit(
-              form.destination.fullAddress ||
-                [form.destination.city, form.destination.state].filter(Boolean).join(", ") +
-                  (form.destination.zip ? ` ${form.destination.zip}` : ""),
-              form.destination.unit,
-            ),
+            fullAddress: composeAddress(form.destination),
             city: form.destination.city,
             state: form.destination.state,
             zip: form.destination.zip,

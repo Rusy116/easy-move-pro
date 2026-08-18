@@ -80,7 +80,7 @@ function CartCheckoutPage() {
             </ul>
             <div className="mt-5 flex items-center justify-between border-t border-border/60 pt-4">
               <span className="text-sm text-muted-foreground">Total</span>
-              <span className="text-xl font-semibold">{money(cart.total)}</span>
+              <span className="text-xl font-semibold">{money(total)}</span>
             </div>
             <p className="mt-3 text-xs text-muted-foreground">
               Instant download after payment, plus an emailed copy of every link.

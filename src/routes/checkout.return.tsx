@@ -54,6 +54,12 @@ function CheckoutReturn() {
   const paid = state && !("error" in state) && state.status === "paid";
   const failed = state && !("error" in state) && state.status === "failed";
 
+  // The cart survives until Stripe confirms the payment, so an abandoned or
+  // failed checkout leaves the customer's items intact.
+  useEffect(() => {
+    if (paid) clearCart();
+  }, [paid]);
+
   return (
     <SiteLayout>
       <section className="mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-24">

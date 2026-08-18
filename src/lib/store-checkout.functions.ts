@@ -308,11 +308,10 @@ export const getCheckoutStatus = createServerFn({ method: "POST" })
       }
     }
 
-    const { signDownloadToken, signReceiptToken, siteOrigin } = await import(
+    const { getDownloadUrl, getReceiptUrl } = await import(
       "@/lib/store/orders.server"
     );
     const { loadOrderItems } = await import("@/lib/store/items.server");
-    const origin = siteOrigin();
     const paid = current.status === "paid";
 
     const items: CheckoutItemView[] = [];
@@ -321,14 +320,12 @@ export const getCheckoutStatus = createServerFn({ method: "POST" })
         slug: item.slug,
         title: item.title,
         amountCents: item.amountCents,
-        downloadUrl: paid
-          ? `${origin}/download?t=${await signDownloadToken(current.id, item.slug)}`
-          : null,
+        downloadUrl: paid ? await getDownloadUrl(current.id, item.slug) : null,
       });
     }
 
     const receiptUrl =
-      current.status === "pending" ? null : `${origin}/receipt?t=${await signReceiptToken(current.id)}`;
+      current.status === "pending" ? null : await getReceiptUrl(current.id);
 
     return {
       status:
@@ -365,7 +362,7 @@ export const claimFreeProducts = createServerFn({ method: "POST" })
     };
   })
   .handler(async ({ data }): Promise<FreeClaimResult> => {
-    const { admin, newOrderNumber, signDownloadToken, siteOrigin } = await import(
+    const { admin, newOrderNumber, getDownloadUrl } = await import(
       "@/lib/store/orders.server"
     );
     const { resolveBuyerUserId } = await import("@/lib/store/buyer.server");
@@ -422,14 +419,13 @@ export const claimFreeProducts = createServerFn({ method: "POST" })
     const { fulfilOrder } = await import("@/lib/store/fulfilment.server");
     const fulfilled = await fulfilOrder(db, order.id, {});
 
-    const origin = siteOrigin();
     const items: CheckoutItemView[] = [];
     for (const p of products) {
       items.push({
         slug: p.slug,
         title: p.title,
         amountCents: 0,
-        downloadUrl: `${origin}/download?t=${await signDownloadToken(order.id, p.slug)}`,
+        downloadUrl: await getDownloadUrl(order.id, p.slug),
       });
     }
 

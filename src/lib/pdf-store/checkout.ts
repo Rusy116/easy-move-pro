@@ -49,8 +49,8 @@ export function checkoutLabel(priceCents: number) {
  * buy action for a single product.
  */
 /**
- * Where the buy button should point. Paid products go through the hosted
- * Stripe checkout (guest-friendly); free lead magnets unlock in the library.
+ * Where the buy button should point. Paid products go through the embedded
+ * Stripe checkout; free lead magnets use the same page, email-gated.
  */
 export function checkoutHref(slug: string, _priceCents?: number) {
   return `/checkout/${slug}`;

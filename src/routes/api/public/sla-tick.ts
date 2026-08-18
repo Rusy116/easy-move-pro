@@ -22,6 +22,15 @@ export const Route = createFileRoute("/api/public/sla-tick")({
           return new Response("Unauthorized", { status: 401 });
         }
 
+        if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+          // Local/preview runtimes without the service role key: report cleanly
+          // instead of crashing the request into a generic 500 HTML page.
+          return new Response(
+            JSON.stringify({ ok: false, error: "Service role key unavailable in this runtime" }),
+            { status: 503, headers: { "Content-Type": "application/json" } },
+          );
+        }
+
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
         const { data, error } = await supabaseAdmin.rpc("fn_sla_tick");
         if (error) {

@@ -106,12 +106,12 @@ export function generateEstimatePdf(input: EstimatePdfInput): jsPDF {
   y += 116;
 
   // Addresses
-  drawPanel(doc, margin, y, pageWidth - margin * 2, 92, "Route");
+  drawPanel(doc, margin, y, pageWidth - margin * 2, 96, "Route");
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(9);
-  doc.setTextColor(SAGE);
-  doc.text("ORIGIN", margin + 12, y + 28);
-  doc.text("DESTINATION", margin + 12 + (pageWidth - margin * 2) / 2, y + 28);
+  doc.setFontSize(8);
+  doc.setTextColor(MUTED);
+  doc.text("ORIGIN", margin + 12, y + 38);
+  doc.text("DESTINATION", margin + 12 + (pageWidth - margin * 2) / 2, y + 38);
   doc.setTextColor("#111827");
   doc.setFont("helvetica", "normal");
   doc.setFontSize(10);
@@ -119,7 +119,7 @@ export function generateEstimatePdf(input: EstimatePdfInput): jsPDF {
     doc,
     input.origin.fullAddress || `${input.origin.city}, ${input.origin.state} ${input.origin.zip}`,
     margin + 12,
-    y + 46,
+    y + 56,
     (pageWidth - margin * 2) / 2 - 20,
   );
   wrappedText(
@@ -127,10 +127,10 @@ export function generateEstimatePdf(input: EstimatePdfInput): jsPDF {
     input.destination.fullAddress ||
       `${input.destination.city}, ${input.destination.state} ${input.destination.zip}`,
     margin + 12 + (pageWidth - margin * 2) / 2,
-    y + 46,
+    y + 56,
     (pageWidth - margin * 2) / 2 - 20,
   );
-  y += 112;
+  y += 116;
 
   // Estimate box
   doc.setFillColor("#f8fafc");

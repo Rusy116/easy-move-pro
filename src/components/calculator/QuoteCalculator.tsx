@@ -101,6 +101,26 @@ function withUnit(address: string, unit: string): string {
   return i === -1 ? `${a}, ${u}` : `${a.slice(0, i)}, ${u}${a.slice(i)}`;
 }
 
+// Customers often type an address without picking a Places suggestion, which
+// leaves `fullAddress` empty. Rebuild a readable address from the parts.
+function composeAddress(s: {
+  fullAddress: string;
+  houseNumber: string;
+  street: string;
+  city: string;
+  state: string;
+  zip: string;
+  unit: string;
+}): string {
+  const base = (s.fullAddress ?? "").trim();
+  if (base) return withUnit(base, s.unit);
+  const line1 = [s.houseNumber, s.street].filter(Boolean).join(" ").trim();
+  const line2 = [[s.city, s.state].filter(Boolean).join(", "), s.zip].filter(Boolean).join(" ").trim();
+  return withUnit([line1, line2].filter(Boolean).join(", "), s.unit);
+}
+
+
+
 interface SideState {
   propertyType: PropertyType;
   zip: string;
@@ -533,8 +553,12 @@ export function QuoteCalculator(
         user_id: userId,
         origin_zip: o.zip,
         destination_zip: d.zip,
-        origin_address: withUnit(o.fullAddress, o.unit) || null,
-        destination_address: withUnit(d.fullAddress, d.unit) || null,
+        // Fall back to city/state/zip when the customer typed an address
+        // without picking a Places suggestion (fullAddress stays empty).
+        origin_address:
+          composeAddress(o) || null,
+        destination_address:
+          composeAddress(d) || null,
         origin_lat: o.lat,
         origin_lng: o.lng,
         destination_lat: d.lat,
@@ -683,13 +707,13 @@ export function QuoteCalculator(
             phone: form.phone,
           },
           origin: {
-            fullAddress: withUnit(form.origin.fullAddress, form.origin.unit),
+            fullAddress: composeAddress(form.origin),
             city: form.origin.city,
             state: form.origin.state,
             zip: form.origin.zip,
           },
           destination: {
-            fullAddress: withUnit(form.destination.fullAddress, form.destination.unit),
+            fullAddress: composeAddress(form.destination),
             city: form.destination.city,
             state: form.destination.state,
             zip: form.destination.zip,
@@ -858,7 +882,10 @@ export function QuoteCalculator(
           >
             <InventoryBuilder
               counts={form.inventory}
-              onChange={(inv) => set("inventory", inv)}
+              onChange={(updater) => {
+                hasUserEditedRef.current = true;
+                setForm((s) => ({ ...s, inventory: updater(s.inventory) }));
+              }}
               cubicFeet={quote?.cubicFeet ?? 0}
               weightLbs={quote?.weightLbs ?? 0}
               truckSize={quote?.truckSize ?? "—"}
@@ -2098,7 +2125,7 @@ function InventoryBuilder({
   truckSize,
 }: {
   counts: InventoryCounts;
-  onChange: (c: InventoryCounts) => void;
+  onChange: (updater: (prev: InventoryCounts) => InventoryCounts) => void;
   cubicFeet: number;
   weightLbs: number;
   truckSize: string;
@@ -2113,11 +2140,16 @@ function InventoryBuilder({
 
   const totalItems = Object.values(counts).reduce((s, n) => s + n, 0);
 
-  const setQty = (id: string, qty: number) => {
-    const next = { ...counts };
-    if (qty <= 0) delete next[id];
-    else next[id] = qty;
-    onChange(next);
+  // Functional update: rapid taps on +/- must accumulate instead of
+  // overwriting each other with a stale `counts` snapshot.
+  const bumpQty = (id: string, delta: number) => {
+    onChange((prev) => {
+      const next = { ...prev };
+      const qty = (prev[id] ?? 0) + delta;
+      if (qty <= 0) delete next[id];
+      else next[id] = qty;
+      return next;
+    });
   };
 
   return (
@@ -2161,7 +2193,7 @@ function InventoryBuilder({
                         <div className="flex shrink-0 items-center gap-1">
                           <button
                             type="button"
-                            onClick={() => setQty(item.id, qty - 1)}
+                            onClick={() => bumpQty(item.id, -1)}
                             disabled={qty === 0}
                             className="grid h-7 w-7 place-items-center rounded-md border border-border bg-card text-muted-foreground disabled:opacity-40 hover:bg-accent"
                             aria-label={`Decrease ${item.label}`}
@@ -2173,7 +2205,7 @@ function InventoryBuilder({
                           </span>
                           <button
                             type="button"
-                            onClick={() => setQty(item.id, qty + 1)}
+                            onClick={() => bumpQty(item.id, 1)}
                             className="grid h-7 w-7 place-items-center rounded-md border border-border bg-card text-muted-foreground hover:bg-accent"
                             aria-label={`Increase ${item.label}`}
                           >

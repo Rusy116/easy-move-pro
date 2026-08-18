@@ -9,7 +9,7 @@ import { EmailChangeEmail } from '@/lib/email-templates/email-change'
 import { ReauthenticationEmail } from '@/lib/email-templates/reauthentication'
 
 // Configuration
-const SITE_NAME = "mycity-move"
+const SITE_NAME = "Easy Move Pro"
 const SENDER_DOMAIN = "notify.easymove.pro"
 const ROOT_DOMAIN = "easymove.pro"
 const FROM_DOMAIN = "notify.easymove.pro"

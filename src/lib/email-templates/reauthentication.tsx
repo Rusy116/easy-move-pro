@@ -72,8 +72,9 @@ const footer = { fontSize: '12px', color: '#8b918a', margin: '32px 0 0', lineHei
 
 const codeStyle = {
   fontFamily: 'Courier, monospace',
-  fontSize: '22px',
+  fontSize: '26px',
   fontWeight: 'bold' as const,
-  color: '#000000',
+  letterSpacing: '0.15em',
+  color: '#3a5346',
   margin: '0 0 30px',
 }

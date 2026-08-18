@@ -70,5 +70,26 @@ export const sendCalculatorEstimateEmail = createServerFn({ method: "POST" })
         is_public: false,
       });
     }
+    // Transactional confirmation text to the number the customer entered on
+    // their own request. Never sent to any other party.
+    if (quote.contact_phone) {
+      try {
+        const { sendSms } = await import("@/lib/notify/sms.server");
+        await sendSms({
+          template: "quote-received",
+          to: quote.contact_phone,
+          data: {
+            quoteNumber: quote.quote_number,
+            amountLabel: `${usd(quote.estimated_low)} - ${usd(quote.estimated_high)}`,
+          },
+          refType: "quote",
+          refId: row?.id ?? null,
+          idempotencyKey: `quote-received-${quote.quote_number}`,
+        });
+      } catch (error) {
+        console.error("[estimate] confirmation SMS failed:", error);
+      }
+    }
+
     return result;
   });

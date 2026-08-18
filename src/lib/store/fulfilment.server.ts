@@ -95,6 +95,31 @@ export async function fulfilOrder(
     }
   }
 
+  // Optional payment-confirmation text, only for a signed-in buyer with a
+  // verified phone who has not opted out of status updates.
+  if (current.user_id) {
+    try {
+      const { data: profile } = await db
+        .from("profiles")
+        .select("phone,phone_verified_at")
+        .eq("id", current.user_id)
+        .maybeSingle();
+      if (profile?.phone && profile.phone_verified_at) {
+        const { sendSmsIfOptedIn } = await import("@/lib/notify/sms.server");
+        await sendSmsIfOptedIn({
+          template: "order-paid",
+          to: profile.phone,
+          userId: current.user_id,
+          data: { orderNumber: current.order_number },
+          refType: "store_order",
+          refId: current.id,
+        });
+      }
+    } catch (error) {
+      console.error("[fulfilment] order SMS failed:", error);
+    }
+  }
+
   return current;
 }
 

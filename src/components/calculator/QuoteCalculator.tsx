@@ -533,8 +533,12 @@ export function QuoteCalculator(
         user_id: userId,
         origin_zip: o.zip,
         destination_zip: d.zip,
-        origin_address: withUnit(o.fullAddress, o.unit) || null,
-        destination_address: withUnit(d.fullAddress, d.unit) || null,
+        // Fall back to city/state/zip when the customer typed an address
+        // without picking a Places suggestion (fullAddress stays empty).
+        origin_address:
+          withUnit(o.fullAddress || [o.city, o.state].filter(Boolean).join(", "), o.unit) || null,
+        destination_address:
+          withUnit(d.fullAddress || [d.city, d.state].filter(Boolean).join(", "), d.unit) || null,
         origin_lat: o.lat,
         origin_lng: o.lng,
         destination_lat: d.lat,

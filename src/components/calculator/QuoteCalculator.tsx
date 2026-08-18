@@ -2178,7 +2178,7 @@ function InventoryBuilder({
                         <div className="flex shrink-0 items-center gap-1">
                           <button
                             type="button"
-                            onClick={() => setQty(item.id, qty - 1)}
+                            onClick={() => bumpQty(item.id, -1)}
                             disabled={qty === 0}
                             className="grid h-7 w-7 place-items-center rounded-md border border-border bg-card text-muted-foreground disabled:opacity-40 hover:bg-accent"
                             aria-label={`Decrease ${item.label}`}
@@ -2190,7 +2190,7 @@ function InventoryBuilder({
                           </span>
                           <button
                             type="button"
-                            onClick={() => setQty(item.id, qty + 1)}
+                            onClick={() => bumpQty(item.id, 1)}
                             className="grid h-7 w-7 place-items-center rounded-md border border-border bg-card text-muted-foreground hover:bg-accent"
                             aria-label={`Increase ${item.label}`}
                           >

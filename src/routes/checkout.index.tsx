@@ -62,7 +62,7 @@ function CartCheckoutPage() {
               Order summary
             </p>
             <ul className="mt-4 space-y-3">
-              {cart.lines.map((line) => (
+              {lines.map((line) => (
                 <li key={line.slug} className="flex gap-3">
                   <CoverImage
                     slug={line.slug}

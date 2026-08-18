@@ -23,7 +23,12 @@ export const Route = createFileRoute("/checkout/")({
 });
 
 function CartCheckoutPage() {
-  const cart = useCart();
+  const live = useCart();
+  // Once checkout starts we render a frozen snapshot, so clearing the cart
+  // after payment never tears down the mounted Stripe form.
+  const [frozen, setFrozen] = useState<CartLine[] | null>(null);
+  const lines = frozen ?? live.lines;
+  const total = lines.reduce((sum, l) => sum + Number(l.priceCents ?? 0), 0);
 
   return (
     <SiteLayout hideFooter>

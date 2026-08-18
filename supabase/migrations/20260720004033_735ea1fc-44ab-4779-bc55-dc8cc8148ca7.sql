@@ -508,14 +508,14 @@ BEGIN
     SELECT overdue.q_id, overdue.a_id, 'sla.expired', 'system',
       jsonb_build_object('at', v_now)
     FROM overdue
-    RETURNING quote_id
+    RETURNING public.lead_events.quote_id
   ),
   log_phase AS (
     INSERT INTO public.lead_events (quote_id, event_type, actor_role, payload)
     SELECT overdue.q_id, 'phase.open_market', 'system',
       jsonb_build_object('reason','sla_expired')
     FROM overdue
-    RETURNING quote_id
+    ETURNING public.lead_events.quote_id
   ),
   notify_admins AS (
     INSERT INTO public.admin_notifications (type, quote_id, message)

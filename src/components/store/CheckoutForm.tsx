@@ -48,6 +48,9 @@ export function CheckoutForm({
     if (!canSubmit || busy || !lines.length) return;
     setBusy(true);
     setError(null);
+    // Freeze the parent's line items: the cart may be emptied later (only ever
+    // after a successful payment) and must not unmount the live Stripe form.
+    onStarted?.();
     try {
       const slugs = lines.map((l) => l.slug);
       if (isFree) {

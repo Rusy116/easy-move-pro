@@ -1,5 +1,5 @@
 import { Check, ShoppingCart } from "lucide-react";
-import { Link } from "@tanstack/react-router";
+import { useNavigate } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/lib/store/cart";
 import type { PdfProduct } from "@/lib/pdf-store/catalog";
@@ -13,14 +13,22 @@ interface Props {
 /** Adds a paid PDF to the cart, then turns into a link to the cart. */
 export function AddToCartButton({ p, size = "default", className }: Props) {
   const cart = useCart();
+  const navigate = useNavigate();
   const inCart = cart.has(p.slug);
 
   if (inCart) {
     return (
-      <Button asChild size={size} variant="outline" className={`rounded-full ${className ?? ""}`}>
-        <Link to="/cart">
-          <Check className="mr-1.5 h-4 w-4" /> In cart
-        </Link>
+      <Button
+        size={size}
+        variant="outline"
+        className={`rounded-full ${className ?? ""}`}
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          void navigate({ to: "/cart" });
+        }}
+      >
+        <Check className="mr-1.5 h-4 w-4" /> In cart
       </Button>
     );
   }

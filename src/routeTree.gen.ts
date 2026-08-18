@@ -48,6 +48,7 @@ import { Route as RoutesIndexRouteImport } from './routes/routes.index'
 import { Route as ProductsIndexRouteImport } from './routes/products.index'
 import { Route as PartnersIndexRouteImport } from './routes/partners.index'
 import { Route as CitiesIndexRouteImport } from './routes/cities.index'
+import { Route as CheckoutIndexRouteImport } from './routes/checkout.index'
 import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as StatesStateRouteImport } from './routes/states.$state'
 import { Route as RoutesRouteRouteImport } from './routes/routes.$route'
@@ -352,6 +353,11 @@ const PartnersIndexRoute = PartnersIndexRouteImport.update({
 const CitiesIndexRoute = CitiesIndexRouteImport.update({
   id: '/cities/',
   path: '/cities/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CheckoutIndexRoute = CheckoutIndexRouteImport.update({
+  id: '/checkout/',
+  path: '/checkout/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BlogIndexRoute = BlogIndexRouteImport.update({
@@ -1023,6 +1029,7 @@ export interface FileRoutesByFullPath {
   '/routes/$route': typeof RoutesRouteRoute
   '/states/$state': typeof StatesStateRoute
   '/blog/': typeof BlogIndexRoute
+  '/checkout/': typeof CheckoutIndexRoute
   '/cities/': typeof CitiesIndexRoute
   '/partners/': typeof PartnersIndexRoute
   '/products/': typeof ProductsIndexRoute
@@ -1171,6 +1178,7 @@ export interface FileRoutesByTo {
   '/routes/$route': typeof RoutesRouteRoute
   '/states/$state': typeof StatesStateRoute
   '/blog': typeof BlogIndexRoute
+  '/checkout': typeof CheckoutIndexRoute
   '/cities': typeof CitiesIndexRoute
   '/partners': typeof PartnersIndexRoute
   '/products': typeof ProductsIndexRoute
@@ -1322,6 +1330,7 @@ export interface FileRoutesById {
   '/routes/$route': typeof RoutesRouteRoute
   '/states/$state': typeof StatesStateRoute
   '/blog/': typeof BlogIndexRoute
+  '/checkout/': typeof CheckoutIndexRoute
   '/cities/': typeof CitiesIndexRoute
   '/partners/': typeof PartnersIndexRoute
   '/products/': typeof ProductsIndexRoute
@@ -1473,6 +1482,7 @@ export interface FileRouteTypes {
     | '/routes/$route'
     | '/states/$state'
     | '/blog/'
+    | '/checkout/'
     | '/cities/'
     | '/partners/'
     | '/products/'
@@ -1621,6 +1631,7 @@ export interface FileRouteTypes {
     | '/routes/$route'
     | '/states/$state'
     | '/blog'
+    | '/checkout'
     | '/cities'
     | '/partners'
     | '/products'
@@ -1771,6 +1782,7 @@ export interface FileRouteTypes {
     | '/routes/$route'
     | '/states/$state'
     | '/blog/'
+    | '/checkout/'
     | '/cities/'
     | '/partners/'
     | '/products/'
@@ -1920,6 +1932,7 @@ export interface RootRouteChildren {
   RoutesRouteRoute: typeof RoutesRouteRoute
   StatesStateRoute: typeof StatesStateRoute
   BlogIndexRoute: typeof BlogIndexRoute
+  CheckoutIndexRoute: typeof CheckoutIndexRoute
   CitiesIndexRoute: typeof CitiesIndexRoute
   PartnersIndexRoute: typeof PartnersIndexRoute
   ProductsIndexRoute: typeof ProductsIndexRoute
@@ -2208,6 +2221,13 @@ declare module '@tanstack/react-router' {
       path: '/cities'
       fullPath: '/cities/'
       preLoaderRoute: typeof CitiesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/checkout/': {
+      id: '/checkout/'
+      path: '/checkout'
+      fullPath: '/checkout/'
+      preLoaderRoute: typeof CheckoutIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/blog/': {
@@ -3217,6 +3237,7 @@ const rootRouteChildren: RootRouteChildren = {
   RoutesRouteRoute: RoutesRouteRoute,
   StatesStateRoute: StatesStateRoute,
   BlogIndexRoute: BlogIndexRoute,
+  CheckoutIndexRoute: CheckoutIndexRoute,
   CitiesIndexRoute: CitiesIndexRoute,
   PartnersIndexRoute: PartnersIndexRoute,
   ProductsIndexRoute: ProductsIndexRoute,

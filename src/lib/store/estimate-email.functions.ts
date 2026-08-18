@@ -22,7 +22,7 @@ export const sendCalculatorEstimateEmail = createServerFn({ method: "POST" })
     const { data: quote } = await db
       .from("quotes")
       .select(
-        "quote_number,portal_token,contact_email,details,estimated_low,estimated_high",
+        "quote_number,portal_token,contact_email,contact_phone,details,estimated_low,estimated_high",
       )
       .eq("quote_number", data.quoteNumber)
       .maybeSingle();

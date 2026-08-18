@@ -74,7 +74,8 @@ export function CheckoutForm({
         },
       });
       if ("error" in result) throw new Error(result.error);
-      if (fromCart) clearCart();
+      // The cart is intentionally NOT cleared here — only the return page
+      // clears it, once Stripe confirms the payment succeeded.
       setClientSecret(result.clientSecret);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not start checkout");

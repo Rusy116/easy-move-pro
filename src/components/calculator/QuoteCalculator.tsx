@@ -2098,7 +2098,7 @@ function InventoryBuilder({
   truckSize,
 }: {
   counts: InventoryCounts;
-  onChange: (c: InventoryCounts) => void;
+  onChange: (updater: (prev: InventoryCounts) => InventoryCounts) => void;
   cubicFeet: number;
   weightLbs: number;
   truckSize: string;

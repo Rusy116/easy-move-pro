@@ -1,10 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useState } from "react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { Button } from "@/components/ui/button";
 import { CoverImage } from "@/components/store/CoverImage";
 import { CheckoutForm } from "@/components/store/CheckoutForm";
 import { PaymentTestModeBanner } from "@/components/store/PaymentTestModeBanner";
-import { useCart } from "@/lib/store/cart";
+import { useCart, type CartLine } from "@/lib/store/cart";
 import { money } from "@/lib/pdf-store/catalog";
 
 export const Route = createFileRoute("/checkout/")({

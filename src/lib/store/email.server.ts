@@ -12,29 +12,22 @@
 
 export type EmailResult = { sent: boolean; reason?: string };
 
-const REGISTRY_MODULE = "@/lib/email-templates/send-email";
+type Sender = (
+  template: string,
+  to: string,
+  options: { templateData?: Record<string, unknown>; idempotencyKey?: string },
+) => Promise<{ sent: boolean; reason?: string }>;
 
-async function loadSender(): Promise<
-  | ((
-      template: string,
-      to: string,
-      options: { templateData?: Record<string, unknown>; idempotencyKey?: string },
-    ) => Promise<{ sent: boolean; reason?: string }>)
-  | null
-> {
+async function loadSender(): Promise<Sender | null> {
   try {
-    const mod = (await import(/* @vite-ignore */ REGISTRY_MODULE)) as {
-      sendTemplateEmail?: (
-        template: string,
-        to: string,
-        options: { templateData?: Record<string, unknown>; idempotencyKey?: string },
-      ) => Promise<{ sent: boolean; reason?: string }>;
-    };
-    return mod.sendTemplateEmail ?? null;
-  } catch {
+    const mod = await import("@/lib/email-templates/send-email");
+    return (mod.sendTemplateEmail as unknown as Sender) ?? null;
+  } catch (error) {
+    console.error("[email] sender module unavailable:", error);
     return null;
   }
 }
+
 
 async function send(
   template: string,

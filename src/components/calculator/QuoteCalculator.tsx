@@ -101,6 +101,26 @@ function withUnit(address: string, unit: string): string {
   return i === -1 ? `${a}, ${u}` : `${a.slice(0, i)}, ${u}${a.slice(i)}`;
 }
 
+// Customers often type an address without picking a Places suggestion, which
+// leaves `fullAddress` empty. Rebuild a readable address from the parts.
+function composeAddress(s: {
+  fullAddress: string;
+  houseNumber: string;
+  street: string;
+  city: string;
+  state: string;
+  zip: string;
+  unit: string;
+}): string {
+  const base = (s.fullAddress ?? "").trim();
+  if (base) return withUnit(base, s.unit);
+  const line1 = [s.houseNumber, s.street].filter(Boolean).join(" ").trim();
+  const line2 = [[s.city, s.state].filter(Boolean).join(", "), s.zip].filter(Boolean).join(" ").trim();
+  return withUnit([line1, line2].filter(Boolean).join(", "), s.unit);
+}
+
+
+
 interface SideState {
   propertyType: PropertyType;
   zip: string;

@@ -44,13 +44,6 @@ export type Database = {
             foreignKeyName: "admin_notifications_quote_id_fkey"
             columns: ["quote_id"]
             isOneToOne: false
-            referencedRelation: "mover_lead_view"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "admin_notifications_quote_id_fkey"
-            columns: ["quote_id"]
-            isOneToOne: false
             referencedRelation: "quotes"
             referencedColumns: ["id"]
           },
@@ -707,13 +700,6 @@ export type Database = {
             foreignKeyName: "audit_log_quote_id_fkey"
             columns: ["quote_id"]
             isOneToOne: false
-            referencedRelation: "mover_lead_view"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "audit_log_quote_id_fkey"
-            columns: ["quote_id"]
-            isOneToOne: false
             referencedRelation: "quotes"
             referencedColumns: ["id"]
           },
@@ -769,13 +755,6 @@ export type Database = {
             columns: ["job_id"]
             isOneToOne: false
             referencedRelation: "jobs"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "bills_of_lading_quote_id_fkey"
-            columns: ["quote_id"]
-            isOneToOne: false
-            referencedRelation: "mover_lead_view"
             referencedColumns: ["id"]
           },
           {
@@ -1350,13 +1329,6 @@ export type Database = {
             foreignKeyName: "commission_invoices_quote_id_fkey"
             columns: ["quote_id"]
             isOneToOne: false
-            referencedRelation: "mover_lead_view"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "commission_invoices_quote_id_fkey"
-            columns: ["quote_id"]
-            isOneToOne: false
             referencedRelation: "quotes"
             referencedColumns: ["id"]
           },
@@ -1458,13 +1430,6 @@ export type Database = {
             foreignKeyName: "company_activity_quote_id_fkey"
             columns: ["quote_id"]
             isOneToOne: false
-            referencedRelation: "mover_lead_view"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "company_activity_quote_id_fkey"
-            columns: ["quote_id"]
-            isOneToOne: false
             referencedRelation: "quotes"
             referencedColumns: ["id"]
           },
@@ -1513,13 +1478,6 @@ export type Database = {
             columns: ["company_id"]
             isOneToOne: false
             referencedRelation: "moving_companies"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "company_claims_quote_id_fkey"
-            columns: ["quote_id"]
-            isOneToOne: true
-            referencedRelation: "mover_lead_view"
             referencedColumns: ["id"]
           },
           {
@@ -1607,13 +1565,6 @@ export type Database = {
             foreignKeyName: "company_commissions_quote_id_fkey"
             columns: ["quote_id"]
             isOneToOne: false
-            referencedRelation: "mover_lead_view"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "company_commissions_quote_id_fkey"
-            columns: ["quote_id"]
-            isOneToOne: false
             referencedRelation: "quotes"
             referencedColumns: ["id"]
           },
@@ -1665,13 +1616,6 @@ export type Database = {
             foreignKeyName: "company_contact_log_quote_id_fkey"
             columns: ["quote_id"]
             isOneToOne: false
-            referencedRelation: "mover_lead_view"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "company_contact_log_quote_id_fkey"
-            columns: ["quote_id"]
-            isOneToOne: false
             referencedRelation: "quotes"
             referencedColumns: ["id"]
           },
@@ -1714,13 +1658,6 @@ export type Database = {
             columns: ["company_id"]
             isOneToOne: false
             referencedRelation: "moving_companies"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "company_conversations_quote_id_fkey"
-            columns: ["quote_id"]
-            isOneToOne: false
-            referencedRelation: "mover_lead_view"
             referencedColumns: ["id"]
           },
           {
@@ -1845,13 +1782,6 @@ export type Database = {
             columns: ["parent_id"]
             isOneToOne: false
             referencedRelation: "company_documents"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "company_documents_quote_id_fkey"
-            columns: ["quote_id"]
-            isOneToOne: false
-            referencedRelation: "mover_lead_view"
             referencedColumns: ["id"]
           },
           {
@@ -2005,13 +1935,6 @@ export type Database = {
             foreignKeyName: "company_invoices_quote_id_fkey"
             columns: ["quote_id"]
             isOneToOne: false
-            referencedRelation: "mover_lead_view"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "company_invoices_quote_id_fkey"
-            columns: ["quote_id"]
-            isOneToOne: false
             referencedRelation: "quotes"
             referencedColumns: ["id"]
           },
@@ -2057,13 +1980,6 @@ export type Database = {
             columns: ["company_id"]
             isOneToOne: false
             referencedRelation: "moving_companies"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "company_job_tasks_quote_id_fkey"
-            columns: ["quote_id"]
-            isOneToOne: false
-            referencedRelation: "mover_lead_view"
             referencedColumns: ["id"]
           },
           {
@@ -2201,13 +2117,6 @@ export type Database = {
             foreignKeyName: "company_notes_quote_id_fkey"
             columns: ["quote_id"]
             isOneToOne: false
-            referencedRelation: "mover_lead_view"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "company_notes_quote_id_fkey"
-            columns: ["quote_id"]
-            isOneToOne: false
             referencedRelation: "quotes"
             referencedColumns: ["id"]
           },
@@ -2256,13 +2165,6 @@ export type Database = {
             columns: ["company_id"]
             isOneToOne: false
             referencedRelation: "moving_companies"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "company_notifications_quote_id_fkey"
-            columns: ["quote_id"]
-            isOneToOne: false
-            referencedRelation: "mover_lead_view"
             referencedColumns: ["id"]
           },
           {
@@ -2335,13 +2237,6 @@ export type Database = {
             columns: ["company_id"]
             isOneToOne: false
             referencedRelation: "moving_companies"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "company_price_revisions_quote_id_fkey"
-            columns: ["quote_id"]
-            isOneToOne: false
-            referencedRelation: "mover_lead_view"
             referencedColumns: ["id"]
           },
           {
@@ -2425,13 +2320,6 @@ export type Database = {
             columns: ["company_id"]
             isOneToOne: false
             referencedRelation: "moving_companies"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "company_status_history_quote_id_fkey"
-            columns: ["quote_id"]
-            isOneToOne: false
-            referencedRelation: "mover_lead_view"
             referencedColumns: ["id"]
           },
           {
@@ -2565,13 +2453,6 @@ export type Database = {
             foreignKeyName: "company_warnings_quote_id_fkey"
             columns: ["quote_id"]
             isOneToOne: false
-            referencedRelation: "mover_lead_view"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "company_warnings_quote_id_fkey"
-            columns: ["quote_id"]
-            isOneToOne: false
             referencedRelation: "quotes"
             referencedColumns: ["id"]
           },
@@ -2612,13 +2493,6 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "customer_notifications_quote_id_fkey"
-            columns: ["quote_id"]
-            isOneToOne: false
-            referencedRelation: "mover_lead_view"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "customer_notifications_quote_id_fkey"
             columns: ["quote_id"]
@@ -2769,13 +2643,6 @@ export type Database = {
             foreignKeyName: "customer_reviews_quote_id_fkey"
             columns: ["quote_id"]
             isOneToOne: true
-            referencedRelation: "mover_lead_view"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "customer_reviews_quote_id_fkey"
-            columns: ["quote_id"]
-            isOneToOne: true
             referencedRelation: "quotes"
             referencedColumns: ["id"]
           },
@@ -2830,13 +2697,6 @@ export type Database = {
             columns: ["company_id"]
             isOneToOne: false
             referencedRelation: "moving_companies"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "customers_quote_id_fkey"
-            columns: ["quote_id"]
-            isOneToOne: false
-            referencedRelation: "mover_lead_view"
             referencedColumns: ["id"]
           },
           {
@@ -2988,13 +2848,6 @@ export type Database = {
             columns: ["company_id"]
             isOneToOne: false
             referencedRelation: "moving_companies"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "estimate_revisions_quote_id_fkey"
-            columns: ["quote_id"]
-            isOneToOne: false
-            referencedRelation: "mover_lead_view"
             referencedColumns: ["id"]
           },
           {
@@ -3185,13 +3038,6 @@ export type Database = {
             foreignKeyName: "jobs_quote_id_fkey"
             columns: ["quote_id"]
             isOneToOne: false
-            referencedRelation: "mover_lead_view"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "jobs_quote_id_fkey"
-            columns: ["quote_id"]
-            isOneToOne: false
             referencedRelation: "quotes"
             referencedColumns: ["id"]
           },
@@ -3244,13 +3090,6 @@ export type Database = {
           subject?: string | null
         }
         Relationships: [
-          {
-            foreignKeyName: "lead_communications_quote_id_fkey"
-            columns: ["quote_id"]
-            isOneToOne: false
-            referencedRelation: "mover_lead_view"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "lead_communications_quote_id_fkey"
             columns: ["quote_id"]
@@ -3312,13 +3151,6 @@ export type Database = {
             foreignKeyName: "lead_distributions_quote_id_fkey"
             columns: ["quote_id"]
             isOneToOne: false
-            referencedRelation: "mover_lead_view"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "lead_distributions_quote_id_fkey"
-            columns: ["quote_id"]
-            isOneToOne: false
             referencedRelation: "quotes"
             referencedColumns: ["id"]
           },
@@ -3365,13 +3197,6 @@ export type Database = {
           uploaded_by_email?: string | null
         }
         Relationships: [
-          {
-            foreignKeyName: "lead_documents_quote_id_fkey"
-            columns: ["quote_id"]
-            isOneToOne: false
-            referencedRelation: "mover_lead_view"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "lead_documents_quote_id_fkey"
             columns: ["quote_id"]
@@ -3446,13 +3271,6 @@ export type Database = {
             foreignKeyName: "lead_events_quote_id_fkey"
             columns: ["quote_id"]
             isOneToOne: false
-            referencedRelation: "mover_lead_view"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "lead_events_quote_id_fkey"
-            columns: ["quote_id"]
-            isOneToOne: false
             referencedRelation: "quotes"
             referencedColumns: ["id"]
           },
@@ -3511,13 +3329,6 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "lead_tasks_quote_id_fkey"
-            columns: ["quote_id"]
-            isOneToOne: false
-            referencedRelation: "mover_lead_view"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "lead_tasks_quote_id_fkey"
             columns: ["quote_id"]
@@ -4491,13 +4302,6 @@ export type Database = {
             foreignKeyName: "quote_assignments_quote_id_fkey"
             columns: ["quote_id"]
             isOneToOne: false
-            referencedRelation: "mover_lead_view"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "quote_assignments_quote_id_fkey"
-            columns: ["quote_id"]
-            isOneToOne: false
             referencedRelation: "quotes"
             referencedColumns: ["id"]
           },
@@ -4529,13 +4333,6 @@ export type Database = {
           quote_id?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "quote_notes_quote_id_fkey"
-            columns: ["quote_id"]
-            isOneToOne: false
-            referencedRelation: "mover_lead_view"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "quote_notes_quote_id_fkey"
             columns: ["quote_id"]
@@ -4574,13 +4371,6 @@ export type Database = {
           to_status?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "quote_status_history_quote_id_fkey"
-            columns: ["quote_id"]
-            isOneToOne: false
-            referencedRelation: "mover_lead_view"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "quote_status_history_quote_id_fkey"
             columns: ["quote_id"]
@@ -5493,15 +5283,7 @@ export type Database = {
           unlocked?: never
           unpacking?: boolean | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "quotes_assigned_company_id_fkey"
-            columns: ["assigned_company_id"]
-            isOneToOne: false
-            referencedRelation: "moving_companies"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
     }
     Functions: {

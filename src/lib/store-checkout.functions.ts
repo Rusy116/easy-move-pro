@@ -45,11 +45,35 @@ async function resolveStripeProduct(
  * Resolves a Stripe Customer for the buyer's email so repeat purchases share
  * one customer record (searchable payment history, receipts, refunds).
  */
-async function resolveStripeCustomer(stripe: any, email: string): Promise<string | undefined> {
+async function resolveStripeCustomer(
+  stripe: any,
+  email: string,
+  userId?: string | null,
+): Promise<string | undefined> {
   try {
+    // A signed-in buyer is keyed by userId first: emails change, ids don't.
+    if (userId && /^[a-zA-Z0-9_-]+$/.test(userId)) {
+      const found = await stripe.customers.search({
+        query: `metadata['userId']:'${userId}'`,
+        limit: 1,
+      });
+      if (found.data.length) return found.data[0].id;
+    }
     const existing = await stripe.customers.list({ email, limit: 1 });
-    if (existing.data.length) return existing.data[0].id;
-    const created = await stripe.customers.create({ email });
+    if (existing.data.length) {
+      const customer = existing.data[0];
+      // Backfill so later Stripe-side lookups by user resolve.
+      if (userId && customer.metadata?.userId !== userId) {
+        await stripe.customers.update(customer.id, {
+          metadata: { ...customer.metadata, userId },
+        });
+      }
+      return customer.id;
+    }
+    const created = await stripe.customers.create({
+      email,
+      ...(userId ? { metadata: { userId } } : {}),
+    });
     return created.id;
   } catch (error) {
     console.error("[store-checkout] customer resolve failed:", error);
@@ -115,7 +139,9 @@ export const createStoreCheckout = createServerFn({ method: "POST" })
   .handler(async ({ data }): Promise<CheckoutResult> => {
     const { createStripeClient, getStripeErrorMessage } = await import("@/lib/stripe.server");
     const { admin, newOrderNumber } = await import("@/lib/store/orders.server");
+    const { resolveBuyerUserId } = await import("@/lib/store/buyer.server");
     const db = await admin();
+    const userId = await resolveBuyerUserId();
 
     const { data: rows } = await db
       .from("pdf_products")
@@ -150,7 +176,7 @@ export const createStoreCheckout = createServerFn({ method: "POST" })
         });
       }
 
-      const customerId = await resolveStripeCustomer(stripe, data.email);
+      const customerId = await resolveStripeCustomer(stripe, data.email, userId);
       const description =
         products.length === 1
           ? products[0].title
@@ -168,6 +194,7 @@ export const createStoreCheckout = createServerFn({ method: "POST" })
           order_number: orderNumber,
           product_slug: products[0].slug,
           item_count: String(products.length),
+          ...(userId ? { userId } : {}),
           managed_payments: "true",
         },
       } as any);
@@ -187,6 +214,7 @@ export const createStoreCheckout = createServerFn({ method: "POST" })
           environment: data.environment,
           stripe_session_id: session.id,
           stripe_customer_id: customerId ?? null,
+          user_id: userId,
         })
         .select("id")
         .maybeSingle();
@@ -340,7 +368,9 @@ export const claimFreeProducts = createServerFn({ method: "POST" })
     const { admin, newOrderNumber, signDownloadToken, siteOrigin } = await import(
       "@/lib/store/orders.server"
     );
+    const { resolveBuyerUserId } = await import("@/lib/store/buyer.server");
     const db = await admin();
+    const userId = await resolveBuyerUserId();
 
     const { data: rows } = await db
       .from("pdf_products")
@@ -371,6 +401,7 @@ export const claimFreeProducts = createServerFn({ method: "POST" })
         amount_cents: 0,
         currency: "usd",
         status: "pending",
+        user_id: userId,
       })
       .select("id")
       .maybeSingle();

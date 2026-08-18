@@ -36,6 +36,7 @@ import { Route as ForMoversRouteImport } from './routes/for-movers'
 import { Route as ExclusiveMovingLeadsRouteImport } from './routes/exclusive-moving-leads'
 import { Route as DownloadRouteImport } from './routes/download'
 import { Route as ContactRouteImport } from './routes/contact'
+import { Route as CartRouteImport } from './routes/cart'
 import { Route as CalculatorRouteImport } from './routes/calculator'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AiToolsRouteImport } from './routes/ai-tools'
@@ -292,6 +293,11 @@ const DownloadRoute = DownloadRouteImport.update({
 const ContactRoute = ContactRouteImport.update({
   id: '/contact',
   path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CartRoute = CartRouteImport.update({
+  id: '/cart',
+  path: '/cart',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CalculatorRoute = CalculatorRouteImport.update({
@@ -969,6 +975,7 @@ export interface FileRoutesByFullPath {
   '/ai-tools': typeof AiToolsRoute
   '/auth': typeof AuthRoute
   '/calculator': typeof CalculatorRoute
+  '/cart': typeof CartRoute
   '/contact': typeof ContactRoute
   '/download': typeof DownloadRoute
   '/exclusive-moving-leads': typeof ExclusiveMovingLeadsRoute
@@ -1117,6 +1124,7 @@ export interface FileRoutesByTo {
   '/ai-tools': typeof AiToolsRoute
   '/auth': typeof AuthRoute
   '/calculator': typeof CalculatorRoute
+  '/cart': typeof CartRoute
   '/contact': typeof ContactRoute
   '/download': typeof DownloadRoute
   '/exclusive-moving-leads': typeof ExclusiveMovingLeadsRoute
@@ -1266,6 +1274,7 @@ export interface FileRoutesById {
   '/ai-tools': typeof AiToolsRoute
   '/auth': typeof AuthRoute
   '/calculator': typeof CalculatorRoute
+  '/cart': typeof CartRoute
   '/contact': typeof ContactRoute
   '/download': typeof DownloadRoute
   '/exclusive-moving-leads': typeof ExclusiveMovingLeadsRoute
@@ -1416,6 +1425,7 @@ export interface FileRouteTypes {
     | '/ai-tools'
     | '/auth'
     | '/calculator'
+    | '/cart'
     | '/contact'
     | '/download'
     | '/exclusive-moving-leads'
@@ -1564,6 +1574,7 @@ export interface FileRouteTypes {
     | '/ai-tools'
     | '/auth'
     | '/calculator'
+    | '/cart'
     | '/contact'
     | '/download'
     | '/exclusive-moving-leads'
@@ -1712,6 +1723,7 @@ export interface FileRouteTypes {
     | '/ai-tools'
     | '/auth'
     | '/calculator'
+    | '/cart'
     | '/contact'
     | '/download'
     | '/exclusive-moving-leads'
@@ -1862,6 +1874,7 @@ export interface RootRouteChildren {
   AiToolsRoute: typeof AiToolsRoute
   AuthRoute: typeof AuthRoute
   CalculatorRoute: typeof CalculatorRoute
+  CartRoute: typeof CartRoute
   ContactRoute: typeof ContactRoute
   DownloadRoute: typeof DownloadRoute
   ExclusiveMovingLeadsRoute: typeof ExclusiveMovingLeadsRoute
@@ -2111,6 +2124,13 @@ declare module '@tanstack/react-router' {
       path: '/contact'
       fullPath: '/contact'
       preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cart': {
+      id: '/cart'
+      path: '/cart'
+      fullPath: '/cart'
+      preLoaderRoute: typeof CartRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/calculator': {
@@ -3149,6 +3169,7 @@ const rootRouteChildren: RootRouteChildren = {
   AiToolsRoute: AiToolsRoute,
   AuthRoute: AuthRoute,
   CalculatorRoute: CalculatorRoute,
+  CartRoute: CartRoute,
   ContactRoute: ContactRoute,
   DownloadRoute: DownloadRoute,
   ExclusiveMovingLeadsRoute: ExclusiveMovingLeadsRoute,

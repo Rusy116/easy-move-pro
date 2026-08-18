@@ -19,7 +19,16 @@ export interface CheckoutLine {
  * checkout, free lead magnets are delivered straight away against the same
  * email capture (no account required).
  */
-export function CheckoutForm({ lines, fromCart }: { lines: CheckoutLine[]; fromCart?: boolean }) {
+export function CheckoutForm({
+  lines,
+  fromCart,
+  onStarted,
+}: {
+  lines: CheckoutLine[];
+  fromCart?: boolean;
+  /** Fired the moment checkout starts so the parent can freeze the line items. */
+  onStarted?: () => void;
+}) {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");

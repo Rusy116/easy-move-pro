@@ -36,7 +36,7 @@ function CartCheckoutPage() {
       <PaymentTestModeBanner />
       <section className="mx-auto grid max-w-5xl gap-8 px-4 py-10 sm:px-6 lg:grid-cols-[1fr_360px] lg:py-14">
         <div className="order-2 lg:order-1">
-          {cart.lines.length === 0 ? (
+          {lines.length === 0 ? (
             <div className="card-premium p-10 text-center">
               <p className="font-serif text-xl">Your cart is empty</p>
               <Link to="/products" className="mt-4 inline-block">
@@ -46,7 +46,8 @@ function CartCheckoutPage() {
           ) : (
             <CheckoutForm
               fromCart
-              lines={cart.lines.map((l) => ({
+              onStarted={() => setFrozen(live.lines)}
+              lines={lines.map((l) => ({
                 slug: l.slug,
                 title: l.title,
                 priceCents: l.priceCents,

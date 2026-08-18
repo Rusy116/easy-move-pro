@@ -2127,15 +2127,6 @@ function InventoryBuilder({
       return next;
     });
   };
-  const setQty = (id: string, qty: number) => {
-    onChange((prev) => {
-      const next = { ...prev };
-      if (qty <= 0) delete next[id];
-      else next[id] = qty;
-      return next;
-    });
-  };
-  void setQty;
 
   return (
     <div className="rounded-xl border border-border bg-card">

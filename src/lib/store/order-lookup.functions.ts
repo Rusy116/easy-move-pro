@@ -2,9 +2,9 @@
 // Digital store — guest order recovery.
 //
 // A buyer who lost their download link enters their email; we email fresh,
-// signed links for every paid order on that address. The response is always
-// identical so the endpoint can never be used to test whether an address
-// bought something (no account enumeration).
+// signed links for every product on every paid order for that address. The
+// response is always identical so the endpoint can never be used to test
+// whether an address bought something (no account enumeration).
 // ---------------------------------------------------------------------------
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { createServerFn } from "@tanstack/react-start";
@@ -25,6 +25,7 @@ export const requestOrderLinks = createServerFn({ method: "POST" })
   })
   .handler(async ({ data }) => {
     const { admin, signDownloadToken, siteOrigin } = await import("@/lib/store/orders.server");
+    const { loadOrderItems } = await import("@/lib/store/items.server");
     const { sendOrderDownloadEmail } = await import("@/lib/store/email.server");
     const db = await admin();
 
@@ -38,24 +39,30 @@ export const requestOrderLinks = createServerFn({ method: "POST" })
 
     const origin = siteOrigin();
     let delivered = 0;
+    let found = 0;
 
     for (const order of (orders ?? []) as any[]) {
-      const token = await signDownloadToken(order.id, order.product_slug);
-      const result = await sendOrderDownloadEmail({
-        to: order.email,
-        firstName: order.first_name,
-        productTitle: order.product_title,
-        orderNumber: order.order_number,
-        downloadUrl: `${origin}/download?t=${token}`,
-        accountUrl: `${origin}/auth?signup=1&email=${encodeURIComponent(order.email)}`,
-      });
-      if (result.sent) delivered += 1;
+      const items = await loadOrderItems(db, order);
+      for (const item of items) {
+        found += 1;
+        const token = await signDownloadToken(order.id, item.slug);
+        const result = await sendOrderDownloadEmail({
+          to: order.email,
+          firstName: order.first_name,
+          productTitle: item.title,
+          orderNumber:
+            items.length > 1 ? `${order.order_number}-${item.slug}` : order.order_number,
+          downloadUrl: `${origin}/download?t=${token}`,
+          accountUrl: `${origin}/auth?signup=1&email=${encodeURIComponent(order.email)}`,
+        });
+        if (result.sent) delivered += 1;
+      }
     }
 
     // Sending is not configured yet (or the address is suppressed): tell the
     // buyer honestly rather than leaving them waiting on an email that will
     // never arrive.
-    if ((orders?.length ?? 0) > 0 && delivered === 0) {
+    if (found > 0 && delivered === 0) {
       return {
         ok: true as const,
         message:

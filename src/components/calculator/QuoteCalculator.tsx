@@ -556,9 +556,9 @@ export function QuoteCalculator(
         // Fall back to city/state/zip when the customer typed an address
         // without picking a Places suggestion (fullAddress stays empty).
         origin_address:
-          withUnit(o.fullAddress || [o.city, o.state].filter(Boolean).join(", "), o.unit) || null,
+          composeAddress(o) || null,
         destination_address:
-          withUnit(d.fullAddress || [d.city, d.state].filter(Boolean).join(", "), d.unit) || null,
+          composeAddress(d) || null,
         origin_lat: o.lat,
         origin_lng: o.lng,
         destination_lat: d.lat,

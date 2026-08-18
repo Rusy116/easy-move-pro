@@ -4851,6 +4851,44 @@ export type Database = {
         }
         Relationships: []
       }
+      store_download_tokens: {
+        Row: {
+          created_at: string
+          expires_at: string
+          id: string
+          order_id: string
+          product_slug: string
+          revoked_at: string | null
+          token_hash: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at: string
+          id?: string
+          order_id: string
+          product_slug: string
+          revoked_at?: string | null
+          token_hash: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          order_id?: string
+          product_slug?: string
+          revoked_at?: string | null
+          token_hash?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "store_download_tokens_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "store_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       store_order_items: {
         Row: {
           amount_cents: number

@@ -56,21 +56,72 @@ export interface DownloadClaim {
   e: number;
 }
 
-/** Signs an order-scoped, time-limited download token. */
+async function sha256Hex(value: string): Promise<string> {
+  const digest = await crypto.subtle.digest("SHA-256", encoder.encode(value));
+  return Array.from(new Uint8Array(digest))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+/**
+ * Signs an order-scoped, time-limited download token and records it so the
+ * link keeps working even if the HMAC secret differs between environments.
+ */
 export async function signDownloadToken(
   orderId: string,
   slug: string,
   ttlMs = DOWNLOAD_TTL_MS,
 ): Promise<string> {
-  const claim: DownloadClaim = { o: orderId, s: slug, e: Date.now() + ttlMs };
+  const expiresAt = Date.now() + ttlMs;
+  const claim: DownloadClaim = { o: orderId, s: slug, e: expiresAt };
   const payload = b64url(encoder.encode(JSON.stringify(claim)));
-  return `${payload}.${await hmac(payload)}`;
+  const token = `${payload}.${await hmac(payload)}`;
+
+  // Persisted so verification never depends on a per-environment secret.
+  try {
+    const db = await admin();
+    await db.from("store_download_tokens").upsert(
+      {
+        token_hash: await sha256Hex(token),
+        order_id: orderId,
+        product_slug: slug,
+        expires_at: new Date(expiresAt).toISOString(),
+      },
+      { onConflict: "token_hash" },
+    );
+  } catch (error) {
+    console.error("[orders] could not persist download token:", error);
+  }
+
+  return token;
 }
 
 /** Verifies a download token. Returns null for tampered or expired tokens. */
 export async function verifyDownloadToken(token: string): Promise<DownloadClaim | null> {
-  const [payload, signature] = String(token ?? "").split(".");
+  const raw = String(token ?? "").trim();
+  const [payload, signature] = raw.split(".");
   if (!payload || !signature) return null;
+
+  // 1) Stored token (authoritative, environment-independent).
+  try {
+    const db = await admin();
+    const { data: row } = await db
+      .from("store_download_tokens")
+      .select("order_id,product_slug,expires_at,revoked_at")
+      .eq("token_hash", await sha256Hex(raw))
+      .maybeSingle();
+    if (row && !row.revoked_at) {
+      const expiry = new Date(row.expires_at).getTime();
+      if (Date.now() <= expiry) {
+        return { o: row.order_id, s: row.product_slug, e: expiry };
+      }
+      return null;
+    }
+  } catch (error) {
+    console.error("[orders] download token lookup failed:", error);
+  }
+
+  // 2) Legacy/unstored tokens: fall back to HMAC verification.
   const expected = await hmac(payload);
   if (expected.length !== signature.length) return null;
   // constant-time compare
@@ -88,6 +139,7 @@ export async function verifyDownloadToken(token: string): Promise<DownloadClaim 
     return null;
   }
 }
+
 
 /** EM-PDF-YYYY-XXXXXX */
 export function newOrderNumber(): string {

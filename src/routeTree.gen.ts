@@ -71,6 +71,7 @@ import { Route as AuthenticatedCompanyRouteImport } from './routes/_authenticate
 import { Route as StateCityRouteImport } from './routes/$state.$city'
 import { Route as AuthenticatedCustomerIndexRouteImport } from './routes/_authenticated/customer.index'
 import { Route as AuthenticatedCompanyIndexRouteImport } from './routes/_authenticated/company.index'
+import { Route as AuthenticatedClientIndexRouteImport } from './routes/_authenticated/client.index'
 import { Route as AuthenticatedBrokerIndexRouteImport } from './routes/_authenticated/broker.index'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as ProductsCategorySlugRouteImport } from './routes/products.category.$slug'
@@ -474,6 +475,12 @@ const AuthenticatedCompanyIndexRoute =
     id: '/',
     path: '/',
     getParentRoute: () => AuthenticatedCompanyRoute,
+  } as any)
+const AuthenticatedClientIndexRoute =
+  AuthenticatedClientIndexRouteImport.update({
+    id: '/client/',
+    path: '/client/',
+    getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedBrokerIndexRoute =
   AuthenticatedBrokerIndexRouteImport.update({
@@ -1137,6 +1144,7 @@ export interface FileRoutesByFullPath {
   '/products/category/$slug': typeof ProductsCategorySlugRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/broker/': typeof AuthenticatedBrokerIndexRoute
+  '/client/': typeof AuthenticatedClientIndexRoute
   '/company/': typeof AuthenticatedCompanyIndexRoute
   '/customer/': typeof AuthenticatedCustomerIndexRoute
   '/admin/job/$quoteId': typeof AuthenticatedAdminJobQuoteIdRoute
@@ -1289,6 +1297,7 @@ export interface FileRoutesByTo {
   '/products/category/$slug': typeof ProductsCategorySlugRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/broker': typeof AuthenticatedBrokerIndexRoute
+  '/client': typeof AuthenticatedClientIndexRoute
   '/company': typeof AuthenticatedCompanyIndexRoute
   '/customer': typeof AuthenticatedCustomerIndexRoute
   '/admin/job/$quoteId': typeof AuthenticatedAdminJobQuoteIdRoute
@@ -1444,6 +1453,7 @@ export interface FileRoutesById {
   '/products/category/$slug': typeof ProductsCategorySlugRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/broker/': typeof AuthenticatedBrokerIndexRoute
+  '/_authenticated/client/': typeof AuthenticatedClientIndexRoute
   '/_authenticated/company/': typeof AuthenticatedCompanyIndexRoute
   '/_authenticated/customer/': typeof AuthenticatedCustomerIndexRoute
   '/_authenticated/admin/job/$quoteId': typeof AuthenticatedAdminJobQuoteIdRoute
@@ -1599,6 +1609,7 @@ export interface FileRouteTypes {
     | '/products/category/$slug'
     | '/admin/'
     | '/broker/'
+    | '/client/'
     | '/company/'
     | '/customer/'
     | '/admin/job/$quoteId'
@@ -1751,6 +1762,7 @@ export interface FileRouteTypes {
     | '/products/category/$slug'
     | '/admin'
     | '/broker'
+    | '/client'
     | '/company'
     | '/customer'
     | '/admin/job/$quoteId'
@@ -1905,6 +1917,7 @@ export interface FileRouteTypes {
     | '/products/category/$slug'
     | '/_authenticated/admin/'
     | '/_authenticated/broker/'
+    | '/_authenticated/client/'
     | '/_authenticated/company/'
     | '/_authenticated/customer/'
     | '/_authenticated/admin/job/$quoteId'
@@ -2423,6 +2436,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/company/'
       preLoaderRoute: typeof AuthenticatedCompanyIndexRouteImport
       parentRoute: typeof AuthenticatedCompanyRoute
+    }
+    '/_authenticated/client/': {
+      id: '/_authenticated/client/'
+      path: '/client'
+      fullPath: '/client/'
+      preLoaderRoute: typeof AuthenticatedClientIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/broker/': {
       id: '/_authenticated/broker/'
@@ -3177,6 +3197,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedCustomerSettingsRoute: typeof AuthenticatedCustomerSettingsRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
   AuthenticatedBrokerIndexRoute: typeof AuthenticatedBrokerIndexRoute
+  AuthenticatedClientIndexRoute: typeof AuthenticatedClientIndexRoute
   AuthenticatedCustomerIndexRoute: typeof AuthenticatedCustomerIndexRoute
   AuthenticatedAdminJobQuoteIdRoute: typeof AuthenticatedAdminJobQuoteIdRoute
 }
@@ -3240,6 +3261,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedCustomerSettingsRoute: AuthenticatedCustomerSettingsRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
   AuthenticatedBrokerIndexRoute: AuthenticatedBrokerIndexRoute,
+  AuthenticatedClientIndexRoute: AuthenticatedClientIndexRoute,
   AuthenticatedCustomerIndexRoute: AuthenticatedCustomerIndexRoute,
   AuthenticatedAdminJobQuoteIdRoute: AuthenticatedAdminJobQuoteIdRoute,
 }

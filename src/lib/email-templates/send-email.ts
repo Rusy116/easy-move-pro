@@ -37,9 +37,12 @@ export async function sendTemplateEmail(
   to: string,
   options: SendTemplateEmailOptions = {}
 ): Promise<SendTemplateEmailResult> {
+  // Production (external runtime, e.g. Vercel) uses Resend directly.
+  // Lovable preview/hosting keeps using the managed email API.
+  const resendApiKey = process.env['RESEND_API_KEY']
   const apiKey = process.env['LOVABLE_API_KEY']
-  if (!apiKey) {
-    throw new Error('LOVABLE_API_KEY is not configured')
+  if (!resendApiKey && !apiKey) {
+    throw new Error('No email provider configured (set RESEND_API_KEY or LOVABLE_API_KEY)')
   }
 
   const template = TEMPLATES[templateName]

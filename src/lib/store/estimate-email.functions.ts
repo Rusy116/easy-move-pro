@@ -47,12 +47,16 @@ export const sendCalculatorEstimateEmail = createServerFn({ method: "POST" })
       .eq("quote_number", data.quoteNumber)
       .maybeSingle();
 
-    if (!quote || !quote.portal_token || quote.portal_token !== data.token) {
-      return { sent: false, reason: "not_authorized" };
+    if (quoteError) {
+      console.error("[estimate] quote lookup failed:", quoteError);
+      return skip(`lookup_failed:${quoteError.message.slice(0, 120)}`);
     }
-    if (!quote.contact_email) return { sent: false, reason: "no_email" };
+    if (!quote || !quote.portal_token || quote.portal_token !== data.token) {
+      return skip("not_authorized");
+    }
+    if (!quote.contact_email) return skip("no_email");
     // Guard against duplicate sends (double submit, client retry, re-render).
-    if (quote.estimate_email_sent_at) return { sent: false, reason: "already_sent" };
+    if (quote.estimate_email_sent_at) return skip("already_sent", quote.contact_email);
 
     const usd = (cents: number) =>
       new Intl.NumberFormat("en-US", {

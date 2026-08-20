@@ -71,6 +71,7 @@ import { Route as AuthenticatedCompanyRouteImport } from './routes/_authenticate
 import { Route as StateCityRouteImport } from './routes/$state.$city'
 import { Route as AuthenticatedCustomerIndexRouteImport } from './routes/_authenticated/customer.index'
 import { Route as AuthenticatedCompanyIndexRouteImport } from './routes/_authenticated/company.index'
+import { Route as AuthenticatedClientIndexRouteImport } from './routes/_authenticated/client.index'
 import { Route as AuthenticatedBrokerIndexRouteImport } from './routes/_authenticated/broker.index'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as ProductsCategorySlugRouteImport } from './routes/products.category.$slug'
@@ -109,6 +110,7 @@ import { Route as AuthenticatedCompanyCustomersRouteImport } from './routes/_aut
 import { Route as AuthenticatedCompanyCurrentRouteImport } from './routes/_authenticated/company.current'
 import { Route as AuthenticatedCompanyCompletedRouteImport } from './routes/_authenticated/company.completed'
 import { Route as AuthenticatedCompanyAnalyticsRouteImport } from './routes/_authenticated/company.analytics'
+import { Route as AuthenticatedClientSplatRouteImport } from './routes/_authenticated/client.$'
 import { Route as AuthenticatedBrokerPerformanceRouteImport } from './routes/_authenticated/broker.performance'
 import { Route as AuthenticatedBrokerLeadsRouteImport } from './routes/_authenticated/broker.leads'
 import { Route as AuthenticatedBrokerDashboardRouteImport } from './routes/_authenticated/broker.dashboard'
@@ -475,6 +477,12 @@ const AuthenticatedCompanyIndexRoute =
     path: '/',
     getParentRoute: () => AuthenticatedCompanyRoute,
   } as any)
+const AuthenticatedClientIndexRoute =
+  AuthenticatedClientIndexRouteImport.update({
+    id: '/client/',
+    path: '/client/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedBrokerIndexRoute =
   AuthenticatedBrokerIndexRouteImport.update({
     id: '/broker/',
@@ -698,6 +706,12 @@ const AuthenticatedCompanyAnalyticsRoute =
     id: '/analytics',
     path: '/analytics',
     getParentRoute: () => AuthenticatedCompanyRoute,
+  } as any)
+const AuthenticatedClientSplatRoute =
+  AuthenticatedClientSplatRouteImport.update({
+    id: '/client/$',
+    path: '/client/$',
+    getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedBrokerPerformanceRoute =
   AuthenticatedBrokerPerformanceRouteImport.update({
@@ -1099,6 +1113,7 @@ export interface FileRoutesByFullPath {
   '/broker/dashboard': typeof AuthenticatedBrokerDashboardRoute
   '/broker/leads': typeof AuthenticatedBrokerLeadsRoute
   '/broker/performance': typeof AuthenticatedBrokerPerformanceRoute
+  '/client/$': typeof AuthenticatedClientSplatRoute
   '/company/analytics': typeof AuthenticatedCompanyAnalyticsRoute
   '/company/completed': typeof AuthenticatedCompanyCompletedRoute
   '/company/current': typeof AuthenticatedCompanyCurrentRoute
@@ -1137,6 +1152,7 @@ export interface FileRoutesByFullPath {
   '/products/category/$slug': typeof ProductsCategorySlugRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/broker/': typeof AuthenticatedBrokerIndexRoute
+  '/client/': typeof AuthenticatedClientIndexRoute
   '/company/': typeof AuthenticatedCompanyIndexRoute
   '/customer/': typeof AuthenticatedCustomerIndexRoute
   '/admin/job/$quoteId': typeof AuthenticatedAdminJobQuoteIdRoute
@@ -1251,6 +1267,7 @@ export interface FileRoutesByTo {
   '/broker/dashboard': typeof AuthenticatedBrokerDashboardRoute
   '/broker/leads': typeof AuthenticatedBrokerLeadsRoute
   '/broker/performance': typeof AuthenticatedBrokerPerformanceRoute
+  '/client/$': typeof AuthenticatedClientSplatRoute
   '/company/analytics': typeof AuthenticatedCompanyAnalyticsRoute
   '/company/completed': typeof AuthenticatedCompanyCompletedRoute
   '/company/current': typeof AuthenticatedCompanyCurrentRoute
@@ -1289,6 +1306,7 @@ export interface FileRoutesByTo {
   '/products/category/$slug': typeof ProductsCategorySlugRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/broker': typeof AuthenticatedBrokerIndexRoute
+  '/client': typeof AuthenticatedClientIndexRoute
   '/company': typeof AuthenticatedCompanyIndexRoute
   '/customer': typeof AuthenticatedCustomerIndexRoute
   '/admin/job/$quoteId': typeof AuthenticatedAdminJobQuoteIdRoute
@@ -1406,6 +1424,7 @@ export interface FileRoutesById {
   '/_authenticated/broker/dashboard': typeof AuthenticatedBrokerDashboardRoute
   '/_authenticated/broker/leads': typeof AuthenticatedBrokerLeadsRoute
   '/_authenticated/broker/performance': typeof AuthenticatedBrokerPerformanceRoute
+  '/_authenticated/client/$': typeof AuthenticatedClientSplatRoute
   '/_authenticated/company/analytics': typeof AuthenticatedCompanyAnalyticsRoute
   '/_authenticated/company/completed': typeof AuthenticatedCompanyCompletedRoute
   '/_authenticated/company/current': typeof AuthenticatedCompanyCurrentRoute
@@ -1444,6 +1463,7 @@ export interface FileRoutesById {
   '/products/category/$slug': typeof ProductsCategorySlugRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/broker/': typeof AuthenticatedBrokerIndexRoute
+  '/_authenticated/client/': typeof AuthenticatedClientIndexRoute
   '/_authenticated/company/': typeof AuthenticatedCompanyIndexRoute
   '/_authenticated/customer/': typeof AuthenticatedCustomerIndexRoute
   '/_authenticated/admin/job/$quoteId': typeof AuthenticatedAdminJobQuoteIdRoute
@@ -1561,6 +1581,7 @@ export interface FileRouteTypes {
     | '/broker/dashboard'
     | '/broker/leads'
     | '/broker/performance'
+    | '/client/$'
     | '/company/analytics'
     | '/company/completed'
     | '/company/current'
@@ -1599,6 +1620,7 @@ export interface FileRouteTypes {
     | '/products/category/$slug'
     | '/admin/'
     | '/broker/'
+    | '/client/'
     | '/company/'
     | '/customer/'
     | '/admin/job/$quoteId'
@@ -1713,6 +1735,7 @@ export interface FileRouteTypes {
     | '/broker/dashboard'
     | '/broker/leads'
     | '/broker/performance'
+    | '/client/$'
     | '/company/analytics'
     | '/company/completed'
     | '/company/current'
@@ -1751,6 +1774,7 @@ export interface FileRouteTypes {
     | '/products/category/$slug'
     | '/admin'
     | '/broker'
+    | '/client'
     | '/company'
     | '/customer'
     | '/admin/job/$quoteId'
@@ -1867,6 +1891,7 @@ export interface FileRouteTypes {
     | '/_authenticated/broker/dashboard'
     | '/_authenticated/broker/leads'
     | '/_authenticated/broker/performance'
+    | '/_authenticated/client/$'
     | '/_authenticated/company/analytics'
     | '/_authenticated/company/completed'
     | '/_authenticated/company/current'
@@ -1905,6 +1930,7 @@ export interface FileRouteTypes {
     | '/products/category/$slug'
     | '/_authenticated/admin/'
     | '/_authenticated/broker/'
+    | '/_authenticated/client/'
     | '/_authenticated/company/'
     | '/_authenticated/customer/'
     | '/_authenticated/admin/job/$quoteId'
@@ -2424,6 +2450,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCompanyIndexRouteImport
       parentRoute: typeof AuthenticatedCompanyRoute
     }
+    '/_authenticated/client/': {
+      id: '/_authenticated/client/'
+      path: '/client'
+      fullPath: '/client/'
+      preLoaderRoute: typeof AuthenticatedClientIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/broker/': {
       id: '/_authenticated/broker/'
       path: '/broker'
@@ -2689,6 +2722,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/company/analytics'
       preLoaderRoute: typeof AuthenticatedCompanyAnalyticsRouteImport
       parentRoute: typeof AuthenticatedCompanyRoute
+    }
+    '/_authenticated/client/$': {
+      id: '/_authenticated/client/$'
+      path: '/client/$'
+      fullPath: '/client/$'
+      preLoaderRoute: typeof AuthenticatedClientSplatRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/broker/performance': {
       id: '/_authenticated/broker/performance'
@@ -3165,6 +3205,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedBrokerDashboardRoute: typeof AuthenticatedBrokerDashboardRoute
   AuthenticatedBrokerLeadsRoute: typeof AuthenticatedBrokerLeadsRoute
   AuthenticatedBrokerPerformanceRoute: typeof AuthenticatedBrokerPerformanceRoute
+  AuthenticatedClientSplatRoute: typeof AuthenticatedClientSplatRoute
   AuthenticatedCustomerDashboardRoute: typeof AuthenticatedCustomerDashboardRoute
   AuthenticatedCustomerDocumentsRoute: typeof AuthenticatedCustomerDocumentsRoute
   AuthenticatedCustomerLibraryRoute: typeof AuthenticatedCustomerLibraryRoute
@@ -3177,6 +3218,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedCustomerSettingsRoute: typeof AuthenticatedCustomerSettingsRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
   AuthenticatedBrokerIndexRoute: typeof AuthenticatedBrokerIndexRoute
+  AuthenticatedClientIndexRoute: typeof AuthenticatedClientIndexRoute
   AuthenticatedCustomerIndexRoute: typeof AuthenticatedCustomerIndexRoute
   AuthenticatedAdminJobQuoteIdRoute: typeof AuthenticatedAdminJobQuoteIdRoute
 }
@@ -3227,6 +3269,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedBrokerDashboardRoute: AuthenticatedBrokerDashboardRoute,
   AuthenticatedBrokerLeadsRoute: AuthenticatedBrokerLeadsRoute,
   AuthenticatedBrokerPerformanceRoute: AuthenticatedBrokerPerformanceRoute,
+  AuthenticatedClientSplatRoute: AuthenticatedClientSplatRoute,
   AuthenticatedCustomerDashboardRoute: AuthenticatedCustomerDashboardRoute,
   AuthenticatedCustomerDocumentsRoute: AuthenticatedCustomerDocumentsRoute,
   AuthenticatedCustomerLibraryRoute: AuthenticatedCustomerLibraryRoute,
@@ -3240,6 +3283,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedCustomerSettingsRoute: AuthenticatedCustomerSettingsRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
   AuthenticatedBrokerIndexRoute: AuthenticatedBrokerIndexRoute,
+  AuthenticatedClientIndexRoute: AuthenticatedClientIndexRoute,
   AuthenticatedCustomerIndexRoute: AuthenticatedCustomerIndexRoute,
   AuthenticatedAdminJobQuoteIdRoute: AuthenticatedAdminJobQuoteIdRoute,
 }

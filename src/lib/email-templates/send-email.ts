@@ -68,11 +68,44 @@ export async function sendTemplateEmail(
       ? template.subject(templateData)
       : template.subject
 
+  const from = `${SITE_NAME} <noreply@${FROM_DOMAIN}>`
+
+  if (resendApiKey) {
+    // Server-side only. The key is never returned to the browser and never logged.
+    const response = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${resendApiKey}`,
+        'Content-Type': 'application/json',
+        // Same logical send retried => Resend dedupes instead of double-emailing.
+        'Idempotency-Key': options.idempotencyKey || crypto.randomUUID(),
+      },
+      body: JSON.stringify({
+        from,
+        to: [recipient],
+        subject,
+        html,
+        text,
+        ...(options.replyTo ? { reply_to: options.replyTo } : {}),
+      }),
+    })
+
+    if (!response.ok) {
+      const detail = await response.text().catch(() => '')
+      if (response.status === 422 && /suppress|bounce|complain/i.test(detail)) {
+        return { sent: false, reason: 'recipient_suppressed' }
+      }
+      throw new Error(`Resend send failed (${response.status}): ${detail.slice(0, 500)}`)
+    }
+
+    return { sent: true }
+  }
+
   try {
     await sendLovableEmail(
       {
         to: recipient,
-        from: `${SITE_NAME} <noreply@${FROM_DOMAIN}>`,
+        from,
         sender_domain: SENDER_DOMAIN,
         subject,
         html,
@@ -82,7 +115,7 @@ export async function sendTemplateEmail(
         idempotency_key: options.idempotencyKey || crypto.randomUUID(),
         reply_to: options.replyTo,
       },
-      { apiKey, sendUrl: process.env['LOVABLE_SEND_URL'] }
+      { apiKey: apiKey as string, sendUrl: process.env['LOVABLE_SEND_URL'] }
     )
   } catch (error) {
     if (error instanceof EmailAPIError && error.code === 'recipient_suppressed') {

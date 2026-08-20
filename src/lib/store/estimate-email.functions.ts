@@ -36,7 +36,7 @@ export const sendCalculatorEstimateEmail = createServerFn({ method: "POST" })
     const { sendEstimateEmail } = await import("@/lib/store/email.server");
     const db = await admin();
 
-    const { data: quote } = await db
+    const { data: quote, error: quoteError } = await db
       .from("quotes")
       .select(
         "id,quote_number,portal_token,contact_email,contact_phone,details,estimated_low,estimated_high," +

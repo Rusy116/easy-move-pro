@@ -14,7 +14,24 @@ export const sendCalculatorEstimateEmail = createServerFn({ method: "POST" })
     token: String(d.token ?? "").trim().slice(0, 200),
   }))
   .handler(async ({ data }): Promise<{ sent: boolean; reason?: string }> => {
-    if (!data.quoteNumber || !data.token) return { sent: false, reason: "invalid" };
+    const { logDelivery } = await import("@/lib/notify/deliveries.server");
+    // Every early exit is audited too — a moving request must never fail to
+    // email the customer without a visible trace.
+    const skip = async (reason: string, recipient = "") => {
+      console.warn(`[estimate] email skipped for ${data.quoteNumber || "(no quote)"}: ${reason}`);
+      await logDelivery({
+        channel: "email",
+        template: "moving-estimate",
+        recipient: recipient || "unknown@unknown",
+        status: "skipped",
+        reason,
+        refType: "quote",
+        idempotencyKey: `moving-estimate-${data.quoteNumber}`,
+      });
+      return { sent: false, reason };
+    };
+
+    if (!data.quoteNumber || !data.token) return skip("invalid");
     const { admin, siteOrigin } = await import("@/lib/store/orders.server");
     const { sendEstimateEmail } = await import("@/lib/store/email.server");
     const db = await admin();

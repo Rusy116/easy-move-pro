@@ -16,9 +16,22 @@ export function getConnectionApiKey(env: StripeEnv): string {
     : getEnv('STRIPE_LIVE_API_KEY');
 }
 
-/** Routes api.stripe.com requests through the Lovable connector gateway. */
+/** True for real Stripe secret keys (external runtimes talk to Stripe directly). */
+function isDirectStripeKey(key: string): boolean {
+  return key.startsWith('sk_') || key.startsWith('rk_');
+}
+
+/**
+ * Talks to Stripe directly when a real secret key is configured (Vercel production),
+ * otherwise routes api.stripe.com requests through the Lovable connector gateway.
+ */
 export function createStripeClient(env: StripeEnv): Stripe {
   const connectionApiKey = getConnectionApiKey(env);
+
+  if (isDirectStripeKey(connectionApiKey)) {
+    return new Stripe(connectionApiKey, { apiVersion: '2026-03-25.dahlia' });
+  }
+
   const lovableApiKey = getEnv('LOVABLE_API_KEY');
 
   return new Stripe(connectionApiKey, {

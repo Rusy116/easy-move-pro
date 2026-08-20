@@ -79,8 +79,17 @@ export async function fulfilOrder(
     }
   }
 
-  if (!current.email_sent_at) {
+  // Only a confirmed-paid order ever triggers the purchase email; failed,
+  // cancelled and pending orders never reach this branch. email_sent_at makes
+  // webhook retries + return-page reconcile idempotent.
+  if (current.status === "paid" && !current.email_sent_at) {
     const origin = siteOrigin();
+    const usd = (cents: number) =>
+      new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: String(current.currency ?? "usd").toUpperCase(),
+        maximumFractionDigits: 2,
+      }).format(Number(cents ?? 0) / 100);
     let anySent = false;
     for (const item of items) {
       const result = await sendOrderDownloadEmail({
@@ -89,8 +98,12 @@ export async function fulfilOrder(
         productTitle: item.title,
         orderNumber:
           items.length > 1 ? `${current.order_number}-${item.slug}` : current.order_number,
+        paymentRef:
+          current.stripe_payment_intent ?? options.paymentIntent ?? current.stripe_session_id ?? null,
+        amountLabel: item.amountCents != null ? usd(item.amountCents) : null,
         downloadUrl: await getDownloadUrl(current.id, item.slug),
         accountUrl: `${origin}/auth?signup=1&email=${encodeURIComponent(current.email)}`,
+        loginUrl: `${origin}/auth`,
       });
       if (result.sent) anySent = true;
     }

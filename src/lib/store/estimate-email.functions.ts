@@ -101,6 +101,20 @@ export const sendCalculatorEstimateEmail = createServerFn({ method: "POST" })
         .eq("id", quote.id);
     }
 
+    // Existing internal admin notification stream (same table the Admin leads
+    // workspace already subscribes to) — a new moving request shows up live.
+    try {
+      await db.from("admin_notifications").insert({
+        type: "new_moving_request",
+        quote_id: quote.id,
+        message: `New moving request ${quote.quote_number} from ${
+          String((quote.details as any)?.fullName ?? "a customer")
+        }`,
+      });
+    } catch (error) {
+      console.error("[estimate] admin notification failed:", error);
+    }
+
     // Audit the delivery attempt so support can see whether the customer was
     // ever emailed, and re-send from the same server function if not.
     const { data: row } = await db

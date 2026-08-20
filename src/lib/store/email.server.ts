@@ -69,8 +69,11 @@ export function sendOrderDownloadEmail(input: {
   firstName?: string | null;
   productTitle: string;
   orderNumber: string;
+  paymentRef?: string | null;
+  amountLabel?: string | null;
   downloadUrl: string;
   accountUrl: string;
+  loginUrl: string;
 }): Promise<EmailResult> {
   return send(
     "order-download",
@@ -79,8 +82,11 @@ export function sendOrderDownloadEmail(input: {
       firstName: input.firstName ?? null,
       productTitle: input.productTitle,
       orderNumber: input.orderNumber,
+      paymentRef: input.paymentRef ?? null,
+      amountLabel: input.amountLabel ?? null,
       downloadUrl: input.downloadUrl,
       accountUrl: input.accountUrl,
+      loginUrl: input.loginUrl,
     },
     `order-download-${input.orderNumber}`,
   );
@@ -89,20 +95,36 @@ export function sendOrderDownloadEmail(input: {
 export function sendEstimateEmail(input: {
   to: string;
   firstName?: string | null;
+  fullName?: string | null;
   amountLabel: string;
   quoteNumber: string;
+  originLabel?: string | null;
+  destinationLabel?: string | null;
+  moveDateLabel?: string | null;
+  moveSizeLabel?: string | null;
+  distanceLabel?: string | null;
+  servicesLabel?: string | null;
   quoteUrl: string;
   accountUrl: string;
+  loginUrl: string;
 }): Promise<EmailResult> {
   return send(
     "moving-estimate",
     input.to,
     {
       firstName: input.firstName ?? null,
+      fullName: input.fullName ?? null,
       amountLabel: input.amountLabel,
       quoteNumber: input.quoteNumber,
+      originLabel: input.originLabel ?? null,
+      destinationLabel: input.destinationLabel ?? null,
+      moveDateLabel: input.moveDateLabel ?? null,
+      moveSizeLabel: input.moveSizeLabel ?? null,
+      distanceLabel: input.distanceLabel ?? null,
+      servicesLabel: input.servicesLabel ?? null,
       quoteUrl: input.quoteUrl,
       accountUrl: input.accountUrl,
+      loginUrl: input.loginUrl,
     },
     `moving-estimate-${input.quoteNumber}`,
   );

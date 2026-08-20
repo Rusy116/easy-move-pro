@@ -173,6 +173,8 @@ export const resendOrderLinks = createServerFn({ method: "POST" })
         orderNumber: items.length > 1 ? `${order.order_number}-${item.slug}` : order.order_number,
         downloadUrl: await getDownloadUrl(order.id, item.slug),
         accountUrl: `${origin}/auth?signup=1&email=${encodeURIComponent(order.email)}`,
+        loginUrl: `${origin}/auth`,
+        paymentRef: order.stripe_payment_intent ?? null,
       });
       if (result.sent) sent += 1;
     }

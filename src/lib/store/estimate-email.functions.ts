@@ -22,7 +22,10 @@ export const sendCalculatorEstimateEmail = createServerFn({ method: "POST" })
     const { data: quote } = await db
       .from("quotes")
       .select(
-        "quote_number,portal_token,contact_email,contact_phone,details,estimated_low,estimated_high",
+        "id,quote_number,portal_token,contact_email,contact_phone,details,estimated_low,estimated_high," +
+          "origin_city,origin_state,origin_zip,destination_city,destination_state,destination_zip," +
+          "move_date,move_size,bedrooms,distance_miles,packing,unpacking,storage,assembly,junk_removal," +
+          "estimate_email_sent_at",
       )
       .eq("quote_number", data.quoteNumber)
       .maybeSingle();
@@ -31,6 +34,8 @@ export const sendCalculatorEstimateEmail = createServerFn({ method: "POST" })
       return { sent: false, reason: "not_authorized" };
     }
     if (!quote.contact_email) return { sent: false, reason: "no_email" };
+    // Guard against duplicate sends (double submit, client retry, re-render).
+    if (quote.estimate_email_sent_at) return { sent: false, reason: "already_sent" };
 
     const usd = (cents: number) =>
       new Intl.NumberFormat("en-US", {
@@ -39,19 +44,75 @@ export const sendCalculatorEstimateEmail = createServerFn({ method: "POST" })
         maximumFractionDigits: 0,
       }).format(Number(cents ?? 0));
 
+    const place = (city?: string | null, state?: string | null, zip?: string | null) =>
+      [[city, state].filter(Boolean).join(", "), zip].filter(Boolean).join(" ") || null;
+
+    const services = [
+      quote.packing ? "Packing" : null,
+      quote.unpacking ? "Unpacking" : null,
+      quote.storage ? "Storage" : null,
+      quote.assembly ? "Furniture assembly" : null,
+      quote.junk_removal ? "Junk removal" : null,
+    ].filter(Boolean) as string[];
+
+    const moveDateLabel = quote.move_date
+      ? new Date(`${quote.move_date}T00:00:00`).toLocaleDateString("en-US", {
+          month: "long",
+          day: "numeric",
+          year: "numeric",
+        })
+      : null;
+
     const origin = siteOrigin();
     let result: { sent: boolean; reason?: string };
     try {
       result = await sendEstimateEmail({
         to: quote.contact_email,
         firstName: String((quote.details as any)?.fullName ?? "").split(" ")[0] || null,
+        fullName: String((quote.details as any)?.fullName ?? "") || null,
         amountLabel: `${usd(quote.estimated_low)} – ${usd(quote.estimated_high)}`,
         quoteNumber: quote.quote_number,
+        originLabel: place(quote.origin_city, quote.origin_state, quote.origin_zip),
+        destinationLabel: place(
+          quote.destination_city,
+          quote.destination_state,
+          quote.destination_zip,
+        ),
+        moveDateLabel,
+        moveSizeLabel:
+          quote.move_size ??
+          (quote.bedrooms ? `${quote.bedrooms} bedroom${quote.bedrooms > 1 ? "s" : ""}` : null),
+        distanceLabel: quote.distance_miles
+          ? `${Math.round(Number(quote.distance_miles))} miles`
+          : null,
+        servicesLabel: services.length ? services.join(", ") : null,
         quoteUrl: `${origin}/portal/${quote.quote_number}?token=${quote.portal_token}`,
         accountUrl: `${origin}/auth?signup=1&email=${encodeURIComponent(quote.contact_email)}`,
+        loginUrl: `${origin}/auth`,
       });
     } catch (err) {
       result = { sent: false, reason: err instanceof Error ? err.message : "send_failed" };
+    }
+
+    if (result.sent) {
+      await db
+        .from("quotes")
+        .update({ estimate_email_sent_at: new Date().toISOString() })
+        .eq("id", quote.id);
+    }
+
+    // Existing internal admin notification stream (same table the Admin leads
+    // workspace already subscribes to) — a new moving request shows up live.
+    try {
+      await db.from("admin_notifications").insert({
+        type: "new_moving_request",
+        quote_id: quote.id,
+        message: `New moving request ${quote.quote_number} from ${
+          String((quote.details as any)?.fullName ?? "a customer")
+        }`,
+      });
+    } catch (error) {
+      console.error("[estimate] admin notification failed:", error);
     }
 
     // Audit the delivery attempt so support can see whether the customer was

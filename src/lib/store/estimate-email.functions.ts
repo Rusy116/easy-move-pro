@@ -112,14 +112,16 @@ export const sendCalculatorEstimateEmail = createServerFn({ method: "POST" })
         loginUrl: `${origin}/auth`,
       });
     } catch (err) {
+      console.error("[estimate] send threw:", err);
       result = { sent: false, reason: err instanceof Error ? err.message : "send_failed" };
     }
 
     if (result.sent) {
-      await db
+      const { error: stampError } = await db
         .from("quotes")
         .update({ estimate_email_sent_at: new Date().toISOString() })
         .eq("id", quote.id);
+      if (stampError) console.error("[estimate] sent-stamp update failed:", stampError);
     }
 
     // Existing internal admin notification stream (same table the Admin leads

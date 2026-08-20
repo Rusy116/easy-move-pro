@@ -14,12 +14,29 @@ export const sendCalculatorEstimateEmail = createServerFn({ method: "POST" })
     token: String(d.token ?? "").trim().slice(0, 200),
   }))
   .handler(async ({ data }): Promise<{ sent: boolean; reason?: string }> => {
-    if (!data.quoteNumber || !data.token) return { sent: false, reason: "invalid" };
+    const { logDelivery } = await import("@/lib/notify/deliveries.server");
+    // Every early exit is audited too — a moving request must never fail to
+    // email the customer without a visible trace.
+    const skip = async (reason: string, recipient = "") => {
+      console.warn(`[estimate] email skipped for ${data.quoteNumber || "(no quote)"}: ${reason}`);
+      await logDelivery({
+        channel: "email",
+        template: "moving-estimate",
+        recipient: recipient || "unknown@unknown",
+        status: "skipped",
+        reason,
+        refType: "quote",
+        idempotencyKey: `moving-estimate-${data.quoteNumber}`,
+      });
+      return { sent: false, reason };
+    };
+
+    if (!data.quoteNumber || !data.token) return skip("invalid");
     const { admin, siteOrigin } = await import("@/lib/store/orders.server");
     const { sendEstimateEmail } = await import("@/lib/store/email.server");
     const db = await admin();
 
-    const { data: quote } = await db
+    const { data: quote, error: quoteError } = await db
       .from("quotes")
       .select(
         "id,quote_number,portal_token,contact_email,contact_phone,details,estimated_low,estimated_high," +
@@ -30,12 +47,16 @@ export const sendCalculatorEstimateEmail = createServerFn({ method: "POST" })
       .eq("quote_number", data.quoteNumber)
       .maybeSingle();
 
-    if (!quote || !quote.portal_token || quote.portal_token !== data.token) {
-      return { sent: false, reason: "not_authorized" };
+    if (quoteError) {
+      console.error("[estimate] quote lookup failed:", quoteError);
+      return skip(`lookup_failed:${quoteError.message.slice(0, 120)}`);
     }
-    if (!quote.contact_email) return { sent: false, reason: "no_email" };
+    if (!quote || !quote.portal_token || quote.portal_token !== data.token) {
+      return skip("not_authorized");
+    }
+    if (!quote.contact_email) return skip("no_email");
     // Guard against duplicate sends (double submit, client retry, re-render).
-    if (quote.estimate_email_sent_at) return { sent: false, reason: "already_sent" };
+    if (quote.estimate_email_sent_at) return skip("already_sent", quote.contact_email);
 
     const usd = (cents: number) =>
       new Intl.NumberFormat("en-US", {
@@ -91,14 +112,16 @@ export const sendCalculatorEstimateEmail = createServerFn({ method: "POST" })
         loginUrl: `${origin}/auth`,
       });
     } catch (err) {
+      console.error("[estimate] send threw:", err);
       result = { sent: false, reason: err instanceof Error ? err.message : "send_failed" };
     }
 
     if (result.sent) {
-      await db
+      const { error: stampError } = await db
         .from("quotes")
         .update({ estimate_email_sent_at: new Date().toISOString() })
         .eq("id", quote.id);
+      if (stampError) console.error("[estimate] sent-stamp update failed:", stampError);
     }
 
     // Existing internal admin notification stream (same table the Admin leads

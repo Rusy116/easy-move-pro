@@ -763,14 +763,23 @@ export function QuoteCalculator(
       generateEstimatePdf(snapshot.pdfInput);
       setSubmitStep(4);
       confirmation = { quoteNumber: saved.quoteNumber, token: saved.portalToken };
-      // Email the estimate + optional account link. Never blocks the redirect.
-      void import("@/lib/store/estimate-email.functions")
-        .then(({ sendCalculatorEstimateEmail }) =>
-          sendCalculatorEstimateEmail({
-            data: { quoteNumber: saved.quoteNumber, token: saved.portalToken },
-          }),
-        )
-        .catch(() => undefined);
+      // Email the estimate + account link. Awaited (not fire-and-forget): the
+      // request used to be dropped when the calculator unmounted on redirect,
+      // so the customer never received the confirmation email.
+      try {
+        const { sendCalculatorEstimateEmail } = await import(
+          "@/lib/store/estimate-email.functions"
+        );
+        const emailResult = await sendCalculatorEstimateEmail({
+          data: { quoteNumber: saved.quoteNumber, token: saved.portalToken },
+        });
+        if (!emailResult?.sent) {
+          console.warn("[calculator] estimate email not sent:", emailResult?.reason);
+        }
+      } catch (emailError) {
+        // Never block the confirmation page on email problems.
+        console.error("[calculator] estimate email request failed:", emailError);
+      }
       resetCalculatorForm();
       toast.success("Your moving quote request was submitted.");
     } catch (e) {

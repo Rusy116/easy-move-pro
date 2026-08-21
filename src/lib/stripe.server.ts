@@ -6,6 +6,14 @@ const getEnv = (key: string): string => {
   return value;
 };
 
+const getFirstEnv = (keys: string[]): string => {
+  for (const key of keys) {
+    const value = process.env[key];
+    if (value) return value;
+  }
+  throw new Error(`${keys.join(' or ')} is not configured`);
+};
+
 export type StripeEnv = 'sandbox' | 'live';
 
 const GATEWAY_STRIPE_BASE = 'https://connector-gateway.lovable.dev/stripe';
@@ -13,7 +21,7 @@ const GATEWAY_STRIPE_BASE = 'https://connector-gateway.lovable.dev/stripe';
 export function getConnectionApiKey(env: StripeEnv): string {
   return env === 'sandbox'
     ? getEnv('STRIPE_SANDBOX_API_KEY')
-    : getEnv('STRIPE_LIVE_API_KEY');
+    : getFirstEnv(['STRIPE_LIVE_API_KEY', 'STRIPE_SECRET_KEY']);
 }
 
 /** True for real Stripe secret keys (external runtimes talk to Stripe directly). */
@@ -29,6 +37,12 @@ export function createStripeClient(env: StripeEnv): Stripe {
   const connectionApiKey = getConnectionApiKey(env);
 
   if (isDirectStripeKey(connectionApiKey)) {
+    if (env === 'live' && /^(sk|rk)_test_/.test(connectionApiKey)) {
+      throw new Error('Live checkout is configured with a Stripe test secret key');
+    }
+    if (env === 'sandbox' && /^(sk|rk)_live_/.test(connectionApiKey)) {
+      throw new Error('Sandbox checkout is configured with a Stripe live secret key');
+    }
     return new Stripe(connectionApiKey, { apiVersion: '2026-03-25.dahlia' });
   }
 
@@ -100,7 +114,7 @@ export async function verifyWebhook(
   const secret =
     env === 'sandbox'
       ? getEnv('PAYMENTS_SANDBOX_WEBHOOK_SECRET')
-      : getEnv('PAYMENTS_LIVE_WEBHOOK_SECRET');
+      : getFirstEnv(['PAYMENTS_LIVE_WEBHOOK_SECRET', 'STRIPE_WEBHOOK_SECRET']);
 
   if (!signature || !body) throw new Error('Missing signature or body');
 

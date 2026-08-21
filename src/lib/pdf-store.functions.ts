@@ -32,17 +32,23 @@ const EMPTY_STOREFRONT = {
  */
 async function publicClient() {
   const env = (import.meta as unknown as { env?: Record<string, string | undefined> }).env ?? {};
-  const url =
-    (typeof process !== "undefined" ? process.env["SUPABASE_URL"] : undefined) ??
-    env["VITE_SUPABASE_URL"];
-  const key =
-    (typeof process !== "undefined" ? process.env["SUPABASE_PUBLISHABLE_KEY"] : undefined) ??
-    env["VITE_SUPABASE_PUBLISHABLE_KEY"] ??
-    env["VITE_SUPABASE_ANON_KEY"];
+  const proc =
+    typeof process !== "undefined" ? process.env : ({} as Record<string, string | undefined>);
+
+  // URL and key must come from the SAME source. Reading them independently
+  // lets a partially configured host (e.g. only SUPABASE_URL set) pair one
+  // project's URL with another project's key, and every read then fails.
+  const pairs: Array<[string | undefined, string | undefined]> = [
+    [proc["SUPABASE_URL"], proc["SUPABASE_PUBLISHABLE_KEY"] ?? proc["SUPABASE_ANON_KEY"]],
+    [env["VITE_SUPABASE_URL"], env["VITE_SUPABASE_PUBLISHABLE_KEY"] ?? env["VITE_SUPABASE_ANON_KEY"]],
+  ];
+  const [url, key] = pairs.find(([u, k]) => Boolean(u && k)) ?? [undefined, undefined];
+
   if (!url || !key) {
     console.error("[pdf-store] missing backend config for public store reads");
     return null;
   }
+
   const { createClient } = await import("@supabase/supabase-js");
   return createClient(url, key, {
     auth: { persistSession: false, autoRefreshToken: false },

@@ -8,8 +8,12 @@ import path from "node:path";
 import { loadEnv } from "vite";
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 
-// Server routes (email sending) need non-VITE_ env vars in process.env.
-Object.assign(process.env, loadEnv(process.env.NODE_ENV || "development", process.cwd(), ""));
+// Server routes need non-VITE_ env vars in process.env. Treat checked-in env
+// files as local defaults only: deployment-provided values must always win.
+const fileEnv = loadEnv(process.env.NODE_ENV || "development", process.cwd(), "");
+for (const [key, value] of Object.entries(fileEnv)) {
+  if (process.env[key] === undefined) process.env[key] = value;
+}
 
 export default defineConfig({
   vite: {

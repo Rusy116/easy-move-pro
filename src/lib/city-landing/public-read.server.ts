@@ -211,13 +211,24 @@ export async function readIndexableSlugs(
   try {
     const db = client();
     if (!db) return [];
-    const { data } = await indexableQuery(db, "slug, seo_status")
-      .order("population", { ascending: false })
-      .order("slug", { ascending: true })
-      .range(offset, offset + limit - 1);
-    return ((data ?? []) as unknown as Array<{ slug: string; seo_status: string | null }>).map(
-      (r) => ({ slug: r.slug, seoPublished: r.seo_status === "published" }),
-    );
+    // The Data API caps a single response at 1000 rows, so the requested slice
+    // is filled with deterministic 1000-row batches (same filters + ordering).
+    const BATCH = 1000;
+    const out: Array<{ slug: string; seoPublished: boolean }> = [];
+    while (out.length < limit) {
+      const from = offset + out.length;
+      const size = Math.min(BATCH, limit - out.length);
+      const { data } = await indexableQuery(db, "slug, seo_status")
+        .order("population", { ascending: false })
+        .order("slug", { ascending: true })
+        .range(from, from + size - 1);
+      const rows = (data ?? []) as unknown as Array<{ slug: string; seo_status: string | null }>;
+      for (const r of rows) {
+        out.push({ slug: r.slug, seoPublished: r.seo_status === "published" });
+      }
+      if (rows.length < size) break; // source exhausted
+    }
+    return out;
   } catch {
     return [];
   }

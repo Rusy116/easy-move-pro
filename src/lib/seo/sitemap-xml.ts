@@ -7,8 +7,15 @@ export interface SitemapEntry {
 
 export const SITEMAP_BASE_URL = "https://easymove.pro";
 
-/** Slugs per city sitemap part (each slug yields up to 2 URLs). */
-export const CITY_SLUGS_PER_PART = 20_000;
+/**
+ * Part sizing is computed from GENERATED URL COUNT, not slug count.
+ * Google allows 50,000 URLs per sitemap file; we keep a safety margin.
+ */
+export const MAX_URLS_PER_SITEMAP = 45_000;
+/** Each eligible city yields up to 2 URLs (/moving-calculator-<slug> and /movers/<slug>). */
+export const URLS_PER_CITY = 2;
+/** Slugs per city sitemap part, derived from the URL cap. */
+export const CITY_SLUGS_PER_PART = Math.floor(MAX_URLS_PER_SITEMAP / URLS_PER_CITY);
 
 export function renderUrlset(entries: SitemapEntry[]): Response {
   const seen = new Set<string>();

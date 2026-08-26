@@ -122,3 +122,14 @@ const button = {
   display: 'inline-block',
   margin: '8px 0 16px',
 }
+const secondaryButton = {
+  backgroundColor: '#ffffff',
+  color: '#3A5346',
+  border: '1px solid #3A5346',
+  borderRadius: '999px',
+  padding: '13px 28px',
+  fontSize: '15px',
+  textDecoration: 'none',
+  display: 'inline-block',
+  margin: '0 0 16px',
+}

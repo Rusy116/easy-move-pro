@@ -1,12 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { CheckCircle2, Download, Loader2, Mail, UserPlus, XCircle } from "lucide-react";
+import { CheckCircle2, Download, Library, Loader2, Mail, UserPlus, XCircle } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { Button } from "@/components/ui/button";
 import { getCheckoutStatus, type OrderStatusResult } from "@/lib/store-checkout.functions";
 import { getStripeEnvironment } from "@/lib/stripe";
 import { money } from "@/lib/pdf-store/catalog";
 import { clearCart } from "@/lib/store/cart";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/checkout/return")({
   validateSearch: (search: Record<string, unknown>): { session_id?: string } => ({
@@ -26,6 +27,20 @@ function CheckoutReturn() {
   const { session_id: sessionId } = Route.useSearch();
   const [state, setState] = useState<OrderStatusResult | null>(null);
   const [timedOut, setTimedOut] = useState(false);
+  const [signedIn, setSignedIn] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    supabase.auth
+      .getSession()
+      .then(({ data }) => {
+        if (!cancelled) setSignedIn(Boolean(data.session));
+      })
+      .catch(() => undefined);
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     let cancelled = false;

@@ -161,6 +161,7 @@ import { Route as ApiPublicPdfCoverFileRouteImport } from './routes/api/public/p
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
 import { Route as ApiPublicHooksPdfFactoryTickRouteImport } from './routes/api/public/hooks/pdf-factory-tick'
 import { Route as ApiPublicHooksCityProductionTickRouteImport } from './routes/api/public/hooks/city-production-tick'
+import { Route as ApiInternalStoreCheckoutRouteImport } from './routes/api/internal/store/checkout'
 import { Route as AuthenticatedCompanyJobJobIdRouteImport } from './routes/_authenticated/company.job.$jobId'
 import { Route as AuthenticatedAdminJobQuoteIdRouteImport } from './routes/_authenticated/admin.job.$quoteId'
 
@@ -997,6 +998,12 @@ const ApiPublicHooksCityProductionTickRoute =
     path: '/api/public/hooks/city-production-tick',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiInternalStoreCheckoutRoute =
+  ApiInternalStoreCheckoutRouteImport.update({
+    id: '/api/internal/store/checkout',
+    path: '/api/internal/store/checkout',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AuthenticatedCompanyJobJobIdRoute =
   AuthenticatedCompanyJobJobIdRouteImport.update({
     id: '/job/$jobId',
@@ -1157,6 +1164,7 @@ export interface FileRoutesByFullPath {
   '/customer/': typeof AuthenticatedCustomerIndexRoute
   '/admin/job/$quoteId': typeof AuthenticatedAdminJobQuoteIdRoute
   '/company/job/$jobId': typeof AuthenticatedCompanyJobJobIdRoute
+  '/api/internal/store/checkout': typeof ApiInternalStoreCheckoutRoute
   '/api/public/hooks/city-production-tick': typeof ApiPublicHooksCityProductionTickRoute
   '/api/public/hooks/pdf-factory-tick': typeof ApiPublicHooksPdfFactoryTickRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
@@ -1311,6 +1319,7 @@ export interface FileRoutesByTo {
   '/customer': typeof AuthenticatedCustomerIndexRoute
   '/admin/job/$quoteId': typeof AuthenticatedAdminJobQuoteIdRoute
   '/company/job/$jobId': typeof AuthenticatedCompanyJobJobIdRoute
+  '/api/internal/store/checkout': typeof ApiInternalStoreCheckoutRoute
   '/api/public/hooks/city-production-tick': typeof ApiPublicHooksCityProductionTickRoute
   '/api/public/hooks/pdf-factory-tick': typeof ApiPublicHooksPdfFactoryTickRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
@@ -1468,6 +1477,7 @@ export interface FileRoutesById {
   '/_authenticated/customer/': typeof AuthenticatedCustomerIndexRoute
   '/_authenticated/admin/job/$quoteId': typeof AuthenticatedAdminJobQuoteIdRoute
   '/_authenticated/company/job/$jobId': typeof AuthenticatedCompanyJobJobIdRoute
+  '/api/internal/store/checkout': typeof ApiInternalStoreCheckoutRoute
   '/api/public/hooks/city-production-tick': typeof ApiPublicHooksCityProductionTickRoute
   '/api/public/hooks/pdf-factory-tick': typeof ApiPublicHooksPdfFactoryTickRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
@@ -1625,6 +1635,7 @@ export interface FileRouteTypes {
     | '/customer/'
     | '/admin/job/$quoteId'
     | '/company/job/$jobId'
+    | '/api/internal/store/checkout'
     | '/api/public/hooks/city-production-tick'
     | '/api/public/hooks/pdf-factory-tick'
     | '/api/public/payments/webhook'
@@ -1779,6 +1790,7 @@ export interface FileRouteTypes {
     | '/customer'
     | '/admin/job/$quoteId'
     | '/company/job/$jobId'
+    | '/api/internal/store/checkout'
     | '/api/public/hooks/city-production-tick'
     | '/api/public/hooks/pdf-factory-tick'
     | '/api/public/payments/webhook'
@@ -1935,6 +1947,7 @@ export interface FileRouteTypes {
     | '/_authenticated/customer/'
     | '/_authenticated/admin/job/$quoteId'
     | '/_authenticated/company/job/$jobId'
+    | '/api/internal/store/checkout'
     | '/api/public/hooks/city-production-tick'
     | '/api/public/hooks/pdf-factory-tick'
     | '/api/public/payments/webhook'
@@ -2005,6 +2018,7 @@ export interface RootRouteChildren {
   StatesIndexRoute: typeof StatesIndexRoute
   ApiPublicSlaTickRoute: typeof ApiPublicSlaTickRoute
   ProductsCategorySlugRoute: typeof ProductsCategorySlugRoute
+  ApiInternalStoreCheckoutRoute: typeof ApiInternalStoreCheckoutRoute
   ApiPublicHooksCityProductionTickRoute: typeof ApiPublicHooksCityProductionTickRoute
   ApiPublicHooksPdfFactoryTickRoute: typeof ApiPublicHooksPdfFactoryTickRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
@@ -3080,6 +3094,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHooksCityProductionTickRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/internal/store/checkout': {
+      id: '/api/internal/store/checkout'
+      path: '/api/internal/store/checkout'
+      fullPath: '/api/internal/store/checkout'
+      preLoaderRoute: typeof ApiInternalStoreCheckoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/company/job/$jobId': {
       id: '/_authenticated/company/job/$jobId'
       path: '/job/$jobId'
@@ -3354,6 +3375,7 @@ const rootRouteChildren: RootRouteChildren = {
   StatesIndexRoute: StatesIndexRoute,
   ApiPublicSlaTickRoute: ApiPublicSlaTickRoute,
   ProductsCategorySlugRoute: ProductsCategorySlugRoute,
+  ApiInternalStoreCheckoutRoute: ApiInternalStoreCheckoutRoute,
   ApiPublicHooksCityProductionTickRoute: ApiPublicHooksCityProductionTickRoute,
   ApiPublicHooksPdfFactoryTickRoute: ApiPublicHooksPdfFactoryTickRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,

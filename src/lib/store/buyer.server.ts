@@ -9,20 +9,35 @@
 // ---------------------------------------------------------------------------
 import { getRequest } from "@tanstack/react-start/server";
 
-/** Returns the signed-in user's id, or null for a genuine guest checkout. */
-export async function resolveBuyerUserId(): Promise<string | null> {
+/** Raw bearer token on the current request, or null. Never logged. */
+export function currentBuyerToken(): string | null {
   try {
     const request = getRequest();
     const header = request?.headers?.get("authorization");
     const token = header?.replace(/^Bearer\s+/i, "").trim();
-    if (!token) return null;
+    return token || null;
+  } catch {
+    return null;
+  }
+}
 
+/** Verifies a buyer access token server-side and returns its user id. */
+export async function resolveBuyerUserIdFromToken(
+  token: string | null,
+): Promise<string | null> {
+  if (!token) return null;
+  try {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data, error } = await supabaseAdmin.auth.getUser(token);
     if (error) return null;
     return data.user?.id ?? null;
   } catch (error) {
-    console.error("[store] buyer identity resolve failed:", error);
+    console.error("[store] buyer identity resolve failed:", (error as Error)?.message);
     return null;
   }
+}
+
+/** Returns the signed-in user's id, or null for a genuine guest checkout. */
+export async function resolveBuyerUserId(): Promise<string | null> {
+  return resolveBuyerUserIdFromToken(currentBuyerToken());
 }

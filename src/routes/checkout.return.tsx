@@ -224,18 +224,38 @@ function CheckoutReturn() {
             </p>
 
             <div className="mt-8 rounded-xl bg-sage-soft/50 p-5">
-              <p className="font-serif text-lg">Create your free account</p>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Optional — it keeps every purchase, download and moving estimate in one place.
-              </p>
-              <a
-                href={`/auth?signup=1&email=${encodeURIComponent(state.email ?? "")}`}
-                className="mt-3 inline-block"
-              >
-                <Button variant="secondary" className="rounded-full">
-                  <UserPlus className="mr-2 h-4 w-4" /> Create your free account
-                </Button>
-              </a>
+              {signedIn ? (
+                <>
+                  <p className="font-serif text-lg">Your purchases are saved</p>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    This order is available any time in your Easy Move Pro account.
+                  </p>
+                  <Button asChild className="mt-3 rounded-full">
+                    <Link to="/customer/purchases">
+                      <Library className="mr-2 h-4 w-4" /> View your purchases
+                    </Link>
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <p className="font-serif text-lg">
+                    Save your purchases in your Easy Move Pro account.
+                  </p>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    Optional — it keeps every purchase, download and moving estimate in one place.
+                  </p>
+                  <div className="mt-3 flex flex-wrap items-center gap-3">
+                    <Button asChild className="rounded-full">
+                      <a href={`/auth?signup=1&email=${encodeURIComponent(state.email ?? "")}`}>
+                        <UserPlus className="mr-2 h-4 w-4" /> Create your account
+                      </a>
+                    </Button>
+                    <Button asChild variant="outline" className="rounded-full">
+                      <a href="/auth">Log in</a>
+                    </Button>
+                  </div>
+                </>
+              )}
             </div>
           </div>
         )}

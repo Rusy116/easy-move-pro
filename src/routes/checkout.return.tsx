@@ -78,9 +78,7 @@ function CheckoutReturn() {
   const failed =
     state &&
     !("error" in state) &&
-    (state.status === "failed" ||
-      state.status === "cancelled" ||
-      state.status === "refunded");
+    (state.status === "failed" || state.status === "refunded");
   const pending = state && !("error" in state) && state.status === "pending";
 
   // The cart survives until Stripe confirms the payment, so an abandoned or

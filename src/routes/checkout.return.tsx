@@ -25,41 +25,70 @@ export const Route = createFileRoute("/checkout/return")({
 function CheckoutReturn() {
   const { session_id: sessionId } = Route.useSearch();
   const [state, setState] = useState<OrderStatusResult | null>(null);
-  const [tries, setTries] = useState(0);
+  const [timedOut, setTimedOut] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
+    let timeoutId: ReturnType<typeof setTimeout> | null = null;
     if (!sessionId) {
       setState({ status: "unknown" });
       return;
     }
-    (async () => {
+
+    const POLL_START_MS = 2000;
+    const POLL_MAX_MS = 5000;
+    const POLL_BACKOFF_MS = 500;
+    const MAX_ATTEMPTS = 45;
+    let attempts = 0;
+
+    const poll = async () => {
+      if (cancelled) return;
       try {
         const result = await getCheckoutStatus({
           data: { sessionId, environment: getStripeEnvironment() },
         });
         if (cancelled) return;
         setState(result);
-        if (!("error" in result) && result.status === "pending" && tries < 8) {
-          setTimeout(() => setTries((t) => t + 1), 2000);
+        if (!("error" in result) && result.status === "pending") {
+          if (attempts >= MAX_ATTEMPTS) {
+            setTimedOut(true);
+            return;
+          }
+          attempts += 1;
+          const delay = Math.min(
+            POLL_START_MS + attempts * POLL_BACKOFF_MS,
+            POLL_MAX_MS
+          );
+          timeoutId = setTimeout(poll, delay);
         }
       } catch {
         if (!cancelled) setState({ error: "We could not load your order." });
       }
-    })();
+    };
+
+    poll();
+
     return () => {
       cancelled = true;
+      if (timeoutId) clearTimeout(timeoutId);
     };
-  }, [sessionId, tries]);
+  }, [sessionId]);
 
   const paid = state && !("error" in state) && state.status === "paid";
-  const failed = state && !("error" in state) && state.status === "failed";
+  const failed =
+    state &&
+    !("error" in state) &&
+    (state.status === "failed" ||
+      state.status === "cancelled" ||
+      state.status === "refunded");
+  const pending = state && !("error" in state) && state.status === "pending";
 
   // The cart survives until Stripe confirms the payment, so an abandoned or
   // failed checkout leaves the customer's items intact.
   useEffect(() => {
     if (paid) clearCart();
   }, [paid]);
+
 
   return (
     <SiteLayout>

@@ -38,9 +38,12 @@ async function publicClient() {
   // URL and key must come from the SAME source. Reading them independently
   // lets a partially configured host (e.g. only SUPABASE_URL set) pair one
   // project's URL with another project's key, and every read then fails.
+  // The Store public loader is consumed by the published Vercel deployment, so
+  // prefer the Vite build-time pair (the one that works in the browser) and
+  // fall back to the server process pair only when it is unavailable.
   const pairs: Array<[string | undefined, string | undefined]> = [
-    [proc["SUPABASE_URL"], proc["SUPABASE_PUBLISHABLE_KEY"] ?? proc["SUPABASE_ANON_KEY"]],
     [env["VITE_SUPABASE_URL"], env["VITE_SUPABASE_PUBLISHABLE_KEY"] ?? env["VITE_SUPABASE_ANON_KEY"]],
+    [proc["SUPABASE_URL"], proc["SUPABASE_PUBLISHABLE_KEY"] ?? proc["SUPABASE_ANON_KEY"]],
   ];
   const [url, key] = pairs.find(([u, k]) => Boolean(u && k)) ?? [undefined, undefined];
 

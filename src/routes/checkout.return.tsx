@@ -117,6 +117,20 @@ function CheckoutReturn() {
               <Button className="rounded-full">Back to the store</Button>
             </Link>
           </div>
+        ) : pending && timedOut ? (
+          <div className="card-premium p-10 text-center">
+            <Loader2 className="mx-auto h-6 w-6 animate-spin text-muted-foreground" />
+            <h1 className="mt-4 font-serif text-xl">Your payment is still being processed.</h1>
+            <p className="mt-2 text-sm text-muted-foreground">
+              You can safely close this page — your receipt and download link will be sent to your
+              email as soon as processing completes.
+            </p>
+            {state.orderNumber && (
+              <p className="mt-4 text-sm text-muted-foreground">
+                Order number: <span className="font-mono">{state.orderNumber}</span>
+              </p>
+            )}
+          </div>
         ) : !paid ? (
           <div className="card-premium p-10 text-center">
             <Loader2 className="mx-auto h-6 w-6 animate-spin text-muted-foreground" />

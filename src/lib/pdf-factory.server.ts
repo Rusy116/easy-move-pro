@@ -49,6 +49,10 @@ async function readOutputText(body: ReadableStream<Uint8Array>): Promise<string>
 export async function aiJson<T>(prompt: string, schema: Record<string, unknown>, name: string): Promise<T | null> {
   const key = process.env["LOVABLE_API_KEY"];
   if (!key) return null;
+  const { aiBreakerOpen, recordAiFailure, recordAiSuccess } = await import("./ai/gateway-breaker.server");
+  // Provider circuit breaker: skip paid calls while repeated 402/403/429s are
+  // in effect. Callers already fall back to deterministic templates.
+  if (aiBreakerOpen()) return null;
   try {
     const res = await fetch("https://ai.gateway.lovable.dev/v1/responses", {
       method: "POST",
@@ -61,8 +65,13 @@ export async function aiJson<T>(prompt: string, schema: Record<string, unknown>,
         text: { format: { type: "json_schema", name, strict: true, schema } },
       }),
     });
-    if (!res.ok || !res.body) throw new Error(`AI gateway ${res.status}`);
-    return JSON.parse(await readOutputText(res.body)) as T;
+    if (!res.ok || !res.body) {
+      recordAiFailure(res.status);
+      throw new Error(`AI gateway ${res.status}`);
+    }
+    const parsed = JSON.parse(await readOutputText(res.body)) as T;
+    recordAiSuccess();
+    return parsed;
   } catch (err) {
     console.error(`[pdf-factory] ${name} fell back to template:`, err);
     return null;

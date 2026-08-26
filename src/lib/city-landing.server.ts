@@ -61,6 +61,11 @@ export async function generateCityContent(
   const key = process.env["LOVABLE_API_KEY"];
   if (!key) return { content: base, source: "template" };
 
+  const { aiBreakerOpen, recordAiFailure, recordAiSuccess } = await import("./ai/gateway-breaker.server");
+  // Provider circuit breaker: while repeated 402/403/429s are in effect the
+  // deterministic builder is used instead of burning more paid calls.
+  if (aiBreakerOpen()) return { content: base, source: "template" };
+
   const prompt = [
     `Write unique, human, genuinely useful local moving content for ${facts.city}, ${facts.stateName} (${facts.stateCode}).`,
     `Facts you must use naturally (no keyword stuffing, no invented statistics):`,
@@ -106,12 +111,14 @@ export async function generateCityContent(
     });
 
     if (!res.ok || !res.body) {
+      recordAiFailure(res.status);
       const detail = await res.text().catch(() => "");
       throw new Error(`AI gateway ${res.status}: ${detail.slice(0, 200)}`);
     }
 
     const text = await readOutputText(res.body);
     const payload = JSON.parse(text) as AiPayload;
+    recordAiSuccess();
     return { content: mergeContent(base, payload), source: "ai" };
   } catch (err) {
     // Never fail the page: keep the deterministic content and surface the note.

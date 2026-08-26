@@ -59,22 +59,28 @@ const Email = ({
         {paymentRef ? <Text style={muted}>Payment reference: {paymentRef}</Text> : null}
         {amountLabel ? <Text style={muted}>Amount paid: {amountLabel}</Text> : null}
         <Hr style={hr} />
-        {accountUrl ? (
-          <Text style={muted}>
-            <Link href={accountUrl} style={link}>
-              Create your account
-            </Link>{' '}
-            with this email address and every purchase stays in your library.
-          </Text>
-        ) : null}
-        {loginUrl ? (
-          <Text style={muted}>
-            Already registered?{' '}
-            <Link href={loginUrl} style={link}>
-              Log in to your account
-            </Link>
-            .
-          </Text>
+        {accountUrl || loginUrl ? (
+          <>
+            <Text style={text}>
+              Create your account and keep all your purchases in one place.
+            </Text>
+            {accountUrl ? (
+              <Button style={button} href={accountUrl}>
+                Create your account
+              </Button>
+            ) : null}
+            {loginUrl ? (
+              <>
+                {accountUrl ? <br /> : null}
+                <Button style={secondaryButton} href={loginUrl}>
+                  Log in
+                </Button>
+              </>
+            ) : null}
+            <Text style={muted}>
+              Use this same email address and every purchase stays in your library.
+            </Text>
+          </>
         ) : null}
         <Text style={muted}>Easy Move Pro — moving made simple.</Text>
       </Container>

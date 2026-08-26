@@ -12,74 +12,9 @@
 import { createServerFn } from "@tanstack/react-start";
 import type { StripeEnv } from "@/lib/stripe.server";
 
-/** Eligible digital-goods tax code (required for managed payments). */
-const DIGITAL_TAX_CODE = "txcd_10103001";
-
 /** Hard cap on basket size — protects the Stripe session and the emails. */
 const MAX_ITEMS = 10;
 
-/**
- * Resolves the Stripe product for one catalog title, creating it on first
- * sale. Each product carries the digital-goods tax code so Stripe can handle
- * tax, disputes and fraud, and the buyer sees the real title at checkout.
- */
-async function resolveStripeProduct(
-  stripe: any,
-  slug: string,
-  title: string,
-): Promise<string> {
-  const found = await stripe.products.search({
-    query: `metadata['lovable_external_id']:'${slug}'`,
-    limit: 1,
-  });
-  if (found.data.length) return found.data[0].id;
-  const created = await stripe.products.create({
-    name: title,
-    tax_code: DIGITAL_TAX_CODE,
-    metadata: { lovable_external_id: slug },
-  });
-  return created.id;
-}
-
-/**
- * Resolves a Stripe Customer for the buyer's email so repeat purchases share
- * one customer record (searchable payment history, receipts, refunds).
- */
-async function resolveStripeCustomer(
-  stripe: any,
-  email: string,
-  userId?: string | null,
-): Promise<string | undefined> {
-  try {
-    // A signed-in buyer is keyed by userId first: emails change, ids don't.
-    if (userId && /^[a-zA-Z0-9_-]+$/.test(userId)) {
-      const found = await stripe.customers.search({
-        query: `metadata['userId']:'${userId}'`,
-        limit: 1,
-      });
-      if (found.data.length) return found.data[0].id;
-    }
-    const existing = await stripe.customers.list({ email, limit: 1 });
-    if (existing.data.length) {
-      const customer = existing.data[0];
-      // Backfill so later Stripe-side lookups by user resolve.
-      if (userId && customer.metadata?.userId !== userId) {
-        await stripe.customers.update(customer.id, {
-          metadata: { ...customer.metadata, userId },
-        });
-      }
-      return customer.id;
-    }
-    const created = await stripe.customers.create({
-      email,
-      ...(userId ? { metadata: { userId } } : {}),
-    });
-    return created.id;
-  } catch (error) {
-    console.error("[store-checkout] customer resolve failed:", error);
-    return undefined;
-  }
-}
 
 function clean(value: unknown, max: number): string {
   return String(value ?? "").trim().slice(0, max);

@@ -2,14 +2,17 @@
 // ---------------------------------------------------------------------------
 // AUTONOMOUS CITY FACTORY — scheduled production endpoint.
 //
-// Called every minute by pg_cron (Lovable Cloud Jobs). Runs production ticks
-// server-side until its time budget is spent, then returns. No browser tab is
-// involved anywhere in this path.
+// Called by pg_cron (Lovable Cloud Jobs). Runs production ticks server-side
+// until its time budget is spent, then returns. No browser tab is involved.
 //
-// Auth: the caller must present the project's publishable (anon) key in the
-// `apikey` header, matching the documented cron pattern.
+// Auth: dedicated server-only shared secret FACTORY_TICK_SECRET, presented as
+// `x-factory-tick-secret` or `Authorization: Bearer`. The publishable/anon key
+// is NO LONGER accepted — it ships to browsers and this endpoint can start
+// paid AI work.
 // ---------------------------------------------------------------------------
 import { createFileRoute } from "@tanstack/react-router";
+
+import { verifyFactoryTick } from "@/lib/factory/tick-auth.server";
 
 const TIME_BUDGET_MS = 45_000;
 
@@ -17,17 +20,8 @@ export const Route = createFileRoute("/api/public/hooks/city-production-tick")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const expected =
-          process.env["SUPABASE_PUBLISHABLE_KEY"] ??
-          process.env["VITE_SUPABASE_PUBLISHABLE_KEY"] ??
-          "";
-        const provided =
-          request.headers.get("apikey") ??
-          request.headers.get("authorization")?.replace(/^Bearer\s+/i, "") ??
-          "";
-        if (!expected || provided !== expected) {
-          return Response.json({ error: "Unauthorized" }, { status: 401 });
-        }
+        const denied = verifyFactoryTick(request);
+        if (denied) return denied.response;
 
         let body: { jobs?: number; trigger?: string } = {};
         try {
@@ -37,14 +31,48 @@ export const Route = createFileRoute("/api/public/hooks/city-production-tick")({
         }
 
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-        const { runWorkerTick } = await import("@/lib/city-production/worker.server");
+        const { runWorkerTick, loadWorkerSettings } = await import("@/lib/city-production/worker.server");
         const db = supabaseAdmin as any;
+
+        // Kill switch — never claim jobs or call AI while the factory is off.
+        const settings = await loadWorkerSettings(db);
+        if (!settings.enabled) {
+          return Response.json({ ok: true, enabled: false, reason: "City factory disabled", processed: 0 });
+        }
+
+        // Cost cap — reuse the existing ai_settings.task_limits.daily_task_cap.
+        const { data: limitsRow } = await db
+          .from("ai_settings")
+          .select("value")
+          .eq("key", "task_limits")
+          .maybeSingle();
+        const dailyCap = Number((limitsRow?.value as any)?.daily_task_cap ?? 0);
+        if (dailyCap > 0) {
+          const since = new Date(Date.now() - 24 * 3600 * 1000).toISOString();
+          const { data: runs } = await db
+            .from("city_worker_runs")
+            .select("jobs_processed")
+            .gte("created_at", since);
+          const used = ((runs ?? []) as Array<{ jobs_processed: number | null }>).reduce(
+            (sum, r) => sum + Number(r.jobs_processed ?? 0),
+            0,
+          );
+          if (used >= dailyCap) {
+            return Response.json({
+              ok: true,
+              enabled: true,
+              processed: 0,
+              reason: `Daily task cap reached (${used}/${dailyCap})`,
+            });
+          }
+        }
 
         const started = Date.now();
         let ticks = 0;
         let processed = 0;
         let published = 0;
         let failed = 0;
+
 
         try {
           // Keep producing inside the same invocation until the budget runs out.

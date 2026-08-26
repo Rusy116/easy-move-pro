@@ -165,11 +165,6 @@ function MoversCityPage() {
             <BadgeCheck className="h-4 w-4" /> One company, no call blasts
           </span>
         </div>
-        {seo.intro.map((p, i) => (
-          <p key={i} className="mt-4 max-w-3xl text-base leading-relaxed text-muted-foreground">
-            {p}
-          </p>
-        ))}
         <CityHeroImage
           priority
           hero={hero}
@@ -199,6 +194,17 @@ function MoversCityPage() {
           .
         </p>
       </section>
+
+      {/* Introductory SEO paragraphs moved below the calculator */}
+      {seo.intro.length > 0 && (
+        <section className="mx-auto max-w-5xl px-4 sm:px-6 pb-6">
+          {seo.intro.map((p, i) => (
+            <p key={i} className="mt-4 max-w-3xl text-base leading-relaxed text-muted-foreground">
+              {p}
+            </p>
+          ))}
+        </section>
+      )}
 
       <section className="border-t border-border">
         <div className="mx-auto max-w-4xl px-4 sm:px-6 py-14">

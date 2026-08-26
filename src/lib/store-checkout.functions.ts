@@ -137,122 +137,43 @@ export const createStoreCheckout = createServerFn({ method: "POST" })
     },
   )
   .handler(async ({ data }): Promise<CheckoutResult> => {
-    const { createStripeClient, getStripeErrorMessage } = await import("@/lib/stripe.server");
-    const { admin, newOrderNumber } = await import("@/lib/store/orders.server");
-    const { resolveBuyerUserId } = await import("@/lib/store/buyer.server");
-    console.info("[env-diagnostic]", {
-      route: "store-checkout",
-      SUPABASE_URL_PRESENT: Boolean(process.env.SUPABASE_URL),
-      SUPABASE_SERVICE_ROLE_KEY_PRESENT: Boolean(process.env.SUPABASE_SERVICE_ROLE_KEY),
-      NODE_ENV: process.env.NODE_ENV,
-      VERCEL_ENV: process.env.VERCEL_ENV,
-      VERCEL_REGION: process.env.VERCEL_REGION,
-      runtime: process.release?.name ?? "unknown",
-      platform: process.platform,
-    });
-    const db = await admin();
-    const userId = await resolveBuyerUserId();
+    const { bridgeBaseUrl, signBridgeRequest, BRIDGE_HEADERS } = await import(
+      "@/lib/store/bridge.server"
+    );
+    const bridge = bridgeBaseUrl();
 
-    const { data: rows } = await db
-      .from("pdf_products")
-      .select("slug,title,price_cents,status")
-      .in("slug", data.slugs)
-      .eq("status", "published");
+    // Bridge path: privileged work runs inside the Lovable-managed runtime.
+    if (bridge) {
+      try {
+        const { currentBuyerToken } = await import("@/lib/store/buyer.server");
+        const rawBody = JSON.stringify(data);
+        const headers = await signBridgeRequest(rawBody);
+        const buyerToken = currentBuyerToken();
+        if (buyerToken) headers[BRIDGE_HEADERS.buyerToken] = buyerToken;
 
-    const products = (rows ?? []) as any[];
-    if (products.length !== data.slugs.length) {
-      return { error: "One of these products is no longer available." };
-    }
-    if (products.some((p) => Number(p.price_cents ?? 0) < 50)) {
-      return { error: "Free products don't need checkout — claim them with your email." };
-    }
-
-    const total = products.reduce((sum, p) => sum + Number(p.price_cents ?? 0), 0);
-    const orderNumber = newOrderNumber();
-
-    try {
-      const stripe = createStripeClient(data.environment);
-
-      const lineItems = [] as any[];
-      for (const product of products) {
-        const stripeProductId = await resolveStripeProduct(stripe, product.slug, product.title);
-        lineItems.push({
-          price_data: {
-            currency: "usd",
-            product: stripeProductId,
-            unit_amount: Number(product.price_cents),
-          },
-          quantity: 1,
+        const response = await fetch(`${bridge}/api/internal/store/checkout`, {
+          method: "POST",
+          headers,
+          body: rawBody,
         });
+        if (!response.ok) {
+          console.error("[store-checkout] bridge responded", response.status);
+          return { error: "Checkout is temporarily unavailable. Please try again shortly." };
+        }
+        return (await response.json()) as CheckoutResult;
+      } catch (error) {
+        console.error("[store-checkout] bridge call failed:", (error as Error)?.message);
+        return { error: "Checkout is temporarily unavailable. Please try again shortly." };
       }
-
-      const customerId = await resolveStripeCustomer(stripe, data.email, userId);
-      const description =
-        products.length === 1
-          ? products[0].title
-          : `${products.length} Easy Moving PDFs`;
-
-      const session = await stripe.checkout.sessions.create({
-        mode: "payment",
-        ui_mode: "embedded_page",
-        return_url: data.returnUrl,
-        ...(customerId ? { customer: customerId } : { customer_email: data.email }),
-        line_items: lineItems,
-        payment_intent_data: { description },
-        managed_payments: { enabled: true },
-        metadata: {
-          order_number: orderNumber,
-          product_slug: products[0].slug,
-          item_count: String(products.length),
-          ...(userId ? { userId } : {}),
-          managed_payments: "true",
-        },
-      } as any);
-
-      const { data: order, error } = await db
-        .from("store_orders")
-        .insert({
-          order_number: orderNumber,
-          email: data.email,
-          first_name: data.firstName,
-          last_name: data.lastName || null,
-          product_slug: products[0].slug,
-          product_title: description,
-          amount_cents: total,
-          currency: "usd",
-          status: "pending",
-          environment: data.environment,
-          stripe_session_id: session.id,
-          stripe_customer_id: customerId ?? null,
-          user_id: userId,
-        })
-        .select("id")
-        .maybeSingle();
-
-      if (error || !order) {
-        console.error("[store-checkout] order insert failed:", error?.message);
-        return { error: "Could not start checkout. Please try again." };
-      }
-
-      const { error: itemsError } = await db.from("store_order_items").insert(
-        products.map((p) => ({
-          order_id: order.id,
-          product_slug: p.slug,
-          product_title: p.title,
-          amount_cents: Number(p.price_cents ?? 0),
-        })),
-      );
-      if (itemsError) {
-        console.error("[store-checkout] items insert failed:", itemsError.message);
-        return { error: "Could not start checkout. Please try again." };
-      }
-
-      return { clientSecret: session.client_secret ?? "", orderNumber };
-    } catch (error) {
-      console.error("[store-checkout] stripe failure:", error);
-      return { error: getStripeErrorMessage(error) };
     }
+
+    // Direct path (unchanged rollback behaviour when no bridge is configured).
+    const { resolveBuyerUserId } = await import("@/lib/store/buyer.server");
+    const { runStoreCheckout } = await import("@/lib/store/checkout-core.server");
+    const userId = await resolveBuyerUserId();
+    return runStoreCheckout(data, userId);
   });
+
 
 export type CheckoutItemView = {
   slug: string;

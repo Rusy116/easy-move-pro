@@ -49,16 +49,19 @@ const ROW_COLUMNS =
 const LIST_COLUMNS = "slug, city, state_code, state_name, county, population, seo_status";
 
 function client() {
-  // Server env vars are not injected on every host that serves this app, so fall
-  // back to the build-inlined publishable config (same pattern as the store reads).
   const env = (import.meta as unknown as { env?: Record<string, string | undefined> }).env ?? {};
-  const url =
-    (typeof process !== "undefined" ? process.env["SUPABASE_URL"] : undefined) ??
-    env["VITE_SUPABASE_URL"];
-  const key =
-    (typeof process !== "undefined" ? process.env["SUPABASE_PUBLISHABLE_KEY"] : undefined) ??
-    env["VITE_SUPABASE_PUBLISHABLE_KEY"] ??
-    env["VITE_SUPABASE_ANON_KEY"];
+  const proc =
+    typeof process !== "undefined" ? process.env : ({} as Record<string, string | undefined>);
+
+  // Keep each URL paired with a key from the same source. The build-inlined
+  // browser pair is the verified public-read configuration on external hosts;
+  // use the server process pair only when that complete Vite pair is absent.
+  const pairs: Array<[string | undefined, string | undefined]> = [
+    [env["VITE_SUPABASE_URL"], env["VITE_SUPABASE_PUBLISHABLE_KEY"] ?? env["VITE_SUPABASE_ANON_KEY"]],
+    [proc["SUPABASE_URL"], proc["SUPABASE_PUBLISHABLE_KEY"] ?? proc["SUPABASE_ANON_KEY"]],
+  ];
+  const [url, key] = pairs.find(([u, k]) => Boolean(u && k)) ?? [undefined, undefined];
+
   if (!url || !key) {
     console.error("[city-landing] missing backend config for public city reads");
     return null;
@@ -76,6 +79,18 @@ function client() {
       },
     },
   });
+}
+
+function logReadFailure(operation: string, error: unknown) {
+  const value = error as { code?: unknown; message?: unknown } | null;
+  const code = typeof value?.code === "string" ? value.code : "unknown";
+  const message =
+    typeof value?.message === "string"
+      ? value.message
+      : error instanceof Error
+        ? error.message
+        : "Unknown public read failure";
+  console.error(`[city-landing] ${operation} failed (${code}): ${message}`);
 }
 
 interface RawListRow {
@@ -105,14 +120,16 @@ export async function readCityPage(slug: string): Promise<CityPageRow | null> {
   try {
     const db = client();
     if (!db) return null;
-    const { data } = await db
+    const { data, error } = await db
       .from("city_landing_pages")
       .select(ROW_COLUMNS)
       .eq("slug", slug)
       .eq("status", "published")
       .maybeSingle();
+    if (error) logReadFailure("readCityPage", error);
     return (data as unknown as CityPageRow) ?? null;
-  } catch {
+  } catch (error) {
+    logReadFailure("readCityPage", error);
     return null;
   }
 }
@@ -125,15 +142,17 @@ export async function readCitiesByState(
   try {
     const db = client();
     if (!db) return [];
-    const { data } = await db
+    const { data, error } = await db
       .from("city_landing_pages")
       .select(LIST_COLUMNS)
       .eq("status", "published")
       .eq("state_code", stateCode.toUpperCase())
       .order("population", { ascending: false })
       .limit(limit);
+    if (error) logReadFailure("readCitiesByState", error);
     return ((data ?? []) as unknown as RawListRow[]).map(toListItem);
-  } catch {
+  } catch (error) {
+    logReadFailure("readCitiesByState", error);
     return [];
   }
 }
@@ -146,14 +165,16 @@ export async function readPublishedCities(
   try {
     const db = client();
     if (!db) return [];
-    const { data } = await db
+    const { data, error } = await db
       .from("city_landing_pages")
       .select(LIST_COLUMNS)
       .eq("status", "published")
       .order("population", { ascending: false })
       .range(offset, offset + limit - 1);
+    if (error) logReadFailure("readPublishedCities", error);
     return ((data ?? []) as unknown as RawListRow[]).map(toListItem);
-  } catch {
+  } catch (error) {
+    logReadFailure("readPublishedCities", error);
     return [];
   }
 }
@@ -163,12 +184,14 @@ export async function countPublishedCities(): Promise<number> {
   try {
     const db = client();
     if (!db) return 0;
-    const { count } = await db
+    const { count, error } = await db
       .from("city_landing_pages")
       .select("slug", { count: "exact", head: true })
       .eq("status", "published");
+    if (error) logReadFailure("countPublishedCities", error);
     return count ?? 0;
-  } catch {
+  } catch (error) {
+    logReadFailure("countPublishedCities", error);
     return 0;
   }
 }
@@ -193,9 +216,11 @@ export async function countIndexableCities(): Promise<number> {
   try {
     const db = client();
     if (!db) return 0;
-    const { count } = await indexableQuery(db, "slug", true);
+    const { count, error } = await indexableQuery(db, "slug", true);
+    if (error) logReadFailure("countIndexableCities", error);
     return count ?? 0;
-  } catch {
+  } catch (error) {
+    logReadFailure("countIndexableCities", error);
     return 0;
   }
 }
@@ -218,10 +243,14 @@ export async function readIndexableSlugs(
     while (out.length < limit) {
       const from = offset + out.length;
       const size = Math.min(BATCH, limit - out.length);
-      const { data } = await indexableQuery(db, "slug, seo_status")
+      const { data, error } = await indexableQuery(db, "slug, seo_status")
         .order("population", { ascending: false })
         .order("slug", { ascending: true })
         .range(from, from + size - 1);
+      if (error) {
+        logReadFailure("readIndexableSlugs", error);
+        break;
+      }
       const rows = (data ?? []) as unknown as Array<{ slug: string; seo_status: string | null }>;
       for (const r of rows) {
         out.push({ slug: r.slug, seoPublished: r.seo_status === "published" });
@@ -229,7 +258,8 @@ export async function readIndexableSlugs(
       if (rows.length < size) break; // source exhausted
     }
     return out;
-  } catch {
+  } catch (error) {
+    logReadFailure("readIndexableSlugs", error);
     return [];
   }
 }

@@ -165,11 +165,6 @@ function MoversCityPage() {
             <BadgeCheck className="h-4 w-4" /> One company, no call blasts
           </span>
         </div>
-        {seo.intro.map((p, i) => (
-          <p key={i} className="mt-4 max-w-3xl text-base leading-relaxed text-muted-foreground">
-            {p}
-          </p>
-        ))}
         <CityHeroImage
           priority
           hero={hero}

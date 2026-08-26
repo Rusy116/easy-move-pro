@@ -140,6 +140,16 @@ export const createStoreCheckout = createServerFn({ method: "POST" })
     const { createStripeClient, getStripeErrorMessage } = await import("@/lib/stripe.server");
     const { admin, newOrderNumber } = await import("@/lib/store/orders.server");
     const { resolveBuyerUserId } = await import("@/lib/store/buyer.server");
+    console.info("[env-diagnostic]", {
+      route: "store-checkout",
+      SUPABASE_URL_PRESENT: Boolean(process.env.SUPABASE_URL),
+      SUPABASE_SERVICE_ROLE_KEY_PRESENT: Boolean(process.env.SUPABASE_SERVICE_ROLE_KEY),
+      NODE_ENV: process.env.NODE_ENV,
+      VERCEL_ENV: process.env.VERCEL_ENV,
+      VERCEL_REGION: process.env.VERCEL_REGION,
+      runtime: process.release?.name ?? "unknown",
+      platform: process.platform,
+    });
     const db = await admin();
     const userId = await resolveBuyerUserId();
 

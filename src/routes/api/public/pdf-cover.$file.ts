@@ -17,6 +17,16 @@ export const Route = createFileRoute("/api/public/pdf-cover/$file")({
 
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
         const { COVER_BUCKET } = await import("@/lib/pdf-store/cover.server");
+        console.info("[env-diagnostic]", {
+          route: "pdf-cover",
+          SUPABASE_URL_PRESENT: Boolean(process.env.SUPABASE_URL),
+          SUPABASE_SERVICE_ROLE_KEY_PRESENT: Boolean(process.env.SUPABASE_SERVICE_ROLE_KEY),
+          NODE_ENV: process.env.NODE_ENV,
+          VERCEL_ENV: process.env.VERCEL_ENV,
+          VERCEL_REGION: process.env.VERCEL_REGION,
+          runtime: process.release?.name ?? "unknown",
+          platform: process.platform,
+        });
         const { data, error } = await (supabaseAdmin as any).storage.from(COVER_BUCKET).download(file);
         if (error || !data) return new Response("Not found", { status: 404 });
 

@@ -48,7 +48,7 @@ function EcosystemPage() {
   const refresh = () => qc.invalidateQueries({ queryKey: ["ai-ecosystem-status"] });
 
   const blog = useMutation({
-    mutationFn: () => runBlogAgent({ data: { count: 3 } }),
+    mutationFn: () => runBlogAgent({ data: { count: blogCount } }),
     onSuccess: (r) => {
       push(`Blog Agent — ${r.created} articles drafted (${r.aiGenerated} AI-written).`);
       toast.success(`Drafted ${r.created} customer articles`);

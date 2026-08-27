@@ -138,8 +138,9 @@ function BlogReviewPage() {
     <AiShell>
       <PageHeader
         title="Blog Review Queue"
-        description="Human review of AI Blog Agent drafts. Nothing is published without explicit approval."
-        icon={FileText}
+        eyebrow="Blog Agent"
+        subtitle="Human review of AI Blog Agent drafts. Nothing is published without explicit approval."
+        icon={<FileText className="h-5 w-5" />}
       />
 
       <SectionShell title="Queue" description="Newest first — AI blog articles only.">
@@ -167,7 +168,7 @@ function BlogReviewPage() {
             <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
           </div>
         ) : rows.length === 0 ? (
-          <EmptyState title="No articles" description={`No blog drafts with status "${status}".`} />
+          <EmptyState title="No articles" hint={`No blog drafts with status "${status}".`} />
         ) : (
           <div className="space-y-3">
             {rows.map((r) => (

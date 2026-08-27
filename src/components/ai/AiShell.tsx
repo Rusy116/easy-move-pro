@@ -47,6 +47,7 @@ export const AI_NAV = [
   { to: "/ai/usa-data", label: "USA Data Engine", icon: Database },
   { to: "/ai/cities", label: "City Landing Agent", icon: MapPin },
   { to: "/ai/city-review", label: "Draft Review Queue", icon: ClipboardCheck },
+  { to: "/ai/blog-review", label: "Blog Review", icon: FileText },
   { to: "/ai/city-log", label: "Publish Log", icon: ScrollText },
   { to: "/ai/city-index", label: "Index Monitor", icon: Radar },
   { to: "/ai/city-factory", label: "Autonomous Factory", icon: ShieldCheck },

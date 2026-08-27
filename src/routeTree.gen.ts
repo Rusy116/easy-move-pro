@@ -162,6 +162,7 @@ import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/publi
 import { Route as ApiPublicHooksPdfFactoryTickRouteImport } from './routes/api/public/hooks/pdf-factory-tick'
 import { Route as ApiPublicHooksCityProductionTickRouteImport } from './routes/api/public/hooks/city-production-tick'
 import { Route as ApiInternalStoreCheckoutRouteImport } from './routes/api/internal/store/checkout'
+import { Route as ApiInternalFactoryVaultSyncRouteImport } from './routes/api/internal/factory/vault-sync'
 import { Route as AuthenticatedCompanyJobJobIdRouteImport } from './routes/_authenticated/company.job.$jobId'
 import { Route as AuthenticatedAdminJobQuoteIdRouteImport } from './routes/_authenticated/admin.job.$quoteId'
 
@@ -1004,6 +1005,12 @@ const ApiInternalStoreCheckoutRoute =
     path: '/api/internal/store/checkout',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiInternalFactoryVaultSyncRoute =
+  ApiInternalFactoryVaultSyncRouteImport.update({
+    id: '/api/internal/factory/vault-sync',
+    path: '/api/internal/factory/vault-sync',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AuthenticatedCompanyJobJobIdRoute =
   AuthenticatedCompanyJobJobIdRouteImport.update({
     id: '/job/$jobId',
@@ -1164,6 +1171,7 @@ export interface FileRoutesByFullPath {
   '/customer/': typeof AuthenticatedCustomerIndexRoute
   '/admin/job/$quoteId': typeof AuthenticatedAdminJobQuoteIdRoute
   '/company/job/$jobId': typeof AuthenticatedCompanyJobJobIdRoute
+  '/api/internal/factory/vault-sync': typeof ApiInternalFactoryVaultSyncRoute
   '/api/internal/store/checkout': typeof ApiInternalStoreCheckoutRoute
   '/api/public/hooks/city-production-tick': typeof ApiPublicHooksCityProductionTickRoute
   '/api/public/hooks/pdf-factory-tick': typeof ApiPublicHooksPdfFactoryTickRoute
@@ -1319,6 +1327,7 @@ export interface FileRoutesByTo {
   '/customer': typeof AuthenticatedCustomerIndexRoute
   '/admin/job/$quoteId': typeof AuthenticatedAdminJobQuoteIdRoute
   '/company/job/$jobId': typeof AuthenticatedCompanyJobJobIdRoute
+  '/api/internal/factory/vault-sync': typeof ApiInternalFactoryVaultSyncRoute
   '/api/internal/store/checkout': typeof ApiInternalStoreCheckoutRoute
   '/api/public/hooks/city-production-tick': typeof ApiPublicHooksCityProductionTickRoute
   '/api/public/hooks/pdf-factory-tick': typeof ApiPublicHooksPdfFactoryTickRoute
@@ -1477,6 +1486,7 @@ export interface FileRoutesById {
   '/_authenticated/customer/': typeof AuthenticatedCustomerIndexRoute
   '/_authenticated/admin/job/$quoteId': typeof AuthenticatedAdminJobQuoteIdRoute
   '/_authenticated/company/job/$jobId': typeof AuthenticatedCompanyJobJobIdRoute
+  '/api/internal/factory/vault-sync': typeof ApiInternalFactoryVaultSyncRoute
   '/api/internal/store/checkout': typeof ApiInternalStoreCheckoutRoute
   '/api/public/hooks/city-production-tick': typeof ApiPublicHooksCityProductionTickRoute
   '/api/public/hooks/pdf-factory-tick': typeof ApiPublicHooksPdfFactoryTickRoute
@@ -1635,6 +1645,7 @@ export interface FileRouteTypes {
     | '/customer/'
     | '/admin/job/$quoteId'
     | '/company/job/$jobId'
+    | '/api/internal/factory/vault-sync'
     | '/api/internal/store/checkout'
     | '/api/public/hooks/city-production-tick'
     | '/api/public/hooks/pdf-factory-tick'
@@ -1790,6 +1801,7 @@ export interface FileRouteTypes {
     | '/customer'
     | '/admin/job/$quoteId'
     | '/company/job/$jobId'
+    | '/api/internal/factory/vault-sync'
     | '/api/internal/store/checkout'
     | '/api/public/hooks/city-production-tick'
     | '/api/public/hooks/pdf-factory-tick'
@@ -1947,6 +1959,7 @@ export interface FileRouteTypes {
     | '/_authenticated/customer/'
     | '/_authenticated/admin/job/$quoteId'
     | '/_authenticated/company/job/$jobId'
+    | '/api/internal/factory/vault-sync'
     | '/api/internal/store/checkout'
     | '/api/public/hooks/city-production-tick'
     | '/api/public/hooks/pdf-factory-tick'
@@ -2018,6 +2031,7 @@ export interface RootRouteChildren {
   StatesIndexRoute: typeof StatesIndexRoute
   ApiPublicSlaTickRoute: typeof ApiPublicSlaTickRoute
   ProductsCategorySlugRoute: typeof ProductsCategorySlugRoute
+  ApiInternalFactoryVaultSyncRoute: typeof ApiInternalFactoryVaultSyncRoute
   ApiInternalStoreCheckoutRoute: typeof ApiInternalStoreCheckoutRoute
   ApiPublicHooksCityProductionTickRoute: typeof ApiPublicHooksCityProductionTickRoute
   ApiPublicHooksPdfFactoryTickRoute: typeof ApiPublicHooksPdfFactoryTickRoute
@@ -3101,6 +3115,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiInternalStoreCheckoutRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/internal/factory/vault-sync': {
+      id: '/api/internal/factory/vault-sync'
+      path: '/api/internal/factory/vault-sync'
+      fullPath: '/api/internal/factory/vault-sync'
+      preLoaderRoute: typeof ApiInternalFactoryVaultSyncRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/company/job/$jobId': {
       id: '/_authenticated/company/job/$jobId'
       path: '/job/$jobId'
@@ -3375,6 +3396,7 @@ const rootRouteChildren: RootRouteChildren = {
   StatesIndexRoute: StatesIndexRoute,
   ApiPublicSlaTickRoute: ApiPublicSlaTickRoute,
   ProductsCategorySlugRoute: ProductsCategorySlugRoute,
+  ApiInternalFactoryVaultSyncRoute: ApiInternalFactoryVaultSyncRoute,
   ApiInternalStoreCheckoutRoute: ApiInternalStoreCheckoutRoute,
   ApiPublicHooksCityProductionTickRoute: ApiPublicHooksCityProductionTickRoute,
   ApiPublicHooksPdfFactoryTickRoute: ApiPublicHooksPdfFactoryTickRoute,

@@ -6,6 +6,7 @@ import { AiShell } from "@/components/ai/AiShell";
 import { PageHeader, SectionShell, StatCard } from "@/components/shell/Chrome";
 import { EmptyState } from "@/components/ai/blocks";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { ECOSYSTEM_AGENTS, PRODUCTION_PIPELINE } from "@/lib/ai/ecosystem";

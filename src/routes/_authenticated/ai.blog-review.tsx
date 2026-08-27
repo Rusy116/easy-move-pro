@@ -143,7 +143,7 @@ function BlogReviewPage() {
         icon={<FileText className="h-5 w-5" />}
       />
 
-      <SectionShell title="Queue" description="Newest first — AI blog articles only.">
+      <SectionShell title="Queue — newest first (AI blog articles only)">
         <div className="mb-4 flex flex-wrap gap-2">
           {STATUSES.map((s) => (
             <Button
@@ -203,8 +203,7 @@ function BlogReviewPage() {
 
       {current && (
         <SectionShell
-          title="Review & edit"
-          description={`Status: ${current.status}${
+          title={`Review & edit — status: ${current.status}${
             current.published_at
               ? ` · published ${new Date(current.published_at).toLocaleString()}`
               : ""

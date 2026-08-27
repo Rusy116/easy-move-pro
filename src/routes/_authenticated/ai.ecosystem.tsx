@@ -145,10 +145,32 @@ function EcosystemPage() {
 
       <SectionShell title="Run agents">
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-          <Button onClick={() => blog.mutate()} disabled={busy} className="justify-start gap-2">
-            {blog.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Newspaper className="h-4 w-4" />}
-            Blog Agent
-          </Button>
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center gap-2 text-sm">
+              <label htmlFor="blog-count" className="text-muted-foreground">Count:</label>
+              <Input
+                id="blog-count"
+                type="number"
+                min={1}
+                max={10}
+                value={blogCount}
+                onChange={(e) => setBlogCount(Math.min(Math.max(parseInt(e.target.value || "1", 10), 1), 10))}
+                className="h-8 w-20"
+              />
+            </div>
+            <Button
+              onClick={() => {
+                if (window.confirm(`Generate ${blogCount} draft article${blogCount === 1 ? "" : "s"}?`)) {
+                  blog.mutate();
+                }
+              }}
+              disabled={busy}
+              className="justify-start gap-2"
+            >
+              {blog.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Newspaper className="h-4 w-4" />}
+              Blog Agent
+            </Button>
+          </div>
           <Button onClick={() => growth.mutate()} disabled={busy} variant="outline" className="justify-start gap-2">
             {growth.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Building2 className="h-4 w-4" />}
             Growth Agent

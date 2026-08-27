@@ -36,6 +36,7 @@ export const Route = createFileRoute("/_authenticated/ai/ecosystem")({
 function EcosystemPage() {
   const qc = useQueryClient();
   const [log, setLog] = useState<{ t: string; msg: string }[]>([]);
+  const [blogCount, setBlogCount] = useState<number>(1);
   const push = (msg: string) =>
     setLog((l) => [{ t: new Date().toLocaleTimeString(), msg }, ...l].slice(0, 40));
 

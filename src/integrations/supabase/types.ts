@@ -2708,6 +2708,69 @@ export type Database = {
           },
         ]
       }
+      demand_signals: {
+        Row: {
+          avg_position: number | null
+          clicks: number | null
+          collected_at: string
+          competition: number | null
+          cpc_cents: number | null
+          created_at: string
+          ctr: number | null
+          geo: string
+          id: string
+          impressions: number | null
+          query: string
+          query_norm: string | null
+          search_volume: number | null
+          source: string
+          source_reference: Json
+          trend_delta_90: number | null
+          window_end: string
+          window_start: string
+        }
+        Insert: {
+          avg_position?: number | null
+          clicks?: number | null
+          collected_at: string
+          competition?: number | null
+          cpc_cents?: number | null
+          created_at?: string
+          ctr?: number | null
+          geo?: string
+          id?: string
+          impressions?: number | null
+          query: string
+          query_norm?: string | null
+          search_volume?: number | null
+          source: string
+          source_reference: Json
+          trend_delta_90?: number | null
+          window_end: string
+          window_start: string
+        }
+        Update: {
+          avg_position?: number | null
+          clicks?: number | null
+          collected_at?: string
+          competition?: number | null
+          cpc_cents?: number | null
+          created_at?: string
+          ctr?: number | null
+          geo?: string
+          id?: string
+          impressions?: number | null
+          query?: string
+          query_norm?: string | null
+          search_volume?: number | null
+          source?: string
+          source_reference?: Json
+          trend_delta_90?: number | null
+          window_end?: string
+          window_start?: string
+        }
+        Relationships: []
+      }
       digital_products: {
         Row: {
           cover_url: string | null
@@ -3760,6 +3823,8 @@ export type Database = {
           seasonality: string
           source: string
           status: string
+          updated_at: string
+          verification: string
           volume_score: number
         }
         Insert: {
@@ -3775,6 +3840,8 @@ export type Database = {
           seasonality?: string
           source?: string
           status?: string
+          updated_at?: string
+          verification?: string
           volume_score?: number
         }
         Update: {
@@ -3790,49 +3857,75 @@ export type Database = {
           seasonality?: string
           source?: string
           status?: string
+          updated_at?: string
+          verification?: string
           volume_score?: number
         }
         Relationships: []
       }
       pdf_opportunities: {
         Row: {
+          approval: string
+          approved_at: string | null
+          approved_by: string | null
           category_slug: string
+          confidence: number | null
           created_at: string
           demand_score: number
           difficulty_score: number
+          evidence: Json | null
           gap_reason: string | null
           id: string
           keyword: string
           priority: number
+          snooze_until: string | null
           source: string
           status: string
           title: string
+          updated_at: string
+          verification: string
         }
         Insert: {
+          approval?: string
+          approved_at?: string | null
+          approved_by?: string | null
           category_slug?: string
+          confidence?: number | null
           created_at?: string
           demand_score?: number
           difficulty_score?: number
+          evidence?: Json | null
           gap_reason?: string | null
           id?: string
           keyword: string
           priority?: number
+          snooze_until?: string | null
           source?: string
           status?: string
           title: string
+          updated_at?: string
+          verification?: string
         }
         Update: {
+          approval?: string
+          approved_at?: string | null
+          approved_by?: string | null
           category_slug?: string
+          confidence?: number | null
           created_at?: string
           demand_score?: number
           difficulty_score?: number
+          evidence?: Json | null
           gap_reason?: string | null
           id?: string
           keyword?: string
           priority?: number
+          snooze_until?: string | null
           source?: string
           status?: string
           title?: string
+          updated_at?: string
+          verification?: string
         }
         Relationships: []
       }

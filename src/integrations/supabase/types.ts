@@ -5860,6 +5860,7 @@ export type Database = {
         Args: { _minutes: number; _quote_id: string }
         Returns: undefined
       }
+      fn_factory_tick_secret: { Args: never; Returns: string }
       fn_finance_audit: {
         Args: {
           _action: string
@@ -6167,6 +6168,7 @@ export type Database = {
         Args: { _event: string; _quote_id: string; _reason: string }
         Returns: string
       }
+      fn_set_factory_tick_secret: { Args: { _value: string }; Returns: string }
       fn_set_lead_status: {
         Args: {
           _note?: string

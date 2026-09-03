@@ -11,6 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { en, type TranslationKey } from "./locales/en";
 import { es } from "./locales/es";
 import { ru } from "./locales/ru";
+import { adminEn, adminRu, adminEs } from "./admin";
 
 /**
  * Enterprise i18n core.

@@ -237,7 +237,14 @@ function hasGeo(norm: string, cityNames: Set<string>): boolean {
 }
 
 function classify(norm: string): { fit: ProductFit; weight: number } | null {
+  const apartmentPlanner =
+    APARTMENT_CONTEXT.test(norm) && APARTMENT_PLANNING_INTENT.some((re) => re.test(norm));
   for (const rule of FIT_RULES) {
+    // apartment_move_planner outranks the generic planner bucket, but specific
+    // fits (checklist, cost, inventory, ...) still win first.
+    if (apartmentPlanner && rule.fit === "general_moving_planner") {
+      return { fit: "apartment_move_planner", weight: 20 };
+    }
     for (const t of rule.tokens) {
       const re = new RegExp(`(^|[^a-z])${t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}([^a-z]|$)`);
       if (re.test(norm)) return { fit: rule.fit, weight: rule.weight };
@@ -245,11 +252,12 @@ function classify(norm: string): { fit: ProductFit; weight: number } | null {
   }
   // apartment_move_planner requires BOTH apartment context AND explicit
   // planning/informational intent — "apartment mover" alone never qualifies.
-  if (APARTMENT_CONTEXT.test(norm) && APARTMENT_PLANNING_INTENT.some((re) => re.test(norm))) {
+  if (apartmentPlanner) {
     return { fit: "apartment_move_planner", weight: 20 };
   }
   return null;
 }
+
 
 function impressionsPoints(impressions: number): number {
   // Log scaled, capped at 35. 30+ impressions in the window reaches the cap.

@@ -3,6 +3,7 @@
  * "Today / This week / This month / All time" means the same thing everywhere.
  */
 import { Button } from "@/components/ui/button";
+import { useT } from "@/i18n/admin";
 
 export type DashboardPeriod = "today" | "week" | "month" | "all";
 
@@ -56,10 +57,11 @@ export function PeriodFilter({
   onChange: (p: DashboardPeriod) => void;
   className?: string;
 }) {
+  const tr = useT();
   return (
     <div
       role="group"
-      aria-label="Time period"
+      aria-label={tr("admin.shell.period.aria")}
       className={`flex flex-wrap items-center gap-1.5 ${className}`}
     >
       {DASHBOARD_PERIODS.map((p) => (
@@ -71,7 +73,7 @@ export function PeriodFilter({
           aria-pressed={value === p.key}
           onClick={() => onChange(p.key)}
         >
-          {p.label}
+          {tr(`admin.shell.period.${p.key}`)}
         </Button>
       ))}
     </div>

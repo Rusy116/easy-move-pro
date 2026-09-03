@@ -192,8 +192,7 @@ function AdminInvoicesPage() {
                         {money(inv.amount, inv.currency)}
                       </div>
                       <div className="text-xs text-muted-foreground">
-                        {t("admin.invoices.ofAmount", { amount: pct(inv.rate) + " " + money(inv.final_price, inv.currency) })} · {t("admin.invoices.balance", { amount: "" })}{" "}
-                        {money(balanceOf(inv), inv.currency)}
+                        {t("admin.invoices.ofAmount", { amount: money(inv.final_price, inv.currency) })} ({pct(inv.rate)}) · {t("admin.invoices.balance", { amount: money(balanceOf(inv), inv.currency) })}
                       </div>
                     </div>
                   </div>
@@ -206,7 +205,7 @@ function AdminInvoicesPage() {
                       disabled={busy === inv.id}
                       onClick={() => void act(inv, "paid")}
                     >
-                      <CheckCircle2 className="mr-1.5 h-3.5 w-3.5" /> Mark paid
+                      <CheckCircle2 className="mr-1.5 h-3.5 w-3.5" /> {t("admin.invoices.markPaid")}
                     </Button>
                     <Button
                       size="sm"
@@ -215,7 +214,7 @@ function AdminInvoicesPage() {
                       disabled={busy === inv.id}
                       onClick={() => void act(inv, "overdue")}
                     >
-                      <Clock className="mr-1.5 h-3.5 w-3.5" /> Mark overdue
+                      <Clock className="mr-1.5 h-3.5 w-3.5" /> {t("admin.invoices.markOverdue")}
                     </Button>
                     <Button
                       size="sm"
@@ -224,7 +223,7 @@ function AdminInvoicesPage() {
                       disabled={busy === inv.id}
                       onClick={() => void act(inv, "send")}
                     >
-                      <Send className="mr-1.5 h-3.5 w-3.5" /> Mark sent
+                      <Send className="mr-1.5 h-3.5 w-3.5" /> {t("admin.invoices.markSent")}
                     </Button>
                     <Button
                       size="sm"
@@ -233,7 +232,7 @@ function AdminInvoicesPage() {
                       disabled={busy === inv.id}
                       onClick={() => void act(inv, "void")}
                     >
-                      <Ban className="mr-1.5 h-3.5 w-3.5" /> Void
+                      <Ban className="mr-1.5 h-3.5 w-3.5" /> {t("admin.invoices.void")}
                     </Button>
                     <Button
                       size="sm"
@@ -247,7 +246,7 @@ function AdminInvoicesPage() {
                         })
                       }
                     >
-                      <Download className="mr-1.5 h-3.5 w-3.5" /> PDF
+                      <Download className="mr-1.5 h-3.5 w-3.5" /> {t("admin.invoices.pdf")}
                     </Button>
                     <Button
                       size="sm"
@@ -259,7 +258,7 @@ function AdminInvoicesPage() {
                         })
                       }
                     >
-                      <Mail className="mr-1.5 h-3.5 w-3.5" /> Email
+                      <Mail className="mr-1.5 h-3.5 w-3.5" /> {t("admin.invoices.email")}
                     </Button>
                     <Button
                       size="sm"
@@ -267,14 +266,14 @@ function AdminInvoicesPage() {
                       className="rounded-full"
                       onClick={() => setOpenId(openId === inv.id ? null : inv.id)}
                     >
-                      {openId === inv.id ? "Hide" : "Payment history"}
+                      {openId === inv.id ? t("admin.invoices.hide") : t("admin.invoices.paymentHistory")}
                     </Button>
                     <Link
                       to="/admin/job/$quoteId"
                       params={{ quoteId: inv.quote_id }}
                       className="text-xs underline underline-offset-4 text-muted-foreground"
                     >
-                      Open job record
+                      {t("admin.invoices.openJobRecord")}
                     </Link>
                   </div>
 
@@ -284,7 +283,7 @@ function AdminInvoicesPage() {
                         <Input
                           className="h-8 w-40"
                           inputMode="decimal"
-                          placeholder="Partial amount"
+                          placeholder={t("admin.invoices.partialAmountPlaceholder")}
                           value={partial}
                           onChange={(e) => setPartial(e.target.value)}
                         />
@@ -294,7 +293,7 @@ function AdminInvoicesPage() {
                           disabled={busy === inv.id || !Number(partial)}
                           onClick={() => void act(inv, "partial", Number(partial))}
                         >
-                          Record partial payment
+                          {t("admin.invoices.recordPartialPayment")}
                         </Button>
                       </div>
                       <PaymentHistory invoiceId={inv.id} currency={inv.currency} />
@@ -311,10 +310,12 @@ function AdminInvoicesPage() {
 }
 
 function PaymentHistory({ invoiceId, currency }: { invoiceId: string; currency: string }) {
+  const { t } = useI18n();
+  const noPaymentsLabel = t("admin.invoices.noPayments");
   const { payments, loadingPayments } = useCommissionPayments(invoiceId);
   if (loadingPayments) return <SkeletonRows n={2} />;
   if (payments.length === 0)
-    return <p className="text-xs text-muted-foreground">No payments recorded yet.</p>;
+    return <p className="text-xs text-muted-foreground">{noPaymentsLabel}</p>;
   return (
     <ul className="space-y-1 text-xs">
       {payments.map((p) => (

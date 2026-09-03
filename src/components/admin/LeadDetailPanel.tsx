@@ -58,6 +58,7 @@ import { TasksSection } from "./lead/TasksSection";
 import { DocumentsSection } from "./lead/DocumentsSection";
 import { ActivityFeed } from "./lead/ActivityFeed";
 import { AiSummarySection } from "./lead/AiSummarySection";
+import { useT } from "@/i18n";
 
 
 export const LEAD_STATUSES = [
@@ -158,6 +159,7 @@ export function LeadDetailPanel({
   onClose: () => void;
   onStatusChange: (id: string, status: string) => void | Promise<void>;
 }) {
+  const tr = useT();
   const [lastQuote, setLastQuote] = useState<Quote | null>(quote);
   useEffect(() => {
     if (quote) setLastQuote(quote);

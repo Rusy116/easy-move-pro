@@ -126,7 +126,7 @@ export function CommunicationCenter({ q }: { q: LeadQuote }) {
   );
 }
 
-function statusLabel(tr: (k: string, v?: Record<string, unknown>) => string, s: string): string {
+function statusLabel(tr: (k: string, v?: Record<string, string | number>) => string, s: string): string {
   return tr(`admin.shell.comms.status.${s}`);
 }
 

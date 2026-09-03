@@ -58,6 +58,7 @@ import { TasksSection } from "./lead/TasksSection";
 import { DocumentsSection } from "./lead/DocumentsSection";
 import { ActivityFeed } from "./lead/ActivityFeed";
 import { AiSummarySection } from "./lead/AiSummarySection";
+import { useT } from "@/i18n";
 
 
 export const LEAD_STATUSES = [
@@ -149,6 +150,10 @@ function getCustomerName(q: Quote): string {
   return d?.fullName?.trim() || "—";
 }
 
+function statusKey(status: string): string {
+  return `admin.shell.detail.status${status.charAt(0).toUpperCase()}${status.slice(1)}`;
+}
+
 export function LeadDetailPanel({
   quote,
   onClose,
@@ -158,6 +163,7 @@ export function LeadDetailPanel({
   onClose: () => void;
   onStatusChange: (id: string, status: string) => void | Promise<void>;
 }) {
+  const tr = useT();
   const [lastQuote, setLastQuote] = useState<Quote | null>(quote);
   useEffect(() => {
     if (quote) setLastQuote(quote);
@@ -224,15 +230,15 @@ export function LeadDetailPanel({
   const milestones = useMemo(() => {
     const r = q as (Quote & Record<string, unknown>) | null;
     return [
-      { label: "Lead created", at: r?.created_at ?? null },
-      { label: "Quote generated", at: r?.created_at ?? null },
-      { label: "Broker assigned", at: (r?.["qualified_at"] as string) ?? null },
-      { label: "Customer contacted", at: (r?.["contacted_at"] as string) ?? null },
-      { label: "Estimate sent", at: (r?.["final_quote_sent_at"] as string) ?? null },
-      { label: "Marketplace published", at: (r?.["published_at"] as string) ?? null },
-      { label: "Company claimed", at: (r?.["claimed_at"] as string) ?? null },
-      { label: "Booking accepted", at: r?.accepted_at ?? null },
-      { label: "Job completed", at: (r?.["closed_at"] as string) ?? null },
+      { label: tr("admin.shell.detail.milestoneLeadCreated"), at: r?.created_at ?? null },
+      { label: tr("admin.shell.detail.milestoneQuoteGenerated"), at: r?.created_at ?? null },
+      { label: tr("admin.shell.detail.milestoneBrokerAssigned"), at: (r?.["qualified_at"] as string) ?? null },
+      { label: tr("admin.shell.detail.milestoneCustomerContacted"), at: (r?.["contacted_at"] as string) ?? null },
+      { label: tr("admin.shell.detail.milestoneEstimateSent"), at: (r?.["final_quote_sent_at"] as string) ?? null },
+      { label: tr("admin.shell.detail.milestoneMarketplacePublished"), at: (r?.["published_at"] as string) ?? null },
+      { label: tr("admin.shell.detail.milestoneCompanyClaimed"), at: (r?.["claimed_at"] as string) ?? null },
+      { label: tr("admin.shell.detail.milestoneBookingAccepted"), at: r?.accepted_at ?? null },
+      { label: tr("admin.shell.detail.milestoneJobCompleted"), at: (r?.["closed_at"] as string) ?? null },
     ];
   }, [q]);
 
@@ -280,7 +286,7 @@ export function LeadDetailPanel({
         insurance: q!.insurance_tier ?? "basic",
       });
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Could not build PDF");
+      toast.error(e instanceof Error ? e.message : tr("admin.shell.detail.pdfError"));
     }
   }
 
@@ -314,7 +320,7 @@ export function LeadDetailPanel({
     payload.lead_phase = "open_market";
     const { error } = await supabase.from("quotes").insert(payload as never);
     if (error) toast.error(error.message);
-    else toast.success("Lead duplicated");
+    else toast.success(tr("admin.shell.detail.duplicated"));
   }
 
   async function archiveLead() {
@@ -324,7 +330,7 @@ export function LeadDetailPanel({
       .eq("id", q!.id);
     if (error) toast.error(error.message);
     else {
-      toast.success("Lead archived");
+      toast.success(tr("admin.shell.detail.archived"));
       onClose();
     }
   }
@@ -344,7 +350,7 @@ export function LeadDetailPanel({
     setSavingNote(false);
     if (error) return toast.error(error.message);
     setNewNote("");
-    toast.success("Note added");
+    toast.success(tr("admin.shell.detail.noteAdded"));
   }
 
   async function onBrokerChange(v: string | null) {
@@ -358,7 +364,7 @@ export function LeadDetailPanel({
     const { error } = await supabase.rpc("fn_broker_qualify_lead", { _quote_id: quoteId });
     setQualifying(false);
     if (error) return toast.error(error.message);
-    toast.success("Lead qualified — now visible to all approved moving companies.");
+    toast.success(tr("admin.shell.detail.qualified"));
   }
 
   async function runEngine(fn: () => Promise<unknown>, ok: string) {
@@ -366,7 +372,7 @@ export function LeadDetailPanel({
       await fn();
       toast.success(ok);
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Failed");
+      toast.error(e instanceof Error ? e.message : tr("admin.shell.detail.engineFailed"));
     }
   }
 
@@ -376,7 +382,7 @@ export function LeadDetailPanel({
         <button
           type="button"
           onClick={() => onClose()}
-          aria-label="Close panel"
+          aria-label={tr("admin.shell.detail.close")}
           className="absolute right-3 top-3 z-30 inline-flex h-9 w-9 items-center justify-center rounded-full border border-border bg-card text-muted-foreground shadow-sm hover:bg-accent hover:text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
         >
           <X className="h-4 w-4" />
@@ -389,11 +395,11 @@ export function LeadDetailPanel({
                 {q.quote_number ?? q.id.slice(0, 8)}
               </span>
               <Badge variant="outline" className={`capitalize ${STATUS_STYLES[q.status] ?? ""}`}>
-                {q.status}
+                {tr(`admin.shell.detail.status${q.status.charAt(0).toUpperCase()}${q.status.slice(1)}`)}
               </Badge>
               {q.accepted_at && (
                 <Badge className="bg-emerald-500/10 text-emerald-700 border-emerald-600/30">
-                  Accepted
+                  {tr("admin.shell.detail.accepted")}
                 </Badge>
               )}
             </SheetTitle>
@@ -401,7 +407,7 @@ export function LeadDetailPanel({
 
           <div className="mt-3 rounded-lg border border-border bg-muted/30 p-3">
             <div className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-              Lead workflow
+              {tr("admin.shell.detail.workflowLabel")}
             </div>
             <LeadWorkflowActions quoteId={q.id} status={q.lead_status} />
           </div>
@@ -410,7 +416,7 @@ export function LeadDetailPanel({
             <Button asChild size="sm" disabled={!phone}>
               <a href={phone ? `tel:${phone}` : undefined}>
                 <Phone className="mr-2 h-4 w-4" />
-                Call
+                {tr("admin.shell.detail.call")}
               </a>
             </Button>
             <Button asChild size="sm" variant="outline" disabled={!email}>
@@ -422,26 +428,26 @@ export function LeadDetailPanel({
                 }
               >
                 <Mail className="mr-2 h-4 w-4" />
-                Email
+                {tr("admin.shell.detail.email")}
               </a>
             </Button>
             <Button asChild size="sm" variant="outline" disabled={!phone}>
               <a href={phone ? `sms:${phone}` : undefined}>
                 <MessageSquare className="mr-2 h-4 w-4" />
-                SMS
+                {tr("admin.shell.detail.sms")}
               </a>
             </Button>
             <Button size="sm" variant="outline" onClick={() => void downloadPdf()}>
               <FileDown className="mr-2 h-4 w-4" />
-              PDF
+              {tr("admin.shell.detail.pdf")}
             </Button>
             <Button size="sm" variant="outline" onClick={() => void duplicateLead()}>
               <Copy className="mr-2 h-4 w-4" />
-              Duplicate
+              {tr("admin.shell.detail.duplicate")}
             </Button>
             <Button size="sm" variant="outline" onClick={() => void archiveLead()}>
               <Archive className="mr-2 h-4 w-4" />
-              Archive
+              {tr("admin.shell.detail.archive")}
             </Button>
 
             {q.quote_number && q.portal_token && (
@@ -452,7 +458,7 @@ export function LeadDetailPanel({
                   search={{ token: q.portal_token }}
                 >
                   <ExternalLink className="mr-2 h-4 w-4" />
-                  Portal
+                  {tr("admin.shell.detail.portal")}
                 </Link>
               </Button>
             )}
@@ -467,8 +473,8 @@ export function LeadDetailPanel({
             >
               <CheckCircle2 className="mr-2 h-4 w-4" />
               {["new", "qualified", "expired", "cancelled"].includes(q.job_status ?? "new")
-                ? "Qualified Lead"
-                : "Published to movers"}
+                ? tr("admin.shell.detail.qualifiedLead")
+                : tr("admin.shell.detail.publishedToMovers")}
             </Button>
 
             <div className="ml-auto flex items-center gap-2">
@@ -478,8 +484,8 @@ export function LeadDetailPanel({
                 </SelectTrigger>
                 <SelectContent>
                   {LEAD_STATUSES.map((s) => (
-                    <SelectItem key={s} value={s} className="capitalize">
-                      {s}
+                    <SelectItem key={s} value={s}>
+                      {tr(statusKey(s))}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -488,12 +494,12 @@ export function LeadDetailPanel({
           </div>
 
           <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
-            <MiniStat label="Broker">
+            <MiniStat label={tr("admin.shell.detail.broker")}>
               <BrokerSelect value={brokerId} onChange={(v) => void onBrokerChange(v)} size="sm" />
             </MiniStat>
-            <MiniStat label="Move date" value={q.move_date ?? "—"} />
+            <MiniStat label={tr("admin.shell.detail.moveDate")} value={q.move_date ?? "—"} />
             <MiniStat
-              label="Estimate"
+              label={tr("admin.shell.detail.estimate")}
               value={`$${Number(q.estimated_low).toLocaleString()}–$${Number(q.estimated_high).toLocaleString()}`}
             />
           </div>
@@ -506,20 +512,20 @@ export function LeadDetailPanel({
             )}
             <span
               className="inline-flex items-center gap-1 rounded-full border border-border bg-card px-2 py-0.5 text-[11px] text-muted-foreground"
-              title="Mover PII visibility"
+              title={tr("admin.shell.detail.piiVisibility")}
             >
               <EyeOff className="h-3 w-3" />
               {(() => {
                 const m = q.visibility_mask ?? {};
                 const hidden = Object.values(m).filter(Boolean).length;
                 return hidden > 0
-                  ? `${hidden} PII field${hidden > 1 ? "s" : ""} hidden`
-                  : "Full visibility";
+                  ? tr("admin.shell.detail.piiHidden", { count: hidden, plural: hidden > 1 ? "s" : "" })
+                  : tr("admin.shell.detail.fullVisibility");
               })()}
             </span>
             {q.closed_reason && (
               <Badge variant="outline" className="text-[11px] capitalize">
-                Closed · {q.closed_reason}
+                {tr("admin.shell.detail.closedReason", { reason: q.closed_reason })}
               </Badge>
             )}
 
@@ -533,12 +539,12 @@ export function LeadDetailPanel({
                   onClick={() =>
                     void runEngine(
                       () => doPause({ data: { quoteId: q.id, reason: "manual" } }),
-                      "SLA paused",
+                      tr("admin.shell.detail.slaPaused"),
                     )
                   }
                 >
                   <PauseCircle className="mr-1 h-3.5 w-3.5" />
-                  Pause
+                  {tr("admin.shell.detail.pause")}
                 </Button>
               )}
               {q.lead_phase === "exclusive" && q.exclusive_paused_at && (
@@ -547,11 +553,11 @@ export function LeadDetailPanel({
                   variant="ghost"
                   className="h-7 px-2 text-xs"
                   onClick={() =>
-                    void runEngine(() => doResume({ data: { quoteId: q.id } }), "SLA resumed")
+                    void runEngine(() => doResume({ data: { quoteId: q.id } }), tr("admin.shell.detail.slaResumed"))
                   }
                 >
                   <PlayCircle className="mr-1 h-3.5 w-3.5" />
-                  Resume
+                  {tr("admin.shell.detail.resume")}
                 </Button>
               )}
               {q.lead_phase === "exclusive" && (
@@ -562,12 +568,12 @@ export function LeadDetailPanel({
                   onClick={() =>
                     void runEngine(
                       () => doExtend({ data: { quoteId: q.id, minutes: 60 } }),
-                      "SLA extended +1h",
+                      tr("admin.shell.detail.slaExtended"),
                     )
                   }
                 >
                   <Clock className="mr-1 h-3.5 w-3.5" />
-                  +1h
+                  {tr("admin.shell.detail.extend")}
                 </Button>
               )}
               {q.lead_phase !== "closed" && (
@@ -577,12 +583,12 @@ export function LeadDetailPanel({
                   className="h-7 px-2 text-xs text-rose-700 hover:text-rose-800"
                   onClick={() => {
                     const reason = window.prompt(
-                      "Close reason (won/lost/cancelled/duplicate/invalid)",
+                      tr("admin.shell.detail.closeReasonPrompt"),
                       "lost",
                     );
                     if (!reason) return;
                     if (!["won", "lost", "cancelled", "duplicate", "invalid"].includes(reason)) {
-                      toast.error("Invalid reason");
+                      toast.error(tr("admin.shell.detail.invalidReason"));
                       return;
                     }
                     void runEngine(
@@ -598,12 +604,12 @@ export function LeadDetailPanel({
                               | "invalid",
                           },
                         }),
-                      "Lead closed",
+                      tr("admin.shell.detail.leadClosed"),
                     );
                   }}
                 >
                   <XCircle className="mr-1 h-3.5 w-3.5" />
-                  Close Lead
+                  {tr("admin.shell.detail.closeLead")}
                 </Button>
               )}
             </div>
@@ -615,43 +621,43 @@ export function LeadDetailPanel({
             <TabsList className="inline-flex w-max gap-1">
               <TabsTrigger value="overview">
                 <User className="mr-1 hidden h-3.5 w-3.5 sm:inline" />
-                Overview
+                {tr("admin.shell.detail.tabOverview")}
               </TabsTrigger>
               <TabsTrigger value="inventory">
                 <Package className="mr-1 hidden h-3.5 w-3.5 sm:inline" />
-                Inventory
+                {tr("admin.shell.detail.tabInventory")}
               </TabsTrigger>
               <TabsTrigger value="pricing">
                 <DollarSign className="mr-1 hidden h-3.5 w-3.5 sm:inline" />
-                Pricing
+                {tr("admin.shell.detail.tabPricing")}
               </TabsTrigger>
               <TabsTrigger value="comms">
                 <MessageSquare className="mr-1 hidden h-3.5 w-3.5 sm:inline" />
-                Comms
+                {tr("admin.shell.detail.tabComms")}
               </TabsTrigger>
               <TabsTrigger value="tasks">
                 <ListTodo className="mr-1 hidden h-3.5 w-3.5 sm:inline" />
-                Tasks
+                {tr("admin.shell.detail.tabTasks")}
               </TabsTrigger>
               <TabsTrigger value="timeline">
                 <Clock className="mr-1 hidden h-3.5 w-3.5 sm:inline" />
-                Timeline
+                {tr("admin.shell.detail.tabTimeline")}
               </TabsTrigger>
               <TabsTrigger value="notes">
                 <StickyNote className="mr-1 hidden h-3.5 w-3.5 sm:inline" />
-                Notes
+                {tr("admin.shell.detail.tabNotes")}
               </TabsTrigger>
               <TabsTrigger value="documents">
                 <FileText className="mr-1 hidden h-3.5 w-3.5 sm:inline" />
-                Docs
+                {tr("admin.shell.detail.tabDocuments")}
               </TabsTrigger>
               <TabsTrigger value="activity">
                 <Activity className="mr-1 hidden h-3.5 w-3.5 sm:inline" />
-                Activity
+                {tr("admin.shell.detail.tabActivity")}
               </TabsTrigger>
               <TabsTrigger value="assign">
                 <Building2 className="mr-1 hidden h-3.5 w-3.5 sm:inline" />
-                Movers
+                {tr("admin.shell.detail.tabMovers")}
               </TabsTrigger>
             </TabsList>
           </div>
@@ -700,13 +706,13 @@ export function LeadDetailPanel({
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 className="pl-9"
-                placeholder="Search notes…"
+                placeholder={tr("admin.shell.detail.searchNotes")}
                 value={noteQuery}
                 onChange={(e) => setNoteQuery(e.target.value)}
               />
             </div>
             <Textarea
-              placeholder="Internal note about this lead…"
+              placeholder={tr("admin.shell.detail.notePlaceholder")}
               value={newNote}
               onChange={(e) => setNewNote(e.target.value)}
               rows={3}
@@ -717,7 +723,7 @@ export function LeadDetailPanel({
                 onClick={() => void addNote()}
                 disabled={savingNote || !newNote.trim()}
               >
-                {savingNote ? "Saving…" : "Add note"}
+                {savingNote ? tr("admin.shell.detail.saving") : tr("admin.shell.detail.addNote")}
               </Button>
             </div>
             <div className="space-y-2">
@@ -741,14 +747,14 @@ export function LeadDetailPanel({
                     <p className="mt-1 whitespace-pre-wrap">{n.body}</p>
                   </div>
                 ))}
-              {notes.length === 0 && <p className="text-sm text-muted-foreground">No notes yet.</p>}
+              {notes.length === 0 && <p className="text-sm text-muted-foreground">{tr("admin.shell.detail.noNotes")}</p>}
             </div>
           </TabsContent>
 
           <TabsContent value="timeline" className="space-y-6 px-4 py-4 sm:px-6">
             <div>
               <div className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Milestones
+                {tr("admin.shell.detail.milestones")}
               </div>
               <ol className="ml-2 space-y-3 border-l border-border">
                 {milestones.map((m) => (
@@ -758,7 +764,7 @@ export function LeadDetailPanel({
                     />
                     <div className="text-sm font-medium">{m.label}</div>
                     <div className="text-xs text-muted-foreground">
-                      {m.at ? new Date(m.at).toLocaleString() : "Pending"}
+                      {m.at ? new Date(m.at).toLocaleString() : tr("admin.shell.detail.pending")}
                     </div>
                   </li>
                 ))}
@@ -766,23 +772,23 @@ export function LeadDetailPanel({
             </div>
             <div>
               <div className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Lead events
+                {tr("admin.shell.detail.leadEvents")}
               </div>
               <UniversalTimeline quoteId={q.id} />
             </div>
             {history.length > 0 && (
               <div>
                 <div className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  Status changes
+                  {tr("admin.shell.detail.statusChanges")}
                 </div>
                 <ol className="ml-2 space-y-3 border-l border-border">
                   {history.map((h) => (
                     <li key={h.id} className="relative ml-4">
                       <div className="absolute -left-[1.35rem] mt-1.5 h-3 w-3 rounded-full border border-background bg-primary" />
                       <div className="text-sm">
-                        <span className="font-medium capitalize">{h.to_status}</span>
+                        <span className="font-medium">{tr(statusKey(h.to_status))}</span>
                         {h.from_status && (
-                          <span className="text-muted-foreground"> ← {h.from_status}</span>
+                          <span className="text-muted-foreground"> ← {tr(statusKey(h.from_status))}</span>
                         )}
                       </div>
                       <div className="text-xs text-muted-foreground">

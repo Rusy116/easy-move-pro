@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/select";
 import { FileText, ExternalLink, Trash2 } from "lucide-react";
 import { Empty, dateTime, type LeadQuote } from "./shared";
+import { useT } from "@/i18n";
 
 type Doc = {
   id: string;
@@ -23,16 +24,10 @@ type Doc = {
   created_at: string;
 };
 
-const KINDS = [
-  { id: "estimate", label: "Estimate PDF" },
-  { id: "contract", label: "Contract" },
-  { id: "inventory", label: "Inventory PDF" },
-  { id: "customer_upload", label: "Customer upload" },
-  { id: "photo", label: "Photo" },
-  { id: "other", label: "Other" },
-];
+const KINDS = ["estimate", "contract", "inventory", "customer_upload", "photo", "other"];
 
 export function DocumentsSection({ q }: { q: LeadQuote }) {
+  const tr = useT();
   const [docs, setDocs] = useState<Doc[]>([]);
   const [companyDocs, setCompanyDocs] = useState<Doc[]>([]);
   const [kind, setKind] = useState("estimate");
@@ -77,7 +72,7 @@ export function DocumentsSection({ q }: { q: LeadQuote }) {
     if (error) return toast.error(error.message);
     setName("");
     setUrl("");
-    toast.success("Document linked");
+    toast.success(tr("admin.shell.documents.linked"));
     void load();
   }
 
@@ -98,8 +93,8 @@ export function DocumentsSection({ q }: { q: LeadQuote }) {
           </SelectTrigger>
           <SelectContent>
             {KINDS.map((k) => (
-              <SelectItem key={k.id} value={k.id}>
-                {k.label}
+              <SelectItem key={k} value={k}>
+                {tr(`admin.shell.documents.kind.${k}`)}
               </SelectItem>
             ))}
           </SelectContent>
@@ -107,22 +102,22 @@ export function DocumentsSection({ q }: { q: LeadQuote }) {
         <Input
           value={name}
           onChange={(e) => setName(e.target.value)}
-          placeholder="Document name"
+          placeholder={tr("admin.shell.documents.namePlaceholder")}
           className="h-9"
         />
         <Input
           value={url}
           onChange={(e) => setUrl(e.target.value)}
-          placeholder="Link (https://…)"
+          placeholder={tr("admin.shell.documents.linkPlaceholder")}
           className="h-9"
         />
         <Button size="sm" className="h-9" onClick={() => void add()} disabled={saving}>
-          {saving ? "Saving…" : "Attach"}
+          {saving ? tr("admin.shell.documents.saving") : tr("admin.shell.documents.attach")}
         </Button>
       </div>
 
       {all.length === 0 ? (
-        <Empty>No documents attached to this lead yet.</Empty>
+        <Empty>{tr("admin.shell.documents.empty")}</Empty>
       ) : (
         <ul className="space-y-2">
           {all.map((d) => (
@@ -134,8 +129,7 @@ export function DocumentsSection({ q }: { q: LeadQuote }) {
               <div className="min-w-0 flex-1">
                 <div className="truncate font-medium">{d.name}</div>
                 <div className="text-xs text-muted-foreground">
-                  <span className="capitalize">{d.kind.replace(/_/g, " ")}</span> ·{" "}
-                  {dateTime(d.created_at)}
+                  <span>{tr(`admin.shell.documents.kind.${d.kind}`)}</span> · {dateTime(d.created_at)}
                   {d.uploaded_by_email ? ` · ${d.uploaded_by_email}` : ""}
                 </div>
               </div>
@@ -145,7 +139,7 @@ export function DocumentsSection({ q }: { q: LeadQuote }) {
                   target="_blank"
                   rel="noreferrer"
                   className="text-muted-foreground hover:text-foreground"
-                  aria-label="Open document"
+                  aria-label={tr("admin.shell.documents.open")}
                 >
                   <ExternalLink className="h-4 w-4" />
                 </a>
@@ -153,7 +147,7 @@ export function DocumentsSection({ q }: { q: LeadQuote }) {
               {docs.some((x) => x.id === d.id) && (
                 <button
                   type="button"
-                  aria-label="Remove document"
+                  aria-label={tr("admin.shell.documents.remove")}
                   onClick={() => void remove(d.id)}
                   className="text-muted-foreground hover:text-rose-600"
                 >

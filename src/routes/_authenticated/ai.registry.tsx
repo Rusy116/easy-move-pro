@@ -33,6 +33,7 @@ import {
   type RegistryAgent,
 } from "@/lib/ai/agent-registry";
 import { AGENT_RUNNERS, hasRunner } from "@/lib/ai/agent-runners";
+import { useT } from "@/i18n";
 
 export const Route = createFileRoute("/_authenticated/ai/registry")({
   head: () => ({
@@ -56,6 +57,7 @@ export const Route = createFileRoute("/_authenticated/ai/registry")({
 });
 
 function RegistryPage() {
+  const tr = useT();
   const qc = useQueryClient();
   const [selected, setSelected] = useState<string[]>([]);
   const [openKey, setOpenKey] = useState<string | null>(null);
@@ -81,10 +83,10 @@ function RegistryPage() {
   async function control(agent: RegistryAgent, action: AgentControl) {
     try {
       await controlAgent(agent, action);
-      toast.success(`${agent.name}: ${action}`);
+      toast.success(tr("admin.ai4.reg.actionToast", { agent: agent.name, action }));
       refresh();
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Action failed");
+      toast.error(e instanceof Error ? e.message : tr("admin.ai4.reg.actionFailed"));
     }
   }
 
@@ -96,20 +98,20 @@ function RegistryPage() {
       const runner = AGENT_RUNNERS[agent.key];
       if (!runner) {
         await queueAgentTask(agent);
-        toast.success(`${agent.name} queued — the orchestrator will pick it up.`);
+        toast.success(tr("admin.ai4.reg.queuedToast", { agent: agent.name }));
       } else {
         const summary = await runner();
         await recordRun(agent, { ok: true, ms: Math.round(performance.now() - started), summary });
-        toast.success(`${agent.name}: ${summary}`);
+        toast.success(tr("admin.ai4.reg.runToast", { agent: agent.name, summary }));
       }
     } catch (e) {
-      const message = e instanceof Error ? e.message : "Run failed";
+      const message = e instanceof Error ? e.message : tr("admin.ai4.reg.runFailed");
       await recordRun(agent, {
         ok: false,
         ms: Math.round(performance.now() - started),
         error: message,
       });
-      toast.error(`${agent.name}: ${message}`);
+      toast.error(tr("admin.ai4.reg.actionToast", { agent: agent.name, action: message }));
     } finally {
       setBusy(null);
       refresh();
@@ -128,15 +130,15 @@ function RegistryPage() {
   return (
     <AiShell>
       <PageHeader
-        eyebrow="AI Orchestrator"
-        title="AI Agent Registry"
-        subtitle="Every agent is a registered system component. Adding a new agent only requires a new registry record."
+        eyebrow={tr("admin.ai4.reg.eyebrow")}
+        title={tr("admin.ai4.reg.title")}
+        subtitle={tr("admin.ai4.reg.subtitle")}
         icon={<BookUser className="h-5 w-5" />}
         actions={
           <div className="flex flex-wrap gap-2">
             <Button size="sm" onClick={runSelected} disabled={!selected.length || !!busy}>
               <PlayCircle className="mr-2 h-4 w-4" />
-              Run selected ({selected.length})
+              {tr("admin.ai4.reg.runSelected", { n: String(selected.length) })}
             </Button>
             <Button
               size="sm"
@@ -144,27 +146,27 @@ function RegistryPage() {
               onClick={() => setSelected(visible.map((a) => a.key))}
               disabled={!visible.length}
             >
-              Select all
+              {tr("admin.ai4.reg.selectAll")}
             </Button>
           </div>
         }
       />
 
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
-        <StatCard label="Total agents" value={stats.total} />
-        <StatCard label="Agents online" value={stats.online} tone="success" />
-        <StatCard label="Running" value={stats.running} tone="success" />
-        <StatCard label="Waiting" value={stats.waiting} />
-        <StatCard label="Failed" value={stats.failed} tone="danger" />
-        <StatCard label="Average runtime" value={fmtMs(stats.avgRuntimeMs)} />
-        <StatCard label="Average success rate" value={`${stats.avgSuccessRate}%`} />
-        <StatCard label="Tasks completed" value={stats.tasksCompleted} tone="success" />
-        <StatCard label="Tasks failed" value={stats.tasksFailed} tone="danger" />
-        <StatCard label="Queue length" value={stats.queueLength} />
+        <StatCard label={tr("admin.ai4.reg.statTotal")} value={stats.total} />
+        <StatCard label={tr("admin.ai4.reg.statOnline")} value={stats.online} tone="success" />
+        <StatCard label={tr("admin.ai4.reg.statRunning")} value={stats.running} tone="success" />
+        <StatCard label={tr("admin.ai4.reg.statWaiting")} value={stats.waiting} />
+        <StatCard label={tr("admin.ai4.reg.statFailed")} value={stats.failed} tone="danger" />
+        <StatCard label={tr("admin.ai4.reg.statAvgRuntime")} value={fmtMs(stats.avgRuntimeMs)} />
+        <StatCard label={tr("admin.ai4.reg.statAvgSuccess")} value={`${stats.avgSuccessRate}%`} />
+        <StatCard label={tr("admin.ai4.reg.statTasksCompleted")} value={stats.tasksCompleted} tone="success" />
+        <StatCard label={tr("admin.ai4.reg.statTasksFailed")} value={stats.tasksFailed} tone="danger" />
+        <StatCard label={tr("admin.ai4.reg.statQueueLength")} value={stats.queueLength} />
       </div>
 
       <SectionShell
-        title="Registered agents"
+        title={tr("admin.ai4.reg.sectionAgents")}
         right={
           <select
             className="h-9 rounded-md border border-input bg-background px-2 text-xs"
@@ -173,7 +175,7 @@ function RegistryPage() {
           >
             {categories.map((c) => (
               <option key={c} value={c}>
-                {c === "all" ? "All categories" : c}
+                {c === "all" ? tr("admin.ai4.reg.allCategories") : c}
               </option>
             ))}
           </select>
@@ -181,7 +183,7 @@ function RegistryPage() {
       >
         {registry.isLoading ? (
           <div className="flex items-center gap-2 py-8 text-sm text-muted-foreground">
-            <Loader2 className="h-4 w-4 animate-spin" /> Loading registry…
+            <Loader2 className="h-4 w-4 animate-spin" /> {tr("admin.ai4.reg.loading")}
           </div>
         ) : visible.length ? (
           <div className="space-y-3">
@@ -202,8 +204,8 @@ function RegistryPage() {
           </div>
         ) : (
           <EmptyState
-            title="No agents registered"
-            hint="Insert a row in the agent registry to add a new agent — no code change required."
+            title={tr("admin.ai4.reg.emptyTitle")}
+            hint={tr("admin.ai4.reg.emptyHint")}
           />
         )}
       </SectionShell>
@@ -243,6 +245,7 @@ function AgentCard({
   onControl: (a: RegistryAgent, action: AgentControl) => void;
   onRun: (a: RegistryAgent) => void;
 }) {
+  const tr = useT();
   const dep = dependencyState(agent, all);
 
   return (
@@ -254,7 +257,7 @@ function AgentCard({
             checked={selected}
             onChange={onToggle}
             className="mt-1 h-4 w-4 shrink-0"
-            aria-label={`Select ${agent.name}`}
+            aria-label={tr("admin.ai4.reg.selectAgent", { agent: agent.name })}
           />
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
@@ -265,23 +268,23 @@ function AgentCard({
                 {agent.status}
               </span>
               <span className="rounded-full bg-muted px-2 py-0.5 text-[11px] text-muted-foreground">
-                v{agent.version} · {agent.queue} queue · P{agent.priority}
+                {tr("admin.ai4.reg.versionLine", { version: String(agent.version), queue: agent.queue, priority: String(agent.priority) })}
               </span>
               {!dep.ok && (
                 <span className="rounded-full bg-amber-500/15 px-2 py-0.5 text-[11px] text-amber-600">
-                  blocked by {dep.blocked.map((d) => d.name).join(", ")}
+                  {tr("admin.ai4.reg.blockedBy", { names: dep.blocked.map((d) => d.name).join(", ") })}
                 </span>
               )}
             </div>
             <p className="mt-1 text-xs text-muted-foreground">{agent.description}</p>
-            <p className="mt-1 font-mono text-[10px] text-muted-foreground">ID {agent.id}</p>
+            <p className="mt-1 font-mono text-[10px] text-muted-foreground">{tr("admin.ai4.reg.idLabel", { id: agent.id })}</p>
           </div>
         </div>
 
         <div className="flex flex-wrap items-center gap-1.5">
           <Button size="sm" onClick={() => onRun(agent)} disabled={busy || !agent.enabled}>
             {busy ? <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" /> : <Play className="mr-1.5 h-3.5 w-3.5" />}
-            {hasRunner(agent.key) ? "Start" : "Queue"}
+            {hasRunner(agent.key) ? tr("admin.ai4.reg.start") : tr("admin.ai4.reg.queue")}
           </Button>
           <Button
             size="sm"
@@ -289,15 +292,15 @@ function AgentCard({
             onClick={() => onControl(agent, agent.status === "paused" ? "resume" : "pause")}
           >
             <Pause className="mr-1.5 h-3.5 w-3.5" />
-            {agent.status === "paused" ? "Resume" : "Pause"}
+            {agent.status === "paused" ? tr("admin.ai4.reg.resume") : tr("admin.ai4.reg.pause")}
           </Button>
           <Button size="sm" variant="outline" onClick={() => onControl(agent, "retry")}>
             <RotateCcw className="mr-1.5 h-3.5 w-3.5" />
-            Retry
+            {tr("admin.ai4.reg.retry")}
           </Button>
           <Button size="sm" variant="outline" onClick={() => onControl(agent, "stop")}>
             <Square className="mr-1.5 h-3.5 w-3.5" />
-            Stop
+            {tr("admin.ai4.reg.stop")}
           </Button>
           <Button
             size="sm"
@@ -305,32 +308,32 @@ function AgentCard({
             onClick={() => onControl(agent, agent.enabled ? "disable" : "enable")}
           >
             <Power className="mr-1.5 h-3.5 w-3.5" />
-            {agent.enabled ? "Disable" : "Enable"}
+            {agent.enabled ? tr("admin.ai4.reg.disable") : tr("admin.ai4.reg.enable")}
           </Button>
           <Button size="sm" variant="ghost" onClick={onOpen}>
-            {open ? "Hide details" : "Details"}
+            {open ? tr("admin.ai4.reg.hideDetails") : tr("admin.ai4.reg.details")}
           </Button>
         </div>
       </div>
 
       <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4 xl:grid-cols-6">
-        <Field label="Category" value={agent.category} />
-        <Field label="Trigger" value={`${agent.trigger_type}${agent.schedule ? ` · ${agent.schedule}` : ""}`} />
-        <Field label="Queue status" value={`${agent.queueLength} in queue`} />
-        <Field label="Last run" value={fmtWhen(agent.last_run_at)} />
-        <Field label="Next run" value={fmtWhen(agent.next_run_at)} />
-        <Field label="Runtime" value={fmtMs(agent.last_runtime_ms)} />
-        <Field label="Avg runtime" value={fmtMs(agent.avg_runtime_ms)} />
-        <Field label="Success rate" value={`${agent.success_rate}%`} />
-        <Field label="Failures" value={agent.tasks_failed || agent.error_count} />
-        <Field label="Retries" value={`${agent.retry_count} / ${agent.max_retries}`} />
-        <Field label="Created" value={fmtWhen(agent.created_at)} />
-        <Field label="Updated" value={fmtWhen(agent.updated_at)} />
+        <Field label={tr("admin.ai4.reg.fieldCategory")} value={agent.category} />
+        <Field label={tr("admin.ai4.reg.fieldTrigger")} value={`${agent.trigger_type}${agent.schedule ? ` · ${agent.schedule}` : ""}`} />
+        <Field label={tr("admin.ai4.reg.fieldQueueStatus")} value={tr("admin.ai4.reg.queueLength", { n: String(agent.queueLength) })} />
+        <Field label={tr("admin.ai4.reg.fieldLastRun")} value={fmtWhen(agent.last_run_at)} />
+        <Field label={tr("admin.ai4.reg.fieldNextRun")} value={fmtWhen(agent.next_run_at)} />
+        <Field label={tr("admin.ai4.reg.fieldRuntime")} value={fmtMs(agent.last_runtime_ms)} />
+        <Field label={tr("admin.ai4.reg.fieldAvgRuntime")} value={fmtMs(agent.avg_runtime_ms)} />
+        <Field label={tr("admin.ai4.reg.fieldSuccessRate")} value={`${agent.success_rate}%`} />
+        <Field label={tr("admin.ai4.reg.fieldFailures")} value={agent.tasks_failed || agent.error_count} />
+        <Field label={tr("admin.ai4.reg.fieldRetries")} value={`${agent.retry_count} / ${agent.max_retries}`} />
+        <Field label={tr("admin.ai4.reg.fieldCreated")} value={fmtWhen(agent.created_at)} />
+        <Field label={tr("admin.ai4.reg.fieldUpdated")} value={fmtWhen(agent.updated_at)} />
       </div>
 
       {agent.last_error && (
         <p className="mt-3 rounded-lg bg-destructive/10 px-3 py-2 text-xs text-destructive">
-          Last error: {agent.last_error}
+          {tr("admin.ai4.reg.lastError", { error: agent.last_error })}
         </p>
       )}
 
@@ -340,6 +343,7 @@ function AgentCard({
 }
 
 function AgentDetails({ agent, all }: { agent: RegistryAgent; all: RegistryAgent[] }) {
+  const tr = useT();
   const history = useQuery({
     queryKey: ["ai", "registry", "history", agent.key],
     queryFn: () => agentHistory(agent.key),
@@ -354,13 +358,13 @@ function AgentDetails({ agent, all }: { agent: RegistryAgent; all: RegistryAgent
   return (
     <div className="mt-4 grid gap-4 border-t border-border pt-4 lg:grid-cols-2">
       <div className="space-y-3">
-        <Block title="Input">
-          {agent.inputs.length ? agent.inputs.join(", ") : "No declared inputs"}
+        <Block title={tr("admin.ai4.reg.inputTitle")}>
+          {agent.inputs.length ? agent.inputs.join(", ") : tr("admin.ai4.reg.noInputs")}
         </Block>
-        <Block title="Output">
-          {agent.outputs.length ? agent.outputs.join(", ") : "No declared outputs"}
+        <Block title={tr("admin.ai4.reg.outputTitle")}>
+          {agent.outputs.length ? agent.outputs.join(", ") : tr("admin.ai4.reg.noOutputs")}
         </Block>
-        <Block title="Capabilities">
+        <Block title={tr("admin.ai4.reg.capabilitiesTitle")}>
           <div className="flex flex-wrap gap-1.5">
             {agent.capabilities.length ? (
               agent.capabilities.map((c) => (
@@ -369,11 +373,11 @@ function AgentDetails({ agent, all }: { agent: RegistryAgent; all: RegistryAgent
                 </span>
               ))
             ) : (
-              <span>None declared</span>
+              <span>{tr("admin.ai4.reg.noCapabilities")}</span>
             )}
           </div>
         </Block>
-        <Block title="Dependencies">
+        <Block title={tr("admin.ai4.reg.dependenciesTitle")}>
           {dep.deps.length ? (
             <ul className="space-y-1">
               {dep.deps.map((d) => (
@@ -387,20 +391,20 @@ function AgentDetails({ agent, all }: { agent: RegistryAgent; all: RegistryAgent
               ))}
             </ul>
           ) : (
-            "No dependencies — this agent can run at any time."
+            tr("admin.ai4.reg.noDependencies")
           )}
         </Block>
-        <Block title="Health">
+        <Block title={tr("admin.ai4.reg.healthTitle")}>
           {agent.enabled
             ? dep.ok
-              ? `Healthy · ${agent.success_rate}% success over ${agent.run_count} runs`
-              : `Blocked by ${dep.blocked.map((d) => d.name).join(", ")}`
-            : "Disabled by an administrator"}
+              ? tr("admin.ai4.reg.healthy", { rate: String(agent.success_rate), runs: String(agent.run_count) })
+              : tr("admin.ai4.reg.blocked", { names: dep.blocked.map((d) => d.name).join(", ") })
+            : tr("admin.ai4.reg.disabled")}
           {agent.route && (
             <>
               {" · "}
               <Link to={agent.route as "/"} className="text-primary underline">
-                Open control panel
+                {tr("admin.ai4.reg.openPanel")}
               </Link>
             </>
           )}
@@ -408,7 +412,7 @@ function AgentDetails({ agent, all }: { agent: RegistryAgent; all: RegistryAgent
       </div>
 
       <div className="space-y-3">
-        <Block title={`History (${history.data?.length ?? 0})`}>
+        <Block title={tr("admin.ai4.reg.historyTitle", { n: String(history.data?.length ?? 0) })}>
           {history.data?.length ? (
             <ul className="space-y-1">
               {history.data.slice(0, 8).map((t) => (
@@ -421,10 +425,10 @@ function AgentDetails({ agent, all }: { agent: RegistryAgent; all: RegistryAgent
               ))}
             </ul>
           ) : (
-            "No runs recorded yet."
+            tr("admin.ai4.reg.noRuns")
           )}
         </Block>
-        <Block title={`Logs (${logs.data?.length ?? 0})`}>
+        <Block title={tr("admin.ai4.reg.logsTitle", { n: String(logs.data?.length ?? 0) })}>
           {logs.data?.length ? (
             <ul className="space-y-1 font-mono text-[11px]">
               {logs.data.slice(0, 8).map((l) => (
@@ -434,10 +438,10 @@ function AgentDetails({ agent, all }: { agent: RegistryAgent; all: RegistryAgent
               ))}
             </ul>
           ) : (
-            "No logs yet."
+            tr("admin.ai4.reg.noLogsRecorded")
           )}
         </Block>
-        <Block title={`Errors (${errors.length})`}>
+        <Block title={tr("admin.ai4.reg.errorsTitle", { n: String(errors.length) })}>
           {errors.length ? (
             <ul className="space-y-1 text-destructive">
               {errors.slice(0, 5).map((e) => (
@@ -447,12 +451,17 @@ function AgentDetails({ agent, all }: { agent: RegistryAgent; all: RegistryAgent
               ))}
             </ul>
           ) : (
-            "No errors recorded."
+            tr("admin.ai4.reg.noErrors")
           )}
         </Block>
-        <Block title="Performance">
-          Runs {agent.run_count} · completed {agent.tasks_completed} · failed {agent.tasks_failed} ·
-          avg {fmtMs(agent.avg_runtime_ms)} · last {fmtMs(agent.last_runtime_ms)}
+        <Block title={tr("admin.ai4.reg.performanceTitle")}>
+          {tr("admin.ai4.reg.performanceLine", {
+            runs: String(agent.run_count),
+            completed: String(agent.tasks_completed),
+            failed: String(agent.tasks_failed),
+            avg: fmtMs(agent.avg_runtime_ms),
+            last: fmtMs(agent.last_runtime_ms),
+          })}
         </Block>
       </div>
     </div>

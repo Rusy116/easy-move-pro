@@ -229,12 +229,12 @@ export function OverviewSection({
 
         <Section title={tr("admin.shell.leadOverview.moveSummary")}>
           <Row label={tr("admin.shell.leadOverview.type")} value={q.move_type} />
-          <Row label={tr("admin.shell.leadOverview.distance")} value={q.distance_miles ? tr("admin.shell.leadOverview.milesValue", { miles: q.distance_miles }) : null} />
+          <Row label={tr("admin.shell.leadOverview.distance")} value={q.distance_miles ? tr("admin.shell.leadOverview.milesValue", { miles: String(q.distance_miles) }) : null} />
           <Row label={tr("admin.shell.leadOverview.preferredTime")} value={q.preferred_time} />
           <Row label={tr("admin.shell.leadOverview.flexibleDate")} value={q.flexible_date} />
           <Row label={tr("admin.shell.leadOverview.insurance")} value={q.insurance_tier} />
           <Row label={tr("admin.shell.leadOverview.truck")} value={q.truck_size} />
-          <Row label={tr("admin.shell.leadOverview.crew")} value={q.num_movers ? tr("admin.shell.leadOverview.moversValue", { count: q.num_movers }) : null} />
+          <Row label={tr("admin.shell.leadOverview.crew")} value={q.num_movers ? tr("admin.shell.leadOverview.moversValue", { count: String(q.num_movers) }) : null} />
         </Section>
       </div>
 

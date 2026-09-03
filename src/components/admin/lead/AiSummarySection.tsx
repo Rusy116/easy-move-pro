@@ -6,8 +6,10 @@ import { Button } from "@/components/ui/button";
 import { summarizeLead } from "@/lib/lead-ai.functions";
 import type { LeadAiSummary } from "@/lib/lead-ai.server";
 import { Section, Empty, dateTime, type LeadQuote } from "./shared";
+import { useT } from "@/i18n";
 
 export function AiSummarySection({ q }: { q: LeadQuote }) {
+  const tr = useT();
   const stored = (q.ai_summary as LeadAiSummary | null) ?? null;
   const [summary, setSummary] = useState<LeadAiSummary | null>(stored);
   const [at, setAt] = useState<string | null>((q.ai_summary_at as string | null) ?? null);
@@ -20,9 +22,9 @@ export function AiSummarySection({ q }: { q: LeadQuote }) {
       const s = (await run({ data: { quoteId: q.id } })) as LeadAiSummary;
       setSummary(s);
       setAt(new Date().toISOString());
-      toast.success("AI summary generated");
+      toast.success(tr("admin.shell.aiSummary.generated"));
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Failed to generate summary");
+      toast.error(e instanceof Error ? e.message : tr("admin.shell.aiSummary.failed"));
     } finally {
       setLoading(false);
     }
@@ -32,29 +34,37 @@ export function AiSummarySection({ q }: { q: LeadQuote }) {
     <Section
       title={
         <span className="inline-flex items-center gap-1">
-          <Sparkles className="h-3 w-3" /> AI summary
+          <Sparkles className="h-3 w-3" /> {tr("admin.shell.aiSummary.title")}
         </span>
       }
       action={
         <Button size="sm" variant="outline" onClick={() => void generate()} disabled={loading}>
           <RefreshCw className={`mr-1.5 h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} />
-          {loading ? "Analyzing…" : summary ? "Regenerate" : "Generate"}
+          {loading
+            ? tr("admin.shell.aiSummary.analyzing")
+            : summary
+              ? tr("admin.shell.aiSummary.regenerate")
+              : tr("admin.shell.aiSummary.generate")}
         </Button>
       }
     >
       {!summary ? (
-        <Empty>Generate an AI briefing for this lead.</Empty>
+        <Empty>{tr("admin.shell.aiSummary.empty")}</Empty>
       ) : (
         <div className="space-y-3 text-sm">
           {summary.headline && <p className="font-medium">{summary.headline}</p>}
           <div className="grid grid-cols-2 gap-2">
-            <Score label="Move complexity" value={summary.complexity_score} caption={summary.complexity} />
-            <Score label="Risk score" value={summary.risk_score} />
+            <Score
+              label={tr("admin.shell.aiSummary.complexity")}
+              value={summary.complexity_score}
+              caption={summary.complexity}
+            />
+            <Score label={tr("admin.shell.aiSummary.risk")} value={summary.risk_score} />
           </div>
           {summary.customer_requests?.length > 0 && (
             <div>
               <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Important customer requests
+                {tr("admin.shell.aiSummary.customerRequests")}
               </div>
               <ul className="mt-1 list-disc space-y-0.5 pl-5">
                 {summary.customer_requests.map((r, i) => (
@@ -63,9 +73,16 @@ export function AiSummarySection({ q }: { q: LeadQuote }) {
               </ul>
             </div>
           )}
-          <Block label="Pricing recommendation" text={summary.pricing_recommendation} />
-          <Block label="Follow-up recommendation" text={summary.follow_up_recommendation} />
-          {at && <p className="text-xs text-muted-foreground">Generated {dateTime(at)}</p>}
+          <Block label={tr("admin.shell.aiSummary.pricingRecommendation")} text={summary.pricing_recommendation} />
+          <Block
+            label={tr("admin.shell.aiSummary.followUpRecommendation")}
+            text={summary.follow_up_recommendation}
+          />
+          {at && (
+            <p className="text-xs text-muted-foreground">
+              {tr("admin.shell.aiSummary.generatedAt", { date: dateTime(at) })}
+            </p>
+          )}
         </div>
       )}
     </Section>

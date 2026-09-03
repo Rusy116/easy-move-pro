@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/select";
 import { Phone, MessageSquare, Mail } from "lucide-react";
 import { Empty, dateTime, type LeadQuote } from "./shared";
+import { useT } from "@/i18n";
 
 export type Channel = "call" | "sms" | "email";
 
@@ -96,6 +97,7 @@ export function useCommunications(quoteId: string) {
 }
 
 export function CommunicationCenter({ q }: { q: LeadQuote }) {
+  const tr = useT();
   const { items } = useCommunications(q.id);
 
   return (
@@ -103,15 +105,15 @@ export function CommunicationCenter({ q }: { q: LeadQuote }) {
       <TabsList className="grid w-full grid-cols-3">
         <TabsTrigger value="call">
           <Phone className="mr-1 hidden h-3.5 w-3.5 sm:inline" />
-          Calls
+          {tr("admin.shell.comms.tabCalls")}
         </TabsTrigger>
         <TabsTrigger value="sms">
           <MessageSquare className="mr-1 hidden h-3.5 w-3.5 sm:inline" />
-          SMS
+          {tr("admin.shell.comms.tabSms")}
         </TabsTrigger>
         <TabsTrigger value="email">
           <Mail className="mr-1 hidden h-3.5 w-3.5 sm:inline" />
-          Emails
+          {tr("admin.shell.comms.tabEmails")}
         </TabsTrigger>
       </TabsList>
       {(["call", "sms", "email"] as Channel[]).map((c) => (
@@ -124,6 +126,10 @@ export function CommunicationCenter({ q }: { q: LeadQuote }) {
   );
 }
 
+function statusLabel(tr: (k: string, v?: Record<string, string | number>) => string, s: string): string {
+  return tr(`admin.shell.comms.status.${s}`);
+}
+
 function Composer({
   quoteId,
   channel,
@@ -133,6 +139,7 @@ function Composer({
   channel: Channel;
   lead: LeadQuote;
 }) {
+  const tr = useT();
   const [status, setStatus] = useState(STATUSES[channel][0]);
   const [subject, setSubject] = useState("");
   const [body, setBody] = useState("");
@@ -155,9 +162,9 @@ function Composer({
       setBody("");
       setSubject("");
       setDuration("");
-      toast.success("Activity logged");
+      toast.success(tr("admin.shell.comms.logged"));
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Failed");
+      toast.error(e instanceof Error ? e.message : tr("admin.shell.comms.failed"));
     } finally {
       setSaving(false);
     }
@@ -167,13 +174,13 @@ function Composer({
     <div className="space-y-2 rounded-xl border border-border bg-card/50 p-3">
       <div className="flex flex-wrap items-center gap-2">
         <Select value={status} onValueChange={setStatus}>
-          <SelectTrigger className="h-8 w-[160px] capitalize">
+          <SelectTrigger className="h-8 w-[160px]">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
             {STATUSES[channel].map((s) => (
-              <SelectItem key={s} value={s} className="capitalize">
-                {s.replace(/_/g, " ")}
+              <SelectItem key={s} value={s}>
+                {statusLabel(tr, s)}
               </SelectItem>
             ))}
           </SelectContent>
@@ -183,23 +190,25 @@ function Composer({
             value={duration}
             onChange={(e) => setDuration(e.target.value)}
             inputMode="numeric"
-            placeholder="Minutes"
+            placeholder={tr("admin.shell.comms.minutes")}
             className="h-8 w-[110px]"
           />
         )}
         {channel === "call" && phone && (
           <Button asChild size="sm" variant="outline" className="h-8">
-            <a href={`tel:${phone}`}>Dial</a>
+            <a href={`tel:${phone}`}>{tr("admin.shell.comms.dial")}</a>
           </Button>
         )}
         {channel === "sms" && phone && (
           <Button asChild size="sm" variant="outline" className="h-8">
-            <a href={`sms:${phone}`}>Open SMS</a>
+            <a href={`sms:${phone}`}>{tr("admin.shell.comms.openSms")}</a>
           </Button>
         )}
         {channel === "email" && email && (
           <Button asChild size="sm" variant="outline" className="h-8">
-            <a href={`mailto:${email}?subject=${encodeURIComponent(subject)}`}>Open email</a>
+            <a href={`mailto:${email}?subject=${encodeURIComponent(subject)}`}>
+              {tr("admin.shell.comms.openEmail")}
+            </a>
           </Button>
         )}
       </div>
@@ -207,7 +216,7 @@ function Composer({
         <Input
           value={subject}
           onChange={(e) => setSubject(e.target.value)}
-          placeholder="Subject"
+          placeholder={tr("admin.shell.comms.subject")}
           className="h-8"
         />
       )}
@@ -215,11 +224,13 @@ function Composer({
         rows={2}
         value={body}
         onChange={(e) => setBody(e.target.value)}
-        placeholder={channel === "call" ? "Call notes…" : "Message / notes…"}
+        placeholder={
+          channel === "call" ? tr("admin.shell.comms.callNotes") : tr("admin.shell.comms.messageNotes")
+        }
       />
       <div className="flex justify-end">
         <Button size="sm" onClick={() => void submit()} disabled={saving}>
-          {saving ? "Saving…" : "Log activity"}
+          {saving ? tr("admin.shell.comms.saving") : tr("admin.shell.comms.logActivity")}
         </Button>
       </div>
     </div>
@@ -227,22 +238,23 @@ function Composer({
 }
 
 function ActivityList({ items }: { items: Communication[] }) {
-  if (items.length === 0) return <Empty>No activity logged yet.</Empty>;
+  const tr = useT();
+  if (items.length === 0) return <Empty>{tr("admin.shell.comms.noActivity")}</Empty>;
   return (
     <ul className="space-y-2">
       {items.map((i) => (
         <li key={i.id} className="rounded-lg border border-border bg-background p-3 text-sm">
           <div className="flex flex-wrap justify-between gap-2 text-xs text-muted-foreground">
             <span>{dateTime(i.occurred_at)}</span>
-            <span>{i.actor_email ?? "system"}</span>
+            <span>{i.actor_email ?? tr("admin.shell.comms.system")}</span>
           </div>
           <div className="mt-1 flex flex-wrap items-center gap-2">
-            <span className="rounded-full border border-border bg-muted px-2 py-0.5 text-[10px] font-medium capitalize">
-              {i.direction} · {i.status.replace(/_/g, " ")}
+            <span className="rounded-full border border-border bg-muted px-2 py-0.5 text-[10px] font-medium">
+              {tr(`admin.shell.comms.direction.${i.direction}`)} · {statusLabel(tr, i.status)}
             </span>
             {i.duration_seconds ? (
               <span className="text-xs text-muted-foreground">
-                {Math.round(i.duration_seconds / 60)} min
+                {tr("admin.shell.comms.minutesValue", { count: Math.round(i.duration_seconds / 60) })}
               </span>
             ) : null}
           </div>

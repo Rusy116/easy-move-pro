@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { loadGoogleMaps } from "@/lib/google-maps-loader";
+import { useT } from "@/i18n";
 
 /** Embedded Google Map showing the origin and destination pins with a route line. */
 export function LeadMap({
@@ -13,6 +14,7 @@ export function LeadMap({
   originLabel?: string | null;
   destinationLabel?: string | null;
 }) {
+  const tr = useT();
   const ref = useRef<HTMLDivElement | null>(null);
   const [failed, setFailed] = useState(false);
 
@@ -33,7 +35,12 @@ export function LeadMap({
         });
         const bounds = new g.maps.LatLngBounds();
         if (origin) {
-          new g.maps.Marker({ position: origin, map, label: "A", title: originLabel ?? "Origin" });
+          new g.maps.Marker({
+            position: origin,
+            map,
+            label: "A",
+            title: originLabel ?? tr("admin.shell.leadMap.origin"),
+          });
           bounds.extend(origin);
         }
         if (destination) {
@@ -41,7 +48,7 @@ export function LeadMap({
             position: destination,
             map,
             label: "B",
-            title: destinationLabel ?? "Destination",
+            title: destinationLabel ?? tr("admin.shell.leadMap.destination"),
           });
           bounds.extend(destination);
         }
@@ -78,7 +85,7 @@ export function LeadMap({
         rel="noreferrer"
         className="block rounded-lg border border-dashed border-border p-4 text-center text-sm text-muted-foreground hover:text-foreground"
       >
-        Open route in Google Maps
+        {tr("admin.shell.leadMap.openInGoogleMaps")}
       </a>
     );
   }

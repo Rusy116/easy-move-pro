@@ -14,6 +14,7 @@ import {
 import { CheckCircle2, Circle, Trash2 } from "lucide-react";
 import { Empty, dateTime, type LeadQuote } from "./shared";
 import { BrokerSelect } from "../BrokerSelect";
+import { useT } from "@/i18n";
 
 type Task = {
   id: string;
@@ -29,20 +30,16 @@ type Task = {
   created_at: string;
 };
 
-const KINDS: Array<{ id: string; label: string }> = [
-  { id: "call", label: "Call customer" },
-  { id: "estimate", label: "Send estimate" },
-  { id: "follow_up", label: "Follow up" },
-  { id: "survey", label: "Schedule survey" },
-  { id: "custom", label: "Custom task" },
-];
+const KINDS = ["call", "estimate", "follow_up", "survey", "custom"] as const;
 
 const PRIORITIES = ["low", "normal", "high", "urgent"];
 
 export function TasksSection({ q }: { q: LeadQuote }) {
+  const tr = useT();
+  const kindLabel = useCallback((id: string) => tr(`admin.shell.tasks.kind.${id}`), [tr]);
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [kind, setKind] = useState("call");
-  const [title, setTitle] = useState("Call customer");
+  const [kind, setKind] = useState<string>("call");
+  const [title, setTitle] = useState(kindLabel("call"));
   const [notes, setNotes] = useState("");
   const [due, setDue] = useState("");
   const [priority, setPriority] = useState("normal");
@@ -93,7 +90,7 @@ export function TasksSection({ q }: { q: LeadQuote }) {
     if (error) return toast.error(error.message);
     setNotes("");
     setDue("");
-    toast.success("Task created");
+    toast.success(tr("admin.shell.tasks.created"));
     void load();
   }
 
@@ -125,8 +122,7 @@ export function TasksSection({ q }: { q: LeadQuote }) {
             value={kind}
             onValueChange={(v) => {
               setKind(v);
-              const k = KINDS.find((x) => x.id === v);
-              if (k && v !== "custom") setTitle(k.label);
+              if (v !== "custom") setTitle(kindLabel(v));
               if (v === "custom") setTitle("");
             }}
           >
@@ -135,8 +131,8 @@ export function TasksSection({ q }: { q: LeadQuote }) {
             </SelectTrigger>
             <SelectContent>
               {KINDS.map((k) => (
-                <SelectItem key={k.id} value={k.id}>
-                  {k.label}
+                <SelectItem key={k} value={k}>
+                  {kindLabel(k)}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -144,7 +140,7 @@ export function TasksSection({ q }: { q: LeadQuote }) {
           <Input
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder="Task title"
+            placeholder={tr("admin.shell.tasks.titlePlaceholder")}
             className="h-9"
           />
           <Input
@@ -154,13 +150,13 @@ export function TasksSection({ q }: { q: LeadQuote }) {
             className="h-9"
           />
           <Select value={priority} onValueChange={setPriority}>
-            <SelectTrigger className="h-9 capitalize">
+            <SelectTrigger className="h-9">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
               {PRIORITIES.map((p) => (
-                <SelectItem key={p} value={p} className="capitalize">
-                  {p}
+                <SelectItem key={p} value={p}>
+                  {tr(`admin.shell.tasks.priority.${p}`)}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -173,17 +169,17 @@ export function TasksSection({ q }: { q: LeadQuote }) {
           rows={2}
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
-          placeholder="Task notes (optional)"
+          placeholder={tr("admin.shell.tasks.notesPlaceholder")}
         />
         <div className="flex justify-end">
           <Button size="sm" onClick={() => void createTask()} disabled={saving || !title.trim()}>
-            {saving ? "Saving…" : "Add task"}
+            {saving ? tr("admin.shell.tasks.saving") : tr("admin.shell.tasks.addTask")}
           </Button>
         </div>
       </div>
 
       {tasks.length === 0 ? (
-        <Empty>No tasks yet.</Empty>
+        <Empty>{tr("admin.shell.tasks.empty")}</Empty>
       ) : (
         <ul className="space-y-2">
           {tasks.map((t) => {
@@ -195,7 +191,11 @@ export function TasksSection({ q }: { q: LeadQuote }) {
               >
                 <button
                   type="button"
-                  aria-label={t.completed_at ? "Mark incomplete" : "Mark complete"}
+                  aria-label={
+                    t.completed_at
+                      ? tr("admin.shell.tasks.markIncomplete")
+                      : tr("admin.shell.tasks.markComplete")
+                  }
                   onClick={() => void toggle(t)}
                   className="mt-0.5 text-muted-foreground hover:text-foreground"
                 >
@@ -213,17 +213,27 @@ export function TasksSection({ q }: { q: LeadQuote }) {
                   </div>
                   {t.notes && <p className="mt-0.5 whitespace-pre-wrap">{t.notes}</p>}
                   <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground">
-                    <span className="capitalize">{t.priority} priority</span>
-                    <span className={overdue ? "font-medium text-rose-600" : ""}>
-                      Due {t.due_at ? dateTime(t.due_at) : "—"}
+                    <span>
+                      {tr("admin.shell.tasks.priorityLabel", {
+                        priority: tr(`admin.shell.tasks.priority.${t.priority}`),
+                      })}
                     </span>
-                    <span>Owner {t.owner_email ?? "unassigned"}</span>
-                    {t.completed_at && <span>Done {dateTime(t.completed_at)}</span>}
+                    <span className={overdue ? "font-medium text-rose-600" : ""}>
+                      {tr("admin.shell.tasks.due", { date: t.due_at ? dateTime(t.due_at) : "—" })}
+                    </span>
+                    <span>
+                      {tr("admin.shell.tasks.owner", {
+                        name: t.owner_email ?? tr("admin.shell.tasks.unassigned"),
+                      })}
+                    </span>
+                    {t.completed_at && (
+                      <span>{tr("admin.shell.tasks.done", { date: dateTime(t.completed_at) })}</span>
+                    )}
                   </div>
                 </div>
                 <button
                   type="button"
-                  aria-label="Delete task"
+                  aria-label={tr("admin.shell.tasks.deleteTask")}
                   onClick={() => void remove(t.id)}
                   className="text-muted-foreground hover:text-rose-600"
                 >

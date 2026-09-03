@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/select";
 import { UserRound } from "lucide-react";
 import { toast } from "sonner";
+import { useT } from "@/i18n/admin";
 
 let cache: BrokerRow[] | null = null;
 
@@ -43,6 +44,7 @@ export function BrokerSelect({
   size?: "default" | "sm";
 }) {
   const brokers = useBrokers();
+  const tr = useT();
   const label = useMemo(() => {
     if (!value) return null;
     const b = brokers.find((x) => x.id === value);
@@ -52,19 +54,19 @@ export function BrokerSelect({
   return (
     <Select value={value ?? "__none"} onValueChange={(v) => onChange(v === "__none" ? null : v)}>
       <SelectTrigger className={size === "sm" ? "h-7 text-xs" : "h-9"}>
-        <SelectValue placeholder="Unassigned">
+        <SelectValue placeholder={tr("admin.shell.brokerSelect.unassigned")}>
           {label ? (
             <span className="inline-flex items-center gap-1.5">
               <UserRound className="h-3 w-3" />
               {label}
             </span>
           ) : (
-            <span className="text-muted-foreground">Unassigned</span>
+            <span className="text-muted-foreground">{tr("admin.shell.brokerSelect.unassigned")}</span>
           )}
         </SelectValue>
       </SelectTrigger>
       <SelectContent>
-        <SelectItem value="__none">Unassigned</SelectItem>
+        <SelectItem value="__none">{tr("admin.shell.brokerSelect.unassigned")}</SelectItem>
         {brokers.map((b) => (
           <SelectItem key={b.id} value={b.id}>
             {b.full_name || b.email}

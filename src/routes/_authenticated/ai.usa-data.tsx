@@ -17,6 +17,7 @@ import {
 } from "@/lib/usa-cities.functions";
 import { catalogSize } from "@/lib/usa-cities/dataset";
 import { landingPathForSlug, moversPathForSlug } from "@/lib/city-landing/data";
+import { useT } from "@/i18n";
 
 export const Route = createFileRoute("/_authenticated/ai/usa-data")({
   head: () => ({
@@ -82,6 +83,7 @@ function fmtDuration(ms: number) {
 }
 
 function UsaDataEngine() {
+  const tr = useT();
   const qc = useQueryClient();
   const [busy, setBusy] = useState<string | null>(null);
   const [runId, setRunId] = useState<string | null>(null);
@@ -150,10 +152,10 @@ function UsaDataEngine() {
         const c = check as unknown as { status: string; cursor: number; requested: number } | null;
         if (!c || c.status !== "running" || c.cursor >= c.requested) break;
       }
-      toast.success("Import finished — cities queued for production");
+      toast.success(tr("admin.ai4.usa.importFinished"));
       refresh();
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Import failed");
+      toast.error(err instanceof Error ? err.message : tr("admin.ai4.usa.importFailed"));
     } finally {
       setBusy(null);
     }
@@ -167,13 +169,13 @@ function UsaDataEngine() {
       });
       toast.success(
         res.done
-          ? "Queue is empty"
-          : `Processed ${res.processed} · completed ${res.completed} · failed ${res.failed}`,
+          ? tr("admin.ai4.usa.queueEmpty")
+          : tr("admin.ai4.usa.processedLine", { processed: String(res.processed), completed: String(res.completed), failed: String(res.failed) }),
       );
       refresh();
       return res;
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Processing failed");
+      toast.error(err instanceof Error ? err.message : tr("admin.ai4.usa.processingFailed"));
       return null;
     } finally {
       setBusy(null);
@@ -205,46 +207,46 @@ function UsaDataEngine() {
     <AiShell>
       <div className="space-y-6">
         <PageHeader
-          eyebrow="Phase 5"
+          eyebrow={tr("admin.ai4.usa.eyebrow")}
           icon={<Database className="h-6 w-6" />}
-          title="USA Data Engine"
-          subtitle="Master city database — the permanent source for every production pipeline."
+          title={tr("admin.ai4.usa.title")}
+          subtitle={tr("admin.ai4.usa.subtitle")}
           actions={
             <>
               <Button variant="outline" onClick={() => processOnce(true)} disabled={busy !== null}>
-                Retry failed
+                {tr("admin.ai4.usa.retryFailed")}
               </Button>
               <Button
                 onClick={toggleAutopilot}
                 variant={autopilot ? "destructive" : "default"}
                 disabled={busy === "process" && !autopilot}
               >
-                {autopilot ? "Stop batch" : "Start production"}
+                {autopilot ? tr("admin.ai4.usa.stopBatch") : tr("admin.ai4.usa.startProduction")}
               </Button>
             </>
           }
         />
 
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          <StatCard label="Total USA cities" value={total.toLocaleString()} hint="Catalog available" />
-          <StatCard label="Imported" value={(s?.imported ?? 0).toLocaleString()} tone="info" />
-          <StatCard label="Queued" value={(s?.queued ?? 0).toLocaleString()} tone="warning" />
-          <StatCard label="Processing" value={(s?.processing ?? 0).toLocaleString()} />
-          <StatCard label="Completed" value={(s?.completed ?? 0).toLocaleString()} tone="success" />
-          <StatCard label="Failed" value={(s?.failed ?? 0).toLocaleString()} tone="danger" />
-          <StatCard label="Skipped" value={(s?.skipped ?? 0).toLocaleString()} hint="Duplicates" />
+          <StatCard label={tr("admin.ai4.usa.statTotal")} value={total.toLocaleString()} hint={tr("admin.ai4.usa.statTotalHint")} />
+          <StatCard label={tr("admin.ai4.usa.statImported")} value={(s?.imported ?? 0).toLocaleString()} tone="info" />
+          <StatCard label={tr("admin.ai4.usa.statQueued")} value={(s?.queued ?? 0).toLocaleString()} tone="warning" />
+          <StatCard label={tr("admin.ai4.usa.statProcessing")} value={(s?.processing ?? 0).toLocaleString()} />
+          <StatCard label={tr("admin.ai4.usa.statCompleted")} value={(s?.completed ?? 0).toLocaleString()} tone="success" />
+          <StatCard label={tr("admin.ai4.usa.statFailed")} value={(s?.failed ?? 0).toLocaleString()} tone="danger" />
+          <StatCard label={tr("admin.ai4.usa.statSkipped")} value={(s?.skipped ?? 0).toLocaleString()} hint={tr("admin.ai4.usa.statSkippedHint")} />
           <StatCard
-            label="Average speed"
+            label={tr("admin.ai4.usa.statAvgSpeed")}
             value={s?.avgMs ? `${(s.avgMs / 1000).toFixed(1)}s` : "—"}
-            hint={`ETA ${fmtDuration(s?.etaMs ?? 0)}`}
+            hint={tr("admin.ai4.usa.statAvgSpeedHint", { eta: fmtDuration(s?.etaMs ?? 0) })}
           />
         </div>
 
         <SectionShell
-          title="Import engine"
+          title={tr("admin.ai4.usa.sectionImport")}
           right={
             <span className="text-xs text-muted-foreground">
-              Duplicates are skipped automatically · imports resume where they stopped
+              {tr("admin.ai4.usa.importHint")}
             </span>
           }
         >
@@ -257,37 +259,34 @@ function UsaDataEngine() {
                 onClick={() => runImport(n)}
               >
                 {busy === `import-${n}` && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Import {n.toLocaleString()}
+                {tr("admin.ai4.usa.importN", { n: n.toLocaleString() })}
               </Button>
             ))}
             <Button disabled={busy !== null} onClick={() => runImport(total)}>
               {busy === `import-${total}` && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Import entire USA
+              {tr("admin.ai4.usa.importAll")}
             </Button>
           </div>
-          <p className="mt-3 text-xs text-muted-foreground">
-            Pipeline per city: import → validate data → generate calculator → validate → publish →
-            generate SEO page → embed calculator → schema → FAQ → internal links → sitemap → completed.
-          </p>
+          <p className="mt-3 text-xs text-muted-foreground">{tr("admin.ai4.usa.pipelineNote")}</p>
         </SectionShell>
 
         <SectionShell
-          title="Batch control"
+          title={tr("admin.ai4.usa.sectionBatch")}
           right={
             activeRun ? <StatusPill status={activeRun.status} /> : null
           }
         >
           {!activeRun ? (
-            <EmptyState title="No import runs yet" hint="Start with a 10-city import." />
+            <EmptyState title={tr("admin.ai4.usa.noRunsTitle")} hint={tr("admin.ai4.usa.noRunsHint")} />
           ) : (
             <div className="space-y-3">
               <div className="grid gap-2 text-sm sm:grid-cols-3 lg:grid-cols-6">
-                <div>Requested: <b className="tabular-nums">{activeRun.requested}</b></div>
-                <div>Imported: <b className="tabular-nums">{activeRun.imported}</b></div>
-                <div>Skipped: <b className="tabular-nums">{activeRun.skipped}</b></div>
-                <div>Processed: <b className="tabular-nums">{activeRun.processed}</b></div>
-                <div>Completed: <b className="tabular-nums">{activeRun.completed}</b></div>
-                <div>Failed: <b className="tabular-nums">{activeRun.failed}</b></div>
+                <div>{tr("admin.ai4.usa.requested")} <b className="tabular-nums">{activeRun.requested}</b></div>
+                <div>{tr("admin.ai4.usa.imported")} <b className="tabular-nums">{activeRun.imported}</b></div>
+                <div>{tr("admin.ai4.usa.skipped")} <b className="tabular-nums">{activeRun.skipped}</b></div>
+                <div>{tr("admin.ai4.usa.processed")} <b className="tabular-nums">{activeRun.processed}</b></div>
+                <div>{tr("admin.ai4.usa.completed")} <b className="tabular-nums">{activeRun.completed}</b></div>
+                <div>{tr("admin.ai4.usa.failed")} <b className="tabular-nums">{activeRun.failed}</b></div>
               </div>
               {activeRun.last_error && (
                 <p className="text-xs text-rose-600">{activeRun.last_error}</p>
@@ -300,7 +299,7 @@ function UsaDataEngine() {
                     setAutopilot(false);
                     refresh();
                   }}>
-                  Pause
+                  {tr("admin.ai4.usa.pause")}
                 </Button>
                 <Button size="sm" variant="outline" disabled={busy !== null}
                   onClick={async () => {
@@ -308,15 +307,15 @@ function UsaDataEngine() {
                     setRunId(activeRun.id);
                     refresh();
                   }}>
-                  Resume
+                  {tr("admin.ai4.usa.resume")}
                 </Button>
                 <Button size="sm" variant="outline" disabled={busy !== null}
                   onClick={async () => {
                     const res = await requeueFailedUsaCities({ data: { limit: 500 } });
-                    toast.success(`${res.requeued} cities requeued`);
+                    toast.success(tr("admin.ai4.usa.requeuedToast", { n: String(res.requeued) }));
                     refresh();
                   }}>
-                  Requeue failed
+                  {tr("admin.ai4.usa.requeueFailed")}
                 </Button>
                 <Button size="sm" variant="destructive" disabled={busy !== null}
                   onClick={async () => {
@@ -326,32 +325,32 @@ function UsaDataEngine() {
                     setRunId(null);
                     refresh();
                   }}>
-                  Cancel batch
+                  {tr("admin.ai4.usa.cancelBatch")}
                 </Button>
               </div>
             </div>
           )}
         </SectionShell>
 
-        <SectionShell title="Master city database" right={
-          <span className="text-xs text-muted-foreground">{cities.data?.length ?? 0} shown</span>
+        <SectionShell title={tr("admin.ai4.usa.sectionDatabase")} right={
+          <span className="text-xs text-muted-foreground">{tr("admin.ai4.usa.shown", { n: String(cities.data?.length ?? 0) })}</span>
         }>
           {!cities.data?.length ? (
-            <EmptyState title="No cities imported yet" hint="Run an import to populate the master database." />
+            <EmptyState title={tr("admin.ai4.usa.noCitiesTitle")} hint={tr("admin.ai4.usa.noCitiesHint")} />
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full min-w-[900px] text-sm">
                 <thead className="text-left text-xs uppercase tracking-wide text-muted-foreground">
                   <tr>
-                    <th className="py-2">City</th>
-                    <th>County</th>
-                    <th className="text-right">Population</th>
-                    <th className="text-right">Demand</th>
-                    <th className="text-right">Priority</th>
-                    <th>Status</th>
-                    <th>Calculator</th>
-                    <th>SEO page</th>
-                    <th>Last published</th>
+                    <th className="py-2">{tr("admin.ai4.usa.colCity")}</th>
+                    <th>{tr("admin.ai4.usa.colCounty")}</th>
+                    <th className="text-right">{tr("admin.ai4.usa.colPopulation")}</th>
+                    <th className="text-right">{tr("admin.ai4.usa.colDemand")}</th>
+                    <th className="text-right">{tr("admin.ai4.usa.colPriority")}</th>
+                    <th>{tr("admin.ai4.usa.colStatus")}</th>
+                    <th>{tr("admin.ai4.usa.colCalculator")}</th>
+                    <th>{tr("admin.ai4.usa.colSeoPage")}</th>
+                    <th>{tr("admin.ai4.usa.colLastPublished")}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -371,7 +370,7 @@ function UsaDataEngine() {
                       <td>
                         {c.calculator_status === "published" && c.calculator_slug ? (
                           <a className="text-sky-700 underline" href={landingPathForSlug(c.calculator_slug)} target="_blank" rel="noreferrer">
-                            live
+                            {tr("admin.ai4.usa.live")}
                           </a>
                         ) : (
                           <StatusPill status={c.calculator_status} />
@@ -380,7 +379,7 @@ function UsaDataEngine() {
                       <td>
                         {c.seo_page_status === "published" && c.seo_slug ? (
                           <a className="text-sky-700 underline" href={moversPathForSlug(c.seo_slug)} target="_blank" rel="noreferrer">
-                            live
+                            {tr("admin.ai4.usa.live")}
                           </a>
                         ) : (
                           <StatusPill status={c.seo_page_status} />

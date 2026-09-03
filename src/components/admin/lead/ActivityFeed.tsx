@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Activity } from "lucide-react";
 import { Empty, dateTime } from "./shared";
+import { useT } from "@/i18n";
 
 type Item = {
   id: string;
@@ -12,6 +13,7 @@ type Item = {
 };
 
 export function ActivityFeed({ quoteId }: { quoteId: string }) {
+  const tr = useT();
   const [items, setItems] = useState<Item[]>([]);
 
   const load = useCallback(async () => {
@@ -53,7 +55,7 @@ export function ActivityFeed({ quoteId }: { quoteId: string }) {
       ...((company.data as never[]) ?? []).map((r: Record<string, unknown>) => ({
         id: `c-${r.id}`,
         at: String(r.created_at),
-        actor: "moving company",
+        actor: tr("admin.shell.activity.movingCompany"),
         action: String(r.action),
         detail: typeof r.detail === "string" ? r.detail : null,
       })),
@@ -61,20 +63,20 @@ export function ActivityFeed({ quoteId }: { quoteId: string }) {
         id: `m-${r.id}`,
         at: String(r.occurred_at),
         actor: (r.actor_email as string) ?? null,
-        action: `${r.channel} logged`,
+        action: tr("admin.shell.activity.channelLogged", { channel: String(r.channel) }),
         detail: String(r.status),
       })),
       ...((history.data as never[]) ?? []).map((r: Record<string, unknown>) => ({
         id: `h-${r.id}`,
         at: String(r.created_at),
         actor: (r.changed_by_email as string) ?? null,
-        action: `status → ${r.to_status}`,
-        detail: r.from_status ? `from ${r.from_status}` : null,
+        action: tr("admin.shell.activity.statusTo", { status: String(r.to_status) }),
+        detail: r.from_status ? tr("admin.shell.activity.fromStatus", { status: String(r.from_status) }) : null,
       })),
     ].sort((a, b) => new Date(b.at).getTime() - new Date(a.at).getTime());
 
     setItems(merged);
-  }, [quoteId]);
+  }, [quoteId, tr]);
 
   useEffect(() => {
     void load();
@@ -101,7 +103,7 @@ export function ActivityFeed({ quoteId }: { quoteId: string }) {
     };
   }, [quoteId, load]);
 
-  if (items.length === 0) return <Empty>No activity recorded yet.</Empty>;
+  if (items.length === 0) return <Empty>{tr("admin.shell.activity.empty")}</Empty>;
 
   return (
     <ul className="space-y-1.5">
@@ -112,7 +114,7 @@ export function ActivityFeed({ quoteId }: { quoteId: string }) {
         >
           <Activity className="mt-0.5 h-3.5 w-3.5 shrink-0 text-muted-foreground" />
           <div className="min-w-0 flex-1">
-            <span className="font-medium capitalize">{i.action.replace(/_/g, " ")}</span>
+            <span className="font-medium">{i.action.replace(/_/g, " ")}</span>
             {i.detail && <span className="text-muted-foreground"> · {i.detail}</span>}
             <div className="text-xs text-muted-foreground">
               {dateTime(i.at)}

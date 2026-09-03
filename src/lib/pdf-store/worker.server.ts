@@ -87,12 +87,19 @@ export async function runResearchCycle(db: any, count: number) {
   return { discovered: keywords.length, planned: planned.length };
 }
 
-/** Promote the highest-opportunity ideas into the production queue. */
+/** Promote approved, real-verified opportunities into the production queue.
+ *  DD-2B production gate: ONLY opportunities explicitly marked
+ *  status='candidate' + verification='real_verified' + approval='approved'
+ *  may enter production. Legacy/synthetic rows (status='new',
+ *  verification='legacy_unverified', approval='not_required'/'pending'/
+ *  'rejected'/'snoozed') are permanently ineligible, even with autopilot on. */
 export async function enqueueFromBacklog(db: any, count: number) {
   const { data: opps } = await db
     .from("pdf_opportunities")
     .select("*")
-    .eq("status", "new")
+    .eq("status", "candidate")
+    .eq("verification", "real_verified")
+    .eq("approval", "approved")
     .order("priority", { ascending: false })
     .limit(count);
 

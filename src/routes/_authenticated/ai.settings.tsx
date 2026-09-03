@@ -8,6 +8,7 @@ import { PageHeader, SectionShell } from "@/components/shell/Chrome";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { listSettings, saveSetting } from "@/lib/ai/api";
+import { useT } from "@/i18n";
 
 export const Route = createFileRoute("/_authenticated/ai/settings")({
   head: () => ({
@@ -19,22 +20,23 @@ export const Route = createFileRoute("/_authenticated/ai/settings")({
   component: AiSettings,
 });
 
-const GROUPS: { key: string; title: string; hint: string }[] = [
-  { key: "languages", title: "Languages", hint: "Locales the factories produce content in." },
-  { key: "countries", title: "Countries", hint: "Markets in scope." },
-  { key: "states", title: "States", hint: "State coverage for local pages." },
-  { key: "cities", title: "Cities", hint: "City list used by the SEO Factory." },
-  { key: "content_templates", title: "Content Templates", hint: "Reusable content skeletons." },
-  { key: "seo_templates", title: "SEO Templates", hint: "Title and meta patterns." },
-  { key: "publishing_rules", title: "Publishing Rules", hint: "When output may go live." },
-  { key: "quality_rules", title: "Quality Rules", hint: "Minimum score and checks." },
-  { key: "approval_workflow", title: "Approval Workflow", hint: "Who approves what." },
-  { key: "ai_models", title: "AI Models", hint: "Model routing per agent." },
-  { key: "task_limits", title: "Task Limits", hint: "Concurrency and daily caps." },
-  { key: "api_keys", title: "API Keys", hint: "Named references only — secrets stay server-side." },
+const GROUPS: { key: string; titleKey: string; hintKey: string }[] = [
+  { key: "languages", titleKey: "admin.ai3.settings.groupLanguagesTitle", hintKey: "admin.ai3.settings.groupLanguagesHint" },
+  { key: "countries", titleKey: "admin.ai3.settings.groupCountriesTitle", hintKey: "admin.ai3.settings.groupCountriesHint" },
+  { key: "states", titleKey: "admin.ai3.settings.groupStatesTitle", hintKey: "admin.ai3.settings.groupStatesHint" },
+  { key: "cities", titleKey: "admin.ai3.settings.groupCitiesTitle", hintKey: "admin.ai3.settings.groupCitiesHint" },
+  { key: "content_templates", titleKey: "admin.ai3.settings.groupContentTemplatesTitle", hintKey: "admin.ai3.settings.groupContentTemplatesHint" },
+  { key: "seo_templates", titleKey: "admin.ai3.settings.groupSeoTemplatesTitle", hintKey: "admin.ai3.settings.groupSeoTemplatesHint" },
+  { key: "publishing_rules", titleKey: "admin.ai3.settings.groupPublishingRulesTitle", hintKey: "admin.ai3.settings.groupPublishingRulesHint" },
+  { key: "quality_rules", titleKey: "admin.ai3.settings.groupQualityRulesTitle", hintKey: "admin.ai3.settings.groupQualityRulesHint" },
+  { key: "approval_workflow", titleKey: "admin.ai3.settings.groupApprovalWorkflowTitle", hintKey: "admin.ai3.settings.groupApprovalWorkflowHint" },
+  { key: "ai_models", titleKey: "admin.ai3.settings.groupAiModelsTitle", hintKey: "admin.ai3.settings.groupAiModelsHint" },
+  { key: "task_limits", titleKey: "admin.ai3.settings.groupTaskLimitsTitle", hintKey: "admin.ai3.settings.groupTaskLimitsHint" },
+  { key: "api_keys", titleKey: "admin.ai3.settings.groupApiKeysTitle", hintKey: "admin.ai3.settings.groupApiKeysHint" },
 ];
 
 function AiSettings() {
+  const tr = useT();
   const qc = useQueryClient();
   const settings = useQuery({ queryKey: ["ai", "settings"], queryFn: listSettings });
   const [draft, setDraft] = useState<Record<string, string>>({});
@@ -53,19 +55,23 @@ function AiSettings() {
     try {
       const parsed = JSON.parse(draft[key] ?? "{}");
       await saveSetting(key, parsed);
-      toast.success(`${key} saved`);
+      toast.success(tr("admin.ai3.settings.toastSaved", { key }));
       qc.invalidateQueries({ queryKey: ["ai", "settings"] });
     } catch (e) {
-      toast.error(e instanceof SyntaxError ? "Invalid JSON" : "Could not save");
+      toast.error(
+        e instanceof SyntaxError
+          ? tr("admin.ai3.settings.toastInvalidJson")
+          : tr("admin.ai3.settings.toastSaveFailed")
+      );
     }
   }
 
   return (
     <AiShell>
       <PageHeader
-        eyebrow="AI Growth Center"
-        title="Settings"
-        subtitle="Configuration is stored as structured values so new agents can read it directly."
+        eyebrow={tr("admin.ai.dashboard.eyebrow")}
+        title={tr("admin.ai3.settings.title")}
+        subtitle={tr("admin.ai3.settings.subtitle")}
         icon={<Settings className="h-5 w-5" />}
       />
 
@@ -73,14 +79,14 @@ function AiSettings() {
         {GROUPS.map((g) => (
           <SectionShell
             key={g.key}
-            title={g.title}
+            title={tr(g.titleKey)}
             right={
               <Button size="sm" variant="outline" onClick={() => save(g.key)}>
-                <Save className="mr-1.5 h-3.5 w-3.5" /> Save
+                <Save className="mr-1.5 h-3.5 w-3.5" /> {tr("admin.ai3.settings.save")}
               </Button>
             }
           >
-            <p className="mb-2 text-xs text-muted-foreground">{g.hint}</p>
+            <p className="mb-2 text-xs text-muted-foreground">{tr(g.hintKey)}</p>
             <Textarea
               value={draft[g.key] ?? ""}
               onChange={(e) => setDraft((d) => ({ ...d, [g.key]: e.target.value }))}

@@ -17,6 +17,7 @@ import { withdrawAssignment, forceOpenMarket, assignCompanies } from "@/lib/lead
 import { SlaCountdown } from "./SlaCountdown";
 import { LeadPhaseBadge } from "./LeadPhaseBadge";
 import { JobOwnerPanel } from "@/components/marketplace/JobOwnership";
+import { useT } from "@/i18n";
 
 type Company = {
   id: string;
@@ -68,6 +69,7 @@ const STATE_STYLES: Record<string, string> = {
 const TERMINAL = new Set(["accepted", "declined", "expired", "withdrawn", "superseded", "lost"]);
 
 export function AssignCompanies({ quoteId }: { quoteId: string }) {
+  const tr = useT();
   const [companies, setCompanies] = useState<Company[]>([]);
   const [assignments, setAssignments] = useState<Assignment[]>([]);
   const [quote, setQuote] = useState<QuotePhaseRow | null>(null);
@@ -155,13 +157,13 @@ export function AssignCompanies({ quoteId }: { quoteId: string }) {
       await doAssignCompanies({ data: { quoteId, companyIds: ids, slaHours } });
       toast.success(
         ids.length === 1
-          ? `Assigned · ${slaHours}h exclusive`
-          : `Sent to ${ids.length} companies · open market`,
+          ? tr("admin.shell.assignCompanies.toast.assignedExclusive", { hours: slaHours })
+          : tr("admin.shell.assignCompanies.toast.assignedOpenMarket", { count: ids.length }),
       );
       setSelected(new Set());
       await reload();
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Failed to assign");
+      toast.error(e instanceof Error ? e.message : tr("admin.shell.assignCompanies.toast.assignFailed"));
     } finally {
       setBusy(null);
     }
@@ -171,10 +173,10 @@ export function AssignCompanies({ quoteId }: { quoteId: string }) {
     setBusy(a.id);
     try {
       await doWithdraw({ data: { assignmentId: a.id } });
-      toast.success("Assignment withdrawn");
+      toast.success(tr("admin.shell.assignCompanies.toast.withdrawn"));
       await reload();
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Failed");
+      toast.error(e instanceof Error ? e.message : tr("admin.shell.assignCompanies.toast.failed"));
     } finally {
       setBusy(null);
     }
@@ -184,10 +186,10 @@ export function AssignCompanies({ quoteId }: { quoteId: string }) {
     setBusy("open-market");
     try {
       await doForceOpen({ data: { quoteId, reason: "broker_force" } });
-      toast.success("Lead released to open market");
+      toast.success(tr("admin.shell.assignCompanies.toast.releasedToOpenMarket"));
       await reload();
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Failed");
+      toast.error(e instanceof Error ? e.message : tr("admin.shell.assignCompanies.toast.failed"));
     } finally {
       setBusy(null);
     }
@@ -210,7 +212,7 @@ export function AssignCompanies({ quoteId }: { quoteId: string }) {
           )}
           {quote?.exclusive_pause_reason && (
             <span className="text-xs text-muted-foreground">
-              Paused: {quote.exclusive_pause_reason}
+              {tr("admin.shell.assignCompanies.pausedReason", { reason: quote.exclusive_pause_reason })}
             </span>
           )}
           <div className="ml-auto flex flex-wrap items-center gap-2">
@@ -222,7 +224,7 @@ export function AssignCompanies({ quoteId }: { quoteId: string }) {
                 disabled={busy === "open-market"}
               >
                 <Globe className="mr-1.5 h-3.5 w-3.5" />
-                Force open market
+                {tr("admin.shell.assignCompanies.forceOpenMarket")}
               </Button>
             )}
           </div>
@@ -231,13 +233,15 @@ export function AssignCompanies({ quoteId }: { quoteId: string }) {
 
       {/* Active assignments */}
       <div className="rounded-xl border border-border bg-card/50 p-4">
-        <div className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+        <div className="mb-3 flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
           <Building2 className="h-4 w-4" />
-          Active assignments ({activeAssignments.length})
+          {tr("admin.shell.assignCompanies.activeAssignmentsCount", { count: activeAssignments.length })}
         </div>
 
         {activeAssignments.length === 0 && (
-          <p className="text-sm text-muted-foreground mb-3">No active assignments.</p>
+          <p className="text-sm text-muted-foreground mb-3">
+            {tr("admin.shell.assignCompanies.noActiveAssignments")}
+          </p>
         )}
 
         <div className="space-y-2">
@@ -247,15 +251,15 @@ export function AssignCompanies({ quoteId }: { quoteId: string }) {
               <div key={a.id} className="rounded-lg border border-border bg-background p-3 text-sm">
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2 font-medium">
-                      <span className="truncate">{c?.name ?? "Unknown company"}</span>
+                    <div className="flex flex-wrap items-center gap-2 font-medium">
+                      <span className="truncate">{c?.name ?? tr("admin.shell.assignCompanies.unknownCompany")}</span>
                       {a.is_exclusive && (
                         <Badge
                           variant="outline"
                           className="border-indigo-300 bg-indigo-50 text-indigo-800 text-[10px]"
                         >
                           <Lock className="mr-0.5 h-2.5 w-2.5" />
-                          Exclusive
+                          {tr("admin.shell.leadPhase.exclusive")}
                         </Badge>
                       )}
                       {!a.is_exclusive && (
@@ -264,17 +268,29 @@ export function AssignCompanies({ quoteId }: { quoteId: string }) {
                           className="border-amber-300 bg-amber-50 text-amber-900 text-[10px]"
                         >
                           <Sparkles className="mr-0.5 h-2.5 w-2.5" />
-                          Open market
+                          {tr("admin.shell.leadPhase.open_market")}
                         </Badge>
                       )}
                     </div>
                     <div className="mt-1 flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
-                      <span>Invited {new Date(a.invited_at ?? a.created_at).toLocaleString()}</span>
+                      <span>
+                        {tr("admin.shell.assignCompanies.invitedAt", {
+                          time: new Date(a.invited_at ?? a.created_at).toLocaleString(),
+                        })}
+                      </span>
                       {a.viewed_at && (
-                        <span>· Viewed {new Date(a.viewed_at).toLocaleString()}</span>
+                        <span>
+                          {tr("admin.shell.assignCompanies.viewedAt", {
+                            time: new Date(a.viewed_at).toLocaleString(),
+                          })}
+                        </span>
                       )}
                       {a.contacted_at && (
-                        <span>· Contacted {new Date(a.contacted_at).toLocaleString()}</span>
+                        <span>
+                          {tr("admin.shell.assignCompanies.contactedAt", {
+                            time: new Date(a.contacted_at).toLocaleString(),
+                          })}
+                        </span>
                       )}
                     </div>
                   </div>
@@ -283,8 +299,8 @@ export function AssignCompanies({ quoteId }: { quoteId: string }) {
                     size="sm"
                     onClick={() => void withdraw(a)}
                     disabled={busy === a.id}
-                    aria-label="Withdraw"
-                    title="Withdraw assignment"
+                    aria-label={tr("admin.shell.assignCompanies.withdraw")}
+                    title={tr("admin.shell.assignCompanies.withdrawAssignment")}
                   >
                     <X className="h-4 w-4" />
                   </Button>
@@ -294,7 +310,7 @@ export function AssignCompanies({ quoteId }: { quoteId: string }) {
                     variant="outline"
                     className={`capitalize text-xs ${STATE_STYLES[a.state] ?? ""}`}
                   >
-                    {a.state}
+                    {tr(`admin.shell.assignCompanies.state.${a.state}`)}
                   </Badge>
                   {a.is_exclusive && a.sla_due_at && (
                     <SlaCountdown
@@ -312,10 +328,14 @@ export function AssignCompanies({ quoteId }: { quoteId: string }) {
         {/* Assign panel */}
         {!isClosed && available.length > 0 && (
           <div className="mt-4 border-t border-border pt-3">
-            <div className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              <span>{isExclusive ? "Reassign lead" : "Assign lead"}</span>
+            <div className="mb-3 flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              <span>
+                {isExclusive
+                  ? tr("admin.shell.assignCompanies.reassignLead")
+                  : tr("admin.shell.assignCompanies.assignLeadHeading")}
+              </span>
               <div className="ml-auto flex items-center gap-1 normal-case tracking-normal">
-                <span className="text-muted-foreground">SLA</span>
+                <span className="text-muted-foreground">{tr("admin.shell.assignCompanies.sla")}</span>
                 <Select value={String(slaHours)} onValueChange={(v) => setSlaHours(Number(v))}>
                   <SelectTrigger className="h-7 w-[80px] text-xs">
                     <SelectValue />
@@ -323,7 +343,7 @@ export function AssignCompanies({ quoteId }: { quoteId: string }) {
                   <SelectContent>
                     {[6, 12, 24, 48].map((h) => (
                       <SelectItem key={h} value={String(h)} className="text-xs">
-                        {h}h
+                        {tr("admin.shell.assignCompanies.hoursShort", { hours: h })}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -332,8 +352,7 @@ export function AssignCompanies({ quoteId }: { quoteId: string }) {
             </div>
 
             <p className="mb-2 text-xs text-muted-foreground">
-              Select one company for an exclusive {slaHours}h SLA, or multiple to invite them all in
-              open market.
+              {tr("admin.shell.assignCompanies.assignInstructions", { hours: slaHours })}
             </p>
 
             <div className="space-y-1.5">
@@ -351,18 +370,20 @@ export function AssignCompanies({ quoteId }: { quoteId: string }) {
                     <Checkbox
                       checked={checked}
                       onCheckedChange={() => toggle(c.id)}
-                      aria-label={`Select ${c.name}`}
+                      aria-label={tr("admin.shell.assignCompanies.selectCompany", { name: c.name })}
                     />
                     <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-2 font-medium">
+                      <div className="flex flex-wrap items-center gap-2 font-medium">
                         <span className="truncate">{c.name}</span>
                         {c.approved === false && (
-                          <span className="text-[10px] text-amber-700">Unapproved</span>
+                          <span className="text-[10px] text-amber-700">
+                            {tr("admin.shell.assignCompanies.unapproved")}
+                          </span>
                         )}
                       </div>
                       {c.service_states && c.service_states.length > 0 && (
                         <div className="text-[11px] text-muted-foreground">
-                          Serves {c.service_states.join(", ")}
+                          {tr("admin.shell.assignCompanies.serves", { states: c.service_states.join(", ") })}
                         </div>
                       )}
                     </div>
@@ -371,13 +392,13 @@ export function AssignCompanies({ quoteId }: { quoteId: string }) {
               })}
             </div>
 
-            <div className="mt-3 flex items-center justify-between gap-2">
+            <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
               <span className="text-xs text-muted-foreground">
                 {selected.size === 0
-                  ? "No companies selected"
+                  ? tr("admin.shell.assignCompanies.noCompaniesSelected")
                   : selected.size === 1
-                    ? "1 company · exclusive assignment"
-                    : `${selected.size} companies · open market`}
+                    ? tr("admin.shell.assignCompanies.oneCompanyExclusive")
+                    : tr("admin.shell.assignCompanies.multipleCompaniesOpenMarket", { count: selected.size })}
               </span>
               <Button
                 size="sm"
@@ -385,7 +406,9 @@ export function AssignCompanies({ quoteId }: { quoteId: string }) {
                 disabled={selected.size === 0 || busy === "assign"}
               >
                 <Send className="mr-1.5 h-3.5 w-3.5" />
-                {busy === "assign" ? "Assigning…" : "Assign Lead"}
+                {busy === "assign"
+                  ? tr("admin.shell.assignCompanies.assigning")
+                  : tr("admin.shell.assignCompanies.assignLead")}
               </Button>
             </div>
           </div>
@@ -393,15 +416,15 @@ export function AssignCompanies({ quoteId }: { quoteId: string }) {
 
         {isOpenMarket && (
           <p className="mt-3 text-xs text-muted-foreground">
-            Lead is in the open market. Approved companies can discover and claim it.
+            {tr("admin.shell.assignCompanies.openMarketNotice")}
           </p>
         )}
 
         {companies.length === 0 && (
           <p className="text-sm text-muted-foreground">
-            No companies yet.{" "}
+            {tr("admin.shell.assignCompanies.noCompaniesYet")}{" "}
             <a href="/admin/companies" className="text-primary hover:underline">
-              Create one →
+              {tr("admin.shell.assignCompanies.createOne")}
             </a>
           </p>
         )}
@@ -411,7 +434,7 @@ export function AssignCompanies({ quoteId }: { quoteId: string }) {
       {historical.length > 0 && (
         <details className="rounded-xl border border-border bg-card/30 p-4 text-sm">
           <summary className="cursor-pointer text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            History ({historical.length})
+            {tr("admin.shell.assignCompanies.historyCount", { count: historical.length })}
           </summary>
           <div className="mt-2 space-y-1.5">
             {historical.map((a) => {
@@ -420,7 +443,7 @@ export function AssignCompanies({ quoteId }: { quoteId: string }) {
                 <div key={a.id} className="flex flex-wrap items-center gap-2 text-xs">
                   <span className="font-medium">{c?.name ?? "—"}</span>
                   <Badge variant="outline" className={`capitalize ${STATE_STYLES[a.state] ?? ""}`}>
-                    {a.state}
+                    {tr(`admin.shell.assignCompanies.state.${a.state}`)}
                   </Badge>
                   <span className="text-muted-foreground">
                     {new Date(a.closed_at ?? a.created_at).toLocaleString()}

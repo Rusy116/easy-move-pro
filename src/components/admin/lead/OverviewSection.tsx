@@ -11,6 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useT } from "@/i18n";
 import { Section, Row, Empty, money, type LeadQuote } from "./shared";
 import { LeadMap } from "./LeadMap";
 
@@ -37,13 +38,13 @@ function str(v: unknown): string | null {
   return typeof v === "string" && v.trim() ? v : null;
 }
 
-async function patchQuote(id: string, patch: Record<string, unknown>) {
+async function patchQuote(id: string, patch: Record<string, unknown>, okMessage: string) {
   const { error } = await supabase
     .from("quotes")
     .update(patch as never)
     .eq("id", id);
   if (error) toast.error(error.message);
-  else toast.success("Lead updated");
+  else toast.success(okMessage);
 }
 
 export function OverviewSection({
@@ -55,6 +56,7 @@ export function OverviewSection({
   brokerSlot?: React.ReactNode;
   workflowSlot?: React.ReactNode;
 }) {
+  const tr = useT();
   const details = (q.details as Record<string, unknown> | null) ?? {};
   const [priority, setPriority] = useState(String(q.priority ?? "normal"));
   const [source, setSource] = useState(str(q.source) ?? "");
@@ -73,7 +75,7 @@ export function OverviewSection({
 
   async function saveTags(next: string[]) {
     setTags(next);
-    await patchQuote(q.id, { tags: next });
+    await patchQuote(q.id, { tags: next }, tr("admin.shell.leadOverview.leadUpdated"));
   }
 
   const originPt =
@@ -85,55 +87,62 @@ export function OverviewSection({
       ? { lat: Number(q.destination_lat), lng: Number(q.destination_lng) }
       : null;
 
+  const priorityOptionLabel = (v: string) => tr(`admin.shell.leadOverview.priority.${v}`);
+  const sourceOptionLabel = (v: string) => tr(`admin.shell.leadOverview.source.${v}`);
+  const serviceTypeOptionLabel = (v: string) => tr(`admin.shell.leadOverview.serviceType.${v}`);
+
   return (
     <div className="space-y-4">
       <div className="grid gap-4 md:grid-cols-2">
-        <Section title="Overview">
-          <Row label="Lead ID" value={q.quote_number ?? q.id.slice(0, 8)} />
-          <Row label="Status" value={q.status} />
-          <Row label="Workflow stage" value={q.lead_status ?? q.job_status} />
-          <Row label="Lead phase" value={q.lead_phase} />
+        <Section title={tr("admin.shell.leadOverview.overview")}>
+          <Row label={tr("admin.shell.leadOverview.leadId")} value={q.quote_number ?? q.id.slice(0, 8)} />
+          <Row label={tr("admin.shell.leadOverview.status")} value={q.status} />
+          <Row label={tr("admin.shell.leadOverview.workflowStage")} value={q.lead_status ?? q.job_status} />
+          <Row label={tr("admin.shell.leadOverview.leadPhase")} value={q.lead_phase} />
           <Row
-            label="Estimate"
+            label={tr("admin.shell.leadOverview.estimate")}
             value={`${money(q.estimated_low)} – ${money(q.estimated_high)}`}
           />
-          <Row label="Move date" value={q.move_date} />
-          <Row label="Created" value={new Date(String(q.created_at)).toLocaleString()} />
+          <Row label={tr("admin.shell.leadOverview.moveDate")} value={q.move_date} />
+          <Row label={tr("admin.shell.leadOverview.created")} value={new Date(String(q.created_at)).toLocaleString()} />
           <div className="mt-3 space-y-2 border-t border-border pt-3">
-            <div className="flex items-center justify-between gap-2">
-              <span className="text-sm text-muted-foreground">Assigned broker</span>
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <span className="text-sm text-muted-foreground">{tr("admin.shell.leadOverview.assignedBroker")}</span>
               <div className="w-[180px]">{brokerSlot}</div>
             </div>
             <LabeledSelect
-              label="Priority"
+              label={tr("admin.shell.leadOverview.priorityLabel")}
               value={priority}
               options={PRIORITIES as unknown as string[]}
+              optionLabel={priorityOptionLabel}
               onChange={(v) => {
                 setPriority(v);
-                void patchQuote(q.id, { priority: v });
+                void patchQuote(q.id, { priority: v }, tr("admin.shell.leadOverview.leadUpdated"));
               }}
             />
             <LabeledSelect
-              label="Source"
+              label={tr("admin.shell.leadOverview.sourceLabel")}
               value={source}
               options={SOURCES as unknown as string[]}
+              optionLabel={sourceOptionLabel}
               onChange={(v) => {
                 setSource(v);
-                void patchQuote(q.id, { source: v });
+                void patchQuote(q.id, { source: v }, tr("admin.shell.leadOverview.leadUpdated"));
               }}
             />
             <LabeledSelect
-              label="Service type"
+              label={tr("admin.shell.leadOverview.serviceTypeLabel")}
               value={serviceType}
               options={SERVICE_TYPES as unknown as string[]}
+              optionLabel={serviceTypeOptionLabel}
               onChange={(v) => {
                 setServiceType(v);
-                void patchQuote(q.id, { service_type: v });
+                void patchQuote(q.id, { service_type: v }, tr("admin.shell.leadOverview.leadUpdated"));
               }}
             />
             <div className="flex items-center gap-2 pt-1">
               <Badge variant="outline" className={`capitalize ${PRIORITY_STYLE[priority] ?? ""}`}>
-                {priority} priority
+                {tr("admin.shell.leadOverview.priorityBadge", { priority: priorityOptionLabel(priority) })}
               </Badge>
             </div>
           </div>
@@ -142,7 +151,7 @@ export function OverviewSection({
         <Section
           title={
             <span className="inline-flex items-center gap-1">
-              <Tag className="h-3 w-3" /> Internal tags
+              <Tag className="h-3 w-3" /> {tr("admin.shell.leadOverview.internalTags")}
             </span>
           }
         >
@@ -155,7 +164,7 @@ export function OverviewSection({
                 {t}
                 <button
                   type="button"
-                  aria-label={`Remove tag ${t}`}
+                  aria-label={tr("admin.shell.leadOverview.removeTag", { tag: t })}
                   onClick={() => void saveTags(tags.filter((x) => x !== t))}
                   className="text-muted-foreground hover:text-foreground"
                 >
@@ -163,7 +172,9 @@ export function OverviewSection({
                 </button>
               </span>
             ))}
-            {tags.length === 0 && <span className="text-sm text-muted-foreground">No tags</span>}
+            {tags.length === 0 && (
+              <span className="text-sm text-muted-foreground">{tr("admin.shell.leadOverview.noTags")}</span>
+            )}
           </div>
           <form
             className="mt-3 flex gap-2"
@@ -178,7 +189,7 @@ export function OverviewSection({
             <Input
               value={tagDraft}
               onChange={(e) => setTagDraft(e.target.value)}
-              placeholder="Add tag…"
+              placeholder={tr("admin.shell.leadOverview.addTagPlaceholder")}
               className="h-8"
             />
             <button
@@ -186,47 +197,50 @@ export function OverviewSection({
               className="inline-flex h-8 items-center rounded-md border border-border px-2 text-xs hover:bg-accent"
             >
               <Plus className="mr-1 h-3.5 w-3.5" />
-              Add
+              {tr("admin.shell.leadOverview.add")}
             </button>
           </form>
           {workflowSlot && <div className="mt-4 border-t border-border pt-3">{workflowSlot}</div>}
         </Section>
 
-        <Section title="Customer profile">
-          <Row label="Name" value={(details as { fullName?: string }).fullName} />
-          <Row label="Email" value={q.contact_email} />
-          <Row label="Phone" value={q.contact_phone} />
+        <Section title={tr("admin.shell.leadOverview.customerProfile")}>
+          <Row label={tr("admin.shell.leadOverview.name")} value={(details as { fullName?: string }).fullName} />
+          <Row label={tr("admin.shell.leadOverview.email")} value={q.contact_email} />
+          <Row label={tr("admin.shell.leadOverview.phone")} value={q.contact_phone} />
           <Row
-            label="Preferred contact"
+            label={tr("admin.shell.leadOverview.preferredContact")}
             value={(details as { contactMethod?: string }).contactMethod}
           />
-          <Row label="Best time to call" value={(details as { contactTime?: string }).contactTime} />
+          <Row
+            label={tr("admin.shell.leadOverview.bestTimeToCall")}
+            value={(details as { contactTime?: string }).contactTime}
+          />
           <LabeledSelect
-            label="Language"
+            label={tr("admin.shell.leadOverview.languageLabel")}
             value={language}
             options={LANGUAGES as unknown as string[]}
             onChange={(v) => {
               setLanguage(v);
-              void patchQuote(q.id, { customer_language: v });
+              void patchQuote(q.id, { customer_language: v }, tr("admin.shell.leadOverview.leadUpdated"));
             }}
           />
-          <Row label="Customer notes" value={q.inventory_notes} />
+          <Row label={tr("admin.shell.leadOverview.customerNotes")} value={q.inventory_notes} />
         </Section>
 
-        <Section title="Move summary">
-          <Row label="Type" value={q.move_type} />
-          <Row label="Distance" value={q.distance_miles ? `${q.distance_miles} mi` : null} />
-          <Row label="Preferred time" value={q.preferred_time} />
-          <Row label="Flexible date" value={q.flexible_date} />
-          <Row label="Insurance" value={q.insurance_tier} />
-          <Row label="Truck" value={q.truck_size} />
-          <Row label="Crew" value={q.num_movers ? `${q.num_movers} movers` : null} />
+        <Section title={tr("admin.shell.leadOverview.moveSummary")}>
+          <Row label={tr("admin.shell.leadOverview.type")} value={q.move_type} />
+          <Row label={tr("admin.shell.leadOverview.distance")} value={q.distance_miles ? tr("admin.shell.leadOverview.milesValue", { miles: q.distance_miles }) : null} />
+          <Row label={tr("admin.shell.leadOverview.preferredTime")} value={q.preferred_time} />
+          <Row label={tr("admin.shell.leadOverview.flexibleDate")} value={q.flexible_date} />
+          <Row label={tr("admin.shell.leadOverview.insurance")} value={q.insurance_tier} />
+          <Row label={tr("admin.shell.leadOverview.truck")} value={q.truck_size} />
+          <Row label={tr("admin.shell.leadOverview.crew")} value={q.num_movers ? tr("admin.shell.leadOverview.moversValue", { count: q.num_movers }) : null} />
         </Section>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
         <AddressCard
-          title="Origin"
+          title={tr("admin.shell.leadOverview.origin")}
           address={q.origin_address ?? `${q.origin_city ?? ""} ${q.origin_zip ?? ""}`}
           city={q.origin_city}
           state={q.origin_state}
@@ -241,7 +255,7 @@ export function OverviewSection({
           notes={q.pickup_notes}
         />
         <AddressCard
-          title="Destination"
+          title={tr("admin.shell.leadOverview.destination")}
           address={q.destination_address ?? `${q.destination_city ?? ""} ${q.destination_zip ?? ""}`}
           city={q.destination_city}
           state={q.destination_state}
@@ -257,16 +271,16 @@ export function OverviewSection({
         />
       </div>
 
-      <Section title="Route">
+      <Section title={tr("admin.shell.leadOverview.route")}>
         {originPt || destPt ? (
           <LeadMap
             origin={originPt}
             destination={destPt}
-            originLabel={String(q.origin_address ?? q.origin_city ?? "Origin")}
-            destinationLabel={String(q.destination_address ?? q.destination_city ?? "Destination")}
+            originLabel={String(q.origin_address ?? q.origin_city ?? tr("admin.shell.leadOverview.origin"))}
+            destinationLabel={String(q.destination_address ?? q.destination_city ?? tr("admin.shell.leadOverview.destination"))}
           />
         ) : (
-          <Empty>No geocoded addresses on this lead yet.</Empty>
+          <Empty>{tr("admin.shell.leadOverview.noGeocodedAddresses")}</Empty>
         )}
       </Section>
     </div>
@@ -288,6 +302,7 @@ function AddressCard(props: {
   longCarry: unknown;
   notes: unknown;
 }) {
+  const tr = useT();
   return (
     <Section
       title={
@@ -297,19 +312,19 @@ function AddressCard(props: {
         </span>
       }
     >
-      <Row label="Full address" value={props.address} />
-      <Row label="City / State" value={[props.city, props.state].filter(Boolean).join(", ")} />
-      <Row label="ZIP" value={props.zip} />
-      <Row label="Building type" value={props.buildingType} />
-      <Row label="Floor" value={props.floor} />
-      <Row label="Stairs (flights)" value={props.stairs} />
-      <Row label="Elevator" value={props.elevator} />
-      <Row label="Parking" value={props.parking} />
+      <Row label={tr("admin.shell.leadOverview.fullAddress")} value={props.address} />
+      <Row label={tr("admin.shell.leadOverview.cityState")} value={[props.city, props.state].filter(Boolean).join(", ")} />
+      <Row label={tr("admin.shell.leadOverview.zip")} value={props.zip} />
+      <Row label={tr("admin.shell.leadOverview.buildingType")} value={props.buildingType} />
+      <Row label={tr("admin.shell.leadOverview.floor")} value={props.floor} />
+      <Row label={tr("admin.shell.leadOverview.stairsFlights")} value={props.stairs} />
+      <Row label={tr("admin.shell.leadOverview.elevator")} value={props.elevator} />
+      <Row label={tr("admin.shell.leadOverview.parking")} value={props.parking} />
       <Row
-        label="Walking distance"
-        value={props.longCarry ? "Long carry" : (props.carry ?? null)}
+        label={tr("admin.shell.leadOverview.walkingDistance")}
+        value={props.longCarry ? tr("admin.shell.leadOverview.longCarry") : (props.carry ?? null)}
       />
-      <Row label="Notes" value={props.notes} />
+      <Row label={tr("admin.shell.leadOverview.notes")} value={props.notes} />
     </Section>
   );
 }
@@ -318,24 +333,27 @@ function LabeledSelect({
   label,
   value,
   options,
+  optionLabel,
   onChange,
 }: {
   label: string;
   value: string;
   options: string[];
+  optionLabel?: (v: string) => string;
   onChange: (v: string) => void;
 }) {
+  const tr = useT();
   return (
-    <div className="flex items-center justify-between gap-2">
+    <div className="flex flex-wrap items-center justify-between gap-2">
       <span className="text-sm text-muted-foreground">{label}</span>
       <Select value={value || undefined} onValueChange={onChange}>
         <SelectTrigger className="h-8 w-[180px] capitalize">
-          <SelectValue placeholder="Not set" />
+          <SelectValue placeholder={tr("admin.shell.leadOverview.notSet")} />
         </SelectTrigger>
         <SelectContent>
           {options.map((o) => (
             <SelectItem key={o} value={o} className="capitalize">
-              {o.replace(/_/g, " ")}
+              {optionLabel ? optionLabel(o) : o.replace(/_/g, " ")}
             </SelectItem>
           ))}
         </SelectContent>

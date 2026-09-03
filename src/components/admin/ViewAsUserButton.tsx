@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { impersonationHome, startViewAs } from "@/lib/impersonation";
 import type { ImpersonationRole } from "@/lib/impersonation.functions";
+import { useI18n } from "@/i18n";
 
 /**
  * "View as User" — available from every admin directory. Opens a real session
@@ -12,7 +13,7 @@ import type { ImpersonationRole } from "@/lib/impersonation.functions";
  */
 export function ViewAsUserButton({
   userId,
-  label = "View as User",
+  label,
   size = "sm",
   variant = "outline",
   className,
@@ -29,18 +30,19 @@ export function ViewAsUserButton({
   onResolveUserId?: () => Promise<string | null>;
 }) {
   const navigate = useNavigate();
+  const { t: tr } = useI18n();
   const [busy, setBusy] = useState(false);
 
   async function go() {
     setBusy(true);
     try {
       const id = userId ?? (onResolveUserId ? await onResolveUserId() : null);
-      if (!id) throw new Error("This record has no linked user account");
+      if (!id) throw new Error(tr("admin.shell.viewAs.noAccount"));
       const meta = await startViewAs(id);
-      toast.success(`Now viewing as ${meta.name}`);
+      toast.success(tr("admin.shell.viewAs.success", { name: meta.name }));
       navigate({ to: impersonationHome(meta.role as ImpersonationRole) as never });
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Could not start impersonation");
+      toast.error(e instanceof Error ? e.message : tr("admin.shell.viewAs.error"));
     } finally {
       setBusy(false);
     }
@@ -51,12 +53,12 @@ export function ViewAsUserButton({
       type="button"
       size={size}
       variant={variant}
-      className={className ?? "rounded-full"}
+      className={className ?? "rounded-full whitespace-nowrap"}
       disabled={busy || disabled}
       onClick={() => void go()}
     >
       {busy ? <Loader2 className="mr-1.5 h-4 w-4 animate-spin" /> : <Eye className="mr-1.5 h-4 w-4" />}
-      {label}
+      {label ?? tr("admin.shell.viewAs.label")}
     </Button>
   );
 }

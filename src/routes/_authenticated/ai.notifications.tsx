@@ -12,6 +12,7 @@ import {
   markAllNotificationsRead,
   markNotificationRead,
 } from "@/lib/ai/orchestrator";
+import { useT } from "@/i18n";
 
 export const Route = createFileRoute("/_authenticated/ai/notifications")({
   head: () => ({
@@ -35,6 +36,7 @@ const SEVERITY_TONE: Record<string, string> = {
 };
 
 function NotificationsPage() {
+  const tr = useT();
   const qc = useQueryClient();
   const [onlyUnread, setOnlyUnread] = useState(false);
   const notifications = useQuery({
@@ -52,31 +54,31 @@ function NotificationsPage() {
       toast.success(msg);
       qc.invalidateQueries({ queryKey: ["ai", "notifications"] });
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Action failed");
+      toast.error(e instanceof Error ? e.message : tr("admin.ai2.notifications.toast.actionFailed"));
     }
   }
 
   return (
     <AiShell>
       <PageHeader
-        eyebrow="AI Orchestrator"
-        title="Notifications"
-        subtitle="Agent crashes, task failures, completed batches and successful publications."
+        eyebrow={tr("admin.ai2.notifications.eyebrow")}
+        title={tr("admin.ai2.notifications.title")}
+        subtitle={tr("admin.ai2.notifications.subtitle")}
         icon={<Bell className="h-5 w-5" />}
       />
 
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard label="Total alerts" value={all.length} />
-        <StatCard label="Unread" value={all.filter((n) => !n.read_at).length} tone="warning" />
-        <StatCard label="Errors" value={all.filter((n) => n.severity === "error").length} tone="danger" />
+        <StatCard label={tr("admin.ai2.notifications.stat.total")} value={all.length} />
+        <StatCard label={tr("admin.ai2.notifications.stat.unread")} value={all.filter((n) => !n.read_at).length} tone="warning" />
+        <StatCard label={tr("admin.ai2.notifications.stat.errors")} value={all.filter((n) => n.severity === "error").length} tone="danger" />
         <StatCard
-          label="Publications"
+          label={tr("admin.ai2.notifications.stat.publications")}
           value={all.filter((n) => n.kind.includes("publish")).length}
           tone="success"
         />
       </div>
 
-      <SectionShell title="Alert feed">
+      <SectionShell title={tr("admin.ai2.notifications.feed.title")}>
         <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
           <button
             onClick={() => setOnlyUnread((v) => !v)}
@@ -84,15 +86,15 @@ function NotificationsPage() {
               onlyUnread ? "bg-foreground text-background" : "bg-muted text-muted-foreground"
             }`}
           >
-            Unread only
+            {tr("admin.ai2.notifications.feed.unreadOnly")}
           </button>
           <Button
             size="sm"
             variant="outline"
-            onClick={() => run(markAllNotificationsRead, "All notifications marked read")}
+            onClick={() => run(markAllNotificationsRead, tr("admin.ai2.notifications.toast.allRead"))}
           >
             <CheckCheck className="mr-2 h-4 w-4" />
-            Mark all read
+            {tr("admin.ai2.notifications.feed.markAllRead")}
           </Button>
         </div>
 
@@ -107,7 +109,7 @@ function NotificationsPage() {
                         SEVERITY_TONE[n.severity] ?? "bg-muted text-muted-foreground"
                       }`}
                     >
-                      {n.severity}
+                      {tr(`admin.ai2.notifications.severity.${n.severity}`)}
                     </span>
                     <span className={`text-sm ${n.read_at ? "text-muted-foreground" : "font-medium"}`}>
                       {n.title}
@@ -115,8 +117,11 @@ function NotificationsPage() {
                   </div>
                   {n.body && <p className="mt-1 text-xs text-muted-foreground">{n.body}</p>}
                   <p className="mt-1 text-xs capitalize text-muted-foreground">
-                    {(n.agent_key ?? "orchestrator").replace(/_/g, " ")} · {n.kind.replace(/_/g, " ")} ·{" "}
-                    {fmtDate(n.created_at)}
+                    {tr("admin.ai2.notifications.feed.meta", {
+                      agent: (n.agent_key ?? "orchestrator").replace(/_/g, " "),
+                      kind: n.kind.replace(/_/g, " "),
+                      date: fmtDate(n.created_at),
+                    })}
                   </p>
                 </div>
                 <Button
@@ -125,17 +130,17 @@ function NotificationsPage() {
                   onClick={() =>
                     run(
                       () => markNotificationRead(n.id, !n.read_at),
-                      n.read_at ? "Marked unread" : "Marked read",
+                      n.read_at ? tr("admin.ai2.notifications.toast.markedUnread") : tr("admin.ai2.notifications.toast.markedRead"),
                     )
                   }
                 >
-                  {n.read_at ? "Unread" : "Read"}
+                  {n.read_at ? tr("admin.ai2.notifications.feed.markUnread") : tr("admin.ai2.notifications.feed.markRead")}
                 </Button>
               </li>
             ))}
           </ul>
         ) : (
-          <EmptyState title="No notifications" hint="Alerts appear here as agents report events." />
+          <EmptyState title={tr("admin.ai2.notifications.feed.emptyTitle")} hint={tr("admin.ai2.notifications.feed.emptyHint")} />
         )}
       </SectionShell>
     </AiShell>

@@ -16,6 +16,7 @@ import {
   RefreshCw,
   Sparkles,
 } from "lucide-react";
+import { useT } from "@/i18n";
 
 type LeadEvent = {
   id: string;
@@ -30,34 +31,34 @@ type LeadEvent = {
 
 const EVENT_META: Record<
   string,
-  { label: string; icon: React.ComponentType<{ className?: string }>; tone: string }
+  { key: string; icon: React.ComponentType<{ className?: string }>; tone: string }
 > = {
-  "assignment.invited": { label: "Assigned exclusively", icon: Lock, tone: "text-indigo-700" },
-  "assignment.viewed": { label: "Mover viewed lead", icon: Eye, tone: "text-sky-700" },
+  "assignment.invited": { key: "assignmentInvited", icon: Lock, tone: "text-indigo-700" },
+  "assignment.viewed": { key: "assignmentViewed", icon: Eye, tone: "text-sky-700" },
   "assignment.contacted": {
-    label: "Mover contacted customer",
+    key: "assignmentContacted",
     icon: PhoneCall,
     tone: "text-amber-700",
   },
-  "assignment.declined": { label: "Mover declined", icon: Ban, tone: "text-rose-700" },
+  "assignment.declined": { key: "assignmentDeclined", icon: Ban, tone: "text-rose-700" },
   "assignment.withdrawn": {
-    label: "Broker withdrew assignment",
+    key: "assignmentWithdrawn",
     icon: RefreshCw,
     tone: "text-slate-700",
   },
   "assignment.claimed": {
-    label: "Mover claimed open lead",
+    key: "assignmentClaimed",
     icon: Sparkles,
     tone: "text-emerald-700",
   },
-  "phase.open_market": { label: "Moved to open market", icon: Globe, tone: "text-amber-800" },
-  "phase.closed": { label: "Lead closed", icon: XCircle, tone: "text-neutral-700" },
-  "lead.reopened": { label: "Lead reopened", icon: RefreshCw, tone: "text-slate-700" },
-  "sla.expired": { label: "SLA expired", icon: Clock, tone: "text-rose-700" },
-  "sla.paused": { label: "SLA paused", icon: PauseCircle, tone: "text-slate-700" },
-  "sla.resumed": { label: "SLA resumed", icon: PlayCircle, tone: "text-emerald-700" },
-  "sla.extended": { label: "SLA extended", icon: Clock, tone: "text-emerald-700" },
-  "visibility.changed": { label: "Visibility mask changed", icon: UserCog, tone: "text-slate-700" },
+  "phase.open_market": { key: "phaseOpenMarket", icon: Globe, tone: "text-amber-800" },
+  "phase.closed": { key: "phaseClosed", icon: XCircle, tone: "text-neutral-700" },
+  "lead.reopened": { key: "leadReopened", icon: RefreshCw, tone: "text-slate-700" },
+  "sla.expired": { key: "slaExpired", icon: Clock, tone: "text-rose-700" },
+  "sla.paused": { key: "slaPaused", icon: PauseCircle, tone: "text-slate-700" },
+  "sla.resumed": { key: "slaResumed", icon: PlayCircle, tone: "text-emerald-700" },
+  "sla.extended": { key: "slaExtended", icon: Clock, tone: "text-emerald-700" },
+  "visibility.changed": { key: "visibilityChanged", icon: UserCog, tone: "text-slate-700" },
 };
 
 function summarize(e: LeadEvent): string | null {
@@ -73,6 +74,7 @@ function summarize(e: LeadEvent): string | null {
 }
 
 export function LeadEventsTimeline({ quoteId }: { quoteId: string }) {
+  const tr = useT();
   const [events, setEvents] = useState<LeadEvent[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -111,27 +113,26 @@ export function LeadEventsTimeline({ quoteId }: { quoteId: string }) {
     };
   }, [quoteId]);
 
-  if (loading) return <p className="text-sm text-muted-foreground">Loading timeline…</p>;
+  if (loading)
+    return <p className="text-sm text-muted-foreground">{tr("admin.shell.leadEvents.loading")}</p>;
   if (events.length === 0)
-    return <p className="text-sm text-muted-foreground">No lead events yet.</p>;
+    return <p className="text-sm text-muted-foreground">{tr("admin.shell.leadEvents.empty")}</p>;
 
   return (
     <ol className="relative border-l border-border ml-2 space-y-3">
       {events.map((e) => {
-        const meta = EVENT_META[e.event_type] ?? {
-          label: e.event_type,
-          icon: Building2,
-          tone: "text-muted-foreground",
-        };
-        const Icon = meta.icon;
+        const meta = EVENT_META[e.event_type];
+        const label = meta ? tr(`admin.shell.leadEvents.type.${meta.key}`) : e.event_type;
+        const Icon = meta?.icon ?? Building2;
+        const tone = meta?.tone ?? "text-muted-foreground";
         const extra = summarize(e);
         return (
           <li key={e.id} className="ml-4 relative">
             <div className="absolute -left-[1.35rem] mt-1 grid h-5 w-5 place-items-center rounded-full border border-border bg-background">
-              <Icon className={`h-3 w-3 ${meta.tone}`} />
+              <Icon className={`h-3 w-3 ${tone}`} />
             </div>
             <div className="text-sm font-medium">
-              {meta.label}
+              {label}
               {extra && (
                 <span className="ml-2 text-xs font-normal text-muted-foreground">· {extra}</span>
               )}

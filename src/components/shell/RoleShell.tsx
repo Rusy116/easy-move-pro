@@ -78,9 +78,9 @@ export function RoleShell({ brand, eyebrow, accent, nav, children }: RoleShellPr
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <header className="sticky top-0 z-40 border-b border-border bg-background/85 backdrop-blur-md">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6">
-          <div className="flex min-w-0 items-center gap-6">
-            <div className="flex items-center gap-3 min-w-0">
+        <div className="mx-auto flex min-h-16 max-w-7xl flex-wrap items-center justify-between gap-x-4 gap-y-2 px-4 py-2 sm:px-6">
+          <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-6 gap-y-2">
+            <div className="flex shrink-0 items-center gap-3 min-w-0">
               <div
                 className={`grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-gradient-to-br ${ACCENT[accent]} text-white font-serif text-sm shadow-sm`}
                 aria-hidden
@@ -94,14 +94,14 @@ export function RoleShell({ brand, eyebrow, accent, nav, children }: RoleShellPr
                 <div className="truncate font-serif text-base font-medium">{brand}</div>
               </div>
             </div>
-            <nav className="hidden md:flex flex-wrap items-center gap-1">
+            <nav className="hidden min-w-0 flex-1 flex-wrap items-center gap-x-1 gap-y-1.5 md:flex">
               {visibleNav.map((n) => {
                 const active = pathname === n.to;
                 return (
                   <Link
                     key={n.to}
                     to={n.to}
-                    className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium transition-colors ${
+                    className={`inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-3 py-1.5 text-sm font-medium transition-colors ${
                       active
                         ? "bg-foreground/5 text-foreground"
                         : "text-muted-foreground hover:bg-foreground/5 hover:text-foreground"
@@ -114,14 +114,14 @@ export function RoleShell({ brand, eyebrow, accent, nav, children }: RoleShellPr
               })}
             </nav>
           </div>
-          <div className="hidden md:flex items-center gap-3">
+          <div className="hidden shrink-0 items-center gap-3 md:flex">
             <LanguageSwitcher />
             {email && (
               <span className="max-w-[180px] truncate text-xs text-muted-foreground" title={email}>
                 {email}
               </span>
             )}
-            <Button variant="outline" size="sm" className="rounded-full" onClick={signOut}>
+            <Button variant="outline" size="sm" className="rounded-full whitespace-nowrap" onClick={signOut}>
               <LogOut className="mr-1.5 h-3.5 w-3.5" /> {t("common.signOut")}
             </Button>
           </div>
@@ -147,7 +147,7 @@ export function RoleShell({ brand, eyebrow, accent, nav, children }: RoleShellPr
                   onClick={() => setOpen(false)}
                   className="rounded-md px-3 py-2 text-sm font-medium text-foreground hover:bg-accent"
                 >
-                  <span className="inline-flex items-center gap-2">
+                  <span className="inline-flex items-start gap-2 whitespace-normal break-words">
                     {n.icon}
                     {n.label}
                   </span>
@@ -179,19 +179,22 @@ export function AccessDenied({
   title,
   message,
   backHref = "/",
-  backLabel = "Back to home",
+  backLabel,
 }: {
-  title: string;
-  message: string;
+  title?: string;
+  message?: string;
   backHref?: string;
   backLabel?: string;
 }) {
+  const { t } = useI18n();
   return (
     <div className="mx-auto max-w-lg px-4 py-24 text-center">
-      <h1 className="font-serif text-3xl">{title}</h1>
-      <p className="mt-3 text-muted-foreground">{message}</p>
+      <h1 className="font-serif text-3xl">{title ?? t("admin.shell.accessDenied.title")}</h1>
+      <p className="mt-3 break-words text-muted-foreground">
+        {message ?? t("admin.shell.accessDenied.message")}
+      </p>
       <Link to={backHref} className="mt-6 inline-block text-primary hover:underline">
-        ← {backLabel}
+        ← {backLabel ?? t("admin.shell.accessDenied.backHome")}
       </Link>
     </div>
   );

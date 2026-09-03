@@ -6,6 +6,7 @@ import { PageHeader, SectionShell, StatCard } from "@/components/shell/Chrome";
 import { EmptyState, Progress } from "@/components/ai/blocks";
 import { listAgents } from "@/lib/ai/api";
 import { fmtDuration, listQueue, taskDuration } from "@/lib/ai/orchestrator";
+import { useT } from "@/i18n";
 
 export const Route = createFileRoute("/_authenticated/ai/performance")({
   head: () => ({
@@ -22,6 +23,7 @@ export const Route = createFileRoute("/_authenticated/ai/performance")({
 });
 
 function PerformancePage() {
+  const tr = useT();
   const agents = useQuery({ queryKey: ["ai", "agents"], queryFn: listAgents });
   const tasks = useQuery({ queryKey: ["ai", "queue"], queryFn: () => listQueue({ limit: 400 }) });
 
@@ -56,24 +58,24 @@ function PerformancePage() {
   return (
     <AiShell>
       <PageHeader
-        eyebrow="AI Orchestrator"
-        title="Agent Performance"
-        subtitle="How reliable and how fast each agent is, measured from real task history."
+        eyebrow={tr("admin.ai2.performance.eyebrow")}
+        title={tr("admin.ai2.performance.title")}
+        subtitle={tr("admin.ai2.performance.subtitle")}
         icon={<LineChart className="h-5 w-5" />}
       />
 
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard label="Overall success rate" value={`${overall.toFixed(1)}%`} tone="success" />
-        <StatCard label="Tasks completed" value={totalDone} />
-        <StatCard label="Tasks failed" value={totalFailed} tone="danger" />
+        <StatCard label={tr("admin.ai2.performance.stat.overallSuccess")} value={`${overall.toFixed(1)}%`} tone="success" />
+        <StatCard label={tr("admin.ai2.performance.stat.tasksCompleted")} value={totalDone} />
+        <StatCard label={tr("admin.ai2.performance.stat.tasksFailed")} value={totalFailed} tone="danger" />
         <StatCard
-          label="Agents measured"
+          label={tr("admin.ai2.performance.stat.agentsMeasured")}
           value={rows.filter((r) => r.done + r.failed > 0).length}
           tone="info"
         />
       </div>
 
-      <SectionShell title="Throughput — last 14 days">
+      <SectionShell title={tr("admin.ai2.performance.throughput.title")}>
         <div className="flex h-40 items-end gap-1.5">
           {days.map((d) => (
             <div key={d.key} className="flex flex-1 flex-col items-center gap-1">
@@ -88,7 +90,7 @@ function PerformancePage() {
         </div>
       </SectionShell>
 
-      <SectionShell title="Per-agent performance">
+      <SectionShell title={tr("admin.ai2.performance.perAgent.title")}>
         {rows.length ? (
           <div className="space-y-4">
             {rows.map((r) => (
@@ -96,8 +98,12 @@ function PerformancePage() {
                 <div className="mb-1 flex flex-wrap items-center justify-between gap-2 text-sm">
                   <span className="font-medium">{r.agent.name}</span>
                   <span className="text-xs text-muted-foreground">
-                    {r.rate.toFixed(1)}% success · {r.done} done · {r.failed} failed · avg{" "}
-                    {fmtDuration(r.avg)}
+                    {tr("admin.ai2.performance.perAgent.summary", {
+                      rate: r.rate.toFixed(1),
+                      done: r.done,
+                      failed: r.failed,
+                      avg: fmtDuration(r.avg),
+                    })}
                   </span>
                 </div>
                 <Progress value={r.rate} />
@@ -105,7 +111,7 @@ function PerformancePage() {
             ))}
           </div>
         ) : (
-          <EmptyState title="No agents to measure yet" />
+          <EmptyState title={tr("admin.ai2.performance.perAgent.emptyTitle")} />
         )}
       </SectionShell>
     </AiShell>

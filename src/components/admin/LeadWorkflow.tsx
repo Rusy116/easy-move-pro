@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import { CheckCircle2, HelpCircle, Megaphone, ThumbsDown } from "lucide-react";
 import { toast } from "sonner";
-import { useStatusLabel } from "@/i18n";
+import { useStatusLabel, useT } from "@/i18n";
 import {
   LEAD_STATUS_STYLE,
   type LeadStatus,
@@ -42,6 +42,7 @@ export function LeadWorkflowActions({
   status: string | null | undefined;
   onChanged?: (next: LeadStatus) => void;
 }) {
+  const tr = useT();
   const current = (status ?? "submitted") as LeadStatus;
   const [busy, setBusy] = useState(false);
   const [dialog, setDialog] = useState<null | "reject" | "info">(null);
@@ -54,7 +55,7 @@ export function LeadWorkflowActions({
       toast.success(ok);
       if (next) onChanged?.(next);
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Action failed");
+      toast.error(e instanceof Error ? e.message : tr("admin.shell.leadWorkflow.actionFailed"));
     } finally {
       setBusy(false);
     }
@@ -77,12 +78,12 @@ export function LeadWorkflowActions({
           onClick={() =>
             void run(
               () => setLeadStatus(quoteId, "under_review"),
-              "Moved to review",
+              tr("admin.shell.leadWorkflow.toast.movedToReview"),
               "under_review",
             )
           }
         >
-          Start review
+          {tr("admin.shell.leadWorkflow.startReview")}
         </Button>
       )}
 
@@ -92,11 +93,15 @@ export function LeadWorkflowActions({
           className="bg-emerald-600 text-white hover:bg-emerald-700"
           disabled={busy}
           onClick={() =>
-            void run(() => setLeadStatus(quoteId, "qualified"), "Lead approved", "qualified")
+            void run(
+              () => setLeadStatus(quoteId, "qualified"),
+              tr("admin.shell.leadWorkflow.toast.approved"),
+              "qualified",
+            )
           }
         >
           <CheckCircle2 className="mr-2 h-4 w-4" />
-          Approve
+          {tr("admin.shell.leadWorkflow.approve")}
         </Button>
       )}
 
@@ -107,13 +112,13 @@ export function LeadWorkflowActions({
           onClick={() =>
             void run(
               () => setLeadStatus(quoteId, "published"),
-              "Published to marketplace",
+              tr("admin.shell.leadWorkflow.toast.published"),
               "published",
             )
           }
         >
           <Megaphone className="mr-2 h-4 w-4" />
-          Publish to marketplace
+          {tr("admin.shell.leadWorkflow.publishToMarketplace")}
         </Button>
       )}
 
@@ -127,7 +132,7 @@ export function LeadWorkflowActions({
         }}
       >
         <HelpCircle className="mr-2 h-4 w-4" />
-        Request info
+        {tr("admin.shell.leadWorkflow.requestInfo")}
       </Button>
 
       {canReject && (
@@ -142,7 +147,7 @@ export function LeadWorkflowActions({
           }}
         >
           <ThumbsDown className="mr-2 h-4 w-4" />
-          Reject
+          {tr("admin.shell.leadWorkflow.reject")}
         </Button>
       )}
 
@@ -150,7 +155,9 @@ export function LeadWorkflowActions({
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
-              {dialog === "reject" ? "Reject lead" : "Request more information"}
+              {dialog === "reject"
+                ? tr("admin.shell.leadWorkflow.dialog.rejectTitle")
+                : tr("admin.shell.leadWorkflow.dialog.requestInfoTitle")}
             </DialogTitle>
           </DialogHeader>
           <Textarea
@@ -158,14 +165,14 @@ export function LeadWorkflowActions({
             value={message}
             placeholder={
               dialog === "reject"
-                ? "Reason for rejecting this lead"
-                : "What additional information is needed from the customer?"
+                ? tr("admin.shell.leadWorkflow.dialog.rejectPlaceholder")
+                : tr("admin.shell.leadWorkflow.dialog.requestInfoPlaceholder")
             }
             onChange={(e) => setMessage(e.target.value)}
           />
           <DialogFooter>
             <Button variant="outline" onClick={() => setDialog(null)}>
-              Cancel
+              {tr("admin.shell.leadWorkflow.dialog.cancel")}
             </Button>
             <Button
               disabled={busy || !message.trim()}
@@ -176,12 +183,14 @@ export function LeadWorkflowActions({
                     isReject
                       ? setLeadStatus(quoteId, "rejected", message.trim())
                       : requestLeadInfo(quoteId, message.trim()),
-                  isReject ? "Lead rejected" : "Information requested",
+                  isReject
+                    ? tr("admin.shell.leadWorkflow.toast.rejected")
+                    : tr("admin.shell.leadWorkflow.toast.infoRequested"),
                   isReject ? "rejected" : "under_review",
                 ).then(() => setDialog(null));
               }}
             >
-              Confirm
+              {tr("admin.shell.leadWorkflow.dialog.confirm")}
             </Button>
           </DialogFooter>
         </DialogContent>

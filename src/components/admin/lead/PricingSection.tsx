@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useT } from "@/i18n";
 import { Section, Row, money, Empty, type LeadQuote } from "./shared";
 
 type Rev = {
@@ -18,18 +19,6 @@ type Rev = {
 
 type Line = { label: string; amount: number; group?: string };
 
-const GROUP_LABEL: Record<string, string> = {
-  labor: "Labor",
-  truck: "Truck",
-  fuel: "Fuel surcharge",
-  access: "Access (stairs / elevator / carry)",
-  packing: "Packing & materials",
-  specialty: "Specialty handling",
-  storage: "Storage",
-  shuttle: "Shuttle",
-  discount: "Discounts",
-};
-
 function sumGroup(lines: Line[], group: string) {
   return lines.filter((l) => l.group === group).reduce((s, l) => s + Number(l.amount || 0), 0);
 }
@@ -41,6 +30,18 @@ function matchLine(lines: Line[], re: RegExp) {
 }
 
 export function PricingSection({ q }: { q: LeadQuote }) {
+  const tr = useT();
+  const GROUP_LABEL: Record<string, string> = {
+    labor: tr("admin.shell.leadPricing.group.labor"),
+    truck: tr("admin.shell.leadPricing.group.truck"),
+    fuel: tr("admin.shell.leadPricing.group.fuel"),
+    access: tr("admin.shell.leadPricing.group.access"),
+    packing: tr("admin.shell.leadPricing.group.packing"),
+    specialty: tr("admin.shell.leadPricing.group.specialty"),
+    storage: tr("admin.shell.leadPricing.group.storage"),
+    shuttle: tr("admin.shell.leadPricing.group.shuttle"),
+    discount: tr("admin.shell.leadPricing.group.discount"),
+  };
   const lines = (Array.isArray(q.breakdown) ? q.breakdown : []) as Line[];
   const [revs, setRevs] = useState<Rev[]>([]);
 
@@ -71,44 +72,44 @@ export function PricingSection({ q }: { q: LeadQuote }) {
   return (
     <div className="space-y-4">
       <div className="grid gap-4 md:grid-cols-2">
-        <Section title="Estimates">
+        <Section title={tr("admin.shell.leadPricing.estimates")}>
           <Row
-            label="AI / system estimate"
+            label={tr("admin.shell.leadPricing.aiEstimate")}
             value={`${money(q.estimated_low)} – ${money(q.estimated_high)}`}
           />
           <Row
-            label="Broker estimate"
+            label={tr("admin.shell.leadPricing.brokerEstimate")}
             value={
               current?.broker_estimate_low || current?.broker_estimate_high
                 ? `${money(current?.broker_estimate_low)} – ${money(current?.broker_estimate_high)}`
                 : null
             }
           />
-          <Row label="Minimum" value={money(q.estimated_low)} />
-          <Row label="Maximum" value={money(q.estimated_high)} />
-          <Row label="Company estimate" value={money(current?.company_estimate ?? current?.amount)} />
+          <Row label={tr("admin.shell.leadPricing.minimum")} value={money(q.estimated_low)} />
+          <Row label={tr("admin.shell.leadPricing.maximum")} value={money(q.estimated_high)} />
+          <Row label={tr("admin.shell.leadPricing.companyEstimate")} value={money(current?.company_estimate ?? current?.amount)} />
           <Row
-            label="Final quote"
+            label={tr("admin.shell.leadPricing.finalQuote")}
             value={money(current?.final_accepted_price ?? q.final_accepted_price ?? q.final_price)}
           />
         </Section>
 
-        <Section title="Cost components">
-          <Row label="Fuel surcharge" value={money(fuel)} />
-          <Row label="Packing" value={money(packing)} />
-          <Row label="Materials" value={money(materials)} />
-          <Row label="Storage" value={money(storage)} />
-          <Row label="Shuttle" value={money(shuttle)} />
-          <Row label="Long carry" value={money(longCarry)} />
-          <Row label="Stairs" value={money(stairs)} />
-          <Row label="Elevator" value={money(elevator)} />
-          <Row label="Discounts" value={discounts ? money(discounts) : "—"} />
+        <Section title={tr("admin.shell.leadPricing.costComponents")}>
+          <Row label={tr("admin.shell.leadPricing.group.fuel")} value={money(fuel)} />
+          <Row label={tr("admin.shell.leadPricing.group.packing")} value={money(packing)} />
+          <Row label={tr("admin.shell.leadPricing.materials")} value={money(materials)} />
+          <Row label={tr("admin.shell.leadPricing.group.storage")} value={money(storage)} />
+          <Row label={tr("admin.shell.leadPricing.group.shuttle")} value={money(shuttle)} />
+          <Row label={tr("admin.shell.leadPricing.longCarry")} value={money(longCarry)} />
+          <Row label={tr("admin.shell.leadPricing.stairs")} value={money(stairs)} />
+          <Row label={tr("admin.shell.leadPricing.elevator")} value={money(elevator)} />
+          <Row label={tr("admin.shell.leadPricing.discounts")} value={discounts ? money(discounts) : "—"} />
         </Section>
       </div>
 
-      <Section title="Full breakdown">
+      <Section title={tr("admin.shell.leadPricing.fullBreakdown")}>
         {lines.length === 0 ? (
-          <Empty>No pricing breakdown stored on this lead.</Empty>
+          <Empty>{tr("admin.shell.leadPricing.noBreakdown")}</Empty>
         ) : (
           <ul className="text-sm">
             {lines.map((l, i) => (
@@ -129,13 +130,16 @@ export function PricingSection({ q }: { q: LeadQuote }) {
       </Section>
 
       {revs.length > 0 && (
-        <Section title="Estimate revisions">
+        <Section title={tr("admin.shell.leadPricing.estimateRevisions")}>
           <ul className="text-sm">
             {revs.map((r) => (
               <li key={r.id} className="flex justify-between border-b border-border py-1.5 last:border-0">
                 <span>
-                  Rev {r.revision} · <span className="capitalize">{r.status ?? "draft"}</span>
-                  {r.is_current && <span className="ml-2 text-xs text-emerald-700">current</span>}
+                  {tr("admin.shell.leadPricing.revision", { number: r.revision })} ·{" "}
+                  <span className="capitalize">{r.status ?? tr("admin.shell.leadPricing.draft")}</span>
+                  {r.is_current && (
+                    <span className="ml-2 text-xs text-emerald-700">{tr("admin.shell.leadPricing.current")}</span>
+                  )}
                 </span>
                 <span className="font-mono">{money(r.amount)}</span>
               </li>

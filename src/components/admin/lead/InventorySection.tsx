@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { ChevronDown, ChevronRight, Package, ImageIcon } from "lucide-react";
 import { INVENTORY_CATALOG, CATEGORY_LABEL, type InventoryItem } from "@/lib/inventory";
+import { useT } from "@/i18n";
 import { Section, Empty, type LeadQuote } from "./shared";
 
 type Entry = { id: string; quantity: number; photos?: string[] };
@@ -12,6 +13,7 @@ function isFragile(item: InventoryItem): boolean {
 }
 
 export function InventorySection({ q }: { q: LeadQuote }) {
+  const tr = useT();
   const entries = (Array.isArray(q.inventory) ? q.inventory : []) as Entry[];
   const packing = Boolean(q.packing);
 
@@ -46,14 +48,24 @@ export function InventorySection({ q }: { q: LeadQuote }) {
   const [open, setOpen] = useState<Record<string, boolean>>({});
 
   if (entries.length === 0)
-    return <Empty>No inventory recorded for this lead.</Empty>;
+    return <Empty>{tr("admin.shell.leadInventory.empty")}</Empty>;
 
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-3 gap-2">
-        <Total label="Cubic feet" value={`${Math.round(totals.cuft || Number(q.estimated_cubic_feet ?? 0)).toLocaleString()} ft³`} />
-        <Total label="Weight" value={`${Math.round(totals.lbs || Number(q.estimated_weight_lbs ?? 0)).toLocaleString()} lbs`} />
-        <Total label="Items" value={totals.count.toLocaleString()} />
+        <Total
+          label={tr("admin.shell.leadInventory.cubicFeet")}
+          value={tr("admin.shell.leadInventory.cubicFeetValue", {
+            value: Math.round(totals.cuft || Number(q.estimated_cubic_feet ?? 0)).toLocaleString(),
+          })}
+        />
+        <Total
+          label={tr("admin.shell.leadInventory.weight")}
+          value={tr("admin.shell.leadInventory.weightValue", {
+            value: Math.round(totals.lbs || Number(q.estimated_weight_lbs ?? 0)).toLocaleString(),
+          })}
+        />
+        <Total label={tr("admin.shell.leadInventory.items")} value={totals.count.toLocaleString()} />
       </div>
 
       <div className="space-y-2">
@@ -64,7 +76,7 @@ export function InventorySection({ q }: { q: LeadQuote }) {
               <button
                 type="button"
                 onClick={() => setOpen((p) => ({ ...p, [r.cat]: !isOpen }))}
-                className="flex w-full items-center gap-2 px-4 py-3 text-left"
+                className="flex w-full flex-wrap items-center gap-2 px-4 py-3 text-left"
               >
                 {isOpen ? (
                   <ChevronDown className="h-4 w-4 text-muted-foreground" />
@@ -74,7 +86,11 @@ export function InventorySection({ q }: { q: LeadQuote }) {
                 <Package className="h-4 w-4 text-muted-foreground" />
                 <span className="font-medium">{r.label}</span>
                 <span className="ml-auto text-xs text-muted-foreground">
-                  {r.count} items · {Math.round(r.cuft)} ft³ · {Math.round(r.lbs)} lbs
+                  {tr("admin.shell.leadInventory.roomSummary", {
+                    count: r.count,
+                    cuft: Math.round(r.cuft),
+                    lbs: Math.round(r.lbs),
+                  })}
                 </span>
               </button>
               {isOpen && (
@@ -87,22 +103,24 @@ export function InventorySection({ q }: { q: LeadQuote }) {
                       <span className="font-semibold">{entry.quantity}×</span>
                       <span>{item.label}</span>
                       <span className="text-xs text-muted-foreground">
-                        {item.cubicFeet * entry.quantity} ft³ ·{" "}
-                        {item.weightLbs * entry.quantity} lbs
+                        {tr("admin.shell.leadInventory.itemDims", {
+                          cuft: item.cubicFeet * entry.quantity,
+                          lbs: item.weightLbs * entry.quantity,
+                        })}
                       </span>
                       {isFragile(item) && (
                         <span className="rounded-full border border-amber-300 bg-amber-100 px-2 py-0.5 text-[10px] font-medium text-amber-800">
-                          Fragile
+                          {tr("admin.shell.leadInventory.fragile")}
                         </span>
                       )}
                       {item.heavy && (
                         <span className="rounded-full border border-border bg-muted px-2 py-0.5 text-[10px] font-medium">
-                          Heavy
+                          {tr("admin.shell.leadInventory.heavy")}
                         </span>
                       )}
                       {packing && (
                         <span className="rounded-full border border-border bg-muted px-2 py-0.5 text-[10px] font-medium">
-                          Packing
+                          {tr("admin.shell.leadInventory.packing")}
                         </span>
                       )}
                       {entry.photos?.length ? (

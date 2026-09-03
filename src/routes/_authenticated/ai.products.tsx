@@ -6,6 +6,7 @@ import { PageHeader, SectionShell, StatCard } from "@/components/shell/Chrome";
 import { CapabilityGrid, TaskTable, EmptyState, StatusPill, fmtDate } from "@/components/ai/blocks";
 import { PRODUCT_CAPABILITIES } from "@/lib/ai/registry";
 import { listProducts, listTasks } from "@/lib/ai/api";
+import { useT } from "@/i18n";
 
 export const Route = createFileRoute("/_authenticated/ai/products")({
   head: () => ({
@@ -18,6 +19,7 @@ export const Route = createFileRoute("/_authenticated/ai/products")({
 });
 
 function ProductFactory() {
+  const tr = useT();
   const qc = useQueryClient();
   const products = useQuery({ queryKey: ["ai", "products"], queryFn: listProducts });
   const tasks = useQuery({
@@ -32,44 +34,48 @@ function ProductFactory() {
   return (
     <AiShell>
       <PageHeader
-        eyebrow="AI Growth Center"
-        title="Digital Product Factory"
-        subtitle="From idea to published product, with covers, copy, schema and pricing."
+        eyebrow={tr("admin.ai.dashboard.eyebrow")}
+        title={tr("admin.ai3.products.title")}
+        subtitle={tr("admin.ai3.products.subtitle")}
         icon={<Package className="h-5 w-5" />}
       />
 
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard label="Products" value={p.length} />
-        <StatCard label="Published" value={p.filter((x) => x.status === "published").length} tone="success" />
-        <StatCard label="Downloads" value={downloads.toLocaleString()} tone="info" />
+        <StatCard label={tr("admin.ai3.products.statProducts")} value={p.length} />
         <StatCard
-          label="Revenue"
+          label={tr("admin.ai3.products.statPublished")}
+          value={p.filter((x) => x.status === "published").length}
+          tone="success"
+        />
+        <StatCard label={tr("admin.ai3.products.statDownloads")} value={downloads.toLocaleString()} tone="info" />
+        <StatCard
+          label={tr("admin.ai3.products.statRevenue")}
           value={`$${revenue.toLocaleString(undefined, { maximumFractionDigits: 0 })}`}
           tone="success"
         />
       </div>
 
-      <SectionShell title="Capabilities">
+      <SectionShell title={tr("admin.ai3.products.capabilities")}>
         <CapabilityGrid
           capabilities={PRODUCT_CAPABILITIES}
           onQueued={() => qc.invalidateQueries({ queryKey: ["ai"] })}
         />
       </SectionShell>
 
-      <SectionShell title="Product catalog & performance">
+      <SectionShell title={tr("admin.ai3.products.catalogTitle")}>
         {p.length ? (
           <div className="overflow-x-auto">
             <table className="w-full min-w-[720px] text-sm">
               <thead>
                 <tr className="border-b border-border text-left text-[11px] uppercase tracking-wider text-muted-foreground">
-                  <th className="py-2 pr-3 font-semibold">Product</th>
-                  <th className="py-2 pr-3 font-semibold">Type</th>
-                  <th className="py-2 pr-3 font-semibold">Price</th>
-                  <th className="py-2 pr-3 font-semibold">Quality</th>
-                  <th className="py-2 pr-3 font-semibold">Downloads</th>
-                  <th className="py-2 pr-3 font-semibold">Revenue</th>
-                  <th className="py-2 pr-3 font-semibold">Status</th>
-                  <th className="py-2 font-semibold">Published</th>
+                  <th className="py-2 pr-3 font-semibold">{tr("admin.ai3.products.thProduct")}</th>
+                  <th className="py-2 pr-3 font-semibold">{tr("admin.ai3.products.thType")}</th>
+                  <th className="py-2 pr-3 font-semibold">{tr("admin.ai3.products.thPrice")}</th>
+                  <th className="py-2 pr-3 font-semibold">{tr("admin.ai3.products.thQuality")}</th>
+                  <th className="py-2 pr-3 font-semibold">{tr("admin.ai3.products.thDownloads")}</th>
+                  <th className="py-2 pr-3 font-semibold">{tr("admin.ai3.products.thRevenue")}</th>
+                  <th className="py-2 pr-3 font-semibold">{tr("admin.ai3.products.thStatus")}</th>
+                  <th className="py-2 font-semibold">{tr("admin.ai3.products.thPublished")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -93,11 +99,11 @@ function ProductFactory() {
             </table>
           </div>
         ) : (
-          <EmptyState title="No products yet" hint="Start with the Idea Generator." />
+          <EmptyState title={tr("admin.ai3.products.emptyTitle")} hint={tr("admin.ai3.products.emptyHint")} />
         )}
       </SectionShell>
 
-      <SectionShell title="Recent product tasks">
+      <SectionShell title={tr("admin.ai3.products.recentTasks")}>
         <TaskTable tasks={tasks.data ?? []} />
       </SectionShell>
     </AiShell>

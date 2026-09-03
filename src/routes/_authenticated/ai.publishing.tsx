@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { EmptyState, LogList, StatusPill, fmtDate } from "@/components/ai/blocks";
 import { PUBLISH_STAGES } from "@/lib/ai/registry";
 import { listContent, listLogs, setContentStatus } from "@/lib/ai/api";
+import { useT } from "@/i18n";
 
 export const Route = createFileRoute("/_authenticated/ai/publishing")({
   head: () => ({
@@ -32,6 +33,7 @@ const NEXT: Record<string, string | null> = {
 };
 
 function PublishingCenter() {
+  const tr = useT();
   const qc = useQueryClient();
   const [stage, setStage] = useState<string>("draft");
   const content = useQuery({ queryKey: ["ai", "content"], queryFn: () => listContent() });
@@ -43,24 +45,30 @@ function PublishingCenter() {
   const items = content.data ?? [];
   const inStage = items.filter((i) => i.status === stage);
 
+  function stageLabel(s: string) {
+    const key = `admin.ai3.publishing.stage.${s}`;
+    const label = tr(key);
+    return label === key ? s : label;
+  }
+
   async function advance(id: string, from: string) {
     const to = NEXT[from];
     if (!to) return;
     try {
       await setContentStatus([id], to);
-      toast.success(`Moved to ${to}`);
+      toast.success(tr("admin.ai3.publishing.toastMoved", { stage: stageLabel(to) }));
       qc.invalidateQueries({ queryKey: ["ai"] });
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Could not update");
+      toast.error(e instanceof Error ? e.message : tr("admin.ai3.publishing.toastUpdateFailed"));
     }
   }
 
   return (
     <AiShell>
       <PageHeader
-        eyebrow="AI Growth Center"
-        title="Publishing Center"
-        subtitle="One pipeline for every generated page, article and product page."
+        eyebrow={tr("admin.ai.dashboard.eyebrow")}
+        title={tr("admin.ai3.publishing.title")}
+        subtitle={tr("admin.ai3.publishing.subtitle")}
         icon={<Send className="h-5 w-5" />}
       />
 
@@ -68,16 +76,16 @@ function PublishingCenter() {
         {PUBLISH_STAGES.map((s) => (
           <button key={s} onClick={() => setStage(s)} className="text-left">
             <StatCard
-              label={s}
+              label={stageLabel(s)}
               value={items.filter((i) => i.status === s).length}
-              hint={stage === s ? "Viewing" : undefined}
+              hint={stage === s ? tr("admin.ai3.publishing.viewing") : undefined}
               tone={s === "failed" ? "danger" : s === "published" ? "success" : "default"}
             />
           </button>
         ))}
       </div>
 
-      <SectionShell title={`Stage: ${stage}`}>
+      <SectionShell title={tr("admin.ai3.publishing.stageTitle", { stage: stageLabel(stage) })}>
         {inStage.length ? (
           <ul className="divide-y divide-border/60">
             {inStage.map((i) => (
@@ -85,14 +93,14 @@ function PublishingCenter() {
                 <div className="min-w-0">
                   <p className="truncate text-sm font-medium">{i.title}</p>
                   <p className="text-xs capitalize text-muted-foreground">
-                    {i.kind.replace(/_/g, " ")} · {i.slug ?? "no slug"} · {fmtDate(i.created_at)}
+                    {i.kind.replace(/_/g, " ")} · {i.slug ?? tr("admin.ai3.publishing.noSlug")} · {fmtDate(i.created_at)}
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
                   <StatusPill status={i.status} />
                   {NEXT[i.status] && (
                     <Button size="sm" variant="outline" onClick={() => advance(i.id, i.status)}>
-                      Move to {NEXT[i.status]}
+                      {tr("admin.ai3.publishing.moveTo", { stage: stageLabel(NEXT[i.status]!) })}
                     </Button>
                   )}
                 </div>
@@ -100,11 +108,11 @@ function PublishingCenter() {
             ))}
           </ul>
         ) : (
-          <EmptyState title={`Nothing in ${stage}`} />
+          <EmptyState title={tr("admin.ai3.publishing.emptyStageTitle", { stage: stageLabel(stage) })} />
         )}
       </SectionShell>
 
-      <SectionShell title="Publication history">
+      <SectionShell title={tr("admin.ai3.publishing.history")}>
         <LogList logs={logs.data ?? []} />
       </SectionShell>
     </AiShell>

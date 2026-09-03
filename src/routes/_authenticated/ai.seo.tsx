@@ -6,6 +6,7 @@ import { PageHeader, SectionShell, StatCard } from "@/components/shell/Chrome";
 import { CapabilityGrid, TaskTable, EmptyState, StatusPill, fmtDate } from "@/components/ai/blocks";
 import { SEO_CAPABILITIES } from "@/lib/ai/registry";
 import { listContent, listTasks } from "@/lib/ai/api";
+import { useT } from "@/i18n";
 
 export const Route = createFileRoute("/_authenticated/ai/seo")({
   head: () => ({
@@ -18,6 +19,7 @@ export const Route = createFileRoute("/_authenticated/ai/seo")({
 });
 
 function SeoFactory() {
+  const tr = useT();
   const qc = useQueryClient();
   const tasks = useQuery({
     queryKey: ["ai", "tasks", "seo_factory"],
@@ -35,38 +37,46 @@ function SeoFactory() {
   return (
     <AiShell>
       <PageHeader
-        eyebrow="AI Growth Center"
-        title="SEO Factory"
-        subtitle="Queue page production, audits and refreshes. Execution is handled by the SEO agent."
+        eyebrow={tr("admin.ai.dashboard.eyebrow")}
+        title={tr("admin.ai3.seo.title")}
+        subtitle={tr("admin.ai3.seo.subtitle")}
         icon={<Search className="h-5 w-5" />}
       />
 
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard label="Pages tracked" value={items.length} />
-        <StatCard label="In publishing queue" value={queue.length} tone="warning" />
-        <StatCard label="Published" value={items.filter((i) => i.status === "published").length} tone="success" />
-        <StatCard label="Avg quality score" value={avgQuality ? avgQuality.toFixed(0) : "—"} tone="info" />
+        <StatCard label={tr("admin.ai3.seo.statPagesTracked")} value={items.length} />
+        <StatCard label={tr("admin.ai3.seo.statInQueue")} value={queue.length} tone="warning" />
+        <StatCard
+          label={tr("admin.ai3.seo.statPublished")}
+          value={items.filter((i) => i.status === "published").length}
+          tone="success"
+        />
+        <StatCard
+          label={tr("admin.ai3.seo.statAvgQuality")}
+          value={avgQuality ? avgQuality.toFixed(0) : "—"}
+          tone="info"
+        />
       </div>
 
-      <SectionShell title="Capabilities">
+      <SectionShell title={tr("admin.ai3.seo.capabilities")}>
         <CapabilityGrid
           capabilities={SEO_CAPABILITIES}
           onQueued={() => qc.invalidateQueries({ queryKey: ["ai"] })}
         />
       </SectionShell>
 
-      <SectionShell title="Publishing queue">
+      <SectionShell title={tr("admin.ai3.seo.publishingQueue")}>
         {queue.length ? (
           <div className="overflow-x-auto">
             <table className="w-full min-w-[640px] text-sm">
               <thead>
                 <tr className="border-b border-border text-left text-[11px] uppercase tracking-wider text-muted-foreground">
-                  <th className="py-2 pr-3 font-semibold">Title</th>
-                  <th className="py-2 pr-3 font-semibold">Kind</th>
-                  <th className="py-2 pr-3 font-semibold">City / keyword</th>
-                  <th className="py-2 pr-3 font-semibold">Quality</th>
-                  <th className="py-2 pr-3 font-semibold">Status</th>
-                  <th className="py-2 font-semibold">Scheduled</th>
+                  <th className="py-2 pr-3 font-semibold">{tr("admin.ai3.seo.thTitle")}</th>
+                  <th className="py-2 pr-3 font-semibold">{tr("admin.ai3.seo.thKind")}</th>
+                  <th className="py-2 pr-3 font-semibold">{tr("admin.ai3.seo.thCityKeyword")}</th>
+                  <th className="py-2 pr-3 font-semibold">{tr("admin.ai3.seo.thQuality")}</th>
+                  <th className="py-2 pr-3 font-semibold">{tr("admin.ai3.seo.thStatus")}</th>
+                  <th className="py-2 font-semibold">{tr("admin.ai3.seo.thScheduled")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -86,11 +96,11 @@ function SeoFactory() {
             </table>
           </div>
         ) : (
-          <EmptyState title="Queue is empty" hint="Queue a capability above to fill the pipeline." />
+          <EmptyState title={tr("admin.ai3.seo.emptyQueueTitle")} hint={tr("admin.ai3.seo.emptyQueueHint")} />
         )}
       </SectionShell>
 
-      <SectionShell title="Recent SEO tasks">
+      <SectionShell title={tr("admin.ai3.seo.recentTasks")}>
         <TaskTable tasks={tasks.data ?? []} />
       </SectionShell>
     </AiShell>

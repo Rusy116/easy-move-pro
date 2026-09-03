@@ -24,6 +24,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
+import { useT } from "@/i18n";
 import { useServerFn } from "@tanstack/react-start";
 import { attachMemberByEmail } from "@/lib/companies.functions";
 import { adminSetCompanyStatus, type CompanyStatus } from "@/lib/partners.functions";

@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/select";
 import { UserRound } from "lucide-react";
 import { toast } from "sonner";
-import { useT } from "@/i18n/admin";
+import { useT } from "@/i18n";
 
 let cache: BrokerRow[] | null = null;
 

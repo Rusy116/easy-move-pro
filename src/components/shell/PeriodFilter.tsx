@@ -3,7 +3,7 @@
  * "Today / This week / This month / All time" means the same thing everywhere.
  */
 import { Button } from "@/components/ui/button";
-import { useT } from "@/i18n/admin";
+import { useT } from "@/i18n";
 
 export type DashboardPeriod = "today" | "week" | "month" | "all";
 

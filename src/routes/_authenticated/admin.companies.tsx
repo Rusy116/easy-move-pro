@@ -96,7 +96,7 @@ function CompaniesAdmin() {
   const [addingMemberFor, setAddingMemberFor] = useState<Company | null>(null);
   const [reviewing, setReviewing] = useState<Company | null>(null);
   const [rejecting, setRejecting] = useState<Company | null>(null);
-  const [tab, setTab] = useState<(typeof STATUS_TABS)[number]["key"]>("pending");
+  const [tab, setTab] = useState<(typeof STATUS_TABS)[number]>("pending");
   const [createOpen, setCreateOpen] = useState(false);
   const setStatus = useServerFn(adminSetCompanyStatus);
   const t = useT();

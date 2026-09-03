@@ -324,7 +324,7 @@ export function AdminLeadsWorkspace() {
         setRows((prev) => [q, ...prev].slice(0, PAGE_SIZE));
         setTotal((t) => t + 1);
         void loadStats();
-        toast.success(`New quote from ${getCustomerName(q)}`);
+        toast.success(tr("admin.shell.workspace.newQuoteToast", { name: getCustomerName(q) }));
       })
       .on("postgres_changes", { event: "UPDATE", schema: "public", table: "quotes" }, (payload) => {
         const q = payload.new as QuoteRow;
@@ -360,7 +360,7 @@ export function AdminLeadsWorkspace() {
       toast.error(error.message);
       return;
     }
-    toast.success(`Status → ${status}`);
+    toast.success(tr("admin.shell.workspace.statusChangedToast", { status: tr(`admin.shell.workspace.leadStatus.${status}`) }));
     setRows((prev) => prev.map((r) => (r.id === id ? { ...r, status } : r)));
     if (selected?.id === id) setSelected({ ...selected, status });
   }
@@ -373,7 +373,7 @@ export function AdminLeadsWorkspace() {
       toast.error(error.message);
       return;
     }
-    toast.success(`${ids.length} lead${ids.length > 1 ? "s" : ""} → ${status}`);
+    toast.success(tr("admin.shell.workspace.bulkStatusToast", { count: ids.length, plural: ids.length > 1 ? "s" : "", status: tr(`admin.shell.workspace.leadStatus.${status}`) }));
     setRows((prev) => prev.map((r) => (ids.includes(r.id) ? { ...r, status } : r)));
     setSelectedIds(new Set());
   }
@@ -390,7 +390,11 @@ export function AdminLeadsWorkspace() {
       return;
     }
     toast.success(
-      `${ids.length} lead${ids.length > 1 ? "s" : ""} ${brokerId ? "assigned" : "unassigned"}`,
+      tr("admin.shell.workspace.bulkBrokerToast", {
+        count: ids.length,
+        plural: ids.length > 1 ? "s" : "",
+        action: brokerId ? tr("admin.shell.workspace.bulkAssigned") : tr("admin.shell.workspace.bulkUnassigned"),
+      }),
     );
     setRows((prev) =>
       prev.map((r) => (ids.includes(r.id) ? { ...r, assigned_broker_id: brokerId } : r)),
@@ -894,6 +898,7 @@ type AdminNotification = {
 };
 
 function NotificationsBell() {
+  const tr = useT();
   const [items, setItems] = useState<AdminNotification[]>([]);
   const [open, setOpen] = useState(false);
 
@@ -953,20 +958,20 @@ function NotificationsBell() {
       </PopoverTrigger>
       <PopoverContent className="w-80 p-0" align="end">
         <div className="flex items-center justify-between border-b border-border px-4 py-2">
-          <div className="text-sm font-semibold">Notifications</div>
+          <div className="text-sm font-semibold">{tr("admin.shell.workspace.notificationsTitle")}</div>
           {unread > 0 && (
             <button
               onClick={() => void markAllRead()}
               className="text-xs text-muted-foreground hover:text-foreground"
             >
-              Mark all read
+              {tr("admin.shell.workspace.markAllRead")}
             </button>
           )}
         </div>
         <div className="max-h-96 overflow-y-auto">
           {items.length === 0 ? (
             <div className="px-4 py-8 text-center text-sm text-muted-foreground">
-              No notifications yet.
+              {tr("admin.shell.workspace.noNotifications")}
             </div>
           ) : (
             items.map((n) => (

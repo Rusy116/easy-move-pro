@@ -15,6 +15,7 @@ import { settings } from "./settings";
 import { ai } from "./ai";
 import { ai2 } from "./ai2";
 import { ai3 } from "./ai3";
+import { ai4 } from "./ai4";
 
 export const ADMIN_MODULES: AdminModuleDict[] = [
   shell,
@@ -33,6 +34,7 @@ export const ADMIN_MODULES: AdminModuleDict[] = [
   ai,
   ai2,
   ai3,
+  ai4,
 ];
 
 function merge(locale: keyof AdminModuleDict): Record<string, string> {

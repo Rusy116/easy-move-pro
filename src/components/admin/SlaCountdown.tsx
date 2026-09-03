@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Clock, PauseCircle } from "lucide-react";
+import { useI18n } from "@/i18n";
 
 /**
  * Live SLA countdown driven by exclusive_expires_at.
@@ -16,6 +17,7 @@ export function SlaCountdown({
   className?: string;
   compact?: boolean;
 }) {
+  const { t: tr } = useI18n();
   const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
     if (!expiresAt || pausedAt) return;
@@ -45,15 +47,21 @@ export function SlaCountdown({
 
   return (
     <span
-      className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 font-mono text-[11px] ${tone} ${className}`}
+      className={`inline-flex items-center gap-1 whitespace-nowrap rounded-full border px-2 py-0.5 font-mono text-[11px] ${tone} ${className}`}
       title={
         pausedAt
-          ? `Paused at ${new Date(pausedAt).toLocaleString()}`
-          : `Expires ${new Date(expiresAt).toLocaleString()}`
+          ? tr("admin.shell.sla.pausedAt", { time: new Date(pausedAt).toLocaleString() })
+          : tr("admin.shell.sla.expiresAt", { time: new Date(expiresAt).toLocaleString() })
       }
     >
       {pausedAt ? <PauseCircle className="h-3 w-3" /> : <Clock className="h-3 w-3" />}
-      {pausedAt ? (compact ? "Paused" : "SLA paused") : expired ? "Expired" : label}
+      {pausedAt
+        ? compact
+          ? tr("admin.shell.sla.paused")
+          : tr("admin.shell.sla.pausedFull")
+        : expired
+          ? tr("admin.shell.sla.expired")
+          : label}
     </span>
   );
 }

@@ -9,13 +9,14 @@ import {
   adminListImpersonatableUsers,
   type ImpersonatableUser,
 } from "@/lib/impersonation.functions";
+import { useI18n } from "@/i18n";
 
 const TABS = [
-  { key: "all", label: "All accounts" },
-  { key: "customer", label: "Customers" },
-  { key: "broker", label: "Brokers" },
-  { key: "mover", label: "Companies" },
-  { key: "admin", label: "Admins" },
+  { key: "all", labelKey: "admin.shell.accountDirectory.tabAll" },
+  { key: "customer", labelKey: "admin.shell.accountDirectory.tabCustomer" },
+  { key: "broker", labelKey: "admin.shell.accountDirectory.tabBroker" },
+  { key: "mover", labelKey: "admin.shell.accountDirectory.tabMover" },
+  { key: "admin", labelKey: "admin.shell.accountDirectory.tabAdmin" },
 ] as const;
 
 const ROLE_BADGE: Record<string, string> = {
@@ -25,11 +26,11 @@ const ROLE_BADGE: Record<string, string> = {
   customer: "bg-emerald-50 text-emerald-800 border-emerald-300",
 };
 
-const ROLE_TEXT: Record<string, string> = {
-  admin: "Administrator",
-  broker: "Broker",
-  mover: "Moving company",
-  customer: "Customer",
+const ROLE_TEXT_KEY: Record<string, string> = {
+  admin: "admin.shell.accountDirectory.roleAdmin",
+  broker: "admin.shell.accountDirectory.roleBroker",
+  mover: "admin.shell.accountDirectory.roleMover",
+  customer: "admin.shell.accountDirectory.roleCustomer",
 };
 
 /**
@@ -37,6 +38,7 @@ const ROLE_TEXT: Record<string, string> = {
  * "View as User" action on each row.
  */
 export function AccountDirectory({ defaultRole = "all" }: { defaultRole?: string }) {
+  const { t: tr } = useI18n();
   const listUsers = useServerFn(adminListImpersonatableUsers);
   const [role, setRole] = useState<string>(defaultRole);
   const [search, setSearch] = useState("");
@@ -49,12 +51,12 @@ export function AccountDirectory({ defaultRole = "all" }: { defaultRole?: string
       try {
         setRows(await listUsers({ data: { role: r, search: s } }));
       } catch (e) {
-        toast.error(e instanceof Error ? e.message : "Could not load accounts");
+        toast.error(e instanceof Error ? e.message : tr("admin.shell.accountDirectory.loadError"));
       } finally {
         setLoading(false);
       }
     },
-    [listUsers],
+    [listUsers, tr],
   );
 
   useEffect(() => {
@@ -69,13 +71,13 @@ export function AccountDirectory({ defaultRole = "all" }: { defaultRole?: string
           <button
             key={t.key}
             onClick={() => setRole(t.key)}
-            className={`rounded-full border px-3.5 py-1.5 text-xs font-semibold transition ${
+            className={`shrink-0 whitespace-nowrap rounded-full border px-3.5 py-1.5 text-xs font-semibold transition ${
               role === t.key
                 ? "border-primary bg-primary text-primary-foreground"
                 : "border-border bg-background text-muted-foreground hover:text-foreground"
             }`}
           >
-            {t.label}
+            {tr(t.labelKey)}
           </button>
         ))}
         <div className="relative ml-auto w-full sm:w-64">
@@ -83,7 +85,7 @@ export function AccountDirectory({ defaultRole = "all" }: { defaultRole?: string
           <Input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search name, email, company"
+            placeholder={tr("admin.shell.accountDirectory.searchPlaceholder")}
             className="pl-9"
           />
         </div>
@@ -92,12 +94,12 @@ export function AccountDirectory({ defaultRole = "all" }: { defaultRole?: string
       <div className="mt-4 grid gap-2">
         {loading && (
           <div className="flex items-center gap-2 p-6 text-sm text-muted-foreground">
-            <Loader2 className="h-4 w-4 animate-spin" /> Loading accounts…
+            <Loader2 className="h-4 w-4 animate-spin" /> {tr("admin.shell.accountDirectory.loading")}
           </div>
         )}
         {!loading && rows.length === 0 && (
           <div className="rounded-xl border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
-            No accounts match this filter.
+            {tr("admin.shell.accountDirectory.empty")}
           </div>
         )}
         {!loading &&
@@ -108,13 +110,13 @@ export function AccountDirectory({ defaultRole = "all" }: { defaultRole?: string
             >
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="font-medium">{u.name}</span>
-                  <Badge variant="outline" className={ROLE_BADGE[u.role]}>
-                    {ROLE_TEXT[u.role]}
+                  <span className="break-words font-medium">{u.name}</span>
+                  <Badge variant="outline" className={`whitespace-normal break-words ${ROLE_BADGE[u.role]}`}>
+                    {tr(ROLE_TEXT_KEY[u.role])}
                   </Badge>
                   {u.status === "disabled" && (
-                    <Badge className="border border-destructive/30 bg-destructive/10 text-destructive">
-                      Disabled
+                    <Badge className="whitespace-normal break-words border border-destructive/30 bg-destructive/10 text-destructive">
+                      {tr("admin.shell.accountDirectory.disabled")}
                     </Badge>
                   )}
                 </div>

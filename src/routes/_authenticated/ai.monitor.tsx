@@ -23,7 +23,7 @@ export const Route = createFileRoute("/_authenticated/ai/monitor")({
 });
 
 function MonitorPage() {
-  const t = useT();
+  const tr = useT();
   const tasks = useQuery({
     queryKey: ["ai", "queue"],
     queryFn: () => listQueue({ limit: 400 }),
@@ -52,20 +52,20 @@ function MonitorPage() {
   return (
     <AiShell>
       <PageHeader
-        eyebrow={t("admin.ai2.monitor.eyebrow")}
-        title={t("admin.ai2.monitor.title")}
-        subtitle={t("admin.ai2.monitor.subtitle")}
+        eyebrow={tr("admin.ai2.monitor.eyebrow")}
+        title={tr("admin.ai2.monitor.title")}
+        subtitle={tr("admin.ai2.monitor.subtitle")}
         icon={<Gauge className="h-5 w-5" />}
       />
 
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard label={t("admin.ai2.monitor.stat.queueHealth")} value={`${health}%`} tone={health > 90 ? "success" : "warning"} />
-        <StatCard label={t("admin.ai2.monitor.stat.runningNow")} value={running.length} tone="info" />
-        <StatCard label={t("admin.ai2.monitor.stat.waiting")} value={pending.length} tone="warning" />
-        <StatCard label={t("admin.ai2.monitor.stat.stuck")} value={stuck.length} tone={stuck.length ? "danger" : "default"} />
+        <StatCard label={tr("admin.ai2.monitor.stat.queueHealth")} value={`${health}%`} tone={health > 90 ? "success" : "warning"} />
+        <StatCard label={tr("admin.ai2.monitor.stat.runningNow")} value={running.length} tone="info" />
+        <StatCard label={tr("admin.ai2.monitor.stat.waiting")} value={pending.length} tone="warning" />
+        <StatCard label={tr("admin.ai2.monitor.stat.stuck")} value={stuck.length} tone={stuck.length ? "danger" : "default"} />
       </div>
 
-      <SectionShell title={t("admin.ai2.monitor.loadPerAgent.title")}>
+      <SectionShell title={tr("admin.ai2.monitor.loadPerAgent.title")}>
         {byAgent.size ? (
           <ul className="space-y-3">
             {[...byAgent.entries()]
@@ -76,7 +76,7 @@ function MonitorPage() {
                   <li key={key}>
                     <div className="mb-1 flex items-center justify-between text-sm">
                       <span className="capitalize">{agent?.name ?? key.replace(/_/g, " ")}</span>
-                      <span className="text-xs text-muted-foreground">{t("admin.ai2.monitor.loadPerAgent.taskCount", { count })}</span>
+                      <span className="text-xs text-muted-foreground">{tr("admin.ai2.monitor.loadPerAgent.taskCount", { count })}</span>
                     </div>
                     <Progress value={(count / maxLoad) * 100} />
                   </li>
@@ -84,11 +84,11 @@ function MonitorPage() {
               })}
           </ul>
         ) : (
-          <EmptyState title={t("admin.ai2.monitor.loadPerAgent.emptyTitle")} hint={t("admin.ai2.monitor.loadPerAgent.emptyHint")} />
+          <EmptyState title={tr("admin.ai2.monitor.loadPerAgent.emptyTitle")} hint={tr("admin.ai2.monitor.loadPerAgent.emptyHint")} />
         )}
       </SectionShell>
 
-      <SectionShell title={t("admin.ai2.monitor.running.title")}>
+      <SectionShell title={tr("admin.ai2.monitor.running.title")}>
         {running.length ? (
           <ul className="divide-y divide-border/60">
             {running.map((t) => (
@@ -96,7 +96,7 @@ function MonitorPage() {
                 <div className="min-w-0">
                   <p className="truncate text-sm font-medium">{t.title}</p>
                   <p className="text-xs text-muted-foreground">
-                    {t("admin.ai2.monitor.running.started", { agent: t_.agent_key.replace(/_/g, " "), date: fmtDate(t_.started_at) })}
+                    {tr("admin.ai2.monitor.running.started", { agent: t.agent_key.replace(/_/g, " "), date: fmtDate(t.started_at) })}
                   </p>
                 </div>
                 <div className="flex items-center gap-3">
@@ -107,25 +107,25 @@ function MonitorPage() {
             ))}
           </ul>
         ) : (
-          <EmptyState title={t("admin.ai2.monitor.running.emptyTitle")} hint={t("admin.ai2.monitor.running.emptyHint")} />
+          <EmptyState title={tr("admin.ai2.monitor.running.emptyTitle")} hint={tr("admin.ai2.monitor.running.emptyHint")} />
         )}
       </SectionShell>
 
-      <SectionShell title={t("admin.ai2.monitor.failures.title")}>
+      <SectionShell title={tr("admin.ai2.monitor.failures.title")}>
         {failed.length ? (
           <ul className="divide-y divide-border/60">
             {failed.slice(0, 20).map((t) => (
               <li key={t.id} className="py-3">
                 <p className="text-sm font-medium">{t.title}</p>
-                <p className="text-xs text-rose-600 dark:text-rose-400">{t_.error ?? t("admin.ai2.monitor.failures.unknownError")}</p>
+                <p className="text-xs text-rose-600 dark:text-rose-400">{t.error ?? tr("admin.ai2.monitor.failures.unknownError")}</p>
                 <p className="text-xs text-muted-foreground">
-                  {t("admin.ai2.monitor.failures.meta", { agent: t_.agent_key.replace(/_/g, " "), date: fmtDate(t_.completed_at ?? t_.created_at) })}
+                  {tr("admin.ai2.monitor.failures.meta", { agent: t.agent_key.replace(/_/g, " "), date: fmtDate(t.completed_at ?? t.created_at) })}
                 </p>
               </li>
             ))}
           </ul>
         ) : (
-          <EmptyState title={t("admin.ai2.monitor.failures.emptyTitle")} hint={t("admin.ai2.monitor.failures.emptyHint")} />
+          <EmptyState title={tr("admin.ai2.monitor.failures.emptyTitle")} hint={tr("admin.ai2.monitor.failures.emptyHint")} />
         )}
       </SectionShell>
     </AiShell>

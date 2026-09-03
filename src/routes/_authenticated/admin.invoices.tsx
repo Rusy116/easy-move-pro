@@ -13,6 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
+import { useI18n } from "@/i18n";
 import { FileText, Download, Mail, Ban, CheckCircle2, Clock, Send } from "lucide-react";
 import {
   useCommissionInvoices,
@@ -55,6 +56,7 @@ export const Route = createFileRoute("/_authenticated/admin/invoices")({
 });
 
 function AdminInvoicesPage() {
+  const { t } = useI18n();
   const { invoices, loadingInvoices, reloadInvoices } = useCommissionInvoices(null);
   const meta = useQuoteMeta(invoices.map((i) => i.quote_id));
   const companies = useCompanyOptions();
@@ -65,7 +67,7 @@ function AdminInvoicesPage() {
   const [busy, setBusy] = useState<string | null>(null);
   const [partial, setPartial] = useState("");
 
-  const companyName = (id: string) => companies.find((c) => c.id === id)?.name ?? "Company";
+  const companyName = (id: string) => companies.find((c) => c.id === id)?.name ?? t("admin.invoices.defaultCompanyName");
 
   const rows = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -88,10 +90,10 @@ function AdminInvoicesPage() {
     const { error } = await adminInvoiceAction(inv.id, action, { amount });
     setBusy(null);
     if (error) {
-      toast.error("Could not update invoice", { description: error.message });
+      toast.error(t("admin.invoices.updateError"), { description: error.message });
       return;
     }
-    toast.success(`Invoice ${inv.number} updated`);
+    toast.success(t("admin.invoices.updated", { number: inv.number }));
     setPartial("");
     await reloadInvoices();
   }
@@ -100,21 +102,21 @@ function AdminInvoicesPage() {
     <AdminShell>
       <div className="space-y-6">
         <PageHeader
-          eyebrow="Finance"
-          title="Invoice Center"
-          subtitle="Easy Move Pro issues one invoice per completed move — the platform commission billed to the moving company. Customer↔company invoices are never stored here."
+          eyebrow={t("admin.invoices.eyebrow")}
+          title={t("admin.invoices.title")}
+          subtitle={t("admin.invoices.subtitle")}
           icon={<FileText className="h-5 w-5" />}
         />
 
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-          <StatCard label="Invoiced" value={money(totals.total)} />
-          <StatCard label="Paid" value={money(totals.paid)} tone="success" />
-          <StatCard label="Outstanding" value={money(totals.outstanding)} tone="warning" />
-          <StatCard label="Overdue" value={money(totals.overdue)} tone="danger" />
+          <StatCard label={t("admin.invoices.kpi.invoiced")} value={money(totals.total)} />
+          <StatCard label={t("admin.invoices.kpi.paid")} value={money(totals.paid)} tone="success" />
+          <StatCard label={t("admin.invoices.kpi.outstanding")} value={money(totals.outstanding)} tone="warning" />
+          <StatCard label={t("admin.invoices.kpi.overdue")} value={money(totals.overdue)} tone="danger" />
         </div>
 
         <SectionShell
-          title="Commission invoices"
+          title={t("admin.invoices.sectionTitle")}
           right={
             <Badge variant="outline" className="rounded-full">
               {rows.length}
@@ -123,16 +125,16 @@ function AdminInvoicesPage() {
         >
           <div className="mb-4 grid gap-2 sm:grid-cols-3">
             <Input
-              placeholder="Invoice, company or quote number"
+              placeholder={t("admin.invoices.searchPlaceholder")}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
             <Select value={status} onValueChange={setStatus}>
               <SelectTrigger>
-                <SelectValue placeholder="Status" />
+                <SelectValue placeholder={t("admin.invoices.statusPlaceholder")} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All statuses</SelectItem>
+                <SelectItem value="all">{t("admin.invoices.allStatuses")}</SelectItem>
                 {INVOICE_STATUSES.map((s) => (
                   <SelectItem key={s} value={s}>
                     {INVOICE_STATUS_LABEL[s]}
@@ -142,10 +144,10 @@ function AdminInvoicesPage() {
             </Select>
             <Select value={companyId} onValueChange={setCompanyId}>
               <SelectTrigger>
-                <SelectValue placeholder="Company" />
+                <SelectValue placeholder={t("admin.invoices.companyPlaceholder")} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All companies</SelectItem>
+                <SelectItem value="all">{t("admin.invoices.allCompanies")}</SelectItem>
                 {companies.map((c) => (
                   <SelectItem key={c.id} value={c.id}>
                     {c.name}
@@ -159,7 +161,7 @@ function AdminInvoicesPage() {
             <SkeletonRows n={5} />
           ) : rows.length === 0 ? (
             <p className="py-8 text-center text-sm text-muted-foreground">
-              No commission invoices match these filters.
+              {t("admin.invoices.noInvoices")}
             </p>
           ) : (
             <div className="space-y-2">
@@ -180,7 +182,7 @@ function AdminInvoicesPage() {
                         </span>
                       </div>
                       <div className="mt-1 text-xs text-muted-foreground">
-                        {meta[inv.quote_id]?.quoteNumber ?? "Job"} · Move{" "}
+                        {meta[inv.quote_id]?.quoteNumber ?? t("admin.invoices.job")} · {t("admin.invoices.move")}{" "}
                         {meta[inv.quote_id]?.moveDate ?? "—"} · Issued {inv.issue_date} · Due{" "}
                         {inv.due_date}
                       </div>
@@ -190,7 +192,7 @@ function AdminInvoicesPage() {
                         {money(inv.amount, inv.currency)}
                       </div>
                       <div className="text-xs text-muted-foreground">
-                        {pct(inv.rate)} of {money(inv.final_price, inv.currency)} · balance{" "}
+                        {t("admin.invoices.ofAmount", { amount: pct(inv.rate) + " " + money(inv.final_price, inv.currency) })} · {t("admin.invoices.balance", { amount: "" })}{" "}
                         {money(balanceOf(inv), inv.currency)}
                       </div>
                     </div>

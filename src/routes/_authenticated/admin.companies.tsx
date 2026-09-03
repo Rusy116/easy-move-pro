@@ -79,13 +79,7 @@ type Company = {
 
 const LICENSE_STATUSES = ["active", "pending", "suspended", "expired"] as const;
 
-const STATUS_TABS = [
-  { key: "pending", label: "Pending approval" },
-  { key: "approved", label: "Approved" },
-  { key: "suspended", label: "Suspended" },
-  { key: "rejected", label: "Rejected" },
-  { key: "all", label: "All" },
-] as const;
+const STATUS_TABS = ["pending", "approved", "suspended", "rejected", "all"] as const;
 
 const STATUS_STYLE: Record<CompanyStatus, string> = {
   pending: "bg-amber-50 text-amber-800 border-amber-300",
@@ -105,6 +99,7 @@ function CompaniesAdmin() {
   const [tab, setTab] = useState<(typeof STATUS_TABS)[number]["key"]>("pending");
   const [createOpen, setCreateOpen] = useState(false);
   const setStatus = useServerFn(adminSetCompanyStatus);
+  const t = useT();
 
   useEffect(() => {
     (async () => {
@@ -145,10 +140,10 @@ function CompaniesAdmin() {
     async (c: Company, status: CompanyStatus, reason?: string) => {
       try {
         await setStatus({ data: { companyId: c.id, status, reason } });
-        toast.success(`${c.name} — status set to ${status}`);
+        toast.success(t("admin.companies.toast.statusUpdated", { name: c.name, status }));
         void load();
       } catch (e) {
-        toast.error(e instanceof Error ? e.message : "Could not update status");
+        toast.error(e instanceof Error ? e.message : t("admin.companies.toast.statusUpdateError"));
       }
     },
     [setStatus, load],
@@ -157,7 +152,7 @@ function CompaniesAdmin() {
   if (isAdmin === null) {
     return (
       <AdminShell>
-        <div className="p-16 text-center text-muted-foreground">Loading…</div>
+        <div className="p-16 text-center text-muted-foreground">{t("admin.companies.loading")}</div>
       </AdminShell>
     );
   }
@@ -165,9 +160,9 @@ function CompaniesAdmin() {
     return (
       <AdminShell>
         <section className="mx-auto max-w-2xl px-4 py-24 text-center">
-          <h1 className="font-serif text-4xl">Admin access required</h1>
+          <h1 className="font-serif text-4xl">{t("admin.companies.accessRequiredTitle")}</h1>
           <Link to="/dashboard" className="mt-6 inline-block text-primary hover:underline">
-            ← Back to dashboard
+            {t("admin.companies.backToDashboard")}
           </Link>
         </section>
       </AdminShell>
@@ -180,23 +175,25 @@ function CompaniesAdmin() {
         <div className="flex items-end justify-between flex-wrap gap-4">
           <div>
             <span className="text-xs font-semibold uppercase tracking-widest text-ochre">
-              Admin
+              {t("admin.companies.eyebrow")}
             </span>
-            <h1 className="mt-2 font-serif text-3xl md:text-4xl font-medium">Moving Companies</h1>
+            <h1 className="mt-2 font-serif text-3xl md:text-4xl font-medium">{t("admin.companies.title")}</h1>
             <p className="mt-1 text-sm text-muted-foreground">
-              {companies.filter((c) => c.status === "pending").length} awaiting approval ·{" "}
-              {companies.length} partner companies
+              {t("admin.companies.subtitleAwaiting", {
+                count: String(companies.filter((c) => c.status === "pending").length),
+                total: String(companies.length),
+              })}
             </p>
           </div>
           <div className="flex gap-2">
             <Button asChild variant="outline">
-              <Link to="/admin/leads">← Leads</Link>
+              <Link to="/admin/leads">{t("admin.companies.backToLeads")}</Link>
             </Button>
             <Dialog open={createOpen} onOpenChange={setCreateOpen}>
               <DialogTrigger asChild>
                 <Button>
                   <Plus className="mr-2 h-4 w-4" />
-                  New company
+                  {t("admin.companies.newCompany")}
                 </Button>
               </DialogTrigger>
               <CompanyFormDialog
@@ -210,22 +207,20 @@ function CompaniesAdmin() {
         </div>
 
         <div className="mt-6 flex flex-wrap gap-2">
-          {STATUS_TABS.map((t) => {
+          {STATUS_TABS.map((key) => {
             const count =
-              t.key === "all"
-                ? companies.length
-                : companies.filter((c) => c.status === t.key).length;
+              key === "all" ? companies.length : companies.filter((c) => c.status === key).length;
             return (
               <button
-                key={t.key}
-                onClick={() => setTab(t.key)}
+                key={key}
+                onClick={() => setTab(key)}
                 className={`rounded-full border px-3.5 py-1.5 text-sm transition ${
-                  tab === t.key
+                  tab === key
                     ? "border-primary bg-primary/10 text-primary"
                     : "border-border text-muted-foreground hover:border-primary/40"
                 }`}
               >
-                {t.label}
+                {t(`admin.companies.tab.${key}`)}
                 <span className="ml-1.5 text-xs opacity-70">{count}</span>
               </button>
             );
@@ -234,11 +229,11 @@ function CompaniesAdmin() {
 
         <div className="mt-6 grid gap-4 md:grid-cols-2">
           {loading && companies.length === 0 && (
-            <div className="col-span-full text-center text-muted-foreground py-12">Loading…</div>
+            <div className="col-span-full text-center text-muted-foreground py-12">{t("admin.companies.loading")}</div>
           )}
           {!loading && visible.length === 0 && (
             <div className="col-span-full rounded-2xl border border-dashed border-border bg-card p-10 text-center text-sm text-muted-foreground">
-              No companies in this view.
+              {t("admin.companies.emptyView")}
             </div>
           )}
           {visible.map((c) => (
@@ -259,7 +254,7 @@ function CompaniesAdmin() {
                   <div className="flex flex-wrap items-center gap-2">
                     <h3 className="font-serif text-lg font-medium">{c.name}</h3>
                     <Badge variant="outline" className={STATUS_STYLE[c.status] ?? ""}>
-                      {c.status === "pending" ? "pending approval" : c.status}
+                      {t(`admin.companies.status.${c.status}`)}
                     </Badge>
                     <Badge
                       variant="outline"
@@ -269,17 +264,17 @@ function CompaniesAdmin() {
                           : "bg-amber-50 text-amber-800 border-amber-300"
                       }
                     >
-                      license: {c.license_status}
+                      {t("admin.companies.license", { status: t(`admin.companies.licenseStatus.${c.license_status}`) })}
                     </Badge>
                   </div>
                   <div className="mt-1 text-xs text-muted-foreground space-y-0.5">
                     {(c.owner_first_name || c.owner_last_name) && (
                       <div>
-                        Owner: {[c.owner_first_name, c.owner_last_name].filter(Boolean).join(" ")}
+                        {t("admin.companies.owner", { name: [c.owner_first_name, c.owner_last_name].filter(Boolean).join(" ") })}
                       </div>
                     )}
-                    {c.dot_number && <div>DOT #{c.dot_number}</div>}
-                    {c.mc_number && <div>MC #{c.mc_number}</div>}
+                    {c.dot_number && <div>{t("admin.companies.dotNumber", { number: c.dot_number })}</div>}
+                    {c.mc_number && <div>{t("admin.companies.mcNumber", { number: c.mc_number })}</div>}
                     {c.email && <div>{c.email}</div>}
                     {c.phone && <div>{c.phone}</div>}
                     {c.website && <div>{c.website}</div>}
@@ -292,28 +287,33 @@ function CompaniesAdmin() {
                     )}
                     {c.insurance_carrier && (
                       <div>
-                        Insurance: {c.insurance_carrier}
+                        {t("admin.companies.insurance", { carrier: c.insurance_carrier })}
                         {c.insurance_policy ? ` · ${c.insurance_policy}` : ""}
-                        {c.insurance_expires ? ` · expires ${c.insurance_expires}` : ""}
+                        {c.insurance_expires
+                          ? ` · ${t("admin.companies.insuranceExpires", { date: c.insurance_expires })}`
+                          : ""}
                       </div>
                     )}
                     {(c.fleet_size || c.movers_count) && (
                       <div>
-                        Fleet: {c.fleet_size ?? "—"} trucks · {c.movers_count ?? "—"} movers
+                        {t("admin.companies.fleet", {
+                          fleet: c.fleet_size != null ? String(c.fleet_size) : "—",
+                          movers: c.movers_count != null ? String(c.movers_count) : "—",
+                        })}
                       </div>
                     )}
                     {c.service_states.length > 0 && (
-                      <div>Serves: {c.service_states.join(", ")}</div>
+                      <div>{t("admin.companies.serves", { states: c.service_states.join(", ") })}</div>
                     )}
                     {(c.service_cities?.length ?? 0) > 0 && (
-                      <div>Cities: {c.service_cities!.slice(0, 8).join(", ")}</div>
+                      <div>{t("admin.companies.cities", { cities: c.service_cities!.slice(0, 8).join(", ") })}</div>
                     )}
                     {(c.services_offered?.length ?? 0) > 0 && (
-                      <div>Services: {c.services_offered!.join(", ")}</div>
+                      <div>{t("admin.companies.services", { services: c.services_offered!.join(", ") })}</div>
                     )}
                     {c.rating !== null && <div>★ {Number(c.rating).toFixed(1)}</div>}
                     {c.status === "rejected" && c.rejection_reason && (
-                      <div className="text-rose-700">Rejected: {c.rejection_reason}</div>
+                      <div className="text-rose-700">{t("admin.companies.rejectedReason", { reason: c.rejection_reason })}</div>
                     )}
                   </div>
                 </div>
@@ -328,7 +328,7 @@ function CompaniesAdmin() {
                 />
                 <Button size="sm" variant="outline" onClick={() => setReviewing(c)}>
                   <FileCheck2 className="mr-1.5 h-4 w-4" />
-                  Review documents
+                  {t("admin.companies.reviewDocuments")}
                 </Button>
                 {c.status !== "approved" && (
                   <Button
@@ -337,13 +337,15 @@ function CompaniesAdmin() {
                     onClick={() => void changeStatus(c, "approved")}
                   >
                     <CheckCircle2 className="mr-1.5 h-4 w-4" />
-                    {c.status === "suspended" || c.status === "rejected" ? "Restore" : "Approve"}
+                    {c.status === "suspended" || c.status === "rejected"
+                      ? t("admin.companies.restore")
+                      : t("admin.companies.approve")}
                   </Button>
                 )}
                 {c.status !== "rejected" && (
                   <Button size="sm" variant="outline" onClick={() => setRejecting(c)}>
                     <XCircle className="mr-1.5 h-4 w-4" />
-                    Reject
+                    {t("admin.companies.reject")}
                   </Button>
                 )}
                 {c.status === "approved" && (
@@ -353,7 +355,7 @@ function CompaniesAdmin() {
                     onClick={() => void changeStatus(c, "suspended")}
                   >
                     <PauseCircle className="mr-1.5 h-4 w-4" />
-                    Suspend
+                    {t("admin.companies.suspend")}
                   </Button>
                 )}
                 {c.status === "suspended" && (
@@ -363,30 +365,25 @@ function CompaniesAdmin() {
                     onClick={() => void changeStatus(c, "pending")}
                   >
                     <RotateCcw className="mr-1.5 h-4 w-4" />
-                    Back to pending
+                    {t("admin.companies.backToPending")}
                   </Button>
                 )}
               </div>
 
               <div className="mt-2 flex flex-wrap gap-2">
                 <Button size="sm" variant="outline" onClick={() => setEditing(c)}>
-                  Edit
+                  {t("admin.companies.edit")}
                 </Button>
                 <Button size="sm" variant="outline" onClick={() => setAddingMemberFor(c)}>
                   <UserPlus className="mr-1.5 h-4 w-4" />
-                  Add member
+                  {t("admin.companies.addMember")}
                 </Button>
                 <Button
                   size="sm"
                   variant="outline"
                   className="ml-auto text-rose-700 hover:bg-rose-50 hover:text-rose-800 border-rose-200"
                   onClick={async () => {
-                    if (
-                      !confirm(
-                        `Delete ${c.name}? All lead assignments for this company will be removed.`,
-                      )
-                    )
-                      return;
+                    if (!confirm(t("admin.companies.confirmDelete", { name: c.name }))) return;
                     await supabase.from("quote_assignments").delete().eq("company_id", c.id);
                     await supabase.from("company_members").delete().eq("company_id", c.id);
                     const { error } = await supabase
@@ -397,12 +394,12 @@ function CompaniesAdmin() {
                       toast.error(error.message);
                       return;
                     }
-                    toast.success("Company deleted");
+                    toast.success(t("admin.companies.toast.companyDeleted"));
                     void load();
                   }}
                 >
                   <Trash2 className="mr-1.5 h-4 w-4" />
-                  Delete
+                  {t("admin.companies.delete")}
                 </Button>
               </div>
             </div>

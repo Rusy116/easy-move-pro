@@ -11,6 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { en, type TranslationKey } from "./locales/en";
 import { es } from "./locales/es";
 import { ru } from "./locales/ru";
+import { adminEn, adminRu, adminEs } from "./admin";
 
 /**
  * Enterprise i18n core.
@@ -36,7 +37,11 @@ export const LOCALES: Record<
 
 export const LOCALE_LIST = Object.values(LOCALES);
 
-const DICTIONARIES: Record<Locale, Record<string, string>> = { en, es, ru };
+const DICTIONARIES: Record<Locale, Record<string, string>> = {
+  en: { ...en, ...adminEn },
+  es: { ...es, ...adminEs },
+  ru: { ...ru, ...adminRu },
+};
 
 export const DEFAULT_LOCALE: Locale = "en";
 const STORAGE_KEY = "em.locale";

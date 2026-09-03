@@ -12,6 +12,7 @@ import {
   Clock,
 } from "lucide-react";
 import { AdminShell } from "@/components/admin/AdminShell";
+import { useI18n } from "@/i18n";
 import { PageHeader, SkeletonRows } from "@/components/shell/Chrome";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -127,10 +128,10 @@ function useTicker() {
   }, []);
 }
 
-function Countdown({ until }: { until: string | null }) {
+function Countdown({ until, expiredLabel }: { until: string | null; expiredLabel: string }) {
   if (!until) return <span className="text-muted-foreground">—</span>;
   const ms = new Date(until).getTime() - Date.now();
-  if (ms <= 0) return <span className="font-medium text-muted-foreground">Expired</span>;
+  if (ms <= 0) return <span className="font-medium text-muted-foreground">{expiredLabel}</span>;
   const h = Math.floor(ms / 3_600_000);
   const m = Math.floor((ms % 3_600_000) / 60_000);
   const s = Math.floor((ms % 60_000) / 1000);
@@ -145,6 +146,7 @@ function Countdown({ until }: { until: string | null }) {
 }
 
 function AdminMarketplacePage() {
+  const { t } = useI18n();
   useTicker();
   const [loading, setLoading] = useState(true);
   const [quotes, setQuotes] = useState<QuoteRow[]>([]);
@@ -222,7 +224,7 @@ function AdminMarketplacePage() {
         ),
       );
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Could not load marketplace data");
+      toast.error(err instanceof Error ? err.message : t("admin.marketplace.loadError"));
     } finally {
       setLoading(false);
     }
@@ -295,23 +297,23 @@ function AdminMarketplacePage() {
     <AdminShell>
       <section className="mx-auto max-w-7xl px-4 sm:px-6 py-8 md:py-12">
         <PageHeader
-          eyebrow="Lead distribution"
-          title="Marketplace monitor"
-          subtitle="Every published lead, who was notified, who viewed it, who claimed it — and what it earns."
+          eyebrow={t("admin.marketplace.eyebrow")}
+          title={t("admin.marketplace.title")}
+          subtitle={t("admin.marketplace.subtitle")}
           icon={<Globe className="h-5 w-5" />}
           actions={
             <Button variant="outline" size="sm" className="rounded-full" onClick={load}>
-              <RefreshCw className="mr-1.5 h-3.5 w-3.5" /> Refresh
+              <RefreshCw className="mr-1.5 h-3.5 w-3.5" /> {t("admin.marketplace.refresh")}
             </Button>
           }
         />
 
         <div className="mt-6 grid gap-3 sm:grid-cols-4">
           {[
-            { label: "Live in market", value: totals.live },
-            { label: "Exclusive window", value: totals.exclusive },
-            { label: "Claimed", value: totals.claimed },
-            { label: "Commission tracked", value: money(totals.commission) },
+            { label: t("admin.marketplace.kpi.live"), value: totals.live },
+            { label: t("admin.marketplace.kpi.exclusive"), value: totals.exclusive },
+            { label: t("admin.marketplace.kpi.claimed"), value: totals.claimed },
+            { label: t("admin.marketplace.kpi.commission"), value: money(totals.commission) },
           ].map((s) => (
             <div key={s.label} className="card-premium p-4">
               <div className="text-[11px] uppercase tracking-[0.16em] text-muted-foreground">
@@ -324,7 +326,7 @@ function AdminMarketplacePage() {
 
         <div className="mt-6 flex flex-wrap items-center gap-2">
           <Input
-            placeholder="Search lead ID, city or company…"
+            placeholder={t("admin.marketplace.searchPlaceholder")}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="h-9 max-w-xs rounded-full"
@@ -339,7 +341,7 @@ function AdminMarketplacePage() {
                   : "border-border text-muted-foreground hover:bg-accent"
               }`}
             >
-              {s.replace("_", " ")}
+              {t(`admin.marketplace.stage.${s}`)}
             </button>
           ))}
         </div>
@@ -349,7 +351,7 @@ function AdminMarketplacePage() {
             <SkeletonRows n={4} />
           ) : rows.length === 0 ? (
             <div className="card-premium p-12 text-center text-sm text-muted-foreground">
-              No leads have been published to the marketplace yet.
+              {t("admin.marketplace.noLeads")}
             </div>
           ) : (
             rows.map((r) => {
@@ -385,39 +387,39 @@ function AdminMarketplacePage() {
                         {r.q.destination_city ?? "—"}, {r.q.destination_state ?? ""}
                       </div>
                       <div className="mt-1 text-xs text-muted-foreground">
-                        Broker:{" "}
+                        {t("admin.marketplace.broker")}:{" "}
                         <span className="text-foreground">
                           {r.q.assigned_broker_id
-                            ? (brokers[r.q.assigned_broker_id] ?? "Assigned")
-                            : "Unassigned"}
+                            ? (brokers[r.q.assigned_broker_id] ?? t("admin.marketplace.assigned"))
+                            : t("admin.marketplace.unassigned")}
                         </span>{" "}
-                        · Published {dt(r.q.published_at ?? r.q.assigned_at ?? r.q.created_at)}
+                        · {t("admin.marketplace.published", { date: dt(r.q.published_at ?? r.q.assigned_at ?? r.q.created_at) })}
                       </div>
                     </div>
 
                     <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-xs sm:grid-cols-4">
                       <div>
-                        <div className="text-muted-foreground">Exclusive to</div>
+                        <div className="text-muted-foreground">{t("admin.marketplace.exclusiveTo")}</div>
                         <div className="font-medium">
-                          {r.exclusive ? (companies[r.exclusive.company_id] ?? "Company") : "—"}
+                          {r.exclusive ? (companies[r.exclusive.company_id] ?? t("admin.marketplace.company")) : "—"}
                         </div>
                       </div>
                       <div>
-                        <div className="text-muted-foreground">Opens to market in</div>
-                        <Countdown until={r.q.exclusive_expires_at} />
+                        <div className="text-muted-foreground">{t("admin.marketplace.opensToMarketIn")}</div>
+                        <Countdown until={r.q.exclusive_expires_at} expiredLabel={t("admin.marketplace.expired")} />
                       </div>
                       <div>
-                        <div className="text-muted-foreground">Claimed by</div>
+                        <div className="text-muted-foreground">{t("admin.marketplace.claimedBy")}</div>
                         <div className="font-medium">
                           {r.claimed
-                            ? (companies[r.claimed.company_id] ?? "Company")
+                            ? (companies[r.claimed.company_id] ?? t("admin.marketplace.company"))
                             : r.q.assigned_company_id
-                              ? (companies[r.q.assigned_company_id] ?? "Company")
+                              ? (companies[r.q.assigned_company_id] ?? t("admin.marketplace.company"))
                               : "—"}
                         </div>
                       </div>
                       <div>
-                        <div className="text-muted-foreground">Revenue / commission</div>
+                        <div className="text-muted-foreground">{t("admin.marketplace.revenueCommission")}</div>
                         <div className="font-medium">
                           {money(r.revenue)} · {money(r.commission)}
                         </div>
@@ -426,10 +428,10 @@ function AdminMarketplacePage() {
 
                     <div className="flex w-full flex-wrap gap-3 text-xs text-muted-foreground sm:w-auto">
                       <span className="inline-flex items-center gap-1">
-                        <BellRing className="h-3.5 w-3.5" /> {r.notified.length} notified
+                        <BellRing className="h-3.5 w-3.5" /> {t("admin.marketplace.notifiedCount", { count: r.notified.length })}
                       </span>
                       <span className="inline-flex items-center gap-1">
-                        <Eye className="h-3.5 w-3.5" /> {r.viewed.length} viewed
+                        <Eye className="h-3.5 w-3.5" /> {t("admin.marketplace.viewedCount", { count: r.viewed.length })}
                       </span>
                     </div>
                   </button>
@@ -438,11 +440,11 @@ function AdminMarketplacePage() {
                     <div className="grid gap-6 border-t border-border bg-muted/30 p-4 md:grid-cols-2 md:p-5">
                       <div>
                         <h3 className="flex items-center gap-2 text-sm font-semibold">
-                          <Building2 className="h-4 w-4" /> Distribution
+                          <Building2 className="h-4 w-4" /> {t("admin.marketplace.distribution")}
                         </h3>
                         <ul className="mt-3 space-y-2 text-sm">
                           {r.notified.length === 0 && (
-                            <li className="text-muted-foreground">No companies notified yet.</li>
+                            <li className="text-muted-foreground">{t("admin.marketplace.noCompaniesNotified")}</li>
                           )}
                           {r.notified.map((cid) => {
                             const a = assignments.find(
@@ -457,20 +459,20 @@ function AdminMarketplacePage() {
                                 key={cid}
                                 className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border bg-background px-3 py-2"
                               >
-                                <span className="font-medium">{companies[cid] ?? "Company"}</span>
+                                <span className="font-medium">{companies[cid] ?? t("admin.marketplace.company")}</span>
                                 <span className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
                                   {a?.is_exclusive && (
                                     <Badge variant="outline" className={STAGE_TONE.exclusive}>
-                                      Exclusive
+                                      {t("admin.marketplace.exclusiveBadge")}
                                     </Badge>
                                   )}
-                                  <span>Notified {dt(a?.invited_at ?? d?.notified_at ?? null)}</span>
+                                  <span>{t("admin.marketplace.notifiedAt", { date: dt(a?.invited_at ?? d?.notified_at ?? null) })}</span>
                                   <Badge variant="outline">
-                                    {isViewed ? "Viewed" : "Not viewed"}
+                                    {isViewed ? t("admin.marketplace.viewed") : t("admin.marketplace.notViewed")}
                                   </Badge>
                                   {(a?.accepted_at || r.claimed?.company_id === cid) && (
                                     <Badge variant="outline" className={STAGE_TONE.claimed}>
-                                      Claimed
+                                      {t("admin.marketplace.claimedBadge")}
                                     </Badge>
                                   )}
                                 </span>
@@ -481,21 +483,21 @@ function AdminMarketplacePage() {
 
                         <dl className="mt-4 grid grid-cols-2 gap-3 text-xs">
                           <div>
-                            <dt className="text-muted-foreground">Exclusive started</dt>
+                            <dt className="text-muted-foreground">{t("admin.marketplace.exclusiveStarted")}</dt>
                             <dd>{dt(r.q.exclusive_started_at)}</dd>
                           </div>
                           <div>
-                            <dt className="text-muted-foreground">Open market since</dt>
+                            <dt className="text-muted-foreground">{t("admin.marketplace.openMarketSince")}</dt>
                             <dd>{dt(r.q.open_market_opened_at)}</dd>
                           </div>
                           <div>
-                            <dt className="text-muted-foreground">Workflow stage</dt>
+                            <dt className="text-muted-foreground">{t("admin.marketplace.workflowStage")}</dt>
                             <dd className="capitalize">
                               {(r.q.job_status ?? r.stage).replace(/_/g, " ")}
                             </dd>
                           </div>
                           <div>
-                            <dt className="text-muted-foreground">Commission status</dt>
+                            <dt className="text-muted-foreground">{t("admin.marketplace.commissionStatus")}</dt>
                             <dd className="capitalize">{r.commissionStatus}</dd>
                           </div>
                         </dl>
@@ -503,11 +505,11 @@ function AdminMarketplacePage() {
 
                       <div>
                         <h3 className="flex items-center gap-2 text-sm font-semibold">
-                          <Clock className="h-4 w-4" /> Activity timeline
+                          <Clock className="h-4 w-4" /> {t("admin.marketplace.activityTimeline")}
                         </h3>
                         <ol className="mt-3 space-y-3 border-l border-border pl-4 text-sm">
                           {r.timeline.length === 0 && (
-                            <li className="text-muted-foreground">No recorded events yet.</li>
+                            <li className="text-muted-foreground">{t("admin.marketplace.noEventsYet")}</li>
                           )}
                           {r.timeline.map((ev) => (
                             <li key={ev.id} className="relative">
@@ -517,7 +519,7 @@ function AdminMarketplacePage() {
                               </div>
                               <div className="text-xs text-muted-foreground">
                                 {dt(ev.created_at)}
-                                {ev.company_id ? ` · ${companies[ev.company_id] ?? "Company"}` : ""}
+                                {ev.company_id ? ` · ${companies[ev.company_id] ?? t("admin.marketplace.company")}` : ""}
                                 {ev.actor_email ? ` · ${ev.actor_email}` : ""}
                               </div>
                             </li>
@@ -525,7 +527,7 @@ function AdminMarketplacePage() {
                         </ol>
                         <div className="mt-4 inline-flex items-center gap-2 text-xs text-muted-foreground">
                           <Timer className="h-3.5 w-3.5" />
-                          Last activity {dt(r.q.last_activity_at)}
+                          {t("admin.marketplace.lastActivity", { date: dt(r.q.last_activity_at) })}
                         </div>
                       </div>
                     </div>

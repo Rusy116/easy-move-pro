@@ -12,16 +12,28 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { useT } from "@/i18n";
 import { AI_STATUS_TONE, type AiCapability } from "@/lib/ai/registry";
 import { enqueueTask, type AiTask, type AiLog } from "@/lib/ai/api";
 
+/** Resolve a DB status enum value into a translated display label. */
+export function useStatusText() {
+  const t = useT();
+  return (status: string) => {
+    const key = `admin.ai.status.${status}`;
+    const label = t(key);
+    return label === key ? status.replace(/_/g, " ") : label;
+  };
+}
+
 export function StatusPill({ status }: { status: string }) {
+  const statusText = useStatusText();
   const tone = AI_STATUS_TONE[status] ?? "bg-muted text-muted-foreground";
   return (
     <span
       className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-semibold capitalize ${tone}`}
     >
-      {status.replace(/_/g, " ")}
+      {statusText(status)}
     </span>
   );
 }
@@ -64,6 +76,7 @@ export function CapabilityGrid({
   capabilities: AiCapability[];
   onQueued?: () => void;
 }) {
+  const t = useT();
   const [active, setActive] = useState<AiCapability | null>(null);
   const [qty, setQty] = useState("5");
   const [when, setWhen] = useState("");
@@ -79,11 +92,11 @@ export function CapabilityGrid({
         quantity: Number(qty) || 1,
         scheduledFor: when ? new Date(when).toISOString() : null,
       });
-      toast.success(`${active.label} queued`);
+      toast.success(t("admin.ai.blocks.queuedToast", { label: active.label }));
       setActive(null);
       onQueued?.();
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Could not queue task");
+      toast.error(e instanceof Error ? e.message : t("admin.ai.blocks.queueError"));
     } finally {
       setBusy(false);
     }
@@ -115,14 +128,16 @@ export function CapabilityGrid({
         <DialogContent>
           <DialogHeader>
             <DialogTitle>{active?.label}</DialogTitle>
-            <DialogDescription>
-              {active?.description} The task is added to the queue and picked up by the{" "}
-              {active?.agentKey.replace(/_/g, " ")} agent.
+            <DialogDescription className="whitespace-normal break-words">
+              {t("admin.ai.blocks.dialogDescription", {
+                description: active?.description ?? "",
+                agent: active?.agentKey.replace(/_/g, " ") ?? "",
+              })}
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-1.5">
-              <Label htmlFor="qty">Quantity</Label>
+              <Label htmlFor="qty">{t("admin.ai.blocks.quantity")}</Label>
               <Input
                 id="qty"
                 type="number"
@@ -132,7 +147,7 @@ export function CapabilityGrid({
               />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="when">Schedule (optional)</Label>
+              <Label htmlFor="when">{t("admin.ai.blocks.schedule")}</Label>
               <Input
                 id="when"
                 type="datetime-local"
@@ -143,7 +158,7 @@ export function CapabilityGrid({
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setActive(null)}>
-              Cancel
+              {t("admin.ai.blocks.cancel")}
             </Button>
             <Button onClick={submit} disabled={busy}>
               {busy ? (
@@ -153,7 +168,7 @@ export function CapabilityGrid({
               ) : (
                 <Play className="mr-2 h-4 w-4" />
               )}
-              {when ? "Schedule task" : "Add to queue"}
+              {when ? t("admin.ai.blocks.scheduleTask") : t("admin.ai.blocks.addToQueue")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -163,33 +178,37 @@ export function CapabilityGrid({
 }
 
 export function TaskTable({ tasks, actions }: { tasks: AiTask[]; actions?: (t: AiTask) => ReactNode }) {
-  if (!tasks.length) return <EmptyState title="No tasks yet" hint="Queue a capability to begin." />;
+  const t = useT();
+  if (!tasks.length)
+    return (
+      <EmptyState title={t("admin.ai.blocks.noTasksTitle")} hint={t("admin.ai.blocks.noTasksHint")} />
+    );
   return (
     <div className="overflow-x-auto">
       <table className="w-full min-w-[640px] text-sm">
         <thead>
           <tr className="border-b border-border text-left text-[11px] uppercase tracking-wider text-muted-foreground">
-            <th className="py-2 pr-3 font-semibold">Task</th>
-            <th className="py-2 pr-3 font-semibold">Agent</th>
-            <th className="py-2 pr-3 font-semibold">Status</th>
-            <th className="py-2 pr-3 font-semibold">Progress</th>
-            <th className="py-2 pr-3 font-semibold">Created</th>
+            <th className="py-2 pr-3 font-semibold">{t("admin.ai.blocks.taskHeader")}</th>
+            <th className="py-2 pr-3 font-semibold">{t("admin.ai.blocks.agentHeader")}</th>
+            <th className="py-2 pr-3 font-semibold">{t("admin.ai.blocks.statusHeader")}</th>
+            <th className="py-2 pr-3 font-semibold">{t("admin.ai.blocks.progressHeader")}</th>
+            <th className="py-2 pr-3 font-semibold">{t("admin.ai.blocks.createdHeader")}</th>
             {actions && <th className="py-2 font-semibold" />}
           </tr>
         </thead>
         <tbody>
-          {tasks.map((t) => (
-            <tr key={t.id} className="border-b border-border/60 last:border-0">
-              <td className="py-2.5 pr-3 font-medium">{t.title}</td>
-              <td className="py-2.5 pr-3 text-muted-foreground">{t.agent_key.replace(/_/g, " ")}</td>
+          {tasks.map((task) => (
+            <tr key={task.id} className="border-b border-border/60 last:border-0">
+              <td className="py-2.5 pr-3 font-medium">{task.title}</td>
+              <td className="py-2.5 pr-3 text-muted-foreground">{task.agent_key.replace(/_/g, " ")}</td>
               <td className="py-2.5 pr-3">
-                <StatusPill status={t.status} />
+                <StatusPill status={task.status} />
               </td>
               <td className="py-2.5 pr-3 w-32">
-                <Progress value={t.progress} />
+                <Progress value={task.progress} />
               </td>
-              <td className="py-2.5 pr-3 text-xs text-muted-foreground">{fmtDate(t.created_at)}</td>
-              {actions && <td className="py-2.5 text-right">{actions(t)}</td>}
+              <td className="py-2.5 pr-3 text-xs text-muted-foreground">{fmtDate(task.created_at)}</td>
+              {actions && <td className="py-2.5 text-right">{actions(task)}</td>}
             </tr>
           ))}
         </tbody>
@@ -199,7 +218,8 @@ export function TaskTable({ tasks, actions }: { tasks: AiTask[]; actions?: (t: A
 }
 
 export function LogList({ logs }: { logs: AiLog[] }) {
-  if (!logs.length) return <EmptyState title="No activity logged yet" />;
+  const t = useT();
+  if (!logs.length) return <EmptyState title={t("admin.ai.blocks.noActivityTitle")} />;
   return (
     <ul className="space-y-2.5">
       {logs.map((l) => (

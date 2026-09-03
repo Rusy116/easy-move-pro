@@ -9,6 +9,7 @@ import {
   type DashboardPeriod,
 } from "@/components/shell/PeriodFilter";
 import { useRealtimeTables } from "@/lib/use-realtime";
+import { useT } from "@/i18n";
 import { supabase } from "@/integrations/supabase/client";
 import {
   BarChart3,
@@ -71,22 +72,22 @@ const STATUS_KEYS = [
 const STATUS_META: Record<
   (typeof STATUS_KEYS)[number],
   {
-    label: string;
     tone: "default" | "info" | "success" | "warning" | "danger";
     icon: React.ReactNode;
   }
 > = {
-  new: { label: "New", tone: "info", icon: <Bell className="h-4 w-4" /> },
-  contacted: { label: "Contacted", tone: "info", icon: <Inbox className="h-4 w-4" /> },
-  scheduled: { label: "Scheduled", tone: "info", icon: <ClipboardList className="h-4 w-4" /> },
-  quoted: { label: "Quoted", tone: "warning", icon: <ClipboardList className="h-4 w-4" /> },
-  accepted: { label: "Accepted", tone: "success", icon: <CheckCircle2 className="h-4 w-4" /> },
-  won: { label: "Won", tone: "success", icon: <Trophy className="h-4 w-4" /> },
-  lost: { label: "Lost", tone: "danger", icon: <XCircle className="h-4 w-4" /> },
-  cancelled: { label: "Cancelled", tone: "default", icon: <Ban className="h-4 w-4" /> },
+  new: { tone: "info", icon: <Bell className="h-4 w-4" /> },
+  contacted: { tone: "info", icon: <Inbox className="h-4 w-4" /> },
+  scheduled: { tone: "info", icon: <ClipboardList className="h-4 w-4" /> },
+  quoted: { tone: "warning", icon: <ClipboardList className="h-4 w-4" /> },
+  accepted: { tone: "success", icon: <CheckCircle2 className="h-4 w-4" /> },
+  won: { tone: "success", icon: <Trophy className="h-4 w-4" /> },
+  lost: { tone: "danger", icon: <XCircle className="h-4 w-4" /> },
+  cancelled: { tone: "default", icon: <Ban className="h-4 w-4" /> },
 };
 
 function DashboardPage() {
+  const t = useT();
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(true);
   const [quotes, setQuotes] = useState<QuoteLite[]>([]);
@@ -252,7 +253,7 @@ function DashboardPage() {
       m.set(a.company_id, (m.get(a.company_id) ?? 0) + 1);
     }
     return [...m.entries()]
-      .map(([id, count]) => ({ name: nameById.get(id) ?? "Unknown", count }))
+      .map(([id, count]) => ({ name: nameById.get(id) ?? t("admin.dashboard.topCompanies.unknown"), count }))
       .sort((a, b) => b.count - a.count)
       .slice(0, 8);
   }, [assignments, companies]);
@@ -260,7 +261,7 @@ function DashboardPage() {
   if (isAdmin === null) {
     return (
       <AdminShell>
-        <div className="p-16 text-center text-muted-foreground">Loading…</div>
+        <div className="p-16 text-center text-muted-foreground">{t("admin.dashboard.loading")}</div>
       </AdminShell>
     );
   }
@@ -268,9 +269,9 @@ function DashboardPage() {
     return (
       <AdminShell>
         <section className="mx-auto max-w-2xl px-4 py-24 text-center">
-          <h1 className="font-serif text-4xl">Admin access required</h1>
+          <h1 className="font-serif text-4xl">{t("admin.dashboard.accessRequiredTitle")}</h1>
           <Link to="/dashboard" className="mt-6 inline-block text-primary hover:underline">
-            ← Back
+            {t("admin.dashboard.backLink")}
           </Link>
         </section>
       </AdminShell>
@@ -282,9 +283,12 @@ function DashboardPage() {
       <div className="min-h-screen bg-gradient-to-b from-sage-soft/30 to-background">
         <section className="mx-auto max-w-7xl px-4 sm:px-6 py-8 md:py-12">
           <PageHeader
-            eyebrow="Admin CRM"
-            title="Dashboard"
-            subtitle={`${stats.total.toLocaleString()} quotes · ${PERIOD_LABEL[period]} · live`}
+            eyebrow={t("admin.dashboard.eyebrow")}
+            title={t("admin.dashboard.title")}
+            subtitle={t("admin.dashboard.subtitle", {
+              count: stats.total.toLocaleString(),
+              period: PERIOD_LABEL[period],
+            })}
             icon={<BarChart3 className="h-5 w-5" />}
             actions={<PeriodFilter value={period} onChange={setPeriod} />}
           />
@@ -298,13 +302,13 @@ function DashboardPage() {
               {/* KPI row */}
               <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
                 <StatCard
-                  label="Quotes"
+                  label={t("admin.dashboard.kpi.quotes")}
                   value={stats.total.toLocaleString()}
                   hint={PERIOD_LABEL[period]}
                   icon={<Inbox className="h-4 w-4" />}
                 />
                 <StatCard
-                  label="Revenue (won)"
+                  label={t("admin.dashboard.kpi.revenue")}
                   value={
                     stats.revHigh === 0
                       ? "—"
@@ -312,12 +316,12 @@ function DashboardPage() {
                         ? `$${Math.round(stats.revLow).toLocaleString()}`
                         : `$${Math.round(stats.revLow / 1000)}k–$${Math.round(stats.revHigh / 1000)}k`
                   }
-                  hint="Contracted price when known, otherwise estimate range"
+                  hint={t("admin.dashboard.kpi.revenueHint")}
                   tone="success"
                   icon={<DollarSign className="h-4 w-4" />}
                 />
                 <StatCard
-                  label="Avg estimate"
+                  label={t("admin.dashboard.kpi.avgEstimate")}
                   value={
                     stats.avgEstimate > 0
                       ? `$${Math.round(stats.avgEstimate).toLocaleString()}`
@@ -326,9 +330,9 @@ function DashboardPage() {
                   icon={<TrendingUp className="h-4 w-4" />}
                 />
                 <StatCard
-                  label="Conversion rate"
+                  label={t("admin.dashboard.kpi.conversion")}
                   value={`${stats.conversion.toFixed(1)}%`}
-                  hint="won / (won + lost + cancelled)"
+                  hint={t("admin.dashboard.kpi.conversionHint")}
                   tone="info"
                   icon={<Target className="h-4 w-4" />}
                 />
@@ -339,7 +343,7 @@ function DashboardPage() {
                 {STATUS_KEYS.map((k) => (
                   <StatCard
                     key={k}
-                    label={STATUS_META[k].label}
+                    label={t(`admin.dashboard.status.${k}`)}
                     value={(stats.counts[k] ?? 0).toLocaleString()}
                     tone={STATUS_META[k].tone}
                     icon={STATUS_META[k].icon}
@@ -349,7 +353,7 @@ function DashboardPage() {
 
               {/* Charts */}
               <div className="mt-8 grid gap-4 lg:grid-cols-2">
-                <ChartCard title="Quotes by day" subtitle="Last 30 days">
+                <ChartCard title={t("admin.dashboard.chart.quotesByDay.title")} subtitle={t("admin.dashboard.chart.quotesByDay.subtitle")}>
                   <ResponsiveContainer width="100%" height={260}>
                     <LineChart data={quotesByDay} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
                       <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
@@ -367,7 +371,7 @@ function DashboardPage() {
                   </ResponsiveContainer>
                 </ChartCard>
 
-                <ChartCard title="Revenue by month" subtitle="Won quotes, last 12 months">
+                <ChartCard title={t("admin.dashboard.chart.revenueByMonth.title")} subtitle={t("admin.dashboard.chart.revenueByMonth.subtitle")}>
                   <ResponsiveContainer width="100%" height={260}>
                     <BarChart
                       data={revenueByMonth}
@@ -386,9 +390,9 @@ function DashboardPage() {
                   </ResponsiveContainer>
                 </ChartCard>
 
-                <ChartCard title="Quotes by origin state" subtitle="Top 10">
+                <ChartCard title={t("admin.dashboard.chart.byState.title")} subtitle={t("admin.dashboard.chart.byState.subtitle")}>
                   {byState.length === 0 ? (
-                    <EmptyChart />
+                    <EmptyChart message={t("admin.dashboard.emptyChart.default")} />
                   ) : (
                     <ResponsiveContainer width="100%" height={260}>
                       <BarChart
@@ -406,9 +410,9 @@ function DashboardPage() {
                   )}
                 </ChartCard>
 
-                <ChartCard title="Top moving companies" subtitle="By assigned leads">
+                <ChartCard title={t("admin.dashboard.chart.topCompanies.title")} subtitle={t("admin.dashboard.chart.topCompanies.subtitle")}>
                   {topCompanies.length === 0 ? (
-                    <EmptyChart message="No assignments yet" />
+                    <EmptyChart message={t("admin.dashboard.emptyChart.noAssignments")} />
                   ) : (
                     <ResponsiveContainer width="100%" height={260}>
                       <BarChart
@@ -454,7 +458,7 @@ function ChartCard({
   );
 }
 
-function EmptyChart({ message = "No data yet" }: { message?: string }) {
+function EmptyChart({ message }: { message: string }) {
   return (
     <div className="grid h-[260px] place-items-center text-sm text-muted-foreground">{message}</div>
   );

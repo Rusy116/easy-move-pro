@@ -21,6 +21,7 @@ import {
 } from "@/lib/city-landing.functions";
 import { landingPathForSlug } from "@/lib/city-landing/data";
 import type { PageValidation } from "@/lib/city-landing/validation";
+import { useT } from "@/i18n";
 
 
 export const Route = createFileRoute("/_authenticated/ai/cities")({
@@ -85,6 +86,7 @@ type RunRow = {
 
 
 function CityLandingDashboard() {
+  const tr = useT();
   const qc = useQueryClient();
   const [busy, setBusy] = useState(false);
   const catalog = useMemo(() => cityCatalog(), []);
@@ -223,55 +225,55 @@ function CityLandingDashboard() {
   return (
     <AiShell>
       <PageHeader
-        eyebrow="AI Growth Center"
-        title="City Landing & Calculator Agent"
-        subtitle="Generates /moving-calculator/{city}-{state} landing pages with the one official Easy Move Pro calculator embedded above the fold."
+        eyebrow={tr("admin.ai2.cities.eyebrow")}
+        title={tr("admin.ai2.cities.title")}
+        subtitle={tr("admin.ai2.cities.subtitle")}
         icon={<MapPin className="h-5 w-5" />}
       />
 
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard label="Cities completed" value={citiesCompleted} tone="success" />
-        <StatCard label="Cities remaining" value={citiesRemaining} />
-        <StatCard label="Published today" value={publishedToday} tone="success" />
-        <StatCard label="Generated today" value={generatedToday} />
-        <StatCard label="Drafts / review queue" value={drafts.length} tone="warning" />
-        <StatCard label="Avg SEO score" value={avgScore || "—"} tone="info" />
-        <StatCard label="Publishing speed" value={`${speed}/hr`} tone="info" />
-        <StatCard label="Skipped (already live)" value={skipped} />
-        <StatCard label="Errors" value={errors.length} tone={errors.length ? "warning" : undefined} />
-        <StatCard label="Indexed pages" value={indexed.length} tone="info" />
-        <StatCard label="Organic clicks" value={clicks} />
-        <StatCard label="Storage used" value={`${storageMb} MB`} />
-        <StatCard label="Cities imported" value={rows.length} />
-        <StatCard label="Calculators published" value={calculatorsLive} tone="success" />
-        <StatCard label="SEO pages published" value={seoPagesLive} tone="success" />
+        <StatCard label={tr("admin.ai2.cities.stat.citiesCompleted")} value={citiesCompleted} tone="success" />
+        <StatCard label={tr("admin.ai2.cities.stat.citiesRemaining")} value={citiesRemaining} />
+        <StatCard label={tr("admin.ai2.cities.stat.publishedToday")} value={publishedToday} tone="success" />
+        <StatCard label={tr("admin.ai2.cities.stat.generatedToday")} value={generatedToday} />
+        <StatCard label={tr("admin.ai2.cities.stat.drafts")} value={drafts.length} tone="warning" />
+        <StatCard label={tr("admin.ai2.cities.stat.avgSeoScore")} value={avgScore || "—"} tone="info" />
+        <StatCard label={tr("admin.ai2.cities.stat.publishingSpeed")} value={`${speed}/hr`} tone="info" />
+        <StatCard label={tr("admin.ai2.cities.stat.skipped")} value={skipped} />
+        <StatCard label={tr("admin.ai2.cities.stat.errors")} value={errors.length} tone={errors.length ? "warning" : undefined} />
+        <StatCard label={tr("admin.ai2.cities.stat.indexedPages")} value={indexed.length} tone="info" />
+        <StatCard label={tr("admin.ai2.cities.stat.organicClicks")} value={clicks} />
+        <StatCard label={tr("admin.ai2.cities.stat.storageUsed")} value={`${storageMb} MB`} />
+        <StatCard label={tr("admin.ai2.cities.stat.citiesImported")} value={rows.length} />
+        <StatCard label={tr("admin.ai2.cities.stat.calculatorsPublished")} value={calculatorsLive} tone="success" />
+        <StatCard label={tr("admin.ai2.cities.stat.seoPagesPublished")} value={seoPagesLive} tone="success" />
         <StatCard
-          label="SEO retry queue"
+          label={tr("admin.ai2.cities.stat.seoRetryQueue")}
           value={seoRetryQueue}
           tone={seoRetryQueue ? "warning" : undefined}
         />
-        <StatCard label="Avg generation time" value={`${(avgGenMs / 1000).toFixed(1)}s`} tone="info" />
+        <StatCard label={tr("admin.ai2.cities.stat.avgGenerationTime")} value={`${(avgGenMs / 1000).toFixed(1)}s`} tone="info" />
         <StatCard
-          label="Est. completion"
+          label={tr("admin.ai2.cities.stat.estCompletion")}
           value={
             activeRun && avgGenMs
               ? `${Math.ceil(((activeRun.total - activeRun.cursor) * avgGenMs) / 60000)} min`
               : "—"
           }
         />
-        <StatCard label="Queue status" value={queueStatus} tone="info" />
+        <StatCard label={tr("admin.ai2.cities.stat.queueStatus")} value={queueStatus} tone="info" />
         <StatCard
-          label="System health"
+          label={tr("admin.ai2.cities.stat.systemHealth")}
           value={health}
           tone={health === "healthy" ? "success" : "warning"}
         />
       </div>
 
 
-      <SectionShell title="Generate">
+      <SectionShell title={tr("admin.ai2.cities.generate.title")}>
         <div className="flex flex-wrap items-end gap-3">
           <div>
-            <label className="block text-xs text-muted-foreground mb-1">Single city</label>
+            <label className="block text-xs text-muted-foreground mb-1">{tr("admin.ai2.cities.generate.singleCity")}</label>
             <select
               className="h-9 rounded-md border border-border bg-background px-2 text-sm"
               value={city}
@@ -292,11 +294,11 @@ function CityLandingDashboard() {
                   generateCityPage({
                     data: { citySlug: selected!.slug, stateCode: selected!.stateCode },
                   }),
-                "City page generated",
+                tr("admin.ai2.cities.toast.cityGenerated"),
               )
             }
           >
-            {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Generate city"}
+            {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : tr("admin.ai2.cities.generate.generateButton")}
           </Button>
           <Button
             variant="outline"
@@ -308,20 +310,20 @@ function CityLandingDashboard() {
                   data: { citySlug: selected!.slug, stateCode: selected!.stateCode },
                 });
                 setPreview(res as PreviewResult);
-                toast.success("Preview built — nothing was published");
+                toast.success(tr("admin.ai2.cities.toast.previewBuilt"));
               } catch (e) {
-                toast.error(e instanceof Error ? e.message : "Preview failed");
+                toast.error(e instanceof Error ? e.message : tr("admin.ai2.cities.toast.previewFailed"));
               } finally {
                 setBusy(false);
               }
             }}
           >
-            Preview
+            {tr("admin.ai2.cities.generate.previewButton")}
           </Button>
 
 
           <div className="ml-4">
-            <label className="block text-xs text-muted-foreground mb-1">Entire state</label>
+            <label className="block text-xs text-muted-foreground mb-1">{tr("admin.ai2.cities.generate.entireState")}</label>
             <select
               className="h-9 rounded-md border border-border bg-background px-2 text-sm"
               value={stateCode}
@@ -338,31 +340,31 @@ function CityLandingDashboard() {
             variant="secondary"
             disabled={busy}
             onClick={() =>
-              run(() => startCityRun({ data: { scope: "state", stateCode } }), "State run started")
+              run(() => startCityRun({ data: { scope: "state", stateCode } }), tr("admin.ai2.cities.toast.stateRunStarted"))
             }
           >
-            Start state run
+            {tr("admin.ai2.cities.generate.startStateRun")}
           </Button>
           <Button
             variant="secondary"
             disabled={busy}
-            onClick={() => run(() => startCityRun({ data: { scope: "usa" } }), "USA run started")}
+            onClick={() => run(() => startCityRun({ data: { scope: "usa" } }), tr("admin.ai2.cities.toast.usaRunStarted"))}
           >
-            Start USA run
+            {tr("admin.ai2.cities.generate.startUsaRun")}
           </Button>
           <Button
             variant="outline"
             disabled={busy}
-            onClick={() => run(() => retryFailedCityPages({ data: {} }), "Retried failed pages")}
+            onClick={() => run(() => retryFailedCityPages({ data: {} }), tr("admin.ai2.cities.toast.retriedFailed"))}
           >
-            Retry failed
+            {tr("admin.ai2.cities.generate.retryFailed")}
           </Button>
           <Button
             variant="outline"
             disabled={busy}
-            onClick={() => run(() => retrySeoPages({ data: {} }), "SEO pages retried")}
+            onClick={() => run(() => retrySeoPages({ data: {} }), tr("admin.ai2.cities.toast.seoRetried"))}
           >
-            Retry SEO pages
+            {tr("admin.ai2.cities.generate.retrySeoPages")}
           </Button>
         </div>
         <p className="mt-3 text-xs text-muted-foreground">

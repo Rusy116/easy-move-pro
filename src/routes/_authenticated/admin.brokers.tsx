@@ -25,6 +25,7 @@ import {
   type StaffRow,
 } from "@/lib/auth.functions";
 import { toast } from "sonner";
+import { useT } from "@/i18n";
 
 export const Route = createFileRoute("/_authenticated/admin/brokers")({
   head: () => ({
@@ -47,6 +48,7 @@ function AdminBrokersPage() {
   const createBroker = useServerFn(adminCreateBroker);
   const setStatus = useServerFn(adminSetAccountStatus);
   const resetPassword = useServerFn(adminResetPassword);
+  const t = useT();
 
   const [rows, setRows] = useState<StaffRow[]>([]);
   const [workload, setWorkload] = useState<Record<string, Workload>>({});
@@ -91,7 +93,7 @@ function AdminBrokersPage() {
       }
       setWorkload(map);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Could not load brokers");
+      toast.error(err instanceof Error ? err.message : t("admin.brokers.toast.loadError"));
     } finally {
       setLoading(false);
     }
@@ -109,12 +111,12 @@ function AdminBrokersPage() {
     setBusy(true);
     try {
       await createBroker({ data: { ...form, status: "active" } });
-      toast.success("Broker created and active.");
+      toast.success(t("admin.brokers.toast.created"));
       setForm({ firstName: "", lastName: "", email: "", phone: "", password: "" });
       setOpen(false);
       await refresh();
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Could not create broker");
+      toast.error(err instanceof Error ? err.message : t("admin.brokers.toast.createError"));
     } finally {
       setBusy(false);
     }
@@ -124,21 +126,21 @@ function AdminBrokersPage() {
     const next = row.status === "disabled" ? "active" : "disabled";
     try {
       await setStatus({ data: { userId: row.id, status: next } });
-      toast.success(next === "active" ? "Account re-enabled." : "Account disabled.");
+      toast.success(next === "active" ? t("admin.brokers.toast.enabled") : t("admin.brokers.toast.disabled"));
       await refresh();
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Could not update account");
+      toast.error(err instanceof Error ? err.message : t("admin.brokers.toast.statusError"));
     }
   }
 
   async function onResetPassword(row: StaffRow) {
-    const password = window.prompt(`New password for ${row.email} (min 8 characters)`);
+    const password = window.prompt(t("admin.brokers.promptNewPassword", { email: row.email }));
     if (!password) return;
     try {
       await resetPassword({ data: { userId: row.id, password } });
-      toast.success("Password updated.");
+      toast.success(t("admin.brokers.toast.passwordUpdated"));
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Could not update password");
+      toast.error(err instanceof Error ? err.message : t("admin.brokers.toast.passwordError"));
     }
   }
 
@@ -154,15 +156,15 @@ function AdminBrokersPage() {
                 row.email}
             </span>
             <Badge variant={row.role === "admin" ? "default" : "outline"}>
-              {row.role === "admin" ? "Administrator" : "Broker"}
+              {row.role === "admin" ? t("admin.brokers.role.administrator") : t("admin.brokers.role.broker")}
             </Badge>
             {row.status === "disabled" ? (
               <Badge className="border border-destructive/30 bg-destructive/10 text-destructive">
-                Disabled
+                {t("admin.brokers.status.disabled")}
               </Badge>
             ) : (
               <Badge className="border border-emerald-600/30 bg-emerald-500/10 text-emerald-700">
-                <ShieldCheck className="mr-1 h-3 w-3" /> Active
+                <ShieldCheck className="mr-1 h-3 w-3" /> {t("admin.brokers.status.active")}
               </Badge>
             )}
           </div>
@@ -172,16 +174,16 @@ function AdminBrokersPage() {
           </div>
           <div className="mt-2 flex flex-wrap gap-4 text-xs text-muted-foreground">
             <span>
-              Open leads <span className="font-semibold text-foreground">{w?.open ?? 0}</span>
+              {t("admin.brokers.stat.openLeads")} <span className="font-semibold text-foreground">{w?.open ?? 0}</span>
             </span>
             <span>
-              Total assigned <span className="font-semibold text-foreground">{w?.total ?? 0}</span>
+              {t("admin.brokers.stat.totalAssigned")} <span className="font-semibold text-foreground">{w?.total ?? 0}</span>
             </span>
             <span>
-              Booked <span className="font-semibold text-foreground">{w?.won ?? 0}</span>
+              {t("admin.brokers.stat.booked")} <span className="font-semibold text-foreground">{w?.won ?? 0}</span>
             </span>
             <span>
-              Revenue{" "}
+              {t("admin.brokers.stat.revenue")}{" "}
               <span className="font-semibold text-foreground">
                 {(w?.revenue ?? 0).toLocaleString("en-US", {
                   style: "currency",
@@ -203,7 +205,7 @@ function AdminBrokersPage() {
                 className="rounded-full"
                 onClick={() => onResetPassword(row)}
               >
-                <KeyRound className="mr-1.5 h-3.5 w-3.5" /> Password
+                <KeyRound className="mr-1.5 h-3.5 w-3.5" /> {t("admin.brokers.action.password")}
               </Button>
               <Button
                 variant={row.status === "disabled" ? "default" : "outline"}
@@ -213,11 +215,11 @@ function AdminBrokersPage() {
               >
                 {row.status === "disabled" ? (
                   <>
-                    <RotateCcw className="mr-1.5 h-3.5 w-3.5" /> Enable
+                    <RotateCcw className="mr-1.5 h-3.5 w-3.5" /> {t("admin.brokers.action.enable")}
                   </>
                 ) : (
                   <>
-                    <Ban className="mr-1.5 h-3.5 w-3.5" /> Disable
+                    <Ban className="mr-1.5 h-3.5 w-3.5" /> {t("admin.brokers.action.disable")}
                   </>
                 )}
               </Button>
@@ -232,25 +234,25 @@ function AdminBrokersPage() {
     <AdminShell>
       <section className="mx-auto max-w-5xl px-4 sm:px-6 py-8 md:py-12">
         <PageHeader
-          eyebrow="Internal team"
-          title="Brokers"
-          subtitle="Broker accounts, permissions, workload and performance. Brokers can never register themselves."
+          eyebrow={t("admin.brokers.eyebrow")}
+          title={t("admin.brokers.title")}
+          subtitle={t("admin.brokers.subtitle")}
           icon={<Briefcase className="h-5 w-5" />}
           actions={
             <Dialog open={open} onOpenChange={setOpen}>
               <DialogTrigger asChild>
                 <Button className="rounded-full">
-                  <UserPlus className="mr-1.5 h-4 w-4" /> Create broker
+                  <UserPlus className="mr-1.5 h-4 w-4" /> {t("admin.brokers.createBroker")}
                 </Button>
               </DialogTrigger>
               <DialogContent>
                 <DialogHeader>
-                  <DialogTitle>Create broker account</DialogTitle>
+                  <DialogTitle>{t("admin.brokers.dialog.createTitle")}</DialogTitle>
                 </DialogHeader>
                 <form onSubmit={onCreate} className="grid gap-4">
                   <div className="grid gap-4 sm:grid-cols-2">
                     <div>
-                      <Label htmlFor="firstName">First name</Label>
+                      <Label htmlFor="firstName">{t("admin.brokers.field.firstName")}</Label>
                       <Input
                         id="firstName"
                         required
@@ -259,7 +261,7 @@ function AdminBrokersPage() {
                       />
                     </div>
                     <div>
-                      <Label htmlFor="lastName">Last name</Label>
+                      <Label htmlFor="lastName">{t("admin.brokers.field.lastName")}</Label>
                       <Input
                         id="lastName"
                         required
@@ -269,7 +271,7 @@ function AdminBrokersPage() {
                     </div>
                   </div>
                   <div>
-                    <Label htmlFor="phone">Phone number</Label>
+                    <Label htmlFor="phone">{t("admin.brokers.field.phone")}</Label>
                     <Input
                       id="phone"
                       required
@@ -278,7 +280,7 @@ function AdminBrokersPage() {
                     />
                   </div>
                   <div>
-                    <Label htmlFor="email">Email</Label>
+                    <Label htmlFor="email">{t("admin.brokers.field.email")}</Label>
                     <Input
                       id="email"
                       type="email"
@@ -288,7 +290,7 @@ function AdminBrokersPage() {
                     />
                   </div>
                   <div>
-                    <Label htmlFor="password">Password</Label>
+                    <Label htmlFor="password">{t("admin.brokers.field.password")}</Label>
                     <Input
                       id="password"
                       type="password"
@@ -300,7 +302,7 @@ function AdminBrokersPage() {
                   </div>
                   <Button type="submit" disabled={busy} className="rounded-full">
                     {busy && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                    Create broker
+                    {t("admin.brokers.createBroker")}
                   </Button>
                 </form>
               </DialogContent>
@@ -313,7 +315,7 @@ function AdminBrokersPage() {
             <SkeletonRows n={3} />
           ) : brokers.length === 0 ? (
             <div className="card-premium p-10 text-center text-sm text-muted-foreground">
-              No broker accounts yet.
+              {t("admin.brokers.emptyState")}
             </div>
           ) : (
             brokers.map(renderRow)
@@ -322,7 +324,7 @@ function AdminBrokersPage() {
 
         {admins.length > 0 && (
           <>
-            <h2 className="mt-12 font-serif text-2xl">Platform administrators</h2>
+            <h2 className="mt-12 font-serif text-2xl">{t("admin.brokers.administratorsHeading")}</h2>
             <div className="mt-4 grid gap-3">{admins.map(renderRow)}</div>
           </>
         )}

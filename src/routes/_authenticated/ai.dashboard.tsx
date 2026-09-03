@@ -18,6 +18,7 @@ import { AiShell } from "@/components/ai/AiShell";
 import { PageHeader, StatCard, SectionShell } from "@/components/shell/Chrome";
 import { LogList, StatusPill, EmptyState, fmtDate } from "@/components/ai/blocks";
 import { listAgents, listTasks, listLogs, listContent, listProducts, listMetrics } from "@/lib/ai/api";
+import { useT } from "@/i18n";
 
 export const Route = createFileRoute("/_authenticated/ai/dashboard")({
   head: () => ({
@@ -37,6 +38,7 @@ function isToday(v?: string | null) {
 }
 
 function AiDashboard() {
+  const t = useT();
   const agents = useQuery({ queryKey: ["ai", "agents"], queryFn: listAgents });
   const tasks = useQuery({ queryKey: ["ai", "tasks"], queryFn: () => listTasks({ limit: 200 }) });
   const logs = useQuery({ queryKey: ["ai", "logs"], queryFn: () => listLogs({ limit: 12 }) });
@@ -44,7 +46,7 @@ function AiDashboard() {
   const products = useQuery({ queryKey: ["ai", "products"], queryFn: listProducts });
   const metrics = useQuery({ queryKey: ["ai", "metrics"], queryFn: listMetrics });
 
-  const t = tasks.data ?? [];
+  const t2 = tasks.data ?? [];
   const c = content.data ?? [];
   const p = products.data ?? [];
   const m = metrics.data ?? [];
@@ -56,13 +58,13 @@ function AiDashboard() {
   const productsToday = p.filter((x) => isToday(x.created_at)).length;
   const published = c.filter((x) => x.status === "published").length;
   const revenue = p.reduce((a, b) => a + Number(b.revenue_cents ?? 0), 0) / 100;
-  const running = t.filter((x) => x.status === "running").length;
-  const queued = t.filter((x) => x.status === "queued" || x.status === "scheduled").length;
-  const completed = t.filter((x) => x.status === "completed").length;
-  const failed = t.filter((x) => x.status === "failed").length;
+  const running = t2.filter((x) => x.status === "running").length;
+  const queued = t2.filter((x) => x.status === "queued" || x.status === "scheduled").length;
+  const completed = t2.filter((x) => x.status === "completed").length;
+  const failed = t2.filter((x) => x.status === "failed").length;
   const online = (agents.data ?? []).filter((a) => a.enabled && a.status !== "stopped").length;
 
-  const upcoming = t
+  const upcoming = t2
     .filter((x) => x.scheduled_for && new Date(x.scheduled_for) > new Date())
     .sort((a, b) => (a.scheduled_for! < b.scheduled_for! ? -1 : 1))
     .slice(0, 6);
@@ -74,47 +76,47 @@ function AiDashboard() {
   return (
     <AiShell>
       <PageHeader
-        eyebrow="AI Growth Center"
-        title="Dashboard"
-        subtitle="Production, publishing and revenue across every AI agent."
+        eyebrow={t("admin.ai.dashboard.eyebrow")}
+        title={t("admin.ai.dashboard.title")}
+        subtitle={t("admin.ai.dashboard.subtitle")}
         icon={<Sparkles className="h-5 w-5" />}
       />
 
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard label="SEO pages today" value={seoToday} icon={<FileText className="h-4 w-4" />} />
-        <StatCard label="Products today" value={productsToday} icon={<Package className="h-4 w-4" />} />
-        <StatCard label="Articles published" value={published} icon={<Send className="h-4 w-4" />} />
+        <StatCard label={t("admin.ai.dashboard.seoPagesToday")} value={seoToday} icon={<FileText className="h-4 w-4" />} />
+        <StatCard label={t("admin.ai.dashboard.productsToday")} value={productsToday} icon={<Package className="h-4 w-4" />} />
+        <StatCard label={t("admin.ai.dashboard.articlesPublished")} value={published} icon={<Send className="h-4 w-4" />} />
         <StatCard
-          label="Organic traffic"
+          label={t("admin.ai.dashboard.organicTraffic")}
           value={sum("organic_clicks").toLocaleString()}
-          hint="Clicks (all time recorded)"
+          hint={t("admin.ai.dashboard.organicTrafficHint")}
           icon={<TrendingUp className="h-4 w-4" />}
           tone="info"
         />
         <StatCard
-          label="Product revenue"
+          label={t("admin.ai.dashboard.productRevenue")}
           value={`$${revenue.toLocaleString(undefined, { maximumFractionDigits: 0 })}`}
           icon={<DollarSign className="h-4 w-4" />}
           tone="success"
         />
-        <StatCard label="Tasks running" value={running} icon={<Activity className="h-4 w-4" />} />
+        <StatCard label={t("admin.ai.dashboard.tasksRunning")} value={running} icon={<Activity className="h-4 w-4" />} />
         <StatCard
-          label="Completed tasks"
+          label={t("admin.ai.dashboard.completedTasks")}
           value={completed}
           icon={<CheckCircle2 className="h-4 w-4" />}
           tone="success"
         />
         <StatCard
-          label="Failed tasks"
+          label={t("admin.ai.dashboard.failedTasks")}
           value={failed}
           icon={<XCircle className="h-4 w-4" />}
           tone={failed ? "danger" : "default"}
         />
-        <StatCard label="Agents online" value={online} icon={<Bot className="h-4 w-4" />} />
+        <StatCard label={t("admin.ai.dashboard.agentsOnline")} value={online} icon={<Bot className="h-4 w-4" />} />
         <StatCard
-          label="Queue"
+          label={t("admin.ai.dashboard.queue")}
           value={queued}
-          hint="Waiting or scheduled"
+          hint={t("admin.ai.dashboard.queueHint")}
           icon={<ListOrdered className="h-4 w-4" />}
           tone={queued ? "warning" : "default"}
         />
@@ -123,10 +125,10 @@ function AiDashboard() {
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="lg:col-span-2">
           <SectionShell
-            title="Recent activity"
+            title={t("admin.ai.dashboard.recentActivity")}
             right={
               <Link to="/ai/workforce" className="text-xs text-muted-foreground hover:text-foreground">
-                View agents →
+                {t("admin.ai.dashboard.viewAgents")}
               </Link>
             }
           >
@@ -134,7 +136,7 @@ function AiDashboard() {
           </SectionShell>
         </div>
         <div className="space-y-6">
-          <SectionShell title="Latest publications">
+          <SectionShell title={t("admin.ai.dashboard.latestPublications")}>
             {latest.length ? (
               <ul className="space-y-3">
                 {latest.map((x) => (
@@ -147,10 +149,10 @@ function AiDashboard() {
                 ))}
               </ul>
             ) : (
-              <EmptyState title="Nothing published yet" />
+              <EmptyState title={t("admin.ai.dashboard.nothingPublished")} />
             )}
           </SectionShell>
-          <SectionShell title="Upcoming scheduled tasks">
+          <SectionShell title={t("admin.ai.dashboard.upcomingTasks")}>
             {upcoming.length ? (
               <ul className="space-y-3">
                 {upcoming.map((x) => (
@@ -163,16 +165,16 @@ function AiDashboard() {
                 ))}
               </ul>
             ) : (
-              <EmptyState title="No scheduled tasks" />
+              <EmptyState title={t("admin.ai.dashboard.noScheduledTasks")} />
             )}
           </SectionShell>
-          <SectionShell title="Queue status">
+          <SectionShell title={t("admin.ai.dashboard.queueStatus")}>
             <div className="flex flex-wrap gap-2">
               {["queued", "scheduled", "running", "completed", "failed"].map((s) => (
                 <span key={s} className="inline-flex items-center gap-2">
                   <StatusPill status={s} />
                   <span className="text-sm tabular-nums">
-                    {t.filter((x) => x.status === s).length}
+                    {t2.filter((x) => x.status === s).length}
                   </span>
                 </span>
               ))}

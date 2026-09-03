@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { AccountDirectory } from "@/components/admin/AccountDirectory";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useI18n } from "@/i18n";
 
 export const Route = createFileRoute("/_authenticated/admin/customers")({
   head: () => ({
@@ -55,13 +56,19 @@ type CustomerAgg = {
   last: string;
 };
 
-const money = (n: number) =>
+const moneyUsd = (n: number) =>
   n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
 
-const dt = (s: string | null) =>
-  s ? new Date(s).toLocaleDateString("en-US", { dateStyle: "medium" }) : "—";
+
 
 function AdminCustomersPage() {
+  const { t, formatDate, formatCurrency } = useI18n();
+  const money = (n: number) => formatCurrency(n) ?? moneyUsd(n);
+  const dt = (s: string | null) => (s ? formatDate(s) : "—");
+  const jobLabel = (value: string) => {
+    const label = t(`status.job.${value}`);
+    return label.startsWith("status.") ? value.replace(/_/g, " ") : label;
+  };
   const [loading, setLoading] = useState(true);
   const [quotes, setQuotes] = useState<QuoteLite[]>([]);
   const [search, setSearch] = useState("");
@@ -80,7 +87,7 @@ function AdminCustomersPage() {
       if (error) throw error;
       setQuotes((data ?? []) as unknown as QuoteLite[]);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Could not load customers");
+      toast.error(err instanceof Error ? err.message : t("admin.customers.toast.loadError"));
     } finally {
       setLoading(false);
     }
@@ -102,7 +109,7 @@ function AdminCustomersPage() {
         (details.name as string) ||
         email ||
         phone ||
-        "Unnamed customer";
+        t("admin.customers.unnamedCustomer");
       const key = email || phone || q.id;
       const agg =
         map.get(key) ??
@@ -132,13 +139,13 @@ function AdminCustomersPage() {
     <AdminShell>
       <section className="mx-auto max-w-6xl px-4 sm:px-6 py-8 md:py-12">
         <PageHeader
-          eyebrow="Demand side"
-          title="Customers"
-          subtitle="Customer database with full quote and move history across the platform."
+          eyebrow={t("admin.customers.eyebrow")}
+          title={t("admin.customers.title")}
+          subtitle={t("admin.customers.subtitle")}
           icon={<Users className="h-5 w-5" />}
           actions={
             <Button variant="outline" size="sm" className="rounded-full" onClick={load}>
-              <RefreshCw className="mr-1.5 h-3.5 w-3.5" /> Refresh
+              <RefreshCw className="mr-1.5 h-3.5 w-3.5" /> {t("admin.customers.refresh")}
             </Button>
           }
         />
@@ -146,7 +153,7 @@ function AdminCustomersPage() {
         <div className="mt-6 relative max-w-sm">
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
-            placeholder="Search name, email or phone…"
+            placeholder={t("admin.customers.searchPlaceholder")}
             className="h-9 rounded-full pl-9"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -158,7 +165,7 @@ function AdminCustomersPage() {
             <SkeletonRows n={4} />
           ) : customers.length === 0 ? (
             <div className="card-premium p-12 text-center text-sm text-muted-foreground">
-              No customers yet.
+              {t("admin.customers.emptyState")}
             </div>
           ) : (
             customers.map((c) => (
@@ -170,21 +177,23 @@ function AdminCustomersPage() {
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="font-medium">{c.name}</span>
-                      <Badge variant="outline">{c.quotes.length} quotes</Badge>
+                      <Badge variant="outline">{t("admin.customers.quotesCount", { count: c.quotes.length })}</Badge>
                       {c.booked > 0 && (
                         <Badge className="border border-emerald-600/30 bg-emerald-500/10 text-emerald-700">
-                          {c.booked} booked
+                          {t("admin.customers.bookedCount", { count: c.booked })}
                         </Badge>
                       )}
                     </div>
                     <div className="mt-1 truncate text-sm text-muted-foreground">
-                      {c.email || "no email"}
+                      {c.email || t("admin.customers.noEmail")}
                       {c.phone ? ` · ${c.phone}` : ""}
                     </div>
                   </div>
                   <div className="text-right text-sm">
                     <div className="font-semibold">{money(c.value)}</div>
-                    <div className="text-xs text-muted-foreground">Last {dt(c.last)}</div>
+                    <div className="text-xs text-muted-foreground">
+                      {t("admin.customers.lastMove", { date: dt(c.last) })}
+                    </div>
                   </div>
                 </button>
 
@@ -200,12 +209,12 @@ function AdminCustomersPage() {
                             {q.quote_number ?? q.id.slice(0, 8).toUpperCase()}
                           </span>
                           <span className="text-muted-foreground">
-                            {q.origin_city ?? "—"} → {q.destination_city ?? "—"} · move{" "}
-                            {dt(q.move_date)}
+                            {q.origin_city ?? "—"} → {q.destination_city ?? "—"} ·{" "}
+                            {t("admin.customers.moveOn", { date: dt(q.move_date) })}
                           </span>
                           <span className="flex items-center gap-2">
                             <Badge variant="outline" className="capitalize">
-                              {(q.job_status ?? q.status).replace(/_/g, " ")}
+                              {jobLabel(q.job_status ?? q.status)}
                             </Badge>
                             <span className="font-medium">
                               {money(
@@ -223,9 +232,9 @@ function AdminCustomersPage() {
           )}
         </div>
 
-        <h2 className="mt-12 font-serif text-2xl">Customer accounts</h2>
+        <h2 className="mt-12 font-serif text-2xl">{t("admin.customers.accountsHeading")}</h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          Registered customer logins on the platform.
+          {t("admin.customers.accountsSubtitle")}
         </p>
         <div className="mt-4">
           <AccountDirectory defaultRole="customer" />

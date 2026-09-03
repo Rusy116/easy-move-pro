@@ -30,36 +30,37 @@ import {
 
 } from "lucide-react";
 import { RoleGuard } from "@/components/auth/RoleGuard";
+import { useT } from "@/i18n";
 
 export const AI_NAV = [
-  { to: "/ai/dashboard", label: "Dashboard", icon: BarChart3 },
-  { to: "/ai/supervisor", label: "AI Supervisor", icon: ShieldCheck },
-  { to: "/ai/orchestrator", label: "Orchestrator", icon: Brain },
-  { to: "/ai/ecosystem", label: "AI Ecosystem", icon: Network },
-  { to: "/ai/registry", label: "Agent Registry", icon: BookUser },
-  { to: "/ai/queue", label: "Task Queue", icon: ListOrdered },
-  { to: "/ai/monitor", label: "Queue Monitor", icon: Gauge },
-  { to: "/ai/activity", label: "Activity Timeline", icon: Activity },
-  { to: "/ai/performance", label: "Agent Performance", icon: LineChart },
-  { to: "/ai/notifications", label: "Notifications", icon: Bell },
-  { to: "/ai/workforce", label: "AI Workforce", icon: Bot },
-  { to: "/ai/seo", label: "SEO Factory", icon: Search },
-  { to: "/ai/usa-data", label: "USA Data Engine", icon: Database },
-  { to: "/ai/cities", label: "City Landing Agent", icon: MapPin },
-  { to: "/ai/city-review", label: "Draft Review Queue", icon: ClipboardCheck },
-  { to: "/ai/blog-review", label: "Blog Review", icon: FileText },
-  { to: "/ai/city-log", label: "Publish Log", icon: ScrollText },
-  { to: "/ai/city-index", label: "Index Monitor", icon: Radar },
-  { to: "/ai/city-factory", label: "Autonomous Factory", icon: ShieldCheck },
-  { to: "/ai/production", label: "Production Factory", icon: Factory },
+  { to: "/ai/dashboard", labelKey: "admin.ai.nav.dashboard", icon: BarChart3 },
+  { to: "/ai/supervisor", labelKey: "admin.ai.nav.supervisor", icon: ShieldCheck },
+  { to: "/ai/orchestrator", labelKey: "admin.ai.nav.orchestrator", icon: Brain },
+  { to: "/ai/ecosystem", labelKey: "admin.ai.nav.ecosystem", icon: Network },
+  { to: "/ai/registry", labelKey: "admin.ai.nav.registry", icon: BookUser },
+  { to: "/ai/queue", labelKey: "admin.ai.nav.queue", icon: ListOrdered },
+  { to: "/ai/monitor", labelKey: "admin.ai.nav.monitor", icon: Gauge },
+  { to: "/ai/activity", labelKey: "admin.ai.nav.activity", icon: Activity },
+  { to: "/ai/performance", labelKey: "admin.ai.nav.performance", icon: LineChart },
+  { to: "/ai/notifications", labelKey: "admin.ai.nav.notifications", icon: Bell },
+  { to: "/ai/workforce", labelKey: "admin.ai.nav.workforce", icon: Bot },
+  { to: "/ai/seo", labelKey: "admin.ai.nav.seo", icon: Search },
+  { to: "/ai/usa-data", labelKey: "admin.ai.nav.usaData", icon: Database },
+  { to: "/ai/cities", labelKey: "admin.ai.nav.cities", icon: MapPin },
+  { to: "/ai/city-review", labelKey: "admin.ai.nav.cityReview", icon: ClipboardCheck },
+  { to: "/ai/blog-review", labelKey: "admin.ai.nav.blogReview", icon: FileText },
+  { to: "/ai/city-log", labelKey: "admin.ai.nav.cityLog", icon: ScrollText },
+  { to: "/ai/city-index", labelKey: "admin.ai.nav.cityIndex", icon: Radar },
+  { to: "/ai/city-factory", labelKey: "admin.ai.nav.cityFactory", icon: ShieldCheck },
+  { to: "/ai/production", labelKey: "admin.ai.nav.production", icon: Factory },
 
-  { to: "/ai/products", label: "Digital Product Factory", icon: Package },
-  { to: "/ai/product-factory", label: "Autonomous Products", icon: Factory },
-  { to: "/ai/content", label: "Content Factory", icon: FileText },
-  { to: "/ai/publishing", label: "Publishing Center", icon: Send },
-  { to: "/ai/analytics", label: "Analytics", icon: LineChart },
-  { to: "/ai/automation", label: "Automation", icon: Workflow },
-  { to: "/ai/settings", label: "Settings", icon: Settings },
+  { to: "/ai/products", labelKey: "admin.ai.nav.products", icon: Package },
+  { to: "/ai/product-factory", labelKey: "admin.ai.nav.productFactory", icon: Factory },
+  { to: "/ai/content", labelKey: "admin.ai.nav.content", icon: FileText },
+  { to: "/ai/publishing", labelKey: "admin.ai.nav.publishing", icon: Send },
+  { to: "/ai/analytics", labelKey: "admin.ai.nav.analytics", icon: LineChart },
+  { to: "/ai/automation", labelKey: "admin.ai.nav.automation", icon: Workflow },
+  { to: "/ai/settings", labelKey: "admin.ai.nav.settings", icon: Settings },
 ];
 
 
@@ -69,6 +70,7 @@ export const AI_NAV = [
  * AI_NAV plus a route file.
  */
 export function AiShell({ children }: { children: ReactNode }) {
+  const t = useT();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const [open, setOpen] = useState(false);
 
@@ -89,7 +91,7 @@ export function AiShell({ children }: { children: ReactNode }) {
             }`}
           >
             <Icon className="h-4 w-4 shrink-0" />
-            <span className="truncate">{item.label}</span>
+            <span className="min-w-0 truncate">{t(item.labelKey)}</span>
           </Link>
         );
       })}
@@ -108,9 +110,9 @@ export function AiShell({ children }: { children: ReactNode }) {
               </div>
               <div className="leading-tight">
                 <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                  Easy Moving
+                  {t("admin.ai.shell.brandTag")}
                 </div>
-                <div className="font-serif text-base">AI Growth Center</div>
+                <div className="font-serif text-base">{t("admin.ai.shell.brandTitle")}</div>
               </div>
             </Link>
             {nav}
@@ -118,7 +120,7 @@ export function AiShell({ children }: { children: ReactNode }) {
               to="/admin/dashboard"
               className="mt-auto rounded-xl px-3 py-2 text-xs text-muted-foreground hover:text-foreground"
             >
-              ← Back to Broker admin
+              {t("admin.ai.shell.backToAdmin")}
             </Link>
           </aside>
 
@@ -127,12 +129,12 @@ export function AiShell({ children }: { children: ReactNode }) {
             <div className="mb-4 flex items-center justify-between lg:hidden">
               <div className="flex items-center gap-2">
                 <Sparkles className="h-4 w-4 text-ochre" />
-                <span className="font-serif text-lg">AI Growth Center</span>
+                <span className="font-serif text-lg">{t("admin.ai.shell.brandTitle")}</span>
               </div>
               <button
                 className="rounded-md p-2 hover:bg-accent"
                 onClick={() => setOpen((v) => !v)}
-                aria-label="Toggle AI menu"
+                aria-label={t("admin.ai.shell.toggleMenu")}
               >
                 {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
               </button>

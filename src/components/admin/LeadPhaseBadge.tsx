@@ -1,5 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { Lock, Globe, XCircle, Circle } from "lucide-react";
+import { useT } from "@/i18n";
 
 export type LeadPhase = "unassigned" | "exclusive" | "open_market" | "closed";
 
@@ -10,14 +11,8 @@ const STYLES: Record<LeadPhase, string> = {
   closed: "bg-neutral-200 text-neutral-700 border-neutral-300",
 };
 
-const LABELS: Record<LeadPhase, string> = {
-  unassigned: "Unassigned",
-  exclusive: "Exclusive",
-  open_market: "Open market",
-  closed: "Closed",
-};
-
 export function LeadPhaseBadge({ phase }: { phase: string | null | undefined }) {
+  const t = useT();
   const p = (phase ?? "unassigned") as LeadPhase;
   const Icon =
     p === "exclusive" ? Lock : p === "open_market" ? Globe : p === "closed" ? XCircle : Circle;
@@ -27,7 +22,7 @@ export function LeadPhaseBadge({ phase }: { phase: string | null | undefined }) 
       className={`inline-flex items-center gap-1 ${STYLES[p] ?? STYLES.unassigned}`}
     >
       <Icon className="h-3 w-3" />
-      {LABELS[p] ?? p}
+      {t(`admin.shell.leadPhase.${p}`)}
     </Badge>
   );
 }

@@ -14,6 +14,7 @@ import {
   type AdminOrderList,
 } from "@/lib/store/admin-orders.functions";
 import { money } from "@/lib/pdf-store/catalog";
+import { useT } from "@/i18n";
 
 const STATUSES = ["all", "paid", "pending", "failed", "refunded", "disputed"] as const;
 
@@ -35,6 +36,7 @@ function statusTone(status: string) {
 }
 
 function AdminOrdersPage() {
+  const t = useT();
   const [data, setData] = useState<AdminOrderList | null>(null);
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<string>("all");
@@ -45,7 +47,7 @@ function AdminOrdersPage() {
     try {
       setData(await listStoreOrders({ data: { search, status } }));
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Could not load orders");
+      toast.error(err instanceof Error ? err.message : t("admin.orders.toast.loadFailed"));
       setData({ rows: [], totals: { paidCount: 0, grossCents: 0, refundedCents: 0 } });
     }
   }, [search, status]);
@@ -55,15 +57,15 @@ function AdminOrdersPage() {
   }, [load]);
 
   async function refund(id: string, orderNumber: string) {
-    if (!window.confirm(`Refund ${orderNumber}? This immediately revokes the download.`)) return;
+    if (!window.confirm(t("admin.orders.confirmRefund", { orderNumber }))) return;
     setBusyId(id);
     try {
       const res = await refundStoreOrder({ data: { orderId: id } });
       if ("error" in res) throw new Error(res.error);
-      toast.success("Refunded and access revoked");
+      toast.success(t("admin.orders.toast.refunded"));
       await load();
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Refund failed");
+      toast.error(err instanceof Error ? err.message : t("admin.orders.toast.refundFailed"));
     } finally {
       setBusyId(null);
     }
@@ -74,10 +76,12 @@ function AdminOrdersPage() {
     try {
       const res = await resendOrderLinks({ data: { orderId: id } });
       if ("error" in res) throw new Error(res.error);
-      toast.success(`Sent ${res.sent} download link${res.sent === 1 ? "" : "s"}`);
+      toast.success(
+        t("admin.orders.toast.sentLinks", { count: res.sent, plural: res.sent === 1 ? "" : "s" }),
+      );
       await load();
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Could not resend");
+      toast.error(err instanceof Error ? err.message : t("admin.orders.toast.resendFailed"));
     } finally {
       setBusyId(null);
     }
@@ -86,27 +90,27 @@ function AdminOrdersPage() {
   return (
     <AdminShell>
       <PageHeader
-        eyebrow="Digital store"
-        title="Orders"
-        subtitle="Purchases, refunds and download delivery"
+        eyebrow={t("admin.orders.eyebrow")}
+        title={t("admin.orders.title")}
+        subtitle={t("admin.orders.subtitle")}
         icon={<Receipt className="h-5 w-5" />}
       />
 
       {data && (
         <div className="mt-6 grid gap-3 sm:grid-cols-3">
           <div className="rounded-xl border border-border/60 p-4">
-            <p className="text-xs uppercase tracking-widest text-muted-foreground">Paid orders</p>
+            <p className="text-xs uppercase tracking-widest text-muted-foreground">{t("admin.orders.kpi.paidOrders")}</p>
             <p className="mt-1 text-2xl font-semibold tabular-nums">{data.totals.paidCount}</p>
           </div>
           <div className="rounded-xl border border-border/60 p-4">
-            <p className="text-xs uppercase tracking-widest text-muted-foreground">Gross</p>
+            <p className="text-xs uppercase tracking-widest text-muted-foreground">{t("admin.orders.kpi.gross")}</p>
             <p className="mt-1 text-2xl font-semibold tabular-nums">
               {money(data.totals.grossCents)}
             </p>
           </div>
           <div className="rounded-xl border border-border/60 p-4">
             <p className="text-xs uppercase tracking-widest text-muted-foreground">
-              Refunded / disputed
+              {t("admin.orders.kpi.refundedDisputed")}
             </p>
             <p className="mt-1 text-2xl font-semibold tabular-nums">
               {money(data.totals.refundedCents)}
@@ -123,7 +127,7 @@ function AdminOrdersPage() {
               <Input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="Email, order number or product"
+                placeholder={t("admin.orders.searchPlaceholder")}
                 className="pl-9"
               />
             </div>
@@ -135,7 +139,7 @@ function AdminOrdersPage() {
                 className="rounded-full capitalize"
                 onClick={() => setStatus(s)}
               >
-                {s}
+                {t(`admin.orders.status.${s}`)}
               </Button>
             ))}
             <Button size="sm" variant="ghost" onClick={() => void load()}>
@@ -147,7 +151,7 @@ function AdminOrdersPage() {
             {!data ? (
               <SkeletonRows n={4} />
             ) : data.rows.length === 0 ? (
-              <p className="py-10 text-center text-sm text-muted-foreground">No orders found.</p>
+              <p className="py-10 text-center text-sm text-muted-foreground">{t("admin.orders.noOrdersFound")}</p>
             ) : (
               <ul className="divide-y divide-border/60">
                 {data.rows.map((o) => (
@@ -156,23 +160,23 @@ function AdminOrdersPage() {
                       <div className="flex flex-wrap items-center gap-2">
                         <span className="font-mono text-sm">{o.orderNumber}</span>
                         <Badge className={`rounded-full capitalize ${statusTone(o.status)}`}>
-                          {o.status}
+                          {t(`admin.orders.status.${o.status}`)}
                         </Badge>
                         {o.environment !== "live" && (
                           <Badge variant="outline" className="rounded-full">
-                            test
+                            {t("admin.orders.testBadge")}
                           </Badge>
                         )}
                       </div>
                       <p className="mt-1 text-sm">
-                        {o.buyerName || "Guest"} · {o.email}
+                        {o.buyerName || t("admin.orders.guest")} · {o.email}
                       </p>
                       <p className="mt-0.5 text-xs text-muted-foreground">
                         {o.items.map((i) => i.title).join(", ")}
                       </p>
                       <p className="mt-0.5 text-xs text-muted-foreground">
                         {new Date(o.createdAt).toLocaleString()} ·{" "}
-                        {o.emailSentAt ? "link emailed" : "email not sent"}
+                        {o.emailSentAt ? t("admin.orders.linkEmailed") : t("admin.orders.emailNotSent")}
                       </p>
                     </div>
                     <span className="font-semibold tabular-nums">{money(o.amountCents)}</span>
@@ -189,7 +193,7 @@ function AdminOrdersPage() {
                         ) : (
                           <Mail className="h-4 w-4" />
                         )}
-                        <span className="ml-1.5 hidden sm:inline">Resend</span>
+                        <span className="ml-1.5 hidden sm:inline">{t("admin.orders.resend")}</span>
                       </Button>
                       <Button
                         size="sm"
@@ -199,7 +203,7 @@ function AdminOrdersPage() {
                         onClick={() => void refund(o.id, o.orderNumber)}
                       >
                         <Undo2 className="h-4 w-4" />
-                        <span className="ml-1.5 hidden sm:inline">Refund</span>
+                        <span className="ml-1.5 hidden sm:inline">{t("admin.orders.refund")}</span>
                       </Button>
                     </div>
                   </li>

@@ -13,6 +13,8 @@ import { impersonation } from "./impersonation";
 import { job } from "./job";
 import { settings } from "./settings";
 import { ai } from "./ai";
+import { ai2 } from "./ai2";
+import { ai3 } from "./ai3";
 
 export const ADMIN_MODULES: AdminModuleDict[] = [
   shell,
@@ -29,6 +31,8 @@ export const ADMIN_MODULES: AdminModuleDict[] = [
   job,
   settings,
   ai,
+  ai2,
+  ai3,
 ];
 
 function merge(locale: keyof AdminModuleDict): Record<string, string> {

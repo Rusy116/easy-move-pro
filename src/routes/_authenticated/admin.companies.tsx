@@ -447,6 +447,7 @@ function CompaniesAdmin() {
 }
 
 function CompanyFormDialog({ initial, onSaved }: { initial?: Company; onSaved: () => void }) {
+  const t = useT();
   const [form, setForm] = useState({
     name: initial?.name ?? "",
     logo_url: initial?.logo_url ?? "",
@@ -463,7 +464,7 @@ function CompanyFormDialog({ initial, onSaved }: { initial?: Company; onSaved: (
 
   async function submit() {
     if (!form.name.trim()) {
-      toast.error("Name is required");
+      toast.error(t("admin.companies.toast.nameRequired"));
       return;
     }
     setSaving(true);
@@ -490,53 +491,53 @@ function CompanyFormDialog({ initial, onSaved }: { initial?: Company; onSaved: (
       toast.error(error.message);
       return;
     }
-    toast.success(initial ? "Company updated" : "Company created");
+    toast.success(initial ? t("admin.companies.toast.companyUpdated") : t("admin.companies.toast.companyCreated"));
     onSaved();
   }
 
   return (
     <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
       <DialogHeader>
-        <DialogTitle>{initial ? "Edit company" : "New moving company"}</DialogTitle>
+        <DialogTitle>{initial ? t("admin.companies.dialog.editCompany") : t("admin.companies.dialog.newCompany")}</DialogTitle>
       </DialogHeader>
       <div className="grid gap-3">
-        <Field label="Company name *">
+        <Field label={t("admin.companies.field.companyName")}>
           <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
         </Field>
-        <Field label="Logo URL">
+        <Field label={t("admin.companies.field.logoUrl")}>
           <Input
             value={form.logo_url}
             onChange={(e) => setForm({ ...form, logo_url: e.target.value })}
           />
         </Field>
         <div className="grid gap-3 sm:grid-cols-2">
-          <Field label="DOT number">
+          <Field label={t("admin.companies.field.dotNumber")}>
             <Input
               value={form.dot_number}
               onChange={(e) => setForm({ ...form, dot_number: e.target.value })}
             />
           </Field>
-          <Field label="MC number">
+          <Field label={t("admin.companies.field.mcNumber")}>
             <Input
               value={form.mc_number}
               onChange={(e) => setForm({ ...form, mc_number: e.target.value })}
             />
           </Field>
         </div>
-        <Field label="Service states (comma-separated, e.g. NY, NJ, PA)">
+        <Field label={t("admin.companies.field.serviceStates")}>
           <Input
             value={form.service_states}
             onChange={(e) => setForm({ ...form, service_states: e.target.value })}
           />
         </Field>
         <div className="grid gap-3 sm:grid-cols-2">
-          <Field label="Phone">
+          <Field label={t("admin.companies.field.phone")}>
             <Input
               value={form.phone}
               onChange={(e) => setForm({ ...form, phone: e.target.value })}
             />
           </Field>
-          <Field label="Email">
+          <Field label={t("admin.companies.field.email")}>
             <Input
               type="email"
               value={form.email}
@@ -545,7 +546,7 @@ function CompanyFormDialog({ initial, onSaved }: { initial?: Company; onSaved: (
           </Field>
         </div>
         <div className="grid gap-3 sm:grid-cols-2">
-          <Field label="Rating (0–5)">
+          <Field label={t("admin.companies.field.rating")}>
             <Input
               type="number"
               step="0.1"
@@ -555,7 +556,7 @@ function CompanyFormDialog({ initial, onSaved }: { initial?: Company; onSaved: (
               onChange={(e) => setForm({ ...form, rating: e.target.value })}
             />
           </Field>
-          <Field label="License status">
+          <Field label={t("admin.companies.field.licenseStatus")}>
             <Select
               value={form.license_status}
               onValueChange={(v) => setForm({ ...form, license_status: v })}
@@ -566,7 +567,7 @@ function CompanyFormDialog({ initial, onSaved }: { initial?: Company; onSaved: (
               <SelectContent>
                 {LICENSE_STATUSES.map((s) => (
                   <SelectItem key={s} value={s} className="capitalize">
-                    {s}
+                    {t(`admin.companies.licenseStatus.${s}`)}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -579,12 +580,16 @@ function CompanyFormDialog({ initial, onSaved }: { initial?: Company; onSaved: (
             checked={form.active}
             onChange={(e) => setForm({ ...form, active: e.target.checked })}
           />
-          Active
+          {t("admin.companies.field.active")}
         </label>
       </div>
       <div className="flex justify-end gap-2 mt-2">
         <Button onClick={submit} disabled={saving}>
-          {saving ? "Saving…" : initial ? "Save changes" : "Create company"}
+          {saving
+            ? t("admin.companies.saving")
+            : initial
+              ? t("admin.companies.saveChanges")
+              : t("admin.companies.createCompany")}
         </Button>
       </div>
     </DialogContent>
@@ -592,6 +597,7 @@ function CompanyFormDialog({ initial, onSaved }: { initial?: Company; onSaved: (
 }
 
 function AddMemberDialog({ company, onDone }: { company: Company; onDone: () => void }) {
+  const t = useT();
   const [email, setEmail] = useState("");
   const [busy, setBusy] = useState(false);
   const attach = useServerFn(attachMemberByEmail);
@@ -601,11 +607,11 @@ function AddMemberDialog({ company, onDone }: { company: Company; onDone: () => 
     setBusy(true);
     try {
       await attach({ data: { email: email.trim(), companyId: company.id } });
-      toast.success("Member added — they can now log in and view assigned leads");
+      toast.success(t("admin.companies.toast.memberAdded"));
       setEmail("");
       onDone();
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Failed to add member");
+      toast.error(e instanceof Error ? e.message : t("admin.companies.toast.memberAddFailed"));
     } finally {
       setBusy(false);
     }
@@ -614,24 +620,21 @@ function AddMemberDialog({ company, onDone }: { company: Company; onDone: () => 
   return (
     <DialogContent className="max-w-md">
       <DialogHeader>
-        <DialogTitle>Add member to {company.name}</DialogTitle>
+        <DialogTitle>{t("admin.companies.dialog.addMember", { name: company.name })}</DialogTitle>
       </DialogHeader>
-      <p className="text-sm text-muted-foreground">
-        Enter the email of an existing Easy Moving account. They'll be granted the Moving Company
-        role and linked to this company.
-      </p>
+      <p className="text-sm text-muted-foreground">{t("admin.companies.addMemberDescription")}</p>
       <div className="grid gap-2">
-        <Label>Email</Label>
+        <Label>{t("admin.companies.field.emailLabel")}</Label>
         <Input
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          placeholder="mover@company.com"
+          placeholder={t("admin.companies.field.emailPlaceholder")}
         />
       </div>
       <div className="flex justify-end gap-2">
         <Button onClick={submit} disabled={busy || !email.trim()}>
-          {busy ? "Adding…" : "Add member"}
+          {busy ? t("admin.companies.adding") : t("admin.companies.addMember")}
         </Button>
       </div>
     </DialogContent>
@@ -658,6 +661,7 @@ type CompanyDoc = {
 };
 
 function CompanyDocumentsDialog({ company }: { company: Company }) {
+  const t = useT();
   const [docs, setDocs] = useState<CompanyDoc[] | null>(null);
 
   useEffect(() => {
@@ -682,7 +686,7 @@ function CompanyDocumentsDialog({ company }: { company: Company }) {
       .from("company-documents")
       .createSignedUrl(d.storage_path, 300);
     if (error || !data) {
-      toast.error(error?.message ?? "Could not open the document");
+      toast.error(error?.message ?? t("admin.companies.toast.documentOpenError"));
       return;
     }
     window.open(data.signedUrl, "_blank");
@@ -691,13 +695,11 @@ function CompanyDocumentsDialog({ company }: { company: Company }) {
   return (
     <DialogContent className="max-w-lg">
       <DialogHeader>
-        <DialogTitle>Documents — {company.name}</DialogTitle>
+        <DialogTitle>{t("admin.companies.dialog.documents", { name: company.name })}</DialogTitle>
       </DialogHeader>
-      {docs === null && <p className="text-sm text-muted-foreground">Loading…</p>}
+      {docs === null && <p className="text-sm text-muted-foreground">{t("admin.companies.loading")}</p>}
       {docs?.length === 0 && (
-        <p className="text-sm text-muted-foreground">
-          This company has not uploaded any documents yet.
-        </p>
+        <p className="text-sm text-muted-foreground">{t("admin.companies.noDocuments")}</p>
       )}
       <div className="grid gap-2">
         {(docs ?? []).map((d) => (
@@ -727,25 +729,23 @@ function RejectDialog({
   company: Company;
   onReject: (reason: string) => Promise<void>;
 }) {
+  const t = useT();
   const [reason, setReason] = useState(company.rejection_reason ?? "");
   const [busy, setBusy] = useState(false);
 
   return (
     <DialogContent className="max-w-md">
       <DialogHeader>
-        <DialogTitle>Reject {company.name}</DialogTitle>
+        <DialogTitle>{t("admin.companies.dialog.rejectCompany", { name: company.name })}</DialogTitle>
       </DialogHeader>
-      <p className="text-sm text-muted-foreground">
-        The company keeps portal access and can correct its information and documents, then request
-        a new review.
-      </p>
+      <p className="text-sm text-muted-foreground">{t("admin.companies.rejectDescription")}</p>
       <div className="grid gap-2">
-        <Label>Rejection reason</Label>
+        <Label>{t("admin.companies.field.rejectionReason")}</Label>
         <Textarea
           rows={4}
           value={reason}
           onChange={(e) => setReason(e.target.value)}
-          placeholder="e.g. Insurance certificate expired — please upload a current COI."
+          placeholder={t("admin.companies.rejectionReasonPlaceholder")}
         />
       </div>
       <div className="flex justify-end">
@@ -760,7 +760,7 @@ function RejectDialog({
             }
           }}
         >
-          {busy ? "Rejecting…" : "Reject application"}
+          {busy ? t("admin.companies.rejecting") : t("admin.companies.rejectApplication")}
         </Button>
       </div>
     </DialogContent>

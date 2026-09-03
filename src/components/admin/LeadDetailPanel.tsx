@@ -150,6 +150,10 @@ function getCustomerName(q: Quote): string {
   return d?.fullName?.trim() || "—";
 }
 
+function statusKey(status: string): string {
+  return `admin.shell.detail.status${status.charAt(0).toUpperCase()}${status.slice(1)}`;
+}
+
 export function LeadDetailPanel({
   quote,
   onClose,
@@ -480,8 +484,8 @@ export function LeadDetailPanel({
                 </SelectTrigger>
                 <SelectContent>
                   {LEAD_STATUSES.map((s) => (
-                    <SelectItem key={s} value={s} className="capitalize">
-                      {s}
+                    <SelectItem key={s} value={s}>
+                      {tr(statusKey(s))}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -782,9 +786,9 @@ export function LeadDetailPanel({
                     <li key={h.id} className="relative ml-4">
                       <div className="absolute -left-[1.35rem] mt-1.5 h-3 w-3 rounded-full border border-background bg-primary" />
                       <div className="text-sm">
-                        <span className="font-medium capitalize">{h.to_status}</span>
+                        <span className="font-medium">{tr(statusKey(h.to_status))}</span>
                         {h.from_status && (
-                          <span className="text-muted-foreground"> ← {h.from_status}</span>
+                          <span className="text-muted-foreground"> ← {tr(statusKey(h.from_status))}</span>
                         )}
                       </div>
                       <div className="text-xs text-muted-foreground">

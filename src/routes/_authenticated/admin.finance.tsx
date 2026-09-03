@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { AdminShell } from "@/components/admin/AdminShell";
+import { useI18n } from "@/i18n";
 import { StatCard, SectionShell, SkeletonRows, PageHeader } from "@/components/shell/Chrome";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -65,6 +66,7 @@ export const Route = createFileRoute("/_authenticated/admin/finance")({
 });
 
 function AdminFinancePage() {
+  const { t } = useI18n();
   const { invoices, loadingInvoices, reloadInvoices } = useCommissionInvoices(null);
   const { commissions, reloadCommissions } = useCommissionLedger(null);
   const meta = useQuoteMeta(invoices.map((i) => i.quote_id));
@@ -78,7 +80,8 @@ function AdminFinancePage() {
     [invoices, filters, meta],
   );
   const totals = useMemo(() => totalsOf(invoices), [invoices]);
-  const companyName = (id: string) => companies.find((c) => c.id === id)?.name ?? "Company";
+  const companyName = (id: string) =>
+    companies.find((c) => c.id === id)?.name ?? t("admin.finance.defaultCompanyName");
   const commissionOf = (invoiceCommissionId: string) =>
     commissions.find((c) => c.id === invoiceCommissionId);
 
@@ -92,10 +95,10 @@ function AdminFinancePage() {
     const { error } = await setCommissionStatus(commissionId, status as never);
     setBusy(null);
     if (error) {
-      toast.error("Could not update", { description: error.message });
+      toast.error(t("admin.finance.couldNotUpdate"), { description: error.message });
       return;
     }
-    toast.success(`Commission marked ${status}`);
+    toast.success(t("admin.finance.commissionMarked", { status: t(`admin.finance.status.${status}`) }));
     await Promise.all([reloadInvoices(), reloadCommissions()]);
   }
 
@@ -105,7 +108,7 @@ function AdminFinancePage() {
     setBusy(null);
     if (error) toast.error(error.message);
     else {
-      toast.success("Overdue sweep complete");
+      toast.success(t("admin.finance.overdueSweepComplete"));
       await reloadInvoices();
     }
   }
@@ -136,7 +139,7 @@ function AdminFinancePage() {
     };
     const data = map[kind];
     if (!data || data.length === 0) {
-      toast.info("Nothing to export for that report yet");
+      toast.info(t("admin.finance.nothingToExport"));
       return;
     }
     downloadCsv(`${kind}-${stamp}.csv`, data);
@@ -146,9 +149,9 @@ function AdminFinancePage() {
     <AdminShell>
       <div className="space-y-6">
         <PageHeader
-          eyebrow="Finance"
-          title="Revenue & commissions"
-          subtitle="Easy Moving invoices its commission to moving companies. Customer moving payments are never processed here."
+          eyebrow={t("admin.finance.eyebrow")}
+          title={t("admin.finance.title")}
+          subtitle={t("admin.finance.subtitle")}
           icon={<Banknote className="h-5 w-5" />}
           actions={
             <Button
@@ -158,39 +161,39 @@ function AdminFinancePage() {
               onClick={sweep}
             >
               <RefreshCw className={`mr-1.5 h-4 w-4 ${busy === "sweep" ? "animate-spin" : ""}`} />
-              Run overdue check
+              {t("admin.finance.runOverdueCheck")}
             </Button>
           }
         />
 
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
           <StatCard
-            label="Total revenue"
+            label={t("admin.finance.totalRevenue")}
             value={money(totals.total)}
             icon={<TrendingUp className="h-4 w-4" />}
           />
           <StatCard
-            label="Paid"
+            label={t("admin.finance.paid")}
             value={money(totals.paid)}
             tone="success"
             icon={<CheckCircle2 className="h-4 w-4" />}
           />
-          <StatCard label="Outstanding" value={money(totals.outstanding)} tone="warning" />
+          <StatCard label={t("admin.finance.outstanding")} value={money(totals.outstanding)} tone="warning" />
           <StatCard
-            label="Overdue"
+            label={t("admin.finance.overdue")}
             value={money(totals.overdue)}
             tone="danger"
             icon={<AlertTriangle className="h-4 w-4" />}
           />
           <StatCard
-            label="Cancelled"
+            label={t("admin.finance.cancelled")}
             value={money(totals.cancelled)}
             icon={<Hourglass className="h-4 w-4" />}
           />
         </div>
 
         <SectionShell
-          title="Commission invoices"
+          title={t("admin.finance.commissionInvoices")}
           right={
             <Badge variant="outline" className="rounded-full">
               {rows.length}
@@ -199,7 +202,7 @@ function AdminFinancePage() {
         >
           <div className="mb-4 grid gap-2 sm:grid-cols-2 xl:grid-cols-6">
             <Input
-              placeholder="Invoice / quote number"
+              placeholder={t("admin.finance.searchPlaceholder")}
               value={filters.search}
               onChange={(e) => setFilters({ ...filters, search: e.target.value })}
             />
@@ -208,10 +211,10 @@ function AdminFinancePage() {
               onValueChange={(v) => setFilters({ ...filters, companyId: v })}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Company" />
+                <SelectValue placeholder={t("admin.finance.companyPlaceholder")} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All companies</SelectItem>
+                <SelectItem value="all">{t("admin.finance.allCompanies")}</SelectItem>
                 {companies.map((c) => (
                   <SelectItem key={c.id} value={c.id}>
                     {c.name}
@@ -224,10 +227,10 @@ function AdminFinancePage() {
               onValueChange={(v) => setFilters({ ...filters, brokerId: v })}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Broker" />
+                <SelectValue placeholder={t("admin.finance.brokerPlaceholder")} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All brokers</SelectItem>
+                <SelectItem value="all">{t("admin.finance.allBrokers")}</SelectItem>
                 {brokerOptions.map((b) => (
                   <SelectItem key={b.id} value={b.id}>
                     {b.name}
@@ -242,13 +245,13 @@ function AdminFinancePage() {
               }
             >
               <SelectTrigger>
-                <SelectValue placeholder="Status" />
+                <SelectValue placeholder={t("admin.finance.statusPlaceholder")} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All statuses</SelectItem>
+                <SelectItem value="all">{t("admin.finance.allStatuses")}</SelectItem>
                 {COMMISSION_STATUSES.filter((s) => s !== "pending").map((s) => (
                   <SelectItem key={s} value={s}>
-                    {s}
+                    {t(`admin.finance.status.${s}`)}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -266,10 +269,10 @@ function AdminFinancePage() {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="newest">Newest first</SelectItem>
-                <SelectItem value="oldest">Oldest first</SelectItem>
-                <SelectItem value="amount">Highest amount</SelectItem>
-                <SelectItem value="due">Due date</SelectItem>
+                <SelectItem value="newest">{t("admin.finance.sortNewest")}</SelectItem>
+                <SelectItem value="oldest">{t("admin.finance.sortOldest")}</SelectItem>
+                <SelectItem value="amount">{t("admin.finance.sortAmount")}</SelectItem>
+                <SelectItem value="due">{t("admin.finance.sortDue")}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -278,7 +281,7 @@ function AdminFinancePage() {
             <SkeletonRows n={5} />
           ) : rows.length === 0 ? (
             <p className="py-8 text-center text-sm text-muted-foreground">
-              No invoices match these filters.
+              {t("admin.finance.noInvoices")}
             </p>
           ) : (
             <div className="space-y-2">
@@ -296,17 +299,24 @@ function AdminFinancePage() {
                           variant="outline"
                           className={`rounded-full ${STATUS_STYLES[r.status]}`}
                         >
-                          {r.status}
+                          {t(`admin.finance.status.${r.status}`)}
                         </Badge>
                         <span className="text-sm text-muted-foreground">
                           {companyName(r.company_id)}
                         </span>
                       </div>
-                      <div className="mt-1 text-xs text-muted-foreground">
-                        {meta[r.quote_id]?.quoteNumber ?? "Lead"} · Move{" "}
-                        {meta[r.quote_id]?.moveDate ?? "—"} · Issued {r.issue_date} · Due{" "}
-                        {r.due_date}
-                        {r.paid_at ? ` · Paid ${new Date(r.paid_at).toLocaleDateString()}` : ""}
+                      <div className="mt-1 flex flex-wrap items-center gap-x-1 text-xs text-muted-foreground">
+                        <span>{meta[r.quote_id]?.quoteNumber ?? t("admin.finance.lead")}</span>
+                        <span>· {t("admin.finance.move")} {meta[r.quote_id]?.moveDate ?? "—"}</span>
+                        <span>
+                          · {t("admin.finance.issued")} {r.issue_date} · {t("admin.finance.due")}{" "}
+                          {r.due_date}
+                        </span>
+                        {r.paid_at ? (
+                          <span>
+                            · {t("admin.finance.paidOn")} {new Date(r.paid_at).toLocaleDateString()}
+                          </span>
+                        ) : null}
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
@@ -315,7 +325,7 @@ function AdminFinancePage() {
                           {money(r.amount, r.currency)}
                         </div>
                         <div className="text-xs text-muted-foreground">
-                          {pct(r.rate)} of {money(r.final_price, r.currency)}
+                          {pct(r.rate)} {t("admin.finance.ofAmount", { amount: money(r.final_price, r.currency) })}
                         </div>
                       </div>
                       <Select
@@ -329,7 +339,7 @@ function AdminFinancePage() {
                         <SelectContent>
                           {COMMISSION_STATUSES.map((s) => (
                             <SelectItem key={s} value={s}>
-                              {s}
+                              {t(`admin.finance.status.${s}`)}
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -343,21 +353,21 @@ function AdminFinancePage() {
         </SectionShell>
 
         <div className="grid gap-4 lg:grid-cols-2">
-          <SectionShell title="Top companies">
+          <SectionShell title={t("admin.finance.topCompanies")}>
             {byCompany.length === 0 ? (
-              <p className="text-sm text-muted-foreground">No revenue yet.</p>
+              <p className="text-sm text-muted-foreground">{t("admin.finance.noRevenueYet")}</p>
             ) : (
               <div className="space-y-2">
                 {byCompany.slice(0, 8).map((c) => (
                   <div
                     key={c.company_id}
-                    className="flex items-center justify-between gap-3 text-sm"
+                    className="flex flex-wrap items-center justify-between gap-3 text-sm"
                   >
                     <span className="truncate">{c.company_name}</span>
                     <span className="tabular-nums">
                       {money(c.total)}{" "}
                       <span className="text-xs text-muted-foreground">
-                        ({money(c.outstanding)} open)
+                        ({money(c.outstanding)} {t("admin.finance.open")})
                       </span>
                     </span>
                   </div>
@@ -366,9 +376,9 @@ function AdminFinancePage() {
             )}
           </SectionShell>
 
-          <SectionShell title="Top brokers">
+          <SectionShell title={t("admin.finance.topBrokers")}>
             {byBroker.length === 0 ? (
-              <p className="text-sm text-muted-foreground">No broker-attributed revenue yet.</p>
+              <p className="text-sm text-muted-foreground">{t("admin.finance.noBrokerRevenueYet")}</p>
             ) : (
               <div className="space-y-2">
                 {byBroker.slice(0, 8).map((b) => (
@@ -385,9 +395,9 @@ function AdminFinancePage() {
           </SectionShell>
         </div>
 
-        <SectionShell title="Monthly revenue & commission trend">
+        <SectionShell title={t("admin.finance.monthlyTrend")}>
           {monthly.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No invoices issued yet.</p>
+            <p className="text-sm text-muted-foreground">{t("admin.finance.noInvoicesIssuedYet")}</p>
           ) : (
             <div className="space-y-2">
               {monthly.map((m) => {
@@ -403,7 +413,7 @@ function AdminFinancePage() {
                         })}
                       </span>
                       <span className="tabular-nums">
-                        {money(m.invoiced)} · paid {money(m.paid)}
+                        {money(m.invoiced)} · {t("admin.finance.paidLower")} {money(m.paid)}
                       </span>
                     </div>
                     <div className="h-2 rounded-full bg-muted">
@@ -416,7 +426,7 @@ function AdminFinancePage() {
           )}
         </SectionShell>
 
-        <SectionShell title="Reports">
+        <SectionShell title={t("admin.finance.reports")}>
           <div className="flex flex-wrap gap-2">
             {(Object.keys(REPORT_LABELS) as ReportKind[]).map((k) => (
               <Button
@@ -426,7 +436,7 @@ function AdminFinancePage() {
                 className="rounded-full"
                 onClick={() => exportReport(k)}
               >
-                <Download className="mr-1.5 h-4 w-4" /> {REPORT_LABELS[k]}
+                <Download className="mr-1.5 h-4 w-4" /> {t(`admin.finance.report.${k}`)}
               </Button>
             ))}
           </div>

@@ -243,6 +243,11 @@ function classify(norm: string): { fit: ProductFit; weight: number } | null {
       if (re.test(norm)) return { fit: rule.fit, weight: rule.weight };
     }
   }
+  // apartment_move_planner requires BOTH apartment context AND explicit
+  // planning/informational intent — "apartment mover" alone never qualifies.
+  if (APARTMENT_CONTEXT.test(norm) && APARTMENT_PLANNING_INTENT.some((re) => re.test(norm))) {
+    return { fit: "apartment_move_planner", weight: 20 };
+  }
   return null;
 }
 
@@ -272,8 +277,17 @@ export function evaluateSignal(signal: GscSignal, cityNames: Set<string>): Evalu
   if (NOISE_PATTERNS.some((re) => re.test(norm))) {
     return { accepted: false, query: signal.query, reason: "noise_or_malformed" };
   }
-  for (const re of NAVIGATIONAL_PATTERNS) {
+  const strong = hasStrongModifier(norm);
+  for (const re of HARD_NAVIGATIONAL_PATTERNS) {
     if (re.test(norm)) return { accepted: false, query: signal.query, reason: "navigational_provider_intent" };
+  }
+  if (!strong) {
+    for (const re of SOFT_NAVIGATIONAL_PATTERNS) {
+      if (re.test(norm)) return { accepted: false, query: signal.query, reason: "navigational_provider_intent" };
+    }
+    if (hasServiceIntent(norm)) {
+      return { accepted: false, query: signal.query, reason: "service_intent" };
+    }
   }
   if (hasGeo(norm, cityNames)) {
     return { accepted: false, query: signal.query, reason: "narrow_local_intent" };
@@ -281,6 +295,7 @@ export function evaluateSignal(signal: GscSignal, cityNames: Set<string>): Evalu
 
   const fit = classify(norm);
   if (!fit) return { accepted: false, query: signal.query, reason: "no_defensible_product_fit" };
+
 
   const impressions = signal.impressions ?? 0;
   const clicks = signal.clicks ?? 0;

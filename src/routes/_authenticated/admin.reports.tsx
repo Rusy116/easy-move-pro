@@ -6,6 +6,7 @@ import { PageHeader, SkeletonRows } from "@/components/shell/Chrome";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useT } from "@/i18n";
 
 export const Route = createFileRoute("/_authenticated/admin/reports")({
   head: () => ({
@@ -38,6 +39,7 @@ const money = (n: number) =>
   n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
 
 function AdminReportsPage() {
+  const t = useT();
   const [loading, setLoading] = useState(true);
   const [rows, setRows] = useState<Row[]>([]);
   const [commission, setCommission] = useState(0);
@@ -61,7 +63,7 @@ function AdminReportsPage() {
         ((c.data ?? []) as { amount: number }[]).reduce((s, r) => s + (r.amount ?? 0), 0),
       );
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Could not load reports");
+      toast.error(err instanceof Error ? err.message : t("admin.reports.errorLoad"));
     } finally {
       setLoading(false);
     }
@@ -106,13 +108,13 @@ function AdminReportsPage() {
     <AdminShell>
       <section className="mx-auto max-w-6xl px-4 sm:px-6 py-8 md:py-12">
         <PageHeader
-          eyebrow="Business intelligence"
-          title="Reports"
-          subtitle="Lead volume, marketplace performance, conversion and platform commission."
+          eyebrow={t("admin.reports.eyebrow")}
+          title={t("admin.reports.title")}
+          subtitle={t("admin.reports.subtitle")}
           icon={<BarChart3 className="h-5 w-5" />}
           actions={
             <Button variant="outline" size="sm" className="rounded-full" onClick={load}>
-              <RefreshCw className="mr-1.5 h-3.5 w-3.5" /> Refresh
+              <RefreshCw className="mr-1.5 h-3.5 w-3.5" /> {t("admin.reports.refresh")}
             </Button>
           }
         />
@@ -125,14 +127,14 @@ function AdminReportsPage() {
           <>
             <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
               {[
-                { label: "Total leads", value: stats.leads },
-                { label: "Claim rate", value: `${stats.claimRate}%` },
-                { label: "Conversion", value: `${stats.convRate}%` },
-                { label: "Avg booked ticket", value: money(stats.avgTicket) },
-                { label: "Booked jobs", value: stats.booked },
-                { label: "Booked revenue", value: money(stats.revenue) },
-                { label: "Platform commission", value: money(commission) },
-                { label: "Claimed leads", value: stats.claimed },
+                { label: t("admin.reports.kpi.totalLeads"), value: stats.leads },
+                { label: t("admin.reports.kpi.claimRate"), value: `${stats.claimRate}%` },
+                { label: t("admin.reports.kpi.conversion"), value: `${stats.convRate}%` },
+                { label: t("admin.reports.kpi.avgBookedTicket"), value: money(stats.avgTicket) },
+                { label: t("admin.reports.kpi.bookedJobs"), value: stats.booked },
+                { label: t("admin.reports.kpi.bookedRevenue"), value: money(stats.revenue) },
+                { label: t("admin.reports.kpi.platformCommission"), value: money(commission) },
+                { label: t("admin.reports.kpi.claimedLeads"), value: stats.claimed },
               ].map((s) => (
                 <div key={s.label} className="card-premium p-4">
                   <div className="text-[11px] uppercase tracking-[0.16em] text-muted-foreground">
@@ -145,20 +147,20 @@ function AdminReportsPage() {
 
             <div className="mt-8 grid gap-6 lg:grid-cols-2">
               <div className="card-premium p-5">
-                <h2 className="font-serif text-xl">Monthly performance</h2>
+                <h2 className="font-serif text-xl">{t("admin.reports.monthly.title")}</h2>
                 <table className="mt-4 w-full text-sm">
                   <thead className="text-xs uppercase tracking-wide text-muted-foreground">
                     <tr>
-                      <th className="py-2 text-left">Month</th>
-                      <th className="py-2 text-right">Leads</th>
-                      <th className="py-2 text-right">Revenue</th>
+                      <th className="py-2 text-left">{t("admin.reports.monthly.month")}</th>
+                      <th className="py-2 text-right">{t("admin.reports.monthly.leads")}</th>
+                      <th className="py-2 text-right">{t("admin.reports.monthly.revenue")}</th>
                     </tr>
                   </thead>
                   <tbody>
                     {stats.byMonth.length === 0 && (
                       <tr>
                         <td colSpan={3} className="py-6 text-center text-muted-foreground">
-                          No data yet.
+                          {t("admin.reports.monthly.noData")}
                         </td>
                       </tr>
                     )}
@@ -174,10 +176,10 @@ function AdminReportsPage() {
               </div>
 
               <div className="card-premium p-5">
-                <h2 className="font-serif text-xl">Leads by source</h2>
+                <h2 className="font-serif text-xl">{t("admin.reports.bySource.title")}</h2>
                 <ul className="mt-4 space-y-3">
                   {stats.bySource.length === 0 && (
-                    <li className="text-sm text-muted-foreground">No data yet.</li>
+                    <li className="text-sm text-muted-foreground">{t("admin.reports.bySource.noData")}</li>
                   )}
                   {stats.bySource.map(([src, n]) => (
                     <li key={src}>

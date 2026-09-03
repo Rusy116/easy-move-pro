@@ -39,6 +39,7 @@ import {
   type ReportKind,
 } from "@/lib/ai/supervisor";
 import { ROLLOUT_STATES, WORKER_OPTIONS } from "@/lib/city-production/mass";
+import { useT } from "@/i18n";
 
 export const Route = createFileRoute("/_authenticated/ai/supervisor")({
   head: () => ({
@@ -93,6 +94,7 @@ function Panel({
 }
 
 function SupervisorPage() {
+  const tr = useT();
   const qc = useQueryClient();
   const [auto, setAuto] = useState(false);
   const [workers, setWorkers] = useState(2);
@@ -138,32 +140,32 @@ function SupervisorPage() {
       for (const res of r.results) {
         addLog(`${res.worker} · ${res.agent} · ${res.city} — ${res.summary}`, res.ok);
       }
-      if (r.staleReclaimed) addLog(`${r.staleReclaimed} stalled leases reclaimed`, false);
-      if (r.skipped) addLog(`${r.skipped} broken pages skipped — queue continues`, false);
-      if (!r.assigned) addLog("No city available — refilling queue", false);
+      if (r.staleReclaimed) addLog(tr("admin.ai4.sup.staleReclaimed", { n: String(r.staleReclaimed) }), false);
+      if (r.skipped) addLog(tr("admin.ai4.sup.skippedLog", { n: String(r.skipped) }), false);
+      if (!r.assigned) addLog(tr("admin.ai4.sup.noCityAvailable"), false);
       qc.invalidateQueries({ queryKey: ["supervisor-stats"] });
     },
-    onError: (e) => addLog(e instanceof Error ? e.message : "Supervisor tick failed", false),
+    onError: (e) => addLog(e instanceof Error ? e.message : tr("admin.ai4.sup.tickFailed"), false),
   });
 
   const refill = useMutation({
     mutationFn: () => supervisorRefill({ data: { stateCode, count: 100 } }),
     onSuccess: (r) => {
-      if (r.exhausted) addLog("All rollout states exhausted", false);
+      if (r.exhausted) addLog(tr("admin.ai4.sup.exhausted"), false);
       else {
         if (r.rolledOver) setStateCode(r.stateCode);
-        addLog(`${r.queued} cities loaded for ${r.stateCode}${r.rolledOver ? " (next state)" : ""}`);
+        addLog(tr("admin.ai4.sup.queuedForState", { queued: String(r.queued), state: r.stateCode, next: r.rolledOver ? tr("admin.ai4.sup.nextStateSuffix") : "" }));
       }
       qc.invalidateQueries({ queryKey: ["supervisor-stats"] });
     },
-    onError: (e) => toast.error(e instanceof Error ? e.message : "Refill failed"),
+    onError: (e) => toast.error(e instanceof Error ? e.message : tr("admin.ai4.sup.refillFailed")),
   });
 
   const control = useMutation({
     mutationFn: (action: "pause_all" | "resume_all" | "requeue_failed" | "clear_skipped") =>
       supervisorControl({ data: { action } }),
     onSuccess: () => {
-      toast.success("Queue updated");
+      toast.success(tr("admin.ai4.sup.queueUpdated"));
       qc.invalidateQueries({ queryKey: ["supervisor-stats"] });
     },
   });
@@ -171,10 +173,10 @@ function SupervisorPage() {
   const makeReports = useMutation({
     mutationFn: () => generateSupervisorReports({ data: { stateCode } }),
     onSuccess: (r) => {
-      toast.success(`${r.created} reports stored`);
+      toast.success(tr("admin.ai4.sup.reportsGenerated", { n: String(r.created) }));
       qc.invalidateQueries({ queryKey: ["supervisor-reports"] });
     },
-    onError: (e) => toast.error(e instanceof Error ? e.message : "Report generation failed"),
+    onError: (e) => toast.error(e instanceof Error ? e.message : tr("admin.ai4.sup.reportGenerationFailed")),
   });
 
   // Autopilot loop: keeps producing, refills the queue when it runs dry.
@@ -187,18 +189,18 @@ function SupervisorPage() {
       try {
         const r = await supervisorTick({ data: { workers } });
         if (cancelled) return;
-        for (const res of r.results) addLog(`${res.worker} · ${res.agent} · ${res.city} — ${res.summary}`, res.ok);
+        for (const res of r.results) addLog(tr("admin.ai4.sup.assignmentLog", { worker: res.worker, agent: res.agent, city: res.city, summary: res.summary }), res.ok);
         if (!r.assigned) {
           const f = await supervisorRefill({ data: { stateCode, count: 100 } });
-          if (f.exhausted) addLog("All rollout states exhausted — autopilot idle", false);
+          if (f.exhausted) addLog(tr("admin.ai4.sup.exhaustedIdle"), false);
           else {
             if (f.rolledOver) setStateCode(f.stateCode);
-            addLog(`Queue refilled: ${f.queued} cities in ${f.stateCode}`);
+            addLog(tr("admin.ai4.sup.queueRefilled", { queued: String(f.queued), state: f.stateCode }));
           }
         }
         qc.invalidateQueries({ queryKey: ["supervisor-stats"] });
       } catch (e) {
-        addLog(e instanceof Error ? e.message : "Supervisor error", false);
+        addLog(e instanceof Error ? e.message : tr("admin.ai4.sup.supervisorError"), false);
       } finally {
         busy.current = false;
       }
@@ -217,20 +219,20 @@ function SupervisorPage() {
     <AiShell>
       <PageHeader
         icon={<Brain className="h-5 w-5" />}
-        title="AI Supervisor"
-        subtitle="Master orchestrator — plans, assigns, monitors and retries every production agent. It never writes content itself."
+        title={tr("admin.ai4.sup.title")}
+        subtitle={tr("admin.ai4.sup.subtitle")}
         actions={
           <div className="flex flex-wrap items-center gap-2">
             <Button variant={auto ? "destructive" : "default"} onClick={() => setAuto((v) => !v)}>
               {auto ? <Pause className="mr-1.5 h-4 w-4" /> : <Play className="mr-1.5 h-4 w-4" />}
-              {auto ? "Pause supervisor" : "Start supervisor"}
+              {auto ? tr("admin.ai4.sup.pauseSupervisor") : tr("admin.ai4.sup.startSupervisor")}
             </Button>
             <Button variant="outline" onClick={() => tick.mutate()} disabled={tick.isPending}>
               {tick.isPending ? <Loader2 className="mr-1.5 h-4 w-4 animate-spin" /> : <Play className="mr-1.5 h-4 w-4" />}
-              Single tick
+              {tr("admin.ai4.sup.singleTick")}
             </Button>
             <Button variant="outline" onClick={() => refill.mutate()} disabled={refill.isPending}>
-              <Plus className="mr-1.5 h-4 w-4" /> Refill queue
+              <Plus className="mr-1.5 h-4 w-4" /> {tr("admin.ai4.sup.refillQueue")}
             </Button>
           </div>
         }
@@ -238,35 +240,35 @@ function SupervisorPage() {
 
       {/* Throughput */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-6">
-        <StatCard label="Current city" value={s?.currentCity ?? "—"} />
-        <StatCard label="Current agent" value={s?.currentAgent ?? "Idle"} />
-        <StatCard label="Pages / hour" value={s?.perHour ?? 0} />
-        <StatCard label="Cities / day" value={s?.perDay ?? 0} />
-        <StatCard label="Avg processing" value={ms(s?.avgMs ?? 0)} />
-        <StatCard label="Published today" value={s?.publishedToday ?? 0} />
+        <StatCard label={tr("admin.ai4.sup.statCurrentCity")} value={s?.currentCity ?? "—"} />
+        <StatCard label={tr("admin.ai4.sup.statCurrentAgent")} value={s?.currentAgent ?? tr("admin.ai4.sup.idle")} />
+        <StatCard label={tr("admin.ai4.sup.statPerHour")} value={s?.perHour ?? 0} />
+        <StatCard label={tr("admin.ai4.sup.statPerDay")} value={s?.perDay ?? 0} />
+        <StatCard label={tr("admin.ai4.sup.statAvgProcessing")} value={ms(s?.avgMs ?? 0)} />
+        <StatCard label={tr("admin.ai4.sup.statPublishedToday")} value={s?.publishedToday ?? 0} />
       </div>
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-6">
-        <StatCard label="Failures" value={s?.failures ?? 0} />
-        <StatCard label="Retries" value={s?.retries ?? 0} />
-        <StatCard label="Publish count" value={s?.publishedTotal ?? 0} />
-        <StatCard label="Index count" value={s?.indexCount ?? 0} />
-        <StatCard label="Avg SEO score" value={s?.avgSeoScore ?? "—"} />
-        <StatCard label="Images created" value={s?.imagesCreated ?? 0} />
+        <StatCard label={tr("admin.ai4.sup.statFailures")} value={s?.failures ?? 0} />
+        <StatCard label={tr("admin.ai4.sup.statRetries")} value={s?.retries ?? 0} />
+        <StatCard label={tr("admin.ai4.sup.statPublishCount")} value={s?.publishedTotal ?? 0} />
+        <StatCard label={tr("admin.ai4.sup.statIndexCount")} value={s?.indexCount ?? 0} />
+        <StatCard label={tr("admin.ai4.sup.statAvgSeo")} value={s?.avgSeoScore ?? "—"} />
+        <StatCard label={tr("admin.ai4.sup.statImagesCreated")} value={s?.imagesCreated ?? 0} />
       </div>
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <StatCard label="Blog articles" value={s?.blogCount ?? 0} />
-        <StatCard label="Digital products" value={s?.productCount ?? 0} />
-        <StatCard label="Revenue events" value={s?.revenueEvents ?? 0} />
-        <StatCard label="Lead events today" value={s?.leadEvents ?? 0} />
+        <StatCard label={tr("admin.ai4.sup.statBlogArticles")} value={s?.blogCount ?? 0} />
+        <StatCard label={tr("admin.ai4.sup.statDigitalProducts")} value={s?.productCount ?? 0} />
+        <StatCard label={tr("admin.ai4.sup.statRevenueEvents")} value={s?.revenueEvents ?? 0} />
+        <StatCard label={tr("admin.ai4.sup.statLeadEventsToday")} value={s?.leadEvents ?? 0} />
       </div>
 
       {/* Controls */}
-      <Panel title="Workload balancing" description="Workers share the queue; a city is leased to exactly one worker at a time.">
+      <Panel title={tr("admin.ai4.sup.workloadTitle")} description={tr("admin.ai4.sup.workloadDesc")}>
         <div className="flex flex-wrap items-center gap-4">
           <div className="flex items-center gap-2">
-            <span className="text-xs font-medium text-muted-foreground">Workers</span>
+            <span className="text-xs font-medium text-muted-foreground">{tr("admin.ai4.sup.workers")}</span>
             {WORKER_OPTIONS.map((w) => (
               <button
                 key={w}
@@ -280,7 +282,7 @@ function SupervisorPage() {
             ))}
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-xs font-medium text-muted-foreground">State</span>
+            <span className="text-xs font-medium text-muted-foreground">{tr("admin.ai4.sup.state")}</span>
             <select
               value={stateCode}
               onChange={(e) => setStateCode(e.target.value)}
@@ -295,23 +297,23 @@ function SupervisorPage() {
           </div>
           <div className="flex flex-wrap gap-2">
             <Button size="sm" variant="outline" onClick={() => control.mutate("pause_all")}>
-              <Pause className="mr-1.5 h-3.5 w-3.5" /> Pause all
+              <Pause className="mr-1.5 h-3.5 w-3.5" /> {tr("admin.ai4.sup.pauseAll")}
             </Button>
             <Button size="sm" variant="outline" onClick={() => control.mutate("resume_all")}>
-              <Play className="mr-1.5 h-3.5 w-3.5" /> Resume all
+              <Play className="mr-1.5 h-3.5 w-3.5" /> {tr("admin.ai4.sup.resumeAll")}
             </Button>
             <Button size="sm" variant="outline" onClick={() => control.mutate("requeue_failed")}>
-              <RotateCcw className="mr-1.5 h-3.5 w-3.5" /> Requeue failed
+              <RotateCcw className="mr-1.5 h-3.5 w-3.5" /> {tr("admin.ai4.sup.requeueFailed")}
             </Button>
             <Button size="sm" variant="outline" onClick={() => control.mutate("clear_skipped")}>
-              Restore skipped
+              {tr("admin.ai4.sup.restoreSkipped")}
             </Button>
           </div>
         </div>
       </Panel>
 
       {/* Queue states */}
-      <Panel title="Production queue" description="Every city carries one supervisor state at all times.">
+      <Panel title={tr("admin.ai4.sup.queueTitle")} description={tr("admin.ai4.sup.queueDesc")}>
         <div className="mb-4 flex flex-wrap gap-2">
           {SUPERVISOR_STATES.map((st) => (
             <span key={st} className={`rounded-full px-3 py-1 text-[11px] font-semibold capitalize ${STATE_TONE[st]}`}>
@@ -320,19 +322,19 @@ function SupervisorPage() {
           ))}
         </div>
         {!s?.queue?.length ? (
-          <EmptyState title="Queue is empty" hint="Refill the queue or start the supervisor to load the next cities." />
+          <EmptyState title={tr("admin.ai4.sup.queueEmptyTitle")} hint={tr("admin.ai4.sup.queueEmptyHint")} />
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full min-w-[720px] text-sm">
               <thead>
                 <tr className="border-b border-border text-left text-[11px] uppercase tracking-wide text-muted-foreground">
-                  <th className="py-2 pr-3">City</th>
-                  <th className="py-2 pr-3">State</th>
-                  <th className="py-2 pr-3">Agent</th>
-                  <th className="py-2 pr-3">Stage</th>
-                  <th className="py-2 pr-3">Worker</th>
-                  <th className="py-2 pr-3">Attempts</th>
-                  <th className="py-2">Note</th>
+                  <th className="py-2 pr-3">{tr("admin.ai4.sup.colCity")}</th>
+                  <th className="py-2 pr-3">{tr("admin.ai4.sup.colState")}</th>
+                  <th className="py-2 pr-3">{tr("admin.ai4.sup.colAgent")}</th>
+                  <th className="py-2 pr-3">{tr("admin.ai4.sup.colStage")}</th>
+                  <th className="py-2 pr-3">{tr("admin.ai4.sup.colWorker")}</th>
+                  <th className="py-2 pr-3">{tr("admin.ai4.sup.colAttempts")}</th>
+                  <th className="py-2">{tr("admin.ai4.sup.colNote")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -360,7 +362,7 @@ function SupervisorPage() {
       </Panel>
 
       {/* Agent chain */}
-      <Panel title="Agent chain" description="Fixed order — each city walks the chain top to bottom, one agent at a time.">
+      <Panel title={tr("admin.ai4.sup.chainTitle")} description={tr("admin.ai4.sup.chainDesc")}>
         <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
           {SUPERVISOR_CHAIN.map((a) => {
             const active = s?.currentAgent === a.name;
@@ -375,7 +377,7 @@ function SupervisorPage() {
                   {a.order}
                 </span>
                 <span className="truncate">{a.name}</span>
-                {active && <span className="ml-auto text-[11px] font-semibold text-ochre">running</span>}
+                {active && <span className="ml-auto text-[11px] font-semibold text-ochre">{tr("admin.ai4.sup.running")}</span>}
               </div>
             );
           })}
@@ -384,11 +386,11 @@ function SupervisorPage() {
 
       {/* Health */}
       <Panel
-        title="Health monitor"
-        description="Swept every minute: agents, memory, queue, database, API, publishing, indexing and images."
+        title={tr("admin.ai4.sup.healthTitle")}
+        description={tr("admin.ai4.sup.healthDesc")}
         actions={
           <Button size="sm" variant="outline" onClick={() => health.refetch()}>
-            <HeartPulse className="mr-1.5 h-3.5 w-3.5" /> Run check
+            <HeartPulse className="mr-1.5 h-3.5 w-3.5" /> {tr("admin.ai4.sup.runCheck")}
           </Button>
         }
       >
@@ -407,9 +409,9 @@ function SupervisorPage() {
         </div>
 
         <div className="mt-5">
-          <h4 className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Incident log</h4>
+          <h4 className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">{tr("admin.ai4.sup.incidentLogTitle")}</h4>
           {!health.data?.incidents?.length ? (
-            <EmptyState title="No incidents recorded" hint="Crashes, stalled workers and skipped pages appear here." />
+            <EmptyState title={tr("admin.ai4.sup.noIncidentsTitle")} hint={tr("admin.ai4.sup.noIncidentsHint")} />
           ) : (
             <ul className="space-y-1.5">
               {health.data.incidents.map((i) => (
@@ -430,8 +432,8 @@ function SupervisorPage() {
 
       {/* Reports */}
       <Panel
-        title="Batch reports"
-        description="Production, SEO, Publishing, Quality and Revenue reports stored in the AI Growth Center."
+        title={tr("admin.ai4.sup.reportsTitle")}
+        description={tr("admin.ai4.sup.reportsDesc")}
         actions={
           <Button size="sm" onClick={() => makeReports.mutate()} disabled={makeReports.isPending}>
             {makeReports.isPending ? (
@@ -439,12 +441,12 @@ function SupervisorPage() {
             ) : (
               <FileBarChart className="mr-1.5 h-3.5 w-3.5" />
             )}
-            Generate reports
+            {tr("admin.ai4.sup.generateReports")}
           </Button>
         }
       >
         {!reports.data?.length ? (
-          <EmptyState title="No reports yet" hint="Generate a batch report after a production run." />
+          <EmptyState title={tr("admin.ai4.sup.reportsEmptyTitle")} hint={tr("admin.ai4.sup.reportsEmptyHint")} />
         ) : (
           <div className="space-y-2">
             {reports.data.map((r) => (
@@ -465,9 +467,9 @@ function SupervisorPage() {
       </Panel>
 
       {/* Live log */}
-      <Panel title="Supervisor log" description="Live assignment stream from the current session.">
+      <Panel title={tr("admin.ai4.sup.logTitle")} description={tr("admin.ai4.sup.logDesc")}>
         {!log.length ? (
-          <EmptyState title="No activity yet" hint="Start the supervisor to watch agents get assigned." />
+          <EmptyState title={tr("admin.ai4.sup.logEmptyTitle")} hint={tr("admin.ai4.sup.logEmptyHint")} />
         ) : (
           <ul className="space-y-1 font-mono text-[11px]">
             {log.map((l, i) => (

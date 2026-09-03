@@ -14,6 +14,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { StatusPill, Progress, LogList, TaskTable, fmtDate } from "@/components/ai/blocks";
+import { useT } from "@/i18n";
 import {
   listAgents,
   listLogs,
@@ -36,6 +37,7 @@ export const Route = createFileRoute("/_authenticated/ai/workforce")({
 type PanelKind = "history" | "logs" | "configure";
 
 function WorkforcePage() {
+  const tr = useT();
   const qc = useQueryClient();
   const agents = useQuery({ queryKey: ["ai", "agents"], queryFn: listAgents });
   const [panel, setPanel] = useState<{ agent: AiAgent; kind: PanelKind } | null>(null);
@@ -54,19 +56,19 @@ function WorkforcePage() {
   async function act(agent: AiAgent, action: AgentAction) {
     try {
       await setAgentState(agent, action);
-      toast.success(`${agent.name}: ${action}`);
+      toast.success(tr("admin.ai4.wf.actionToast", { agent: agent.name, action }));
       qc.invalidateQueries({ queryKey: ["ai"] });
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Action failed");
+      toast.error(e instanceof Error ? e.message : tr("admin.ai4.wf.actionFailed"));
     }
   }
 
   return (
     <AiShell>
       <PageHeader
-        eyebrow="AI Growth Center"
-        title="AI Workforce"
-        subtitle="Each agent runs independently. New agents appear here automatically."
+        eyebrow={tr("admin.ai4.wf.eyebrow")}
+        title={tr("admin.ai4.wf.title")}
+        subtitle={tr("admin.ai4.wf.subtitle")}
         icon={<Bot className="h-5 w-5" />}
         actions={
           <Button
@@ -74,7 +76,7 @@ function WorkforcePage() {
             size="sm"
             onClick={() => qc.invalidateQueries({ queryKey: ["ai"] })}
           >
-            <RotateCw className="mr-2 h-4 w-4" /> Refresh
+            <RotateCw className="mr-2 h-4 w-4" /> {tr("admin.ai4.wf.refresh")}
           </Button>
         }
       />
@@ -93,7 +95,7 @@ function WorkforcePage() {
             <div className="mt-4 space-y-1.5">
               <div className="flex items-center justify-between text-xs">
                 <span className="truncate text-muted-foreground">
-                  {a.current_task ?? "No active task"}
+                  {a.current_task ?? tr("admin.ai4.wf.noActiveTask")}
                 </span>
                 <span className="tabular-nums text-muted-foreground">{a.progress}%</span>
               </div>
@@ -102,12 +104,12 @@ function WorkforcePage() {
 
             <dl className="mt-4 grid grid-cols-3 gap-3 text-xs">
               {[
-                ["Last run", fmtDate(a.last_run_at)],
-                ["Success", `${Number(a.success_rate ?? 0).toFixed(0)}%`],
-                ["Errors", String(a.error_count)],
-                ["CPU", `${Number(a.cpu_usage ?? 0).toFixed(0)}%`],
-                ["Memory", `${Number(a.memory_usage ?? 0).toFixed(0)}%`],
-                ["ETA", fmtDate(a.estimated_completion)],
+                [tr("admin.ai4.wf.fieldLastRun"), fmtDate(a.last_run_at)],
+                [tr("admin.ai4.wf.fieldSuccess"), `${Number(a.success_rate ?? 0).toFixed(0)}%`],
+                [tr("admin.ai4.wf.fieldErrors"), String(a.error_count)],
+                [tr("admin.ai4.wf.fieldCpu"), `${Number(a.cpu_usage ?? 0).toFixed(0)}%`],
+                [tr("admin.ai4.wf.fieldMemory"), `${Number(a.memory_usage ?? 0).toFixed(0)}%`],
+                [tr("admin.ai4.wf.fieldEta"), fmtDate(a.estimated_completion)],
               ].map(([k, v]) => (
                 <div key={k}>
                   <dt className="text-[10px] uppercase tracking-wider text-muted-foreground">{k}</dt>
@@ -118,25 +120,25 @@ function WorkforcePage() {
 
             <div className="mt-4 flex flex-wrap gap-2">
               <Button size="sm" onClick={() => act(a, "start")}>
-                <Play className="mr-1.5 h-3.5 w-3.5" /> Start
+                <Play className="mr-1.5 h-3.5 w-3.5" /> {tr("admin.ai4.wf.start")}
               </Button>
               <Button size="sm" variant="outline" onClick={() => act(a, "pause")}>
-                <Pause className="mr-1.5 h-3.5 w-3.5" /> Pause
+                <Pause className="mr-1.5 h-3.5 w-3.5" /> {tr("admin.ai4.wf.pause")}
               </Button>
               <Button size="sm" variant="outline" onClick={() => act(a, "resume")}>
-                <RotateCw className="mr-1.5 h-3.5 w-3.5" /> Resume
+                <RotateCw className="mr-1.5 h-3.5 w-3.5" /> {tr("admin.ai4.wf.resume")}
               </Button>
               <Button size="sm" variant="outline" onClick={() => act(a, "stop")}>
-                <Square className="mr-1.5 h-3.5 w-3.5" /> Stop
+                <Square className="mr-1.5 h-3.5 w-3.5" /> {tr("admin.ai4.wf.stop")}
               </Button>
               <Button size="sm" variant="ghost" onClick={() => setPanel({ agent: a, kind: "configure" })}>
-                <Settings2 className="mr-1.5 h-3.5 w-3.5" /> Configure
+                <Settings2 className="mr-1.5 h-3.5 w-3.5" /> {tr("admin.ai4.wf.configure")}
               </Button>
               <Button size="sm" variant="ghost" onClick={() => setPanel({ agent: a, kind: "history" })}>
-                <History className="mr-1.5 h-3.5 w-3.5" /> History
+                <History className="mr-1.5 h-3.5 w-3.5" /> {tr("admin.ai4.wf.history")}
               </Button>
               <Button size="sm" variant="ghost" onClick={() => setPanel({ agent: a, kind: "logs" })}>
-                <ScrollText className="mr-1.5 h-3.5 w-3.5" /> Logs
+                <ScrollText className="mr-1.5 h-3.5 w-3.5" /> {tr("admin.ai4.wf.logs")}
               </Button>
             </div>
           </div>
@@ -144,8 +146,8 @@ function WorkforcePage() {
       </div>
 
       {!agents.isLoading && !(agents.data ?? []).length && (
-        <SectionShell title="No agents">
-          <p className="text-sm text-muted-foreground">The agent registry is empty.</p>
+        <SectionShell title={tr("admin.ai4.wf.noAgentsTitle")}>
+          <p className="text-sm text-muted-foreground">{tr("admin.ai4.wf.noAgentsBody")}</p>
         </SectionShell>
       )}
 
@@ -157,10 +159,10 @@ function WorkforcePage() {
             </DialogTitle>
             <DialogDescription>
               {panel?.kind === "configure"
-                ? "Runtime configuration is managed centrally in AI Settings until execution is connected."
+                ? tr("admin.ai4.wf.dialogConfigureDesc")
                 : panel?.kind === "history"
-                  ? "Every task this agent has been assigned."
-                  : "Raw log stream for this agent."}
+                  ? tr("admin.ai4.wf.dialogHistoryDesc")
+                  : tr("admin.ai4.wf.dialogLogsDesc")}
             </DialogDescription>
           </DialogHeader>
           <div className="max-h-[60vh] overflow-y-auto">

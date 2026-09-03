@@ -19,6 +19,7 @@ import {
 } from "@/lib/city-production.functions";
 import { workerStatus, setWorkerSettings, runWorkerNow } from "@/lib/city-worker.functions";
 import { PRODUCTION_STAGES, TOTAL_STAGES } from "@/lib/city-production/stages";
+import { useT } from "@/i18n";
 
 type WorkerRun = {
   id: string;
@@ -61,6 +62,7 @@ function ms(v: number) {
 }
 
 function ProductionPage() {
+  const tr = useT();
   const qc = useQueryClient();
   const [auto, setAuto] = useState(false);
   const [workers, setWorkers] = useState(1);
@@ -112,8 +114,8 @@ function ProductionPage() {
   const toggleWorker = useMutation({
     mutationFn: (enabled: boolean) => setWorkerSettings({ data: { enabled } }),
     onSuccess: (next) => {
-      push(`Backend worker ${next.enabled ? "started" : "paused"}.`);
-      toast.success(`Backend worker ${next.enabled ? "running" : "paused"}`);
+      push(`Backend worker ${next.enabled ? tr("admin.ai4.prod.workerToggleStarted") : tr("admin.ai4.prod.workerToggleStopped")}`);
+      toast.success(next.enabled ? tr("admin.ai4.prod.workerRunningToast") : tr("admin.ai4.prod.workerPausedToast"));
       refreshWorker();
     },
     onError: (e: Error) => toast.error(e.message),
@@ -122,7 +124,7 @@ function ProductionPage() {
   const runNow = useMutation({
     mutationFn: () => runWorkerNow({ data: {} as never }),
     onSuccess: (r) => {
-      push(`Server tick — ${r.processed} jobs, ${r.published} published, ${r.failed} failed.`, r.failed === 0);
+      push(tr("admin.ai4.prod.serverTickLog", { processed: String(r.processed), published: String(r.published), failed: String(r.failed) }), r.failed === 0);
       refreshWorker();
       refreshAll();
     },
@@ -137,8 +139,8 @@ function ProductionPage() {
   const startPilot = useMutation({
     mutationFn: () => enqueuePilotBatch({ data: {} as never }),
     onSuccess: (r) => {
-      push(`Pilot batch — ${r.queued} cities queued (${r.alreadyQueued} already in the line).`);
-      toast.success("Pilot batch queued");
+      push(tr("admin.ai4.prod.pilotBatchQueued", { queued: String(r.queued), already: String(r.alreadyQueued) }));
+      toast.success(tr("admin.ai4.prod.pilotBatchQueuedToast"));
       setAuto(true);
       refreshAll();
     },
@@ -148,8 +150,8 @@ function ProductionPage() {
   const phase9 = useMutation({
     mutationFn: () => preparePhase9({ data: {} as never }),
     onSuccess: (r) => {
-      push(`Phase 9 prepared — ${r.queued} additional California cities queued.`);
-      toast.success(`California production queued (${r.queued} cities)`);
+      push(tr("admin.ai4.prod.phase9Prepared", { queued: String(r.queued) }));
+      toast.success(tr("admin.ai4.prod.californiaQueuedToast", { queued: String(r.queued) }));
       refreshAll();
     },
     onError: (e: Error) => toast.error(e.message),
@@ -158,8 +160,8 @@ function ProductionPage() {
   const enqueue = useMutation({
     mutationFn: (count: number) => enqueueProduction({ data: { count } }),
     onSuccess: (r) => {
-      push(`Queued ${r.queued} cities by priority (metro → large → medium → small).`);
-      toast.success(`${r.queued} cities queued`);
+      push(tr("admin.ai4.prod.queuedByPriority", { queued: String(r.queued) }));
+      toast.success(tr("admin.ai4.prod.citiesQueuedToast", { queued: String(r.queued) }));
       refresh();
     },
     onError: (e: Error) => toast.error(e.message),
@@ -169,9 +171,9 @@ function ProductionPage() {
     mutationFn: (count: number) => enqueueMassBatch({ data: { stateCode, count } }),
     onSuccess: (r) => {
       push(
-        `${r.stateCode} mass batch — ${r.queued} cities queued, ${r.duplicatesSkipped} skipped (already produced or queued).`,
+        tr("admin.ai4.prod.massBatchLog", { state: r.stateCode, queued: String(r.queued), skipped: String(r.duplicatesSkipped) }),
       );
-      toast.success(`${r.queued} ${r.stateCode} cities queued`);
+      toast.success(tr("admin.ai4.prod.massBatchToast", { queued: String(r.queued), state: r.stateCode }));
       setAuto(true);
       refreshAll();
     },
@@ -181,7 +183,7 @@ function ProductionPage() {
   const tick = useMutation({
     mutationFn: () => productionTick({ data: { jobs: workers, stagesPerJob: 12 } }),
     onSuccess: (r) => {
-      for (const s of r.results) push(`${s.city} — stage ${s.stage}/12: ${s.summary}`, s.ok);
+      for (const s of r.results) push(tr("admin.ai4.prod.stageLog", { city: s.city, stage: String(s.stage), summary: s.summary }), s.ok);
       refreshAll();
     },
     onError: (e: Error) => {
@@ -193,7 +195,7 @@ function ProductionPage() {
   const retryAll = useMutation({
     mutationFn: () => controlProduction({ data: { action: "retry_all_failed" } }),
     onSuccess: () => {
-      push("All failed cities requeued.");
+      push(tr("admin.ai4.prod.retryAllLog"));
       refresh();
     },
     onError: (e: Error) => toast.error(e.message),
@@ -232,29 +234,29 @@ function ProductionPage() {
   return (
     <AiShell>
       <PageHeader
-        title="City Production Factory"
-        subtitle="Phase 7 — every city passes all 12 agent stages before it can be published."
+        title={tr("admin.ai4.prod.title")}
+        subtitle={tr("admin.ai4.prod.subtitle")}
       />
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard label="In queue" value={String(s?.queued ?? "—")} />
-        <StatCard label="Currently producing" value={s?.currentCity ?? "Idle"} />
-        <StatCard label="Completed today" value={String(s?.completedToday ?? "—")} />
-        <StatCard label="Failed" value={String(s?.failed ?? "—")} />
-        <StatCard label="Avg production time" value={ms(s?.avgProductionMs ?? 0)} />
-        <StatCard label="Publishing speed" value={s?.perHour ? `${s.perHour}/hr` : "—"} />
+        <StatCard label={tr("admin.ai4.prod.statQueued")} value={String(s?.queued ?? "—")} />
+        <StatCard label={tr("admin.ai4.prod.statCurrentCity")} value={s?.currentCity ?? tr("admin.ai4.prod.idle")} />
+        <StatCard label={tr("admin.ai4.prod.statCompletedToday")} value={String(s?.completedToday ?? "—")} />
+        <StatCard label={tr("admin.ai4.prod.statFailed")} value={String(s?.failed ?? "—")} />
+        <StatCard label={tr("admin.ai4.prod.statAvgTime")} value={ms(s?.avgProductionMs ?? 0)} />
+        <StatCard label={tr("admin.ai4.prod.statSpeed")} value={s?.perHour ? `${s.perHour}/hr` : "—"} />
         <StatCard
-          label="Estimated completion"
+          label={tr("admin.ai4.prod.statEta")}
           value={s?.etaHours == null ? "—" : s.etaHours < 1 ? `${Math.round(s.etaHours * 60)} min` : `${s.etaHours.toFixed(1)} h`}
         />
-        <StatCard label="Agent working" value={s?.currentStage?.name ?? "—"} />
-        <StatCard label="Pages published today" value={String(s?.publishedToday ?? "—")} />
-        <StatCard label="Pages published total" value={String(s?.publishedTotal ?? "—")} />
-        <StatCard label="Average SEO score" value={s?.avgQuality ? `${s.avgQuality}/100` : "—"} />
-        <StatCard label="Retries" value={String(s?.retries ?? "—")} />
+        <StatCard label={tr("admin.ai4.prod.statAgentWorking")} value={s?.currentStage?.name ?? "—"} />
+        <StatCard label={tr("admin.ai4.prod.statPublishedToday")} value={String(s?.publishedToday ?? "—")} />
+        <StatCard label={tr("admin.ai4.prod.statPublishedTotal")} value={String(s?.publishedTotal ?? "—")} />
+        <StatCard label={tr("admin.ai4.prod.statAvgSeo")} value={s?.avgQuality ? `${s.avgQuality}/100` : "—"} />
+        <StatCard label={tr("admin.ai4.prod.statRetries")} value={String(s?.retries ?? "—")} />
       </div>
 
-      <SectionShell title="Backend production worker (browser-free)">
+      <SectionShell title={tr("admin.ai4.prod.sectionWorker")}>
         <div className="flex flex-wrap items-center gap-2">
           <Button
             onClick={() => toggleWorker.mutate(!(w?.settings.enabled ?? false))}
@@ -262,25 +264,25 @@ function ProductionPage() {
             className="gap-2"
           >
             {w?.settings.enabled ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
-            {w?.settings.enabled ? "Pause backend worker" : "Start backend worker"}
+            {w?.settings.enabled ? tr("admin.ai4.prod.pauseWorker") : tr("admin.ai4.prod.startWorker")}
           </Button>
           <Button variant="outline" onClick={() => runNow.mutate()} disabled={runNow.isPending} className="gap-2">
             {runNow.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Factory className="h-4 w-4" />}
-            Run one server tick
+            {tr("admin.ai4.prod.runOneTick")}
           </Button>
           <span className="text-sm text-muted-foreground">
             {w
-              ? `${w.settings.enabled ? "Running on the server" : "Paused"} · last tick ${
-                  w.lastRunAt ? new Date(w.lastRunAt).toLocaleTimeString() : "—"
-                } · ${w.publishedLastHour}/hr published · ${w.remaining.toLocaleString()} jobs open · ${w.totalCities.toLocaleString()} cities in master dataset`
-              : "Loading worker status…"}
+              ? tr("admin.ai4.prod.workerStatusLine", {
+                  state: w.settings.enabled ? tr("admin.ai4.prod.workerRunning") : tr("admin.ai4.prod.workerPaused"),
+                  time: w.lastRunAt ? new Date(w.lastRunAt).toLocaleTimeString() : "—",
+                  perHour: String(w.publishedLastHour),
+                  remaining: w.remaining.toLocaleString(),
+                  total: w.totalCities.toLocaleString(),
+                })
+              : tr("admin.ai4.prod.workerLoading")}
           </span>
         </div>
-        <p className="mt-2 text-xs text-muted-foreground">
-          The factory runs as a scheduled server process — production continues after deployments, restarts and with
-          every browser tab closed. Expired job leases are reclaimed automatically and the queue refills itself from
-          the master USA dataset.
-        </p>
+        <p className="mt-2 text-xs text-muted-foreground">{tr("admin.ai4.prod.workerNote")}</p>
         <div className="mt-4 space-y-1">
           {((w?.runs ?? []) as WorkerRun[]).map((r) => (
             <div key={r.id} className="flex flex-wrap gap-x-3 text-xs text-muted-foreground">
@@ -293,11 +295,11 @@ function ProductionPage() {
               {r.error ? <span className="text-destructive">{r.error}</span> : null}
             </div>
           ))}
-          {!w?.runs?.length ? <span className="text-xs text-muted-foreground">No server runs recorded yet.</span> : null}
+          {!w?.runs?.length ? <span className="text-xs text-muted-foreground">{tr("admin.ai4.prod.noServerRuns")}</span> : null}
         </div>
       </SectionShell>
 
-      <SectionShell title="Phase 9 — Mass city production (California first)">
+      <SectionShell title={tr("admin.ai4.prod.sectionMass")}>
 
         <div className="flex flex-wrap items-center gap-2">
           {ROLLOUT_STATES.map((st) => (
@@ -322,32 +324,41 @@ function ProductionPage() {
               className="gap-2"
             >
               {massBatch.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
-              Produce {n.toLocaleString()} {stateCode} cities
+              {tr("admin.ai4.prod.produceNCities", { n: n.toLocaleString(), state: stateCode })}
             </Button>
           ))}
         </div>
         <div className="mt-3 flex flex-wrap items-center gap-2">
-          <span className="text-xs uppercase text-muted-foreground">Parallel workers</span>
+          <span className="text-xs uppercase text-muted-foreground">{tr("admin.ai4.prod.parallelWorkers")}</span>
           {WORKER_OPTIONS.map((w) => (
             <Button key={w} size="sm" variant={workers === w ? "default" : "outline"} onClick={() => setWorkers(w)}>
               {w}
             </Button>
           ))}
           <span className="text-sm text-muted-foreground">
-            Autopilot {auto ? "running" : "stopped"} · resumes automatically after an interruption · completed cities are
-            never regenerated.
+            {tr("admin.ai4.prod.autopilotStatusLine", { state: auto ? tr("admin.ai4.prod.autopilotRunning") : tr("admin.ai4.prod.autopilotStopped") })}
           </span>
         </div>
       </SectionShell>
 
-      <SectionShell title="Phase 8 — Pilot batch (10 California cities)">
+      <SectionShell title={tr("admin.ai4.prod.sectionPilot")}>
         <div className="flex flex-wrap items-center gap-2">
           <Button onClick={() => startPilot.mutate()} disabled={startPilot.isPending} className="gap-2">
             {startPilot.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Rocket className="h-4 w-4" />}
-            Launch pilot batch
+            {tr("admin.ai4.prod.launchPilot")}
           </Button>
           <span className="text-sm text-muted-foreground">
-            {p ? `${p.completed}/${PILOT_CITIES.length} complete · ${p.remaining} remaining · ${p.failed} failed · ${p.published} published · ${p.indexed} submitted for indexing · avg quality ${p.avgQuality ?? "—"}` : "Loading…"}
+            {p
+              ? tr("admin.ai4.prod.pilotSummary", {
+                  completed: String(p.completed),
+                  total: String(PILOT_CITIES.length),
+                  remaining: String(p.remaining),
+                  failed: String(p.failed),
+                  published: String(p.published),
+                  indexed: String(p.indexed),
+                  quality: String(p.avgQuality ?? "—"),
+                })
+              : tr("admin.ai4.prod.pilotLoading")}
           </span>
         </div>
 
@@ -360,7 +371,7 @@ function ProductionPage() {
                   {c.city}, {c.stateCode}
                 </span>
                 <span className="text-xs text-muted-foreground">
-                  stage {c.stage}/{TOTAL_STAGES}
+                  {tr("admin.ai4.prod.stageOf", { stage: String(c.stage), total: String(TOTAL_STAGES) })}
                 </span>
                 <span
                   className={`rounded-full px-2 py-0.5 text-xs ${
@@ -376,10 +387,10 @@ function ProductionPage() {
                   {c.status.replace("_", " ")}
                 </span>
                 <span className="text-xs text-muted-foreground">
-                  quality {c.qualityScore ?? "—"}/100 · {c.publishStatus} · index {c.indexStatus}
+                  {tr("admin.ai4.prod.qualityLine", { quality: String(c.qualityScore ?? "—"), publishStatus: c.publishStatus, indexStatus: c.indexStatus })}
                 </span>
                 {c.attempts > 1 && (
-                  <span className="text-xs text-muted-foreground">retries {c.attempts - 1}</span>
+                  <span className="text-xs text-muted-foreground">{tr("admin.ai4.prod.retries", { n: String(c.attempts - 1) })}</span>
                 )}
               </div>
               <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1">
@@ -399,11 +410,11 @@ function ProductionPage() {
         </div>
 
         <div className="mt-4 rounded-xl border border-border p-3">
-          <p className="text-sm font-medium">Phase 9 — California State Production</p>
+          <p className="text-sm font-medium">{tr("admin.ai4.prod.phase9Title")}</p>
           <p className="mt-1 text-xs text-muted-foreground">
             {p?.readyForPhase9
-              ? "All 10 pilot cities passed every stage. California production can be queued behind the pilot batch."
-              : `Locked until all ${PILOT_CITIES.length} pilot cities complete every stage.`}
+              ? tr("admin.ai4.prod.phase9Ready")
+              : tr("admin.ai4.prod.phase9Locked", { total: String(PILOT_CITIES.length) })}
           </p>
           <Button
             className="mt-3 gap-2"
@@ -412,12 +423,12 @@ function ProductionPage() {
             onClick={() => phase9.mutate()}
           >
             {phase9.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Rocket className="h-4 w-4" />}
-            Prepare Phase 9
+            {tr("admin.ai4.prod.preparePhase9")}
           </Button>
         </div>
       </SectionShell>
 
-      <SectionShell title="Factory controls">
+      <SectionShell title={tr("admin.ai4.prod.sectionFactory")}>
         <div className="flex flex-wrap gap-2">
           {BATCHES.map((n) => (
             <Button
@@ -428,26 +439,26 @@ function ProductionPage() {
               onClick={() => enqueue.mutate(n)}
               className="gap-2"
             >
-              <Plus className="h-4 w-4" /> Queue {n.toLocaleString()}
+              <Plus className="h-4 w-4" /> {tr("admin.ai4.prod.queueN", { n: n.toLocaleString() })}
             </Button>
           ))}
         </div>
         <div className="mt-3 flex flex-wrap gap-2">
           <Button onClick={() => setAuto((v) => !v)} className="gap-2">
             {auto ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
-            {auto ? "Stop autopilot" : "Start autopilot"}
+            {auto ? tr("admin.ai4.prod.stopAutopilot") : tr("admin.ai4.prod.startAutopilot")}
           </Button>
           <Button variant="outline" onClick={() => tick.mutate()} disabled={tick.isPending || auto} className="gap-2">
             {tick.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Factory className="h-4 w-4" />}
-            Produce next city
+            {tr("admin.ai4.prod.produceNextCity")}
           </Button>
           <Button variant="outline" onClick={() => retryAll.mutate()} className="gap-2">
-            <RotateCcw className="h-4 w-4" /> Retry failed
+            <RotateCcw className="h-4 w-4" /> {tr("admin.ai4.prod.retryFailed")}
           </Button>
         </div>
       </SectionShell>
 
-      <SectionShell title="Production line">
+      <SectionShell title={tr("admin.ai4.prod.sectionLine")}>
         <ol className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
           {PRODUCTION_STAGES.map((st) => {
             const active = s?.currentStage?.step === st.step;
@@ -466,19 +477,19 @@ function ProductionPage() {
         </ol>
       </SectionShell>
 
-      <SectionShell title="Queue">
+      <SectionShell title={tr("admin.ai4.prod.sectionQueueTable")}>
         {jobs.length === 0 ? (
-          <EmptyState title="Queue is empty" hint="Queue a batch of cities to start the production line." />
+          <EmptyState title={tr("admin.ai4.prod.queueEmptyTitle")} hint={tr("admin.ai4.prod.queueEmptyHint")} />
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead className="text-left text-xs uppercase text-muted-foreground">
                 <tr>
-                  <th className="py-2">City</th>
-                  <th>Tier</th>
-                  <th>Stage</th>
-                  <th>Status</th>
-                  <th>Time</th>
+                  <th className="py-2">{tr("admin.ai4.prod.colCity")}</th>
+                  <th>{tr("admin.ai4.prod.colTier")}</th>
+                  <th>{tr("admin.ai4.prod.colStage")}</th>
+                  <th>{tr("admin.ai4.prod.colStatus")}</th>
+                  <th>{tr("admin.ai4.prod.colTime")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -505,7 +516,7 @@ function ProductionPage() {
                       >
                         {j.status === "completed" ? <CheckCircle2 className="h-3 w-3" /> : null}
                         {j.status === "failed" ? <XCircle className="h-3 w-3" /> : null}
-                        {j.status}
+                        {tr(`admin.ai4.prod.status${j.status.charAt(0).toUpperCase()}${j.status.slice(1)}`)}
                       </span>
                     </td>
                     <td className="text-muted-foreground">{ms(j.duration_ms)}</td>
@@ -517,9 +528,9 @@ function ProductionPage() {
         )}
       </SectionShell>
 
-      <SectionShell title="Factory log">
+      <SectionShell title={tr("admin.ai4.prod.sectionLog")}>
         {log.length === 0 ? (
-          <EmptyState title="No production runs yet" hint="Start the autopilot — each city walks all 12 stages before publishing." />
+          <EmptyState title={tr("admin.ai4.prod.noRunsTitle")} hint={tr("admin.ai4.prod.noRunsHint")} />
         ) : (
           <ul className="space-y-2 text-sm">
             {log.map((l, i) => (

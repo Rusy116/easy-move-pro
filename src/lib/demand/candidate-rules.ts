@@ -49,8 +49,71 @@ export type Evaluation =
       avgPosition: number;
     };
 
+/**
+ * DD-4B — Strong informational / product-intent modifiers.
+ * A query that otherwise reads as "find me a moving service" may only stay
+ * eligible when one of these appears.
+ */
+const STRONG_MODIFIERS: string[] = [
+  "cost",
+  "costs",
+  "price",
+  "prices",
+  "pricing",
+  "estimate",
+  "estimates",
+  "calculator",
+  "budget",
+  "checklist",
+  "check list",
+  "template",
+  "planner",
+  "planning",
+  "worksheet",
+  "inventory",
+  "timeline",
+  "guide",
+  "how much",
+  "how to",
+  "what does",
+  "average cost",
+  "labels",
+  "label",
+  "packing list",
+  "pack list",
+  "schedule",
+  "list",
+];
+
+const STRONG_MODIFIER_RES = STRONG_MODIFIERS.map(
+  (t) => new RegExp(`(^|[^a-z])${t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}([^a-z]|$)`),
+);
+
+export function hasStrongModifier(norm: string): boolean {
+  return STRONG_MODIFIER_RES.some((re) => re.test(norm));
+}
+
+/**
+ * DD-4B — Service-seeking nouns. "mover"/"movers"/"moving company" and their
+ * variations mean "hire someone", not "give me a planning resource", unless a
+ * strong informational modifier is present.
+ */
+const SERVICE_INTENT_PATTERNS: RegExp[] = [
+  /(^|[^a-z])movers?([^a-z]|$)/,
+  /(^|[^a-z])moving compan(y|ies)([^a-z]|$)/,
+  /(^|[^a-z])moving (service|services|crew|crews|help|helpers|labor)([^a-z]|$)/,
+  /(^|[^a-z])(relocation|removal) (service|services|compan(y|ies))([^a-z]|$)/,
+  /(^|[^a-z])moving (truck|van) rental([^a-z]|$)/,
+];
+
+export function hasServiceIntent(norm: string): boolean {
+  return SERVICE_INTENT_PATTERNS.some((re) => re.test(norm));
+}
+
 /** Product-intent vocabulary. Ordered — first match wins. */
 const FIT_RULES: Array<{ fit: ProductFit; weight: number; tokens: string[] }> = [
+  { fit: "address_change", weight: 24, tokens: ["address change", "change of address", "change address"] },
+  { fit: "utility_transfer", weight: 24, tokens: ["utilities", "utility transfer", "transfer utilities"] },
   { fit: "packing_checklist", weight: 25, tokens: ["packing", "pack list", "box list"] },
   { fit: "moving_checklist", weight: 25, tokens: ["checklist", "check list"] },
   { fit: "home_inventory", weight: 25, tokens: ["inventory"] },
@@ -58,13 +121,21 @@ const FIT_RULES: Array<{ fit: ProductFit; weight: number; tokens: string[] }> = 
   {
     fit: "moving_cost_planner",
     weight: 22,
-    tokens: ["cost", "costs", "price", "prices", "pricing", "rates", "estimate calculator"],
+    tokens: [
+      "cost",
+      "costs",
+      "price",
+      "prices",
+      "pricing",
+      "rates",
+      "estimate",
+      "calculator",
+      "how much",
+      "average cost",
+    ],
   },
-  { fit: "utility_transfer", weight: 24, tokens: ["utilities", "utility transfer", "transfer utilities"] },
-  { fit: "address_change", weight: 24, tokens: ["address change", "change of address", "change address"] },
   { fit: "moving_timeline", weight: 23, tokens: ["timeline", "schedule", "weeks before"] },
   { fit: "moving_labels", weight: 20, tokens: ["label", "labels"] },
-  { fit: "apartment_move_planner", weight: 20, tokens: ["apartment", "studio move", "condo"] },
   {
     fit: "general_moving_planner",
     weight: 18,
@@ -72,26 +143,46 @@ const FIT_RULES: Array<{ fit: ProductFit; weight: number; tokens: string[] }> = 
   },
 ];
 
+/** Apartment/condo context — never enough on its own (DD-4B rule 4). */
+const APARTMENT_CONTEXT = /(^|[^a-z])(apartment|studio|condo)([^a-z]|$)/;
+/** Explicit planning/informational intent required alongside apartment context. */
+const APARTMENT_PLANNING_INTENT = [
+  "checklist",
+  "check list",
+  "planner",
+  "planning",
+  "guide",
+  "timeline",
+  "list",
+  "template",
+  "how to",
+  "worksheet",
+  "schedule",
+  "inventory",
+].map((t) => new RegExp(`(^|[^a-z])${t}([^a-z]|$)`));
+
 /** Words that look like product intent and must never be treated as a place name. */
 const PRODUCT_TOKEN_GUARD = new Set(
-  FIT_RULES.flatMap((r) => r.tokens.flatMap((t) => t.split(" "))).concat([
-    "moving",
-    "movers",
-    "mover",
-    "move",
-    "moves",
-    "home",
-    "house",
-    "apartment",
-    "storage",
-    "office",
-    "quote",
-    "quotes",
-  ]),
+  FIT_RULES.flatMap((r) => r.tokens.flatMap((t) => t.split(" ")))
+    .concat(STRONG_MODIFIERS.flatMap((t) => t.split(" ")))
+    .concat([
+      "moving",
+      "movers",
+      "mover",
+      "move",
+      "moves",
+      "home",
+      "house",
+      "apartment",
+      "storage",
+      "office",
+      "quote",
+      "quotes",
+    ]),
 );
 
-/** Obvious navigational / provider-shopping intent. */
-const NAVIGATIONAL_PATTERNS: RegExp[] = [
+/** Always-reject navigational patterns (brand / contact / "near me"). */
+const HARD_NAVIGATIONAL_PATTERNS: RegExp[] = [
   /\bnear me\b/,
   /\b\d+ men and a truck\b/,
   /\btwo men and a truck\b/,
@@ -99,12 +190,17 @@ const NAVIGATIONAL_PATTERNS: RegExp[] = [
   /\bpods\b/,
   /\bpenske\b/,
   /\bbudget truck\b/,
-  /\bcompany\b|\bcompanies\b|\bservice\b|\bservices\b|\bhelpers\b/,
-  /\bcheap\b|\baffordable\b|\bbest\b|\btop\b|\blocal\b|\bprofessional\b|\bresidential\b|\bcommercial\b/,
   /\bhire\b|\bbook\b|\bphone\b|\bnumber\b|\breviews?\b/,
 ];
 
+/** Provider-shopping wording — bypassed only when a strong modifier is present. */
+const SOFT_NAVIGATIONAL_PATTERNS: RegExp[] = [
+  /\bcompany\b|\bcompanies\b|\bservice\b|\bservices\b|\bhelpers\b/,
+  /\bcheap\b|\baffordable\b|\bbest\b|\btop\b|\blocal\b|\bprofessional\b|\bresidential\b|\bcommercial\b|\bpiano\b|\bsame day\b/,
+];
+
 const NOISE_PATTERNS: RegExp[] = [/^[^a-z0-9]/, /["'“”]/, /\$/, /\b\d{3,}\b/, /^.{0,4}$/, /^.{80,}$/];
+
 
 const STATE_NAMES = [
   "alabama","alaska","arizona","arkansas","california","colorado","connecticut","delaware","florida","georgia",
@@ -141,14 +237,27 @@ function hasGeo(norm: string, cityNames: Set<string>): boolean {
 }
 
 function classify(norm: string): { fit: ProductFit; weight: number } | null {
+  const apartmentPlanner =
+    APARTMENT_CONTEXT.test(norm) && APARTMENT_PLANNING_INTENT.some((re) => re.test(norm));
   for (const rule of FIT_RULES) {
+    // apartment_move_planner outranks the generic planner bucket, but specific
+    // fits (checklist, cost, inventory, ...) still win first.
+    if (apartmentPlanner && rule.fit === "general_moving_planner") {
+      return { fit: "apartment_move_planner", weight: 20 };
+    }
     for (const t of rule.tokens) {
       const re = new RegExp(`(^|[^a-z])${t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}([^a-z]|$)`);
       if (re.test(norm)) return { fit: rule.fit, weight: rule.weight };
     }
   }
+  // apartment_move_planner requires BOTH apartment context AND explicit
+  // planning/informational intent — "apartment mover" alone never qualifies.
+  if (apartmentPlanner) {
+    return { fit: "apartment_move_planner", weight: 20 };
+  }
   return null;
 }
+
 
 function impressionsPoints(impressions: number): number {
   // Log scaled, capped at 35. 30+ impressions in the window reaches the cap.
@@ -176,8 +285,17 @@ export function evaluateSignal(signal: GscSignal, cityNames: Set<string>): Evalu
   if (NOISE_PATTERNS.some((re) => re.test(norm))) {
     return { accepted: false, query: signal.query, reason: "noise_or_malformed" };
   }
-  for (const re of NAVIGATIONAL_PATTERNS) {
+  const strong = hasStrongModifier(norm);
+  for (const re of HARD_NAVIGATIONAL_PATTERNS) {
     if (re.test(norm)) return { accepted: false, query: signal.query, reason: "navigational_provider_intent" };
+  }
+  if (!strong) {
+    for (const re of SOFT_NAVIGATIONAL_PATTERNS) {
+      if (re.test(norm)) return { accepted: false, query: signal.query, reason: "navigational_provider_intent" };
+    }
+    if (hasServiceIntent(norm)) {
+      return { accepted: false, query: signal.query, reason: "service_intent" };
+    }
   }
   if (hasGeo(norm, cityNames)) {
     return { accepted: false, query: signal.query, reason: "narrow_local_intent" };
@@ -185,6 +303,7 @@ export function evaluateSignal(signal: GscSignal, cityNames: Set<string>): Evalu
 
   const fit = classify(norm);
   if (!fit) return { accepted: false, query: signal.query, reason: "no_defensible_product_fit" };
+
 
   const impressions = signal.impressions ?? 0;
   const clicks = signal.clicks ?? 0;

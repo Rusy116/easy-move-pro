@@ -41,6 +41,7 @@ import { LeadDetailPanel } from "@/components/admin/LeadDetailPanel";
 import { BrokerSelect, assignBroker, useBrokers } from "@/components/admin/BrokerSelect";
 import { LeadPhaseBadge } from "@/components/admin/LeadPhaseBadge";
 import { SlaCountdown } from "@/components/admin/SlaCountdown";
+import { useT } from "@/i18n";
 
 const STATUSES = ["new", "contacted", "scheduled", "accepted", "won", "lost", "cancelled"] as const;
 type Status = (typeof STATUSES)[number];
@@ -117,6 +118,7 @@ function timeAgo(iso: string | null): string {
 }
 
 export function AdminLeadsWorkspace() {
+  const tr = useT();
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   const [rows, setRows] = useState<QuoteRow[]>([]);
   const [total, setTotal] = useState(0);
@@ -424,7 +426,7 @@ export function AdminLeadsWorkspace() {
   if (isAdmin === null) {
     return (
       <AdminShell>
-        <div className="p-16 text-center text-muted-foreground">Loading…</div>
+        <div className="p-16 text-center text-muted-foreground">{tr("admin.shell.workspace.loading")}</div>
       </AdminShell>
     );
   }
@@ -432,10 +434,10 @@ export function AdminLeadsWorkspace() {
     return (
       <AdminShell>
         <section className="mx-auto max-w-2xl px-4 py-24 text-center">
-          <h1 className="font-serif text-4xl">Admin access required</h1>
-          <p className="mt-4 text-muted-foreground">Your account doesn't have the admin role.</p>
+          <h1 className="font-serif text-4xl">{tr("admin.shell.workspace.accessRequiredTitle")}</h1>
+          <p className="mt-4 text-muted-foreground">{tr("admin.shell.workspace.accessRequiredMessage")}</p>
           <Link to="/dashboard" className="mt-6 inline-block text-primary hover:underline">
-            ← Back to dashboard
+            {tr("admin.shell.workspace.backToDashboard")}
           </Link>
         </section>
       </AdminShell>
@@ -447,15 +449,15 @@ export function AdminLeadsWorkspace() {
       <div className="min-h-screen bg-gradient-to-b from-sage-soft/30 to-background">
         <section className="mx-auto max-w-[1400px] px-4 sm:px-6 py-8 md:py-12">
           <PageHeader
-            eyebrow="Admin CRM"
-            title="Leads"
+            eyebrow={tr("admin.shell.workspace.eyebrow")}
+            title={tr("admin.shell.workspace.title")}
             subtitle={
               <span className="inline-flex items-center gap-2">
                 <span className="relative flex h-2 w-2">
                   <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-500 opacity-60" />
                   <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-600" />
                 </span>
-                {total.toLocaleString()} total · live
+                {tr("admin.shell.workspace.totalLive", { count: total.toLocaleString() })}
               </span>
             }
             icon={<LayoutDashboard className="h-5 w-5" />}
@@ -464,13 +466,13 @@ export function AdminLeadsWorkspace() {
                 <Button asChild variant="outline" size="sm" className="rounded-full">
                   <Link to="/admin/dashboard">
                     <BarChart3 className="mr-1.5 h-4 w-4" />
-                    Analytics
+                    {tr("admin.shell.workspace.analytics")}
                   </Link>
                 </Button>
                 <Button asChild variant="outline" size="sm" className="rounded-full">
                   <Link to="/admin/companies">
                     <Users className="mr-1.5 h-4 w-4" />
-                    Companies
+                    {tr("admin.shell.workspace.companies")}
                   </Link>
                 </Button>
                 <NotificationsBell />
@@ -482,7 +484,7 @@ export function AdminLeadsWorkspace() {
                   className="rounded-full"
                 >
                   <RefreshCw className={`mr-2 h-4 w-4 ${loading ? "animate-spin" : ""}`} />
-                  Refresh
+                  {tr("admin.shell.workspace.refresh")}
                 </Button>
               </>
             }
@@ -491,43 +493,43 @@ export function AdminLeadsWorkspace() {
           {/* KPI stats */}
           <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
             <StatCard
-              label="Total"
+              label={tr("admin.shell.workspace.statTotal")}
               value={stats.total.toLocaleString()}
               icon={<Inbox className="h-4 w-4" />}
             />
             <StatCard
-              label="Active"
+              label={tr("admin.shell.workspace.statActive")}
               value={stats.active.toLocaleString()}
               tone="info"
-              hint="new · contacted · scheduled"
+              hint={tr("admin.shell.workspace.statActiveHint")}
               icon={<Bell className="h-4 w-4" />}
             />
             <StatCard
-              label="Accepted"
+              label={tr("admin.shell.workspace.statAccepted")}
               value={stats.accepted.toLocaleString()}
               tone="success"
               icon={<CheckCircle2 className="h-4 w-4" />}
             />
             <StatCard
-              label="Won"
+              label={tr("admin.shell.workspace.statWon")}
               value={stats.won.toLocaleString()}
               tone="success"
               icon={<CheckCircle2 className="h-4 w-4" />}
             />
             <StatCard
-              label="Lost"
+              label={tr("admin.shell.workspace.statLost")}
               value={stats.lost.toLocaleString()}
               icon={<Inbox className="h-4 w-4" />}
             />
             <StatCard
-              label="Revenue (won)"
+              label={tr("admin.shell.workspace.statRevenue")}
               value={
                 stats.won === 0
                   ? "—"
                   : `$${Math.round(stats.revenueLow / 1000)}k–$${Math.round(stats.revenueHigh / 1000)}k`
               }
               tone="success"
-              hint="sum of estimates"
+              hint={tr("admin.shell.workspace.statRevenueHint")}
               icon={<DollarSign className="h-4 w-4" />}
             />
           </div>
@@ -543,7 +545,7 @@ export function AdminLeadsWorkspace() {
                     : "bg-card border border-border text-muted-foreground hover:text-foreground"
                 }`}
               >
-                All
+                {tr("admin.shell.workspace.filterAll")}
               </button>
               {STATUSES.map((s) => (
                 <button
@@ -555,7 +557,7 @@ export function AdminLeadsWorkspace() {
                       : "bg-card border-border text-muted-foreground hover:text-foreground"
                   }`}
                 >
-                  {s}
+                  {tr(`admin.shell.workspace.leadStatus.${s}`)}
                 </button>
               ))}
               <div className="relative ml-auto w-64">
@@ -563,7 +565,7 @@ export function AdminLeadsWorkspace() {
                 <Input
                   ref={searchRef}
                   className="pl-8 h-9"
-                  placeholder="Phone, email, quote # ( / )"
+                  placeholder={tr("admin.shell.workspace.searchPlaceholder")}
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                 />
@@ -574,24 +576,24 @@ export function AdminLeadsWorkspace() {
                 type="date"
                 value={dateFrom}
                 onChange={(e) => setDateFrom(e.target.value)}
-                placeholder="From"
+                placeholder={tr("admin.shell.workspace.dateFrom")}
                 className="h-9"
               />
               <Input
                 type="date"
                 value={dateTo}
                 onChange={(e) => setDateTo(e.target.value)}
-                placeholder="To"
+                placeholder={tr("admin.shell.workspace.dateTo")}
                 className="h-9"
               />
               <Input
-                placeholder="Customer name"
+                placeholder={tr("admin.shell.workspace.customerName")}
                 value={customerName}
                 onChange={(e) => setCustomerName(e.target.value)}
                 className="h-9"
               />
               <Input
-                placeholder="City"
+                placeholder={tr("admin.shell.workspace.city")}
                 value={cityFilter}
                 onChange={(e) => setCityFilter(e.target.value)}
                 className="h-9"
@@ -599,10 +601,10 @@ export function AdminLeadsWorkspace() {
               <div className="grid grid-cols-2 gap-2">
                 <Select value={companyFilter} onValueChange={setCompanyFilter}>
                   <SelectTrigger className="h-9">
-                    <SelectValue placeholder="Company" />
+                    <SelectValue placeholder={tr("admin.shell.workspace.companyPlaceholder")} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">All companies</SelectItem>
+                    <SelectItem value="all">{tr("admin.shell.workspace.allCompanies")}</SelectItem>
                     {companies.map((c) => (
                       <SelectItem key={c.id} value={c.id}>
                         {c.name}
@@ -612,11 +614,11 @@ export function AdminLeadsWorkspace() {
                 </Select>
                 <Select value={brokerFilter} onValueChange={setBrokerFilter}>
                   <SelectTrigger className="h-9">
-                    <SelectValue placeholder="Broker" />
+                    <SelectValue placeholder={tr("admin.shell.workspace.brokerPlaceholder")} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">All brokers</SelectItem>
-                    <SelectItem value="unassigned">Unassigned</SelectItem>
+                    <SelectItem value="all">{tr("admin.shell.workspace.allBrokers")}</SelectItem>
+                    <SelectItem value="unassigned">{tr("admin.shell.workspace.unassigned")}</SelectItem>
                     {brokers.map((b) => (
                       <SelectItem key={b.id} value={b.id}>
                         {b.full_name || b.email}
@@ -631,25 +633,25 @@ export function AdminLeadsWorkspace() {
           {/* Bulk actions */}
           {selectedIds.size > 0 && (
             <div className="mt-3 flex flex-wrap items-center gap-2 rounded-xl border border-primary/40 bg-primary/5 px-4 py-2.5 text-sm">
-              <span className="font-medium">{selectedIds.size} selected</span>
+              <span className="font-medium">{tr("admin.shell.workspace.selectedCount", { count: selectedIds.size })}</span>
               <Select onValueChange={(v) => void bulkStatus(v)}>
                 <SelectTrigger className="h-8 w-[160px]">
-                  <SelectValue placeholder="Change status…" />
+                  <SelectValue placeholder={tr("admin.shell.workspace.changeStatus")} />
                 </SelectTrigger>
                 <SelectContent>
                   {STATUSES.map((s) => (
                     <SelectItem key={s} value={s} className="capitalize">
-                      {s}
+                      {tr(`admin.shell.workspace.leadStatus.${s}`)}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
               <Select onValueChange={(v) => void bulkAssignBroker(v === "__none" ? null : v)}>
                 <SelectTrigger className="h-8 w-[180px]">
-                  <SelectValue placeholder="Assign broker…" />
+                  <SelectValue placeholder={tr("admin.shell.workspace.assignBroker")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="__none">Unassigned</SelectItem>
+                  <SelectItem value="__none">{tr("admin.shell.workspace.unassigned")}</SelectItem>
                   {brokers.map((b) => (
                     <SelectItem key={b.id} value={b.id}>
                       {b.full_name || b.email}
@@ -658,7 +660,7 @@ export function AdminLeadsWorkspace() {
                 </SelectContent>
               </Select>
               <Button variant="ghost" size="sm" onClick={() => setSelectedIds(new Set())}>
-                Clear
+                {tr("admin.shell.workspace.clear")}
               </Button>
             </div>
           )}
@@ -671,17 +673,17 @@ export function AdminLeadsWorkspace() {
                   <TableHead className="w-10">
                     <Checkbox checked={allSelected} onCheckedChange={() => toggleAll()} />
                   </TableHead>
-                  <TableHead className="text-[11px] uppercase tracking-wider">Quote #</TableHead>
-                  <TableHead className="text-[11px] uppercase tracking-wider">Customer</TableHead>
-                  <TableHead className="text-[11px] uppercase tracking-wider">Move date</TableHead>
-                  <TableHead className="text-[11px] uppercase tracking-wider">Route</TableHead>
-                  <TableHead className="text-[11px] uppercase tracking-wider">Volume</TableHead>
-                  <TableHead className="text-[11px] uppercase tracking-wider">Estimate</TableHead>
-                  <TableHead className="text-[11px] uppercase tracking-wider">Broker</TableHead>
-                  <TableHead className="text-[11px] uppercase tracking-wider">Movers</TableHead>
-                  <TableHead className="text-[11px] uppercase tracking-wider">Phase</TableHead>
-                  <TableHead className="text-[11px] uppercase tracking-wider">Status</TableHead>
-                  <TableHead className="text-[11px] uppercase tracking-wider">Activity</TableHead>
+                  <TableHead className="text-[11px] uppercase tracking-wider">{tr("admin.shell.workspace.colQuoteNumber")}</TableHead>
+                  <TableHead className="text-[11px] uppercase tracking-wider">{tr("admin.shell.workspace.colCustomer")}</TableHead>
+                  <TableHead className="text-[11px] uppercase tracking-wider">{tr("admin.shell.workspace.colMoveDate")}</TableHead>
+                  <TableHead className="text-[11px] uppercase tracking-wider">{tr("admin.shell.workspace.colRoute")}</TableHead>
+                  <TableHead className="text-[11px] uppercase tracking-wider">{tr("admin.shell.workspace.colVolume")}</TableHead>
+                  <TableHead className="text-[11px] uppercase tracking-wider">{tr("admin.shell.workspace.colEstimate")}</TableHead>
+                  <TableHead className="text-[11px] uppercase tracking-wider">{tr("admin.shell.workspace.colBroker")}</TableHead>
+                  <TableHead className="text-[11px] uppercase tracking-wider">{tr("admin.shell.workspace.colMovers")}</TableHead>
+                  <TableHead className="text-[11px] uppercase tracking-wider">{tr("admin.shell.workspace.colPhase")}</TableHead>
+                  <TableHead className="text-[11px] uppercase tracking-wider">{tr("admin.shell.workspace.colStatus")}</TableHead>
+                  <TableHead className="text-[11px] uppercase tracking-wider">{tr("admin.shell.workspace.colActivity")}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -772,7 +774,7 @@ export function AdminLeadsWorkspace() {
                           <SelectContent>
                             {STATUSES.map((s) => (
                               <SelectItem key={s} value={s} className="capitalize">
-                                {s}
+                                {tr(`admin.shell.workspace.leadStatus.${s}`)}
                               </SelectItem>
                             ))}
                           </SelectContent>
@@ -787,7 +789,7 @@ export function AdminLeadsWorkspace() {
                 {rows.length === 0 && !loading && (
                   <TableRow>
                     <TableCell colSpan={12} className="p-8 text-center text-muted-foreground">
-                      No quotes match your filters.
+                      {tr("admin.shell.workspace.noResults")}
                     </TableCell>
                   </TableRow>
                 )}
@@ -814,14 +816,14 @@ export function AdminLeadsWorkspace() {
                     variant="outline"
                     className={`capitalize ${STATUS_STYLES[q.status as Status] ?? ""}`}
                   >
-                    {q.status}
+                    {tr(`admin.shell.workspace.leadStatus.${q.status}`)}
                   </Badge>
                 </div>
                 <div className="mt-2 text-sm">
                   {q.origin_city ?? q.origin_zip} → {q.destination_city ?? q.destination_zip}
                 </div>
                 <div className="mt-1 flex items-center justify-between text-xs">
-                  <span className="text-muted-foreground">Move: {q.move_date ?? "—"}</span>
+                  <span className="text-muted-foreground">{tr("admin.shell.workspace.moveLabel", { date: q.move_date ?? "—" })}</span>
                   <span className="font-medium">
                     ${Number(q.estimated_low).toLocaleString()}–$
                     {Number(q.estimated_high).toLocaleString()}
@@ -829,7 +831,7 @@ export function AdminLeadsWorkspace() {
                 </div>
                 <div className="mt-2 flex items-center gap-2 text-xs text-muted-foreground">
                   <UserRound className="h-3 w-3" />
-                  <span>{brokerLabel(q.assigned_broker_id) ?? "Unassigned"}</span>
+                  <span>{brokerLabel(q.assigned_broker_id) ?? tr("admin.shell.workspace.unassigned")}</span>
                   <span>·</span>
                   <span>{timeAgo(q.last_activity_at ?? q.created_at)}</span>
                 </div>
@@ -837,7 +839,7 @@ export function AdminLeadsWorkspace() {
             ))}
             {rows.length === 0 && !loading && (
               <div className="p-8 text-center text-muted-foreground rounded-2xl border border-border">
-                No quotes.
+                {tr("admin.shell.workspace.noQuotes")}
               </div>
             )}
           </div>
@@ -845,7 +847,7 @@ export function AdminLeadsWorkspace() {
           {/* Pagination */}
           <div className="mt-4 flex items-center justify-between">
             <div className="text-sm text-muted-foreground">
-              Page {page + 1} of {pageCount} · {total.toLocaleString()} leads
+              {tr("admin.shell.workspace.pagination", { page: page + 1, pages: pageCount, total: total.toLocaleString() })}
             </div>
             <div className="flex gap-2">
               <Button
@@ -854,7 +856,7 @@ export function AdminLeadsWorkspace() {
                 disabled={page === 0}
                 onClick={() => setPage((p) => Math.max(0, p - 1))}
               >
-                ← Prev
+                {tr("admin.shell.workspace.prev")}
               </Button>
               <Button
                 variant="outline"
@@ -862,7 +864,7 @@ export function AdminLeadsWorkspace() {
                 disabled={page + 1 >= pageCount}
                 onClick={() => setPage((p) => p + 1)}
               >
-                Next →
+                {tr("admin.shell.workspace.next")}
               </Button>
             </div>
           </div>

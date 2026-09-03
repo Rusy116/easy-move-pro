@@ -104,16 +104,16 @@ type Stats = {
   revenueHigh: number;
 };
 
-function timeAgo(iso: string | null): string {
+function timeAgo(tr: (k: string, v?: Record<string, string | number>) => string, iso: string | null): string {
   if (!iso) return "—";
   const diff = Date.now() - new Date(iso).getTime();
   const m = Math.floor(diff / 60000);
-  if (m < 1) return "just now";
-  if (m < 60) return `${m}m ago`;
+  if (m < 1) return tr("admin.shell.time.justNow");
+  if (m < 60) return tr("admin.shell.time.minutesAgo", { count: m });
   const h = Math.floor(m / 60);
-  if (h < 24) return `${h}h ago`;
+  if (h < 24) return tr("admin.shell.time.hoursAgo", { count: h });
   const d = Math.floor(h / 24);
-  if (d < 30) return `${d}d ago`;
+  if (d < 30) return tr("admin.shell.time.daysAgo", { count: d });
   return new Date(iso).toLocaleDateString();
 }
 
@@ -785,7 +785,7 @@ export function AdminLeadsWorkspace() {
                         </Select>
                       </TableCell>
                       <TableCell className="whitespace-nowrap text-xs text-muted-foreground">
-                        {timeAgo(q.last_activity_at ?? q.created_at)}
+                        {timeAgo(tr, q.last_activity_at ?? q.created_at)}
                       </TableCell>
                     </TableRow>
                   );
@@ -837,7 +837,7 @@ export function AdminLeadsWorkspace() {
                   <UserRound className="h-3 w-3" />
                   <span>{brokerLabel(q.assigned_broker_id) ?? tr("admin.shell.workspace.unassigned")}</span>
                   <span>·</span>
-                  <span>{timeAgo(q.last_activity_at ?? q.created_at)}</span>
+                  <span>{timeAgo(tr, q.last_activity_at ?? q.created_at)}</span>
                 </div>
               </button>
             ))}

@@ -3,6 +3,7 @@ import { SiteLayout } from "@/components/site/SiteLayout";
 import { Breadcrumbs, InternalLinks, Cta } from "@/components/seo/blocks";
 import { seoMeta, jsonLd, breadcrumbSchema, absoluteUrl } from "@/lib/seo/schema";
 import { GEO_ROUTES } from "@/lib/seo/geo";
+import { useT } from "@/i18n";
 
 const TITLE = "Popular Moving Routes — Costs, Distance & Transit Times | Easy Moving";
 const DESC =
@@ -25,17 +26,17 @@ export const Route = createFileRoute("/routes/")({
 });
 
 function RoutesIndex() {
+  const t = useT();
   return (
     <SiteLayout>
-      <Breadcrumbs items={[{ label: "Home", to: "/" }, { label: "Moving routes" }]} />
+      <Breadcrumbs items={[{ label: t("pub.common.home"), to: "/" }, { label: t("pub.routesIndex.crumb") }]} />
       <section className="mx-auto max-w-7xl px-4 sm:px-6 py-16 sm:py-24">
         <span className="text-xs font-semibold uppercase tracking-widest text-ochre">
-          Long distance
+          {t("pub.routesIndex.eyebrow")}
         </span>
-        <h1 className="mt-3 font-serif text-5xl font-medium">Popular moving routes.</h1>
+        <h1 className="mt-3 font-serif text-5xl font-medium">{t("pub.routesIndex.title")}</h1>
         <p className="mt-4 max-w-2xl text-lg text-muted-foreground">
-          Real distance, drive time and cost ranges for the corridors our partner network moves
-          most.
+          {t("pub.routesIndex.subtitle")}
         </p>
 
         <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -51,15 +52,15 @@ function RoutesIndex() {
               </h2>
               <div className="mt-4 grid grid-cols-3 gap-3 text-sm">
                 <div>
-                  <div className="text-xs text-muted-foreground">Distance</div>
+                  <div className="text-xs text-muted-foreground">{t("pub.routesIndex.distance")}</div>
                   <div className="font-medium">{r.miles.toLocaleString()} mi</div>
                 </div>
                 <div>
-                  <div className="text-xs text-muted-foreground">Drive</div>
+                  <div className="text-xs text-muted-foreground">{t("pub.routesIndex.drive")}</div>
                   <div className="font-medium">{r.driveHours} hrs</div>
                 </div>
                 <div>
-                  <div className="text-xs text-muted-foreground">Typical</div>
+                  <div className="text-xs text-muted-foreground">{t("pub.routesIndex.typical")}</div>
                   <div className="font-medium">${(r.low / 1000).toFixed(1)}k+</div>
                 </div>
               </div>
@@ -69,19 +70,19 @@ function RoutesIndex() {
       </section>
 
       <InternalLinks
-        title="Explore more"
+        title={t("pub.common.exploreMore")}
         links={[
-          { label: "Movers by state", to: "/states" },
-          { label: "Moving cost calculator", to: "/calculator" },
-          { label: "Resources center", to: "/resources" },
-          { label: "AI moving tools", to: "/ai-tools" },
+          { label: t("pub.common.moversByState"), to: "/states" },
+          { label: t("pub.common.movingCalculator"), to: "/calculator" },
+          { label: t("pub.common.resourcesCenter"), to: "/resources" },
+          { label: t("pub.common.aiMovingTools"), to: "/ai-tools" },
         ]}
       />
       <Cta
-        title="Price your route in seconds"
-        subhead="Inventory-based pricing for local, long-distance and interstate moves."
+        title={t("pub.routesIndex.ctaTitle")}
+        subhead={t("pub.routesIndex.ctaSubhead")}
         primaryHref="/calculator"
-        primaryLabel="Get my exact quote"
+        primaryLabel={t("pub.routesIndex.ctaLabel")}
       />
     </SiteLayout>
   );

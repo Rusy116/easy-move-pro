@@ -3,6 +3,7 @@ import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { BlogMarkdown } from "@/components/blog/BlogMarkdown";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { supabase } from "@/integrations/supabase/client";
+import { useT } from "@/i18n";
 
 const postQueryOptions = (slug: string) =>
   queryOptions({
@@ -35,26 +36,32 @@ export const Route = createFileRoute("/blog/$slug")({
         }
       : { meta: [{ title: "Post" }] },
   component: PostPage,
-  notFoundComponent: () => (
+  notFoundComponent: () => <BlogNotFound />,
+});
+
+function BlogNotFound() {
+  const t = useT();
+  return (
     <SiteLayout>
       <div className="mx-auto max-w-3xl px-4 py-24 text-center">
-        <h1 className="font-serif text-4xl">Post not found</h1>
+        <h1 className="font-serif text-4xl">{t("pub.blogPost.notFound")}</h1>
         <Link to="/blog" className="mt-6 inline-block text-primary hover:underline">
-          Back to blog →
+          {t("pub.blogPost.backToBlog")}
         </Link>
       </div>
     </SiteLayout>
-  ),
-});
+  );
+}
 
 function PostPage() {
+  const t = useT();
   const { slug } = Route.useParams();
   const { data: post } = useSuspenseQuery(postQueryOptions(slug));
   return (
     <SiteLayout>
       <article className="mx-auto max-w-3xl px-4 sm:px-6 py-16 sm:py-24">
         <Link to="/blog" className="text-sm text-muted-foreground hover:text-foreground">
-          ← All guides
+          ← {t("pub.blogPost.allGuides")}
         </Link>
         <h1 className="mt-4 font-serif text-5xl font-medium leading-tight">{post.title}</h1>
         {post.published_at && (

@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { CoverImage } from "@/components/store/CoverImage";
 import { useCart } from "@/lib/store/cart";
 import { money } from "@/lib/pdf-store/catalog";
+import { useT } from "@/i18n";
 
 export const Route = createFileRoute("/cart")({
   head: () => ({
@@ -21,22 +22,23 @@ export const Route = createFileRoute("/cart")({
 });
 
 function CartPage() {
+  const t = useT();
   const cart = useCart();
 
   return (
     <SiteLayout>
       <section className="mx-auto max-w-3xl px-4 py-12 sm:px-6 sm:py-16">
-        <h1 className="font-serif text-3xl">Your cart</h1>
+        <h1 className="font-serif text-3xl">{t("pub.cart.title")}</h1>
 
         {cart.lines.length === 0 ? (
           <div className="card-premium mt-6 p-10 text-center">
             <ShoppingCart className="mx-auto h-8 w-8 text-muted-foreground" />
-            <p className="mt-4 font-serif text-lg">Your cart is empty</p>
+            <p className="mt-4 font-serif text-lg">{t("pub.cart.empty")}</p>
             <p className="mt-1 text-sm text-muted-foreground">
-              Add a planner or checklist and it will show up here.
+              {t("pub.cart.emptyHint")}
             </p>
             <Link to="/products" className="mt-5 inline-block">
-              <Button className="rounded-full">Browse the store</Button>
+              <Button className="rounded-full">{t("pub.cart.browseStore")}</Button>
             </Link>
           </div>
         ) : (
@@ -58,12 +60,12 @@ function CartPage() {
                     >
                       {line.title}
                     </Link>
-                    <p className="text-xs text-muted-foreground">PDF · instant download</p>
+                    <p className="text-xs text-muted-foreground">{t("pub.cart.pdfInstant")}</p>
                   </div>
                   <span className="font-semibold tabular-nums">{money(line.priceCents)}</span>
                   <button
                     type="button"
-                    aria-label={`Remove ${line.title}`}
+                    aria-label={t("pub.cart.removeItem", { title: line.title })}
                     className="text-muted-foreground transition hover:text-destructive"
                     onClick={() => cart.remove(line.slug)}
                   >
@@ -74,13 +76,13 @@ function CartPage() {
             </ul>
 
             <div className="mt-4 flex items-center justify-between border-t border-border/60 pt-4">
-              <span className="text-sm text-muted-foreground">Total</span>
+              <span className="text-sm text-muted-foreground">{t("pub.common.total")}</span>
               <span className="text-xl font-semibold">{money(cart.total)}</span>
             </div>
 
             <Link to="/checkout" className="mt-5 block">
               <Button size="lg" className="w-full rounded-full">
-                Checkout
+                {t("pub.cart.checkout")}
               </Button>
             </Link>
             <button
@@ -88,7 +90,7 @@ function CartPage() {
               onClick={cart.clear}
               className="mt-3 w-full text-xs text-muted-foreground underline"
             >
-              Empty cart
+              {t("pub.cart.emptyCartBtn")}
             </button>
           </div>
         )}

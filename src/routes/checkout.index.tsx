@@ -7,6 +7,7 @@ import { CheckoutForm } from "@/components/store/CheckoutForm";
 import { PaymentTestModeBanner } from "@/components/store/PaymentTestModeBanner";
 import { useCart, type CartLine } from "@/lib/store/cart";
 import { money } from "@/lib/pdf-store/catalog";
+import { useT } from "@/i18n";
 
 export const Route = createFileRoute("/checkout/")({
   head: () => ({
@@ -24,6 +25,7 @@ export const Route = createFileRoute("/checkout/")({
 });
 
 function CartCheckoutPage() {
+  const t = useT();
   const live = useCart();
   // Once checkout starts we render a frozen snapshot, so clearing the cart
   // after payment never tears down the mounted Stripe form.
@@ -38,9 +40,9 @@ function CartCheckoutPage() {
         <div className="order-2 lg:order-1">
           {lines.length === 0 ? (
             <div className="card-premium p-10 text-center">
-              <p className="font-serif text-xl">Your cart is empty</p>
+              <p className="font-serif text-xl">{t("pub.cart.empty")}</p>
               <Link to="/products" className="mt-4 inline-block">
-                <Button className="rounded-full">Browse the store</Button>
+                <Button className="rounded-full">{t("pub.cart.browseStore")}</Button>
               </Link>
             </div>
           ) : (
@@ -59,7 +61,7 @@ function CartCheckoutPage() {
         <aside className="order-1 lg:order-2">
           <div className="card-premium p-5">
             <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-              Order summary
+              {t("pub.checkout.orderSummary")}
             </p>
             <ul className="mt-4 space-y-3">
               {lines.map((line) => (
@@ -72,21 +74,21 @@ function CartCheckoutPage() {
                   />
                   <div className="min-w-0 flex-1">
                     <p className="font-serif text-base leading-snug">{line.title}</p>
-                    <p className="text-xs text-muted-foreground">PDF</p>
+                    <p className="text-xs text-muted-foreground">{t("pub.checkout.pdf")}</p>
                   </div>
                   <span className="text-sm tabular-nums">{money(line.priceCents)}</span>
                 </li>
               ))}
             </ul>
             <div className="mt-5 flex items-center justify-between border-t border-border/60 pt-4">
-              <span className="text-sm text-muted-foreground">Total</span>
+              <span className="text-sm text-muted-foreground">{t("pub.common.total")}</span>
               <span className="text-xl font-semibold">{money(total)}</span>
             </div>
             <p className="mt-3 text-xs text-muted-foreground">
-              Instant download after payment, plus an emailed copy of every link.
+              {t("pub.checkout.instantDownloadMulti")}
             </p>
             <Link to="/cart" className="mt-3 inline-block text-xs underline">
-              Edit cart
+              {t("pub.checkout.editCart")}
             </Link>
           </div>
         </aside>

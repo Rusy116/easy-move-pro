@@ -5,6 +5,7 @@ import { CheckoutForm } from "@/components/store/CheckoutForm";
 import { PaymentTestModeBanner } from "@/components/store/PaymentTestModeBanner";
 import { getStoreProduct } from "@/lib/pdf-store.functions";
 import { money } from "@/lib/pdf-store/catalog";
+import { useT } from "@/i18n";
 
 export const Route = createFileRoute("/checkout/$slug")({
   loader: async ({ params }) => {
@@ -28,27 +29,38 @@ export const Route = createFileRoute("/checkout/$slug")({
     ],
   }),
   component: CheckoutPage,
-  errorComponent: () => (
+  errorComponent: () => <CheckoutError />,
+  notFoundComponent: () => <CheckoutNotFound />,
+});
+
+function CheckoutError() {
+  const t = useT();
+  return (
     <SiteLayout>
       <section className="mx-auto max-w-3xl px-4 py-20 text-center sm:px-6">
-        <p className="font-serif text-xl">Checkout is temporarily unavailable</p>
-        <p className="mt-2 text-sm text-muted-foreground">Please refresh in a moment.</p>
+        <p className="font-serif text-xl">{t("pub.productsCategory.unavailable")}</p>
+        <p className="mt-2 text-sm text-muted-foreground">{t("pub.productsCategory.refresh")}</p>
       </section>
     </SiteLayout>
-  ),
-  notFoundComponent: () => (
+  );
+}
+
+function CheckoutNotFound() {
+  const t = useT();
+  return (
     <SiteLayout>
       <section className="mx-auto max-w-3xl px-4 py-20 text-center sm:px-6">
-        <p className="font-serif text-xl">Product not found</p>
+        <p className="font-serif text-xl">{t("pub.checkout.productNotFound")}</p>
         <Link to="/products" className="mt-4 inline-block text-sm underline">
-          Back to the store
+          {t("pub.checkout.backToStore")}
         </Link>
       </section>
     </SiteLayout>
-  ),
-});
+  );
+}
 
 function CheckoutPage() {
+  const t = useT();
   const { product } = Route.useLoaderData();
   const priceCents = Number(product.price_cents ?? 0);
 
@@ -65,7 +77,7 @@ function CheckoutPage() {
         <aside className="order-1 lg:order-2">
           <div className="card-premium p-5">
             <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-              Order summary
+              {t("pub.checkout.orderSummary")}
             </p>
             <div className="mt-4 flex gap-3">
               <CoverImage
@@ -77,19 +89,19 @@ function CheckoutPage() {
               />
               <div className="min-w-0">
                 <p className="font-serif text-lg leading-snug">{product.title}</p>
-                <p className="text-xs text-muted-foreground">{product.page_count} pages · PDF</p>
+                <p className="text-xs text-muted-foreground">{t("pub.checkout.pagesPdf", { count: product.page_count })}</p>
               </div>
             </div>
             <div className="mt-5 flex items-center justify-between border-t border-border/60 pt-4">
-              <span className="text-sm text-muted-foreground">Total</span>
+              <span className="text-sm text-muted-foreground">{t("pub.common.total")}</span>
               <span className="text-xl font-semibold">
-                {priceCents > 0 ? money(priceCents) : "Free"}
+                {priceCents > 0 ? money(priceCents) : t("pub.checkout.free")}
               </span>
             </div>
             <p className="mt-3 text-xs text-muted-foreground">
               {priceCents > 0
-                ? "Instant download after payment, plus an emailed copy of your link."
-                : "Instant download, plus an emailed copy of your link."}
+                ? t("pub.checkout.instantDownloadPaid")
+                : t("pub.checkout.instantDownloadFree")}
             </p>
           </div>
         </aside>

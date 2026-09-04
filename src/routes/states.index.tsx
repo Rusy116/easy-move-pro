@@ -3,6 +3,7 @@ import { SiteLayout } from "@/components/site/SiteLayout";
 import { Breadcrumbs, InternalLinks, Cta } from "@/components/seo/blocks";
 import { seoMeta, jsonLd, breadcrumbSchema, absoluteUrl } from "@/lib/seo/schema";
 import { ACTIVE_STATES, citiesInStateSlug } from "@/lib/seo/geo";
+import { useT } from "@/i18n";
 
 const TITLE = "Movers by State — Moving Companies in All 50 States | Easy Moving";
 const DESC =
@@ -25,16 +26,17 @@ export const Route = createFileRoute("/states/")({
 });
 
 function StatesIndex() {
+  const t = useT();
   return (
     <SiteLayout>
-      <Breadcrumbs items={[{ label: "Home", to: "/" }, { label: "Movers by state" }]} />
+      <Breadcrumbs items={[{ label: t("pub.common.home"), to: "/" }, { label: t("pub.statesIndex.crumb") }]} />
       <section className="mx-auto max-w-7xl px-4 sm:px-6 py-16 sm:py-24">
         <span className="text-xs font-semibold uppercase tracking-widest text-ochre">
-          Nationwide coverage
+          {t("pub.statesIndex.eyebrow")}
         </span>
-        <h1 className="mt-3 font-serif text-5xl font-medium">Movers by state.</h1>
+        <h1 className="mt-3 font-serif text-5xl font-medium">{t("pub.statesIndex.title")}</h1>
         <p className="mt-4 max-w-2xl text-lg text-muted-foreground">
-          Pick your state to see city-level moving costs, vetted local partners and instant quotes.
+          {t("pub.statesIndex.subtitle")}
         </p>
 
         <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -49,12 +51,12 @@ function StatesIndex() {
               >
                 <div className="flex items-baseline justify-between">
                   <h2 className="font-serif text-2xl font-medium group-hover:text-primary transition-colors">
-                    {s.name} Movers
+                    {t("pub.statesIndex.stateMovers", { state: s.name })}
                   </h2>
                   <span className="text-xs text-muted-foreground">{s.code}</span>
                 </div>
                 <p className="mt-3 text-sm text-muted-foreground">
-                  {cities.length} {cities.length === 1 ? "city" : "cities"} ·{" "}
+                  {cities.length} {cities.length === 1 ? t("pub.common.city") : t("pub.common.cities")} ·{" "}
                   {cities
                     .slice(0, 3)
                     .map((c) => c.name)
@@ -68,19 +70,19 @@ function StatesIndex() {
       </section>
 
       <InternalLinks
-        title="Explore more"
+        title={t("pub.common.exploreMore")}
         links={[
-          { label: "Popular moving routes", to: "/routes" },
-          { label: "Moving cost calculator", to: "/calculator" },
-          { label: "Resources center", to: "/resources" },
-          { label: "For moving companies", to: "/for-movers" },
+          { label: t("pub.common.popularRoutes"), to: "/routes" },
+          { label: t("pub.common.movingCalculator"), to: "/calculator" },
+          { label: t("pub.common.resourcesCenter"), to: "/resources" },
+          { label: t("pub.common.forMovingCompanies"), to: "/for-movers" },
         ]}
       />
       <Cta
-        title="Get your instant moving estimate"
-        subhead="Itemized pricing built from your real inventory — not a bedroom guess."
+        title={t("pub.statesIndex.ctaTitle")}
+        subhead={t("pub.statesIndex.ctaSubhead")}
         primaryHref="/calculator"
-        primaryLabel="Start my quote"
+        primaryLabel={t("pub.common.startMyQuote")}
       />
     </SiteLayout>
   );

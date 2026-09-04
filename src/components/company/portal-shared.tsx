@@ -51,6 +51,7 @@ import {
   type EstimateRevision,
 } from "@/lib/estimates";
 import { generateCompanyEstimatePdf } from "@/lib/company-estimate-pdf";
+import { useT } from "@/i18n";
 
 
 /* ================================================================== */
@@ -295,16 +296,28 @@ export function useMoverPortal() {
 /*                            Helpers                                  */
 /* ================================================================== */
 
-export function customerName(l: MoverLead): string {
-  return l.full_name?.trim() || "Customer (contact hidden)";
+export function customerName(l: MoverLead, t?: (key: string) => string): string {
+  return l.full_name?.trim() || (t ? t("co.shared.contactHidden") : "Customer (contact hidden)");
 }
 
-export const BUCKET_META: Record<Bucket, { label: string; icon: React.ReactNode }> = {
-  exclusive: { label: "Exclusive", icon: <Lock className="h-4 w-4" /> },
-  active: { label: "Active", icon: <ClipboardList className="h-4 w-4" /> },
-  open_market: { label: "Open market", icon: <Globe className="h-4 w-4" /> },
-  won: { label: "Won", icon: <CheckCircle2 className="h-4 w-4" /> },
-  lost: { label: "Lost", icon: <XCircle className="h-4 w-4" /> },
+export const BUCKET_META: Record<Bucket, { labelKey: string; icon: React.ReactNode }> = {
+  exclusive: { labelKey: "co.shared.bucket.exclusive", icon: <Lock className="h-4 w-4" /> },
+  active: { labelKey: "co.shared.bucket.active", icon: <ClipboardList className="h-4 w-4" /> },
+  open_market: { labelKey: "co.shared.bucket.openMarket", icon: <Globe className="h-4 w-4" /> },
+  won: { labelKey: "co.shared.bucket.won", icon: <CheckCircle2 className="h-4 w-4" /> },
+  lost: { labelKey: "co.shared.bucket.lost", icon: <XCircle className="h-4 w-4" /> },
+};
+
+export const ASSIGNMENT_STATE_KEY: Record<AssignmentState, string> = {
+  invited: "co.shared.assignmentState.invited",
+  active: "co.shared.assignmentState.active",
+  quoted: "co.shared.assignmentState.quoted",
+  accepted: "co.shared.assignmentState.accepted",
+  won: "co.shared.assignmentState.won",
+  lost: "co.shared.assignmentState.lost",
+  declined: "co.shared.assignmentState.declined",
+  withdrawn: "co.shared.assignmentState.withdrawn",
+  expired: "co.shared.assignmentState.expired",
 };
 
 export type LeadStatusTab =
@@ -341,6 +354,7 @@ export function CompanyHeader({
   company: Company;
   onRefresh?: () => void;
 }) {
+  const t = useT();
   return (
     <div className="card-premium grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 p-5 sm:p-6 animate-fade-in-soft">
       <div className="flex min-w-0 items-center gap-4">
@@ -357,7 +371,7 @@ export function CompanyHeader({
         )}
         <div className="min-w-0">
           <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-ochre">
-            Moving company portal
+            {t("co.shared.portalLabel")}
           </div>
           <h1 className="mt-0.5 truncate font-serif text-2xl md:text-3xl font-medium">
             {company.name}
@@ -391,7 +405,7 @@ export function CompanyHeader({
           onClick={onRefresh}
         >
           <RefreshCw className="mr-2 h-4 w-4" />
-          Refresh
+          {t("co.shared.refresh")}
         </Button>
       )}
     </div>
@@ -399,6 +413,7 @@ export function CompanyHeader({
 }
 
 export function StatusBanner({ company }: { company: Company }) {
+  const t = useT();
   const suspended = company.suspended === true;
   const notApproved = company.approved === false;
   if (!suspended && !notApproved) return null;
@@ -407,8 +422,8 @@ export function StatusBanner({ company }: { company: Company }) {
       <ShieldAlert className="h-4 w-4 mt-0.5" />
       <div>
         {suspended
-          ? "Your company is suspended. You can view existing assignments but cannot claim new open-market leads."
-          : "Your company is pending approval. You can act on exclusive assignments, but claiming open-market leads is disabled until approval."}
+          ? t("co.shared.suspendedBanner")
+          : t("co.shared.pendingApprovalBanner")}
       </div>
     </div>
   );

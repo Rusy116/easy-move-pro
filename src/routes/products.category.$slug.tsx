@@ -5,6 +5,7 @@ import { ProductCard } from "@/components/store/ProductCard";
 import { listStoreProducts } from "@/lib/pdf-store.functions";
 import { FALLBACK_CATEGORIES, type PdfProduct } from "@/lib/pdf-store/catalog";
 import { seoMeta, jsonLd, breadcrumbSchema, absoluteUrl } from "@/lib/seo/schema";
+import { useT } from "@/i18n";
 
 const catFor = (slug: string) =>
   FALLBACK_CATEGORIES.find((c) => c.slug === slug) ?? {
@@ -36,32 +37,43 @@ export const Route = createFileRoute("/products/category/$slug")({
     };
   },
   component: CategoryPage,
-  errorComponent: () => (
-    <SiteLayout>
-      <section className="mx-auto max-w-6xl px-4 py-20 text-center sm:px-6">
-        <p className="font-serif text-xl">This category is temporarily unavailable</p>
-        <p className="mt-2 text-sm text-muted-foreground">Please refresh in a moment.</p>
-      </section>
-    </SiteLayout>
-  ),
-  notFoundComponent: () => (
-    <SiteLayout>
-      <section className="mx-auto max-w-6xl px-4 py-20 text-center sm:px-6">
-        <p className="font-serif text-xl">Category not found</p>
-      </section>
-    </SiteLayout>
-  ),
+  errorComponent: () => <CategoryError />,
+  notFoundComponent: () => <CategoryNotFound />,
 });
 
+function CategoryError() {
+  const t = useT();
+  return (
+    <SiteLayout>
+      <section className="mx-auto max-w-6xl px-4 py-20 text-center sm:px-6">
+        <p className="font-serif text-xl">{t("pub.productsCategory.unavailable")}</p>
+        <p className="mt-2 text-sm text-muted-foreground">{t("pub.productsCategory.refresh")}</p>
+      </section>
+    </SiteLayout>
+  );
+}
+
+function CategoryNotFound() {
+  const t = useT();
+  return (
+    <SiteLayout>
+      <section className="mx-auto max-w-6xl px-4 py-20 text-center sm:px-6">
+        <p className="font-serif text-xl">{t("pub.productsCategory.notFound")}</p>
+      </section>
+    </SiteLayout>
+  );
+}
+
 function CategoryPage() {
+  const t = useT();
   const products = Route.useLoaderData();
   const { slug } = Route.useParams();
   const c = catFor(slug);
 
   return (
     <SiteLayout>
-      <Breadcrumbs items={[{ label: "Home", to: "/" }, { label: "Store", to: "/products" }, { label: c.name }]} />
-      <SeoHero eyebrow="Digital store" title={c.name} subhead={c.description ?? ""} hidePrimary />
+      <Breadcrumbs items={[{ label: t("pub.common.home"), to: "/" }, { label: t("pub.common.store"), to: "/products" }, { label: c.name }]} />
+      <SeoHero eyebrow={t("pub.common.digitalStore")} title={c.name} subhead={c.description ?? ""} hidePrimary />
       <section className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
         {products.length ? (
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
@@ -71,7 +83,7 @@ function CategoryPage() {
           </div>
         ) : (
           <p className="py-12 text-center text-sm text-muted-foreground">
-            No products in this category yet — new titles are published continuously.
+            {t("pub.productsCategory.empty")}
           </p>
         )}
       </section>

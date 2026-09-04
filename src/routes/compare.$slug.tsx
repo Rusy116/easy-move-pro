@@ -10,6 +10,7 @@ import {
 } from "@/components/seo/blocks";
 import { seoMeta, jsonLd, breadcrumbSchema, faqSchema, absoluteUrl } from "@/lib/seo/schema";
 import { comparisonBySlug, COMPARISON_PAGES } from "@/lib/seo/content";
+import { useT } from "@/i18n";
 
 export const Route = createFileRoute("/compare/$slug")({
   loader: ({ params }) => {
@@ -38,34 +39,40 @@ export const Route = createFileRoute("/compare/$slug")({
     };
   },
   component: ComparePage,
-  notFoundComponent: () => (
+  notFoundComponent: () => <CompareNotFound />,
+});
+
+function CompareNotFound() {
+  const t = useT();
+  return (
     <SiteLayout>
       <div className="mx-auto max-w-3xl px-4 sm:px-6 py-24 text-center">
-        <h1 className="font-serif text-4xl font-semibold">Comparison not found</h1>
+        <h1 className="font-serif text-4xl font-semibold">{t("pub.compare.notFound")}</h1>
         <Link to="/partners" className="mt-6 inline-block text-primary underline">
-          Back to partners
+          {t("pub.compare.backToPartners")}
         </Link>
       </div>
     </SiteLayout>
-  ),
-});
+  );
+}
 
 function ComparePage() {
+  const t = useT();
   const { page } = Route.useLoaderData();
   return (
     <SiteLayout>
       <Breadcrumbs
         items={[
-          { label: "Home", to: "/" },
-          { label: "Partners", to: "/partners" },
+          { label: t("pub.common.home"), to: "/" },
+          { label: t("pub.common.partners"), to: "/partners" },
           { label: `vs ${page.competitor}` },
         ]}
       />
-      <SeoHero eyebrow="Comparison" title={page.hero} subhead={page.intro} />
+      <SeoHero eyebrow={t("pub.compare.eyebrow")} title={page.hero} subhead={page.intro} />
       <ComparisonTable competitor={page.competitor} rows={page.rows} />
       <Faq items={page.faq} />
       <InternalLinks
-        title="More comparisons"
+        title={t("pub.compare.moreComparisons")}
         links={COMPARISON_PAGES.filter((p) => p.slug !== page.slug).map((p) => ({
           label: `Easy Moving vs ${p.competitor}`,
           to: `/compare/${p.slug}`,

@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { SiteLayout } from "@/components/site/SiteLayout";
+import { useT } from "@/i18n";
 
 export const CITIES = [
   { slug: "new-york", name: "New York", state: "NY", pop: "8.3M", avg: 2100 },
@@ -32,16 +33,16 @@ export const Route = createFileRoute("/cities/")({
 });
 
 function CitiesIndex() {
+  const t = useT();
   return (
     <SiteLayout>
       <section className="mx-auto max-w-7xl px-4 sm:px-6 py-16 sm:py-24">
         <span className="text-xs font-semibold uppercase tracking-widest text-ochre">
-          Nationwide
+          {t("pub.citiesIndex.eyebrow")}
         </span>
-        <h1 className="mt-3 font-serif text-5xl font-medium">Cities we serve.</h1>
+        <h1 className="mt-3 font-serif text-5xl font-medium">{t("pub.citiesIndex.title")}</h1>
         <p className="mt-4 max-w-2xl text-lg text-muted-foreground">
-          Local expertise in every major US metro. See average moving costs, top-rated partners, and
-          city-specific tips.
+          {t("pub.citiesIndex.subtitle")}
         </p>
 
         <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -61,15 +62,15 @@ function CitiesIndex() {
               </div>
               <div className="mt-6 grid grid-cols-2 gap-4 text-sm">
                 <div>
-                  <div className="text-muted-foreground text-xs">Metro population</div>
+                  <div className="text-muted-foreground text-xs">{t("pub.citiesIndex.metroPopulation")}</div>
                   <div className="font-medium">{c.pop}</div>
                 </div>
                 <div>
-                  <div className="text-muted-foreground text-xs">Avg 2BR move</div>
+                  <div className="text-muted-foreground text-xs">{t("pub.citiesIndex.avg2br")}</div>
                   <div className="font-medium">${c.avg.toLocaleString()}</div>
                 </div>
               </div>
-              <div className="mt-6 text-sm font-medium text-primary">Explore {c.name} →</div>
+              <div className="mt-6 text-sm font-medium text-primary">{t("pub.citiesIndex.explore", { city: c.name })} →</div>
             </Link>
           ))}
         </div>

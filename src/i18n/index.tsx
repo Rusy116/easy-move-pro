@@ -12,6 +12,7 @@ import { en, type TranslationKey } from "./locales/en";
 import { es } from "./locales/es";
 import { ru } from "./locales/ru";
 import { adminEn, adminRu, adminEs } from "./admin";
+import { modulesEn, modulesRu, modulesEs } from "./modules";
 
 /**
  * Enterprise i18n core.
@@ -38,9 +39,9 @@ export const LOCALES: Record<
 export const LOCALE_LIST = Object.values(LOCALES);
 
 const DICTIONARIES: Record<Locale, Record<string, string>> = {
-  en: { ...en, ...adminEn },
-  es: { ...es, ...adminEs },
-  ru: { ...ru, ...adminRu },
+  en: { ...en, ...adminEn, ...modulesEn },
+  es: { ...es, ...adminEs, ...modulesEs },
+  ru: { ...ru, ...adminRu, ...modulesRu },
 };
 
 export const DEFAULT_LOCALE: Locale = "en";
@@ -251,3 +252,28 @@ export function useStatusLabel() {
 }
 
 export type { TranslationKey };
+
+/** True when the active locale (or EN fallback) actually defines this key. */
+export function hasTranslation(locale: Locale, key: string): boolean {
+  return key in (DICTIONARIES[locale] ?? {}) || key in DICTIONARIES[DEFAULT_LOCALE];
+}
+
+/**
+ * Localized display labels for database-driven AI agent rows.
+ * Internal keys (`product_factory`, `queued`, …) are never translated — only
+ * their display text. Unknown keys fall back to the value stored in the DB.
+ */
+export function useAgentLabels() {
+  const { locale, t } = useI18n();
+  const pick = (key: string, fallback: string | null | undefined) =>
+    hasTranslation(locale, key) ? t(key) : (fallback ?? "");
+  return {
+    name: (agentKey: string, fallback?: string | null) => pick(`agent.${agentKey}.name`, fallback),
+    description: (agentKey: string, fallback?: string | null) =>
+      pick(`agent.${agentKey}.desc`, fallback),
+    category: (value: string | null | undefined) =>
+      value ? pick(`agent.category.${value}`, value) : "—",
+    status: (value: string | null | undefined) =>
+      value ? pick(`agent.status.${String(value).toLowerCase()}`, value) : "—",
+  };
+}

@@ -368,10 +368,7 @@ function CityLandingDashboard() {
           </Button>
         </div>
         <p className="mt-3 text-xs text-muted-foreground">
-          Production order: the calculator page is generated, validated and published first — only
-          then is the /movers/{"{city}-{state}"} SEO page generated with that same calculator
-          embedded. If the calculator fails, the SEO page is never created; if the SEO page fails,
-          the calculator stays live and the SEO page joins the retry queue.
+          {tr("aip.cities.production.note", { pattern: "{city}-{state}" })}
         </p>
 
         {preview && (
@@ -379,15 +376,19 @@ function CityLandingDashboard() {
             <div className="flex flex-wrap items-center gap-3">
               <StatusPill status={preview.status} />
               <span className="font-medium">
-                Preview — {preview.city}, {preview.stateCode}
+                {tr("aip.cities.preview.label", { city: preview.city, state: preview.stateCode })}
               </span>
               <span className="text-xs text-muted-foreground">{preview.url}</span>
               <span className="ml-auto text-sm">
-                SEO {preview.validation.seoScore} · {preview.validation.words} words ·{" "}
-                {preview.validation.passed}/{preview.validation.total} checks
+                {tr("aip.cities.preview.summary", {
+                  seo: preview.validation.seoScore,
+                  words: preview.validation.words,
+                  passed: preview.validation.passed,
+                  total: preview.validation.total,
+                })}
               </span>
               <Button size="sm" variant="ghost" onClick={() => setPreview(null)}>
-                Close
+                {tr("aip.cities.preview.close")}
               </Button>
             </div>
             {preview.validation.blockers.length > 0 && (
@@ -408,13 +409,13 @@ function CityLandingDashboard() {
               ))}
             </div>
             <p className="mt-3 text-xs text-muted-foreground">
-              Preview mode is read-only — nothing was written or published.
+              {tr("aip.cities.preview.readonly")}
             </p>
           </div>
         )}
       </SectionShell>
 
-      <SectionShell title="Publishing queue / runs">
+      <SectionShell title={tr("aip.cities.queue.title")}>
         <div className="mb-3 flex flex-wrap items-center gap-4">
           <label className="flex items-center gap-2 text-sm">
             <input
@@ -422,10 +423,10 @@ function CityLandingDashboard() {
               checked={autopilot}
               onChange={(e) => setAutopilot(e.target.checked)}
             />
-            Autopilot — keep processing the queue automatically until every city is done
+            {tr("aip.cities.queue.autopilot")}
           </label>
           <label className="flex items-center gap-2 text-sm">
-            Batch size
+            {tr("aip.cities.queue.batchSize")}
             <select
               className="h-9 rounded-md border border-border bg-background px-2 text-sm"
               value={batchSize}
@@ -433,7 +434,7 @@ function CityLandingDashboard() {
             >
               {[1, 5, 10, 25].map((n) => (
                 <option key={n} value={n}>
-                  {n} pages / tick
+                  {tr("aip.cities.queue.pagesPerTick", { count: n })}
                 </option>
               ))}
             </select>
@@ -453,7 +454,13 @@ function CityLandingDashboard() {
                   {r.state_code ? ` · ${r.state_code}` : ""}
                 </span>
                 <span className="text-muted-foreground">
-                  {r.cursor}/{r.total} processed · {r.published} published · {r.failed} failed · {r.skipped ?? 0} skipped
+                  {tr("aip.cities.queue.progress", {
+                    cursor: r.cursor,
+                    total: r.total,
+                    published: r.published,
+                    failed: r.failed,
+                    skipped: r.skipped ?? 0,
+                  })}
                 </span>
                 <div className="ml-auto flex gap-2">
                   {r.status === "running" && (
@@ -464,21 +471,21 @@ function CityLandingDashboard() {
                         onClick={() =>
                           run(
                             () => processCityRunBatch({ data: { runId: r.id, batchSize } }),
-                            "Batch processed",
+                            tr("aip.cities.queue.toast.batchProcessed"),
                           )
                         }
                       >
-                        Process batch
+                        {tr("aip.cities.queue.processBatch")}
                       </Button>
                       <Button
                         size="sm"
                         variant="outline"
                         disabled={busy}
                         onClick={() =>
-                          run(() => controlCityRun({ data: { runId: r.id, action: "pause" } }), "Paused")
+                          run(() => controlCityRun({ data: { runId: r.id, action: "pause" } }), tr("aip.cities.queue.toast.paused"))
                         }
                       >
-                        Pause
+                        {tr("aip.cities.queue.pause")}
                       </Button>
                     </>
                   )}
@@ -487,10 +494,10 @@ function CityLandingDashboard() {
                       size="sm"
                       disabled={busy}
                       onClick={() =>
-                        run(() => controlCityRun({ data: { runId: r.id, action: "resume" } }), "Resumed")
+                        run(() => controlCityRun({ data: { runId: r.id, action: "resume" } }), tr("aip.cities.queue.toast.resumed"))
                       }
                     >
-                      Resume
+                      {tr("aip.cities.queue.resume")}
                     </Button>
                   )}
                   {r.status !== "completed" && r.status !== "stopped" && (
@@ -499,10 +506,10 @@ function CityLandingDashboard() {
                       variant="ghost"
                       disabled={busy}
                       onClick={() =>
-                        run(() => controlCityRun({ data: { runId: r.id, action: "stop" } }), "Stopped")
+                        run(() => controlCityRun({ data: { runId: r.id, action: "stop" } }), tr("aip.cities.queue.toast.stopped"))
                       }
                     >
-                      Stop
+                      {tr("aip.cities.queue.stop")}
                     </Button>
                   )}
                 </div>
@@ -510,22 +517,22 @@ function CityLandingDashboard() {
             ))}
           </div>
         ) : (
-          <EmptyState title="No runs yet" hint="Start a city, state or nationwide run above." />
+          <EmptyState title={tr("aip.cities.queue.empty.title")} hint={tr("aip.cities.queue.empty.hint")} />
         )}
       </SectionShell>
 
-      <SectionShell title="Generated pages">
+      <SectionShell title={tr("aip.cities.generated.title")}>
         {rows.length ? (
           <div className="overflow-x-auto">
             <table className="w-full min-w-[720px] text-sm">
               <thead>
                 <tr className="border-b border-border text-left text-[11px] uppercase tracking-wider text-muted-foreground">
-                  <th className="py-2 pr-3 font-semibold">City</th>
-                  <th className="py-2 pr-3 font-semibold">URL</th>
-                  <th className="py-2 pr-3 font-semibold">Words</th>
-                  <th className="py-2 pr-3 font-semibold">SEO</th>
-                  <th className="py-2 pr-3 font-semibold">Status</th>
-                  <th className="py-2 font-semibold">Published</th>
+                  <th className="py-2 pr-3 font-semibold">{tr("aip.cities.generated.city")}</th>
+                  <th className="py-2 pr-3 font-semibold">{tr("aip.cities.generated.url")}</th>
+                  <th className="py-2 pr-3 font-semibold">{tr("aip.cities.generated.words")}</th>
+                  <th className="py-2 pr-3 font-semibold">{tr("aip.cities.generated.seo")}</th>
+                  <th className="py-2 pr-3 font-semibold">{tr("aip.cities.generated.status")}</th>
+                  <th className="py-2 font-semibold">{tr("aip.cities.generated.published")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -556,7 +563,7 @@ function CityLandingDashboard() {
             </table>
           </div>
         ) : (
-          <EmptyState title="No city pages generated yet" hint="Generate your first city above." />
+          <EmptyState title={tr("aip.cities.generated.empty.title")} hint={tr("aip.cities.generated.empty.hint")} />
         )}
       </SectionShell>
     </AiShell>

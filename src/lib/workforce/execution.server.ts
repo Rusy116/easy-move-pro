@@ -106,7 +106,7 @@ export async function startAgentRun(params: {
     .update({
       status: "running",
       progress: 10,
-      current_task: "Revenue analysis (read-only)",
+      current_task: executor.taskLabel,
       last_run_at: new Date().toISOString(),
       last_activity_at: new Date().toISOString(),
       run_count: Number(agent.run_count ?? 0) + 1,

@@ -97,3 +97,72 @@ export async function fetchQueryRows(params: {
       position: Number(r.position ?? 0),
     }));
 }
+
+// ---------------------------------------------------------------------------
+// ADDITIVE (AG-3): generic read-only Search Analytics reader used by the
+// Workforce analytics agent. The DD-3 ingestion path above is untouched.
+// ---------------------------------------------------------------------------
+export type GscDimensionRow = {
+  key: string;
+  impressions: number;
+  clicks: number;
+  ctr: number;
+  position: number;
+};
+
+export type GscAnalyticsResult = {
+  rows: GscDimensionRow[];
+  totals: { impressions: number; clicks: number; position: number };
+};
+
+export async function fetchSearchAnalytics(params: {
+  siteUrl: string;
+  startDate: string;
+  endDate: string;
+  dimensions: string[];
+  rowLimit: number;
+}): Promise<GscAnalyticsResult> {
+  const { siteUrl, startDate, endDate, dimensions, rowLimit } = params;
+  const res = await fetch(
+    `${GATEWAY}/webmasters/v3/sites/${encodeURIComponent(siteUrl)}/searchAnalytics/query`,
+    {
+      method: "POST",
+      headers: gatewayHeaders(),
+      body: JSON.stringify({ startDate, endDate, dimensions, rowLimit, dataState: "final" }),
+    },
+  );
+  if (res.status === 403) {
+    throw new Error("The connected Google account cannot access this Search Console property");
+  }
+  if (!res.ok) {
+    throw new Error(`Search Console query failed [${res.status}]: ${await res.text()}`);
+  }
+  const json = (await res.json()) as {
+    rows?: Array<{
+      keys?: string[];
+      impressions?: number;
+      clicks?: number;
+      ctr?: number;
+      position?: number;
+    }>;
+  };
+  const raw = json.rows ?? [];
+  const rows: GscDimensionRow[] = raw.map((r) => ({
+    key: String(r.keys?.[0] ?? "").trim(),
+    impressions: Math.round(Number(r.impressions ?? 0)),
+    clicks: Math.round(Number(r.clicks ?? 0)),
+    ctr: Number(r.ctr ?? 0),
+    position: Number(r.position ?? 0),
+  }));
+  const impressions = rows.reduce((s, r) => s + r.impressions, 0);
+  const clicks = rows.reduce((s, r) => s + r.clicks, 0);
+  const weighted = rows.reduce((s, r) => s + r.position * r.impressions, 0);
+  return {
+    rows: dimensions.length ? rows.filter((r) => r.key.length > 0) : rows,
+    totals: {
+      impressions,
+      clicks,
+      position: impressions > 0 ? weighted / impressions : 0,
+    },
+  };
+}

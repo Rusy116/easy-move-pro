@@ -175,6 +175,28 @@ function WorkforcePage() {
                 <p className="mt-1.5 break-words text-muted-foreground">
                   {latestRun(a.key)?.summary ?? latestRun(a.key)?.error ?? "No run yet."}
                 </p>
+                {(() => {
+                  const r = latestRun(a.key)?.result as
+                    | { tables_read?: string[]; dataSources?: string[]; warnings?: string[] }
+                    | null
+                    | undefined;
+                  if (!r) return null;
+                  const sources = r.dataSources ?? r.tables_read ?? [];
+                  return (
+                    <>
+                      {!!sources.length && (
+                        <p className="mt-1 break-words text-[11px] text-muted-foreground">
+                          Data sources: {sources.join(", ")}
+                        </p>
+                      )}
+                      {!!r.warnings?.length && (
+                        <p className="mt-1 break-words text-[11px] text-amber-600">
+                          {r.warnings.join(" · ")}
+                        </p>
+                      )}
+                    </>
+                  );
+                })()}
               </div>
             )}
 

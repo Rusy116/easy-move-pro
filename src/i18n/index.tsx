@@ -12,6 +12,7 @@ import { en, type TranslationKey } from "./locales/en";
 import { es } from "./locales/es";
 import { ru } from "./locales/ru";
 import { adminEn, adminRu, adminEs } from "./admin";
+import { modulesEn, modulesRu, modulesEs } from "./modules";
 
 /**
  * Enterprise i18n core.
@@ -38,9 +39,9 @@ export const LOCALES: Record<
 export const LOCALE_LIST = Object.values(LOCALES);
 
 const DICTIONARIES: Record<Locale, Record<string, string>> = {
-  en: { ...en, ...adminEn },
-  es: { ...es, ...adminEs },
-  ru: { ...ru, ...adminRu },
+  en: { ...en, ...adminEn, ...modulesEn },
+  es: { ...es, ...adminEs, ...modulesEs },
+  ru: { ...ru, ...adminRu, ...modulesRu },
 };
 
 export const DEFAULT_LOCALE: Locale = "en";

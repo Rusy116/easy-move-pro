@@ -144,7 +144,6 @@ export async function startAgentRun(params: {
         progress: 100,
         current_task: out.summary.slice(0, 200),
         last_activity_at: new Date().toISOString(),
-        tasks_completed: undefined as never,
       } as never)
       .eq("id", agent.id);
 

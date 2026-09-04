@@ -14,7 +14,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { StatusPill, Progress, LogList, TaskTable, fmtDate } from "@/components/ai/blocks";
-import { useT } from "@/i18n";
+import { useT, useAgentLabels } from "@/i18n";
 import {
   listAgents,
   listLogs,
@@ -38,6 +38,7 @@ type PanelKind = "history" | "logs" | "configure";
 
 function WorkforcePage() {
   const tr = useT();
+  const labels = useAgentLabels();
   const qc = useQueryClient();
   const agents = useQuery({ queryKey: ["ai", "agents"], queryFn: listAgents });
   const [panel, setPanel] = useState<{ agent: AiAgent; kind: PanelKind } | null>(null);
@@ -86,8 +87,8 @@ function WorkforcePage() {
           <div key={a.id} className="card-premium p-5">
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
-                <h3 className="truncate font-serif text-lg">{a.name}</h3>
-                <p className="mt-0.5 text-xs text-muted-foreground">{a.description}</p>
+                <h3 className="truncate font-serif text-lg">{labels.name(a.key, a.name)}</h3>
+                <p className="mt-0.5 text-xs text-muted-foreground">{labels.description(a.key, a.description)}</p>
               </div>
               <StatusPill status={a.status} />
             </div>
@@ -155,7 +156,7 @@ function WorkforcePage() {
         <DialogContent className="max-w-3xl">
           <DialogHeader>
             <DialogTitle>
-              {panel?.agent.name} — {panel?.kind}
+              {panel && labels.name(panel.agent.key, panel.agent.name)} — {panel && tr(`aip.workforce.panel.${panel.kind}`)}
             </DialogTitle>
             <DialogDescription>
               {panel?.kind === "configure"

@@ -49,6 +49,63 @@ export type Database = {
           },
         ]
       }
+      ai_agent_runs: {
+        Row: {
+          agent_key: string
+          ai_calls: number
+          created_at: string
+          duration_ms: number | null
+          error: string | null
+          error_count: number
+          external_calls: number
+          finished_at: string | null
+          id: string
+          items_processed: number
+          mode: string
+          requested_by: string | null
+          result: Json | null
+          started_at: string
+          status: string
+          summary: string | null
+        }
+        Insert: {
+          agent_key: string
+          ai_calls?: number
+          created_at?: string
+          duration_ms?: number | null
+          error?: string | null
+          error_count?: number
+          external_calls?: number
+          finished_at?: string | null
+          id?: string
+          items_processed?: number
+          mode?: string
+          requested_by?: string | null
+          result?: Json | null
+          started_at?: string
+          status?: string
+          summary?: string | null
+        }
+        Update: {
+          agent_key?: string
+          ai_calls?: number
+          created_at?: string
+          duration_ms?: number | null
+          error?: string | null
+          error_count?: number
+          external_calls?: number
+          finished_at?: string | null
+          id?: string
+          items_processed?: number
+          mode?: string
+          requested_by?: string | null
+          result?: Json | null
+          started_at?: string
+          status?: string
+          summary?: string | null
+        }
+        Relationships: []
+      }
       ai_agents: {
         Row: {
           avg_runtime_ms: number

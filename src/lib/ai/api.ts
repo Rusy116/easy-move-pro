@@ -306,3 +306,33 @@ export async function listMetrics() {
   if (error) throw error;
   return (data ?? []) as { day: string; metric: string; value: number; dims: Record<string, unknown> }[];
 }
+
+/** A real Workforce execution record (observability only). */
+export type AiAgentRun = {
+  id: string;
+  agent_key: string;
+  status: string;
+  mode: string;
+  started_at: string;
+  finished_at: string | null;
+  duration_ms: number | null;
+  items_processed: number;
+  ai_calls: number;
+  external_calls: number;
+  error_count: number;
+  summary: string | null;
+  result: Record<string, unknown> | null;
+  error: string | null;
+};
+
+export async function listAgentRuns(opts: { agentKey?: string; limit?: number } = {}) {
+  let q = supabase
+    .from("ai_agent_runs")
+    .select("*")
+    .order("started_at", { ascending: false })
+    .limit(opts.limit ?? 25);
+  if (opts.agentKey) q = q.eq("agent_key", opts.agentKey);
+  const { data, error } = await q;
+  if (error) throw error;
+  return (data ?? []) as unknown as AiAgentRun[];
+}

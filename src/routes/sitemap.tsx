@@ -6,6 +6,7 @@ import { ROBOTS_META } from "@/lib/seo-config";
 import { GEO_STATES } from "@/lib/seo/geo";
 import { landingPathFor, moversPathFor } from "@/lib/city-landing/data";
 import { allCounties } from "@/lib/city-landing/hierarchy";
+import { useT } from "@/i18n";
 
 /**
  * HTML sitemap (step 8). Guarantees a crawlable path from the USA hub down to
@@ -36,6 +37,7 @@ export const Route = createFileRoute("/sitemap")({
 });
 
 function HtmlSitemap() {
+  const t = useT();
   const counties = allCounties();
   const byState = GEO_STATES.map((s) => ({
     state: s,
@@ -44,23 +46,23 @@ function HtmlSitemap() {
 
   return (
     <SiteLayout>
-      <Breadcrumbs items={[{ label: "Home", to: "/" }, { label: "Sitemap" }]} />
+      <Breadcrumbs items={[{ label: t("pub.common.home"), to: "/" }, { label: t("pub.sitemap.title") }]} />
 
       <section className="mx-auto max-w-5xl px-4 sm:px-6 pt-10">
-        <h1 className="font-serif text-4xl sm:text-5xl font-medium tracking-tight">Sitemap</h1>
+        <h1 className="font-serif text-4xl sm:text-5xl font-medium tracking-tight">{t("pub.sitemap.title")}</h1>
         <p className="mt-4 max-w-3xl text-muted-foreground">
-          Every state, county, city moving calculator and local mover guide on Easy Moving.
+          {t("pub.sitemap.subtitle")}
         </p>
         <div className="mt-6 flex flex-wrap gap-x-6 gap-y-2 text-sm">
-          <Link to="/" className="text-primary underline">Home</Link>
-          <Link to="/calculator" className="text-primary underline">Moving calculator</Link>
-          <Link to="/services" className="text-primary underline">Services</Link>
-          <Link to="/cities" className="text-primary underline">All cities</Link>
-          <Link to="/states" className="text-primary underline">All states</Link>
-          <Link to="/blog" className="text-primary underline">Blog</Link>
-          <Link to="/products" className="text-primary underline">Store</Link>
-          <Link to="/about" className="text-primary underline">About</Link>
-          <Link to="/contact" className="text-primary underline">Contact</Link>
+          <Link to="/" className="text-primary underline">{t("pub.common.home")}</Link>
+          <Link to="/calculator" className="text-primary underline">{t("pub.common.movingCalculator")}</Link>
+          <Link to="/services" className="text-primary underline">{t("pub.common.services")}</Link>
+          <Link to="/cities" className="text-primary underline">{t("pub.sitemap.allCities")}</Link>
+          <Link to="/states" className="text-primary underline">{t("pub.sitemap.allStates")}</Link>
+          <Link to="/blog" className="text-primary underline">{t("pub.common.blog")}</Link>
+          <Link to="/products" className="text-primary underline">{t("pub.common.store")}</Link>
+          <Link to="/about" className="text-primary underline">{t("pub.common.about")}</Link>
+          <Link to="/contact" className="text-primary underline">{t("pub.common.contact")}</Link>
         </div>
       </section>
 
@@ -84,11 +86,11 @@ function HtmlSitemap() {
                     {county.cities.map((c) => (
                       <li key={`${c.slug}-${c.stateCode}`}>
                         <Link to={moversPathFor(c.slug, c.stateCode) as "/"} className="hover:text-primary hover:underline">
-                          Movers in {c.name}
+                          {t("pub.sitemap.moversIn", { city: c.name })}
                         </Link>
                         {" · "}
                         <Link to={landingPathFor(c.slug, c.stateCode) as "/"} className="hover:text-primary hover:underline">
-                          calculator
+                          {t("pub.common.movingCalculator").toLowerCase()}
                         </Link>
                       </li>
                     ))}

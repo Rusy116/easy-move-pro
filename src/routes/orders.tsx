@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { requestOrderLinks } from "@/lib/store/order-lookup.functions";
+import { useT } from "@/i18n";
 
 export const Route = createFileRoute("/orders")({
   head: () => ({
@@ -29,6 +30,7 @@ export const Route = createFileRoute("/orders")({
 });
 
 function OrderLookupPage() {
+  const t = useT();
   const [email, setEmail] = useState("");
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
@@ -46,7 +48,7 @@ function OrderLookupPage() {
       const res = await requestOrderLinks({ data: { email: email.trim() } });
       setMessage(res.message);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
+      setError(err instanceof Error ? err.message : t("pub.orders.genericError"));
     } finally {
       setBusy(false);
     }
@@ -55,20 +57,19 @@ function OrderLookupPage() {
   return (
     <SiteLayout>
       <section className="mx-auto max-w-lg px-4 py-16 sm:px-6 sm:py-24">
-        <h1 className="font-serif text-3xl">Find my download</h1>
+        <h1 className="font-serif text-3xl">{t("pub.orders.title")}</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Enter the email address you used at checkout and we'll resend the download links for
-          every completed order.
+          {t("pub.orders.subtitle")}
         </p>
 
         <form onSubmit={submit} className="card-premium mt-8 p-6">
-          <Label htmlFor="lookup-email">Email address</Label>
+          <Label htmlFor="lookup-email">{t("pub.orders.emailLabel")}</Label>
           <Input
             id="lookup-email"
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="you@example.com"
+            placeholder={t("pub.orders.emailPlaceholder")}
             autoComplete="email"
             required
           />
@@ -85,16 +86,16 @@ function OrderLookupPage() {
             disabled={!valid || busy}
           >
             {busy && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            Resend my links
+            {t("pub.orders.resend")}
           </Button>
         </form>
 
         <p className="mt-6 text-sm text-muted-foreground">
-          Have an account?{" "}
+          {t("pub.orders.haveAccount")}{" "}
           <Link to="/customer/library" className="underline">
-            Open your library
+            {t("pub.orders.openLibrary")}
           </Link>{" "}
-          to download anything you own, any time.
+          {t("pub.orders.anytime")}
         </p>
       </section>
     </SiteLayout>

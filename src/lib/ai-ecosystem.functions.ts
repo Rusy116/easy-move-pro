@@ -327,59 +327,26 @@ export const runImageAgent = createServerFn({ method: "POST" })
   });
 
 // ── Agent 12: Revenue Agent (read-only rollup) ─────────────────────────────
+// Shares the single revenue engine in src/lib/workforce/revenue.server.ts with
+// the Workforce execution layer. This legacy entry point keeps writing the
+// daily ai_metrics_daily observability rollup.
 export const runRevenueAgent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator(() => ({}))
   .handler(async ({ context }) => {
     await assertAdmin(context as Ctx);
     const ctx = context as Ctx;
-
-    const [{ data: comms }, { data: purchases }, { data: prods }] = await Promise.all([
-      ctx.supabase.from("company_commissions").select("amount,broker_amount,status,created_at"),
-      ctx.supabase.from("customer_purchases").select("amount_cents,status"),
-      ctx.supabase.from("ai_products").select("revenue_cents,downloads"),
-    ]);
-
-    const rows = (comms ?? []) as { amount: number | null; broker_amount: number | null; status: string; created_at: string }[];
-    const paid = rows.filter((r) => r.status === "paid");
-    const platformRevenue = paid.reduce((s, r) => s + Number(r.amount ?? 0), 0);
-    const brokerRevenue = paid.reduce((s, r) => s + Number(r.broker_amount ?? 0), 0);
-    const pipeline = rows
-      .filter((r) => r.status !== "paid" && r.status !== "cancelled")
-      .reduce((s, r) => s + Number(r.amount ?? 0), 0);
-
-    const since = Date.now() - 30 * 86400000;
-    const mrr = paid
-      .filter((r) => new Date(r.created_at).getTime() >= since)
-      .reduce((s, r) => s + Number(r.amount ?? 0), 0);
-
-    const productRevenue =
-      ((purchases ?? []) as { amount_cents: number | null; status: string }[])
-        .filter((p) => p.status === "paid" || p.status === "completed")
-        .reduce((s, p) => s + Number(p.amount_cents ?? 0), 0) / 100 +
-      ((prods ?? []) as { revenue_cents: number | null }[]).reduce(
-        (s, p) => s + Number(p.revenue_cents ?? 0),
-        0,
-      ) /
-        100;
-
-    const ltv = paid.length ? Math.round((platformRevenue / paid.length) * 100) / 100 : 0;
-    const day = new Date().toISOString().slice(0, 10);
-
-    for (const [metric, value] of [
-      ["revenue_platform", platformRevenue],
-      ["revenue_broker", brokerRevenue],
-      ["revenue_products", productRevenue],
-      ["revenue_pipeline", pipeline],
-      ["revenue_mrr_30d", mrr],
-      ["revenue_ltv", ltv],
-    ] as [string, number][]) {
-      await ctx.supabase
-        .from("ai_metrics_daily")
-        .insert({ day, metric, value, dims: { agent: "revenue_agent" } });
-    }
-
-    return { platformRevenue, brokerRevenue, productRevenue, pipeline, mrr, ltv, deals: paid.length };
+    const { computeRevenueAnalysis } = await import("@/lib/workforce/revenue.server");
+    const a = await computeRevenueAnalysis(ctx.supabase, { writeMetrics: true });
+    return {
+      platformRevenue: a.platformRevenue,
+      brokerRevenue: a.brokerRevenue,
+      productRevenue: a.productRevenue,
+      pipeline: a.pipeline,
+      mrr: a.mrr,
+      ltv: a.ltv ?? 0,
+      deals: a.deals,
+    };
   });
 
 // ── Ecosystem status rollup ────────────────────────────────────────────────

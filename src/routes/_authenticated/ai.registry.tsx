@@ -96,6 +96,14 @@ function RegistryPage() {
     setBusy(agent.key);
     const started = performance.now();
     try {
+      // AG-1: governed agents never run through the legacy direct-runner path.
+      // The Workforce execution service owns auth, run records and lifecycle.
+      if (isGovernedOnly(agent.key)) {
+        const outcome = await executeAgent({ data: { agentKey: agent.key } });
+        if (outcome.ok) toast.success(`${agent.name}: ${outcome.summary}`);
+        else toast.error(outcome.message);
+        return;
+      }
       await controlAgent(agent, "start");
       const runner = AGENT_RUNNERS[agent.key];
       if (!runner) {

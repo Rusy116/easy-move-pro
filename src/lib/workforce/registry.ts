@@ -17,13 +17,18 @@ export const EXECUTABLE_AGENTS: Record<string, WorkforceAgentDescriptor> = {
   analytics_agent: { key: "analytics_agent", mode: "read_only", atomic: true },
   // AG-1: migrated off the legacy direct-runner path. Analysis only.
   self_optimization_agent: { key: "self_optimization_agent", mode: "read_only", atomic: true },
+  // AG-2: migrated off the legacy direct-runner path. Analysis only.
+  internal_linking_engine: { key: "internal_linking_engine", mode: "read_only", atomic: true },
 };
 
 /**
  * Agents whose legacy /ai/registry Start action MUST be routed through the
  * governed Workforce execution service instead of a direct runner.
  */
-export const GOVERNED_ONLY_AGENTS = new Set<string>(["self_optimization_agent"]);
+export const GOVERNED_ONLY_AGENTS = new Set<string>([
+  "self_optimization_agent",
+  "internal_linking_engine",
+]);
 
 export const isGovernedOnly = (key: string) => GOVERNED_ONLY_AGENTS.has(key);
 

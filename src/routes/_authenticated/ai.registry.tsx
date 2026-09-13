@@ -33,6 +33,8 @@ import {
   type RegistryAgent,
 } from "@/lib/ai/agent-registry";
 import { AGENT_RUNNERS, hasRunner } from "@/lib/ai/agent-runners";
+import { isGovernedOnly } from "@/lib/workforce/registry";
+import { executeAgent } from "@/lib/workforce.functions";
 import { useT } from "@/i18n";
 
 export const Route = createFileRoute("/_authenticated/ai/registry")({

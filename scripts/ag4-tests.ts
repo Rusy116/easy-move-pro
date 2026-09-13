@@ -15,6 +15,11 @@ mock.module("@/lib/ai-ecosystem.functions", () => ({
       titles: Array.from({ length: gen.created }, (_, i) => `Article ${i + 1}`),
     };
   },
+  runGrowthAgent: async () => ({ created: 0, aiGenerated: 0, titles: [] }),
+  runProductAgent: async () => ({ created: 0, titles: [] }),
+  runImageAgent: async () => ({ contentBriefed: 0, productsBriefed: 0 }),
+  runRevenueAgent: async () => ({ platformRevenue: 0, productRevenue: 0 }),
+  ecosystemStatus: async () => ({}),
 }));
 mock.module("@/lib/ai-ecosystem.server", () => ({ MODEL: "openai/gpt-5.6-sol" }));
 

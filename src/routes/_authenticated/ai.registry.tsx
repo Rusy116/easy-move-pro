@@ -33,6 +33,8 @@ import {
   type RegistryAgent,
 } from "@/lib/ai/agent-registry";
 import { AGENT_RUNNERS, hasRunner } from "@/lib/ai/agent-runners";
+import { isGovernedOnly } from "@/lib/workforce/registry";
+import { executeAgent } from "@/lib/workforce.functions";
 import { useT } from "@/i18n";
 
 export const Route = createFileRoute("/_authenticated/ai/registry")({
@@ -94,6 +96,14 @@ function RegistryPage() {
     setBusy(agent.key);
     const started = performance.now();
     try {
+      // AG-1: governed agents never run through the legacy direct-runner path.
+      // The Workforce execution service owns auth, run records and lifecycle.
+      if (isGovernedOnly(agent.key)) {
+        const outcome = await executeAgent({ data: { agentKey: agent.key } });
+        if (outcome.ok) toast.success(`${agent.name}: ${outcome.summary}`);
+        else toast.error(outcome.message);
+        return;
+      }
       await controlAgent(agent, "start");
       const runner = AGENT_RUNNERS[agent.key];
       if (!runner) {
@@ -284,8 +294,15 @@ function AgentCard({
         <div className="flex flex-wrap items-center gap-1.5">
           <Button size="sm" onClick={() => onRun(agent)} disabled={busy || !agent.enabled}>
             {busy ? <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" /> : <Play className="mr-1.5 h-3.5 w-3.5" />}
-            {hasRunner(agent.key) ? tr("admin.ai4.reg.start") : tr("admin.ai4.reg.queue")}
+            {hasRunner(agent.key) || isGovernedOnly(agent.key)
+              ? tr("admin.ai4.reg.start")
+              : tr("admin.ai4.reg.queue")}
           </Button>
+          {isGovernedOnly(agent.key) && (
+            <span className="rounded-full bg-amber-500/15 px-2 py-0.5 text-[11px] text-amber-600">
+              Analysis only — production writes disabled
+            </span>
+          )}
           <Button
             size="sm"
             variant="outline"

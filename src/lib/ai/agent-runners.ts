@@ -10,11 +10,7 @@ import {
   runImageAgent,
   runRevenueAgent,
 } from "@/lib/ai-ecosystem.functions";
-import {
-  auditFactoryBatch,
-  runFactoryMonitor,
-  runSelfImprovement,
-} from "@/lib/city-factory.functions";
+import { auditFactoryBatch, runFactoryMonitor } from "@/lib/city-factory.functions";
 
 export type AgentRunner = () => Promise<string>;
 
@@ -49,10 +45,9 @@ export const AGENT_RUNNERS: Record<string, AgentRunner> = {
     const r = await runFactoryMonitor({ data: { limit: 200 } });
     return `${r.monitored} pages monitored, ${r.degraded} degraded`;
   },
-  self_optimization_agent: async () => {
-    const r = await runSelfImprovement({ data: { limit: 20 } });
-    return `${r.improved}/${r.candidates} pages regenerated`;
-  },
+  // AG-1: self_optimization_agent deliberately has NO legacy direct runner.
+  // It is executed exclusively through the governed Workforce execution
+  // service (see src/lib/workforce/registry.ts → GOVERNED_ONLY_AGENTS).
 };
 
 export const hasRunner = (key: string) => Boolean(AGENT_RUNNERS[key]);

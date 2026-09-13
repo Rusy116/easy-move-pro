@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import type {} from "@tanstack/react-start";
 import { ENABLE_INDEXING } from "@/lib/seo-config";
 
-const SITEMAP = "Sitemap: https://easymove.pro/sitemap.xml";
+const SITEMAP = "Sitemap: https://www.easymove.pro/sitemap.xml";
 
 // Private, transactional and internal surfaces stay out of the index. Public
 // SEO pages (home, services, states, counties, routes, cities, products,

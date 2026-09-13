@@ -89,7 +89,7 @@ await check("D. malformed live XML → last-known-good served", async () => {
 });
 
 await check("D2. wrong-domain live XML → last-known-good served", async () => {
-  const bad = HEALTHY_XML.replace("https://easymove.pro/movers/city-0-ny", "https://preview.lovable.app/movers/city-0-ny");
+  const bad = HEALTHY_XML.replace("https://www.easymove.pro/movers/city-0-ny", "https://preview.lovable.app/movers/city-0-ny");
   const res = await deliver(async () => bad, SNAPSHOT);
   eq(res.headers.get("X-Sitemap-Source"), "last_known_good", "source");
 });

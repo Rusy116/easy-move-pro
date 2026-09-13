@@ -19,7 +19,7 @@ const EMAIL_TEMPLATES: Record<string, React.ComponentType<any>> = {
 
 // Configuration
 const SITE_NAME = "Easy Move Pro"
-const ROOT_DOMAIN = "easymove.pro"
+const ROOT_DOMAIN = "www.easymove.pro"
 
 // Sample data for preview mode ONLY (not used in actual email sending).
 // URLs are baked in at scaffold time from the project's real data.

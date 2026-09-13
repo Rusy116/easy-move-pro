@@ -4971,6 +4971,54 @@ export type Database = {
           },
         ]
       }
+      sitemap_snapshots: {
+        Row: {
+          byte_size: number
+          checksum: string
+          city_url_count: number
+          created_at: string
+          id: string
+          is_active: boolean
+          metadata: Json
+          part_key: string
+          release_id: string
+          status: string
+          updated_at: string
+          url_count: number
+          xml: string
+        }
+        Insert: {
+          byte_size?: number
+          checksum: string
+          city_url_count?: number
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          metadata?: Json
+          part_key: string
+          release_id: string
+          status?: string
+          updated_at?: string
+          url_count?: number
+          xml: string
+        }
+        Update: {
+          byte_size?: number
+          checksum?: string
+          city_url_count?: number
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          metadata?: Json
+          part_key?: string
+          release_id?: string
+          status?: string
+          updated_at?: string
+          url_count?: number
+          xml?: string
+        }
+        Relationships: []
+      }
       sla_policies: {
         Row: {
           created_at: string

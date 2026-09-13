@@ -72,8 +72,8 @@ const run = async () => {
   check("A blog_agent removed from legacy AGENT_RUNNERS", !hasRunner("blog_agent"));
   check(
     "B other legacy runners unchanged",
-    Object.keys(AGENT_RUNNERS).length === 4 &&
-      hasRunner("mover_growth_agent") &&
+    Object.keys(AGENT_RUNNERS).length === 3 &&
+      !hasRunner("mover_growth_agent") && // migrated in AG-5
       hasRunner("product_factory") &&
       hasRunner("image_factory") &&
       hasRunner("revenue_agent"),

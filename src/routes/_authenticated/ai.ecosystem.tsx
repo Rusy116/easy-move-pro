@@ -18,6 +18,7 @@ import {
   runImageAgent,
   runRevenueAgent,
 } from "@/lib/ai-ecosystem.functions";
+import { executeAgent } from "@/lib/workforce.functions";
 
 export const Route = createFileRoute("/_authenticated/ai/ecosystem")({
   head: () => ({

@@ -23,7 +23,9 @@ export const Route = createFileRoute("/download")({
 function DownloadPage() {
   const { t } = Route.useSearch();
   const [state, setState] = useState<
-    { status: "loading" } | { status: "denied" } | { status: "ready"; product: PdfProduct; orderNumber: string }
+    | { status: "loading" }
+    | { status: "denied" }
+    | { status: "ready"; product: PdfProduct; orderNumber: string; artifactUrl: string | null }
   >({ status: "loading" });
   const [saving, setSaving] = useState(false);
 
@@ -35,7 +37,12 @@ function DownloadPage() {
         const res = await redeemDownload({ data: { token: t } });
         if (cancelled) return;
         if (!res.ok) return setState({ status: "denied" });
-        setState({ status: "ready", product: res.product as PdfProduct, orderNumber: res.orderNumber });
+        setState({
+          status: "ready",
+          product: res.product as PdfProduct,
+          orderNumber: res.orderNumber,
+          artifactUrl: (res as { artifactUrl?: string | null }).artifactUrl ?? null,
+        });
       } catch {
         if (!cancelled) setState({ status: "denied" });
       }
@@ -49,6 +56,17 @@ function DownloadPage() {
     if (state.status !== "ready" || saving) return;
     setSaving(true);
     try {
+      // Verified stored artifact first; older products still render on demand.
+      if (state.artifactUrl) {
+        const a = document.createElement("a");
+        a.href = state.artifactUrl;
+        a.download = `${state.product.slug}.pdf`;
+        a.rel = "noopener";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        return;
+      }
       const { buildProductPdf } = await import("@/lib/pdf-store/render-pdf");
       buildProductPdf(state.product).save(`${state.product.slug}.pdf`);
     } finally {

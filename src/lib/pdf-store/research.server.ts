@@ -235,6 +235,13 @@ export async function improveProducts(db: any, limit: number) {
       notes.push("featured on the storefront");
     }
 
+    // PF-1 safety: the improve step may only touch merchandising fields. Any
+    // field that changes the rendered PDF is stripped here, so a published
+    // product can never drift away from its verified downloadable artifact.
+    for (const blocked of ["title", "subtitle", "content", "version", "page_count", "cover_spec", "file_url", "file_size_kb"]) {
+      if (blocked in patch) delete patch[blocked];
+    }
+
     if (!notes.length) continue;
     patch.improvement_notes = notes.join("; ");
     await db.from("pdf_products").update(patch).eq("slug", p.slug);

@@ -10,6 +10,10 @@ import {
   analyzeSelfOptimization,
   summarizeSelfOptimization,
 } from "./self-optimization.server";
+import {
+  analyzeInternalLinking,
+  summarizeInternalLinking,
+} from "./internal-linking.server";
 
 export type ExecutorLog = (
   message: string,

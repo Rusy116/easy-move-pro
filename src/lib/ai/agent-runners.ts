@@ -10,7 +10,7 @@ import {
   runImageAgent,
   runRevenueAgent,
 } from "@/lib/ai-ecosystem.functions";
-import { auditFactoryBatch, runFactoryMonitor } from "@/lib/city-factory.functions";
+import { runFactoryMonitor } from "@/lib/city-factory.functions";
 
 export type AgentRunner = () => Promise<string>;
 
@@ -37,10 +37,10 @@ export const AGENT_RUNNERS: Record<string, AgentRunner> = {
     const r = await runRevenueAgent({ data: {} as never });
     return `platform $${n(r.platformRevenue).toLocaleString()} · products $${n(r.productRevenue).toLocaleString()}`;
   },
-  internal_linking_engine: async () => {
-    const r = await auditFactoryBatch({ data: { limit: 25 } });
-    return `${r.audited} pages audited, ${r.passed} passed, ${r.returned} returned`;
-  },
+  // AG-2: internal_linking_engine deliberately has NO legacy direct runner.
+  // It is executed exclusively through the governed Workforce execution
+  // service (see src/lib/workforce/registry.ts → GOVERNED_ONLY_AGENTS).
+
   google_performance_agent: async () => {
     const r = await runFactoryMonitor({ data: { limit: 200 } });
     return `${r.monitored} pages monitored, ${r.degraded} degraded`;

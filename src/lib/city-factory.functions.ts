@@ -63,6 +63,8 @@ async function auditOne(
   row: Row,
   peerTitles: string[],
   peerIntros: string[],
+  // AG-2: when false, the audit is computed but NOTHING is written.
+  writesEnabled = false,
 ): Promise<AuditOutcome | null> {
   const slug = String(row["slug"] ?? "");
   const facts = factsFromSlug(slug);
@@ -82,6 +84,17 @@ async function auditOne(
   const action: AuditOutcome["action"] = report.passed
     ? "published"
     : "returned_for_correction";
+
+  if (!writesEnabled) {
+    return {
+      slug,
+      score: report.score,
+      passed: report.passed,
+      failures: report.failures.map((f) => f.label),
+      fixes: report.fixes,
+      action: "skipped",
+    };
+  }
 
   await db
     .from("city_landing_pages")
@@ -130,6 +143,15 @@ export const auditFactoryBatch = createServerFn({ method: "POST" })
       ? await query.eq("slug", data.slug)
       : await query.order("audited_at", { ascending: true, nullsFirst: true }).limit(data.limit);
 
+    // AG-2 HARD SAFETY GATE — internal-linking / audit production writes are
+    // OFF by default and can only be enabled server-side via ai_settings.
+    // While disabled this function still returns the analysis, but performs no
+    // update, no seo_status change and no republish.
+    const { internalLinkingWritesEnabled } = await import(
+      "@/lib/workforce/internal-linking.server"
+    );
+    const writesEnabled = await internalLinkingWritesEnabled(db);
+
     const list = (rows ?? []) as Row[];
     const results: AuditOutcome[] = [];
     for (const row of list) {
@@ -147,7 +169,7 @@ export const auditFactoryBatch = createServerFn({ method: "POST" })
             .slice(0, 160),
         )
         .filter(Boolean);
-      const out = await auditOne(db, row, titles, intros);
+      const out = await auditOne(db, row, titles, intros, writesEnabled);
       if (out) results.push(out);
     }
 
@@ -156,6 +178,8 @@ export const auditFactoryBatch = createServerFn({ method: "POST" })
       passed: results.filter((r) => r.passed).length,
       returned: results.filter((r) => !r.passed).length,
       threshold: MIN_AUDIT_SCORE,
+      writesEnabled,
+      blocked: !writesEnabled,
       results,
     };
   });

@@ -4,7 +4,6 @@
 // registry records work immediately without any code change here.
 // ---------------------------------------------------------------------------
 import {
-  runGrowthAgent,
   runProductAgent,
   runImageAgent,
   runRevenueAgent,
@@ -17,10 +16,9 @@ const n = (v: unknown) => Number(v ?? 0);
 export const AGENT_RUNNERS: Record<string, AgentRunner> = {
   // AG-4: blog_agent deliberately has NO legacy direct runner. It is executed
   // exclusively through the governed Workforce execution service, draft-only.
-  mover_growth_agent: async () => {
-    const r = await runGrowthAgent({ data: { count: 3 } });
-    return `${r.created} mover articles drafted (${r.aiGenerated} AI-written)`;
-  },
+  // AG-5: mover_growth_agent deliberately has NO legacy direct runner. It is
+  // executed exclusively through the governed Workforce execution service,
+  // draft-only (see src/lib/workforce/mover-growth.server.ts).
   product_factory: async () => {
     const r = await runProductAgent({ data: { count: 2 } });
     return `${r.created} digital products created`;

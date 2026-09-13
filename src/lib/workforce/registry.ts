@@ -23,6 +23,8 @@ export const EXECUTABLE_AGENTS: Record<string, WorkforceAgentDescriptor> = {
   google_performance_agent: { key: "google_performance_agent", mode: "read_only", atomic: true },
   // AG-4: migrated off the legacy direct-runner path. Drafts only.
   blog_agent: { key: "blog_agent", mode: "mutating", atomic: true },
+  // AG-5: migrated off the legacy direct-runner path. Drafts only.
+  mover_growth_agent: { key: "mover_growth_agent", mode: "mutating", atomic: true },
 };
 
 /**
@@ -34,6 +36,7 @@ export const GOVERNED_ONLY_AGENTS = new Set<string>([
   "internal_linking_engine",
   "google_performance_agent",
   "blog_agent",
+  "mover_growth_agent",
 ]);
 
 export const isGovernedOnly = (key: string) => GOVERNED_ONLY_AGENTS.has(key);
@@ -46,6 +49,7 @@ export const GOVERNED_BADGE: Record<string, string> = {
   internal_linking_engine: "Analysis only — production writes disabled",
   google_performance_agent: "Real GSC data — read only",
   blog_agent: "Draft only — human publishing required",
+  mover_growth_agent: "Draft only — no automatic publishing",
 };
 
 export const governedBadge = (key: string) =>

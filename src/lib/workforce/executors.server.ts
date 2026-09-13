@@ -19,6 +19,11 @@ import {
   summarizeGooglePerformance,
 } from "./google-performance.server";
 import { runBlogDraftGeneration, summarizeBlogRun, clampBlogCount } from "./blog.server";
+import {
+  runMoverGrowthDraftGeneration,
+  summarizeMoverGrowthRun,
+  clampMoverGrowthCount,
+} from "./mover-growth.server";
 
 export type ExecutorLog = (
   message: string,
@@ -166,6 +171,34 @@ export const WORKFORCE_EXECUTORS: Record<string, WorkforceExecutor> = {
       );
       return {
         summary: summarizeBlogRun(r),
+        result: r as unknown as Record<string, unknown>,
+        itemsProcessed: r.generatedCount,
+        aiCalls: r.aiGenerated,
+        externalCalls: r.aiGenerated,
+        tablesRead: r.tablesRead,
+        tablesWritten: r.tablesWritten,
+      };
+    },
+  },
+
+  // AG-5: mover growth, governed draft-only. Reuses the existing generator.
+  mover_growth_agent: {
+    key: "mover_growth_agent",
+    taskLabel: "Mover growth drafting (draft only, no publishing)",
+    mode: "mutating",
+    atomic: true,
+    async run(ctx) {
+      const count = clampMoverGrowthCount(ctx.params?.["count"]);
+      await ctx.log(
+        `runner_invoked: mover growth drafting, ${count} item(s) requested (draft only)`,
+      );
+      const r = await runMoverGrowthDraftGeneration(ctx.supabase, { count });
+      for (const w of r.warnings) await ctx.log(`warning: ${w}`, "warn");
+      await ctx.log(
+        `runner_completed: ${r.generatedCount} draft(s) created via ${r.model}; ${r.publicationActionsPerformed} publication action(s), ${r.productionPageMutations} production page mutation(s)`,
+      );
+      return {
+        summary: summarizeMoverGrowthRun(r),
         result: r as unknown as Record<string, unknown>,
         itemsProcessed: r.generatedCount,
         aiCalls: r.aiGenerated,

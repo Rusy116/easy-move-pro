@@ -26,8 +26,10 @@ export async function startAgentRun(params: {
   supabase: any;
   userId: string;
   agentKey: string;
+  /** Validated run parameters forwarded to the executor. */
+  runParams?: Record<string, unknown>;
 }): Promise<StartRunOutcome> {
-  const { supabase, userId, agentKey } = params;
+  const { supabase, userId, agentKey, runParams } = params;
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
   const writeLog = async (message: string, level: "info" | "warn" | "error" = "info") => {
@@ -115,7 +117,7 @@ export async function startAgentRun(params: {
   await writeLog(`started: run ${runId}`);
 
   try {
-    const out = await executor.run({ supabase, userId, log: writeLog });
+    const out = await executor.run({ supabase, userId, log: writeLog, params: runParams });
     const durationMs = Date.now() - startedAt;
 
     await supabaseAdmin

@@ -90,4 +90,29 @@ export const WORKFORCE_EXECUTORS: Record<string, WorkforceExecutor> = {
       };
     },
   },
+
+  // AG-1 — analysis only. This executor cannot write, publish or republish.
+  self_optimization_agent: {
+    key: "self_optimization_agent",
+    taskLabel: "Self-optimization analysis (proposal only)",
+    mode: "read_only",
+    atomic: true,
+    async run(ctx) {
+      await ctx.log("runner_invoked: self-optimization analysis (production writes disabled)");
+      const a = await analyzeSelfOptimization(ctx.supabase, { limit: 25 });
+      for (const w of a.warnings) await ctx.log(`warning: ${w}`, "warn");
+      await ctx.log(
+        `runner_completed: ${a.proposalCount} proposal(s) from ${a.candidatesInspected} flagged page(s); 0 page(s) modified`,
+      );
+      return {
+        summary: summarizeSelfOptimization(a),
+        result: a as unknown as Record<string, unknown>,
+        itemsProcessed: a.candidatesInspected,
+        aiCalls: 0,
+        externalCalls: 0,
+        tablesRead: a.tablesRead,
+        tablesWritten: [],
+      };
+    },
+  },
 };

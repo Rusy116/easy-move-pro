@@ -10,11 +10,7 @@ import {
   runImageAgent,
   runRevenueAgent,
 } from "@/lib/ai-ecosystem.functions";
-import {
-  auditFactoryBatch,
-  runFactoryMonitor,
-  runSelfImprovement,
-} from "@/lib/city-factory.functions";
+import { auditFactoryBatch, runFactoryMonitor } from "@/lib/city-factory.functions";
 
 export type AgentRunner = () => Promise<string>;
 

@@ -275,10 +275,7 @@ export function evaluateShrinkGuard(input: ShrinkGuardInput): ShrinkGuardResult 
       requiresApproval: true,
     };
   }
-  return { allowed: false === true, reason: null, shrinkRatio: ratio, requiresApproval: false }
-    .allowed === undefined
-    ? { allowed: true, reason: null, shrinkRatio: ratio, requiresApproval: false }
-    : { allowed: true, reason: null, shrinkRatio: ratio, requiresApproval: false };
+  return { allowed: true, reason: null, shrinkRatio: ratio, requiresApproval: false };
 }
 
 export function newReleaseId(now: Date = new Date()): string {

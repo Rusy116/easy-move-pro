@@ -122,3 +122,13 @@ const run = async () => {
 };
 
 void run();
+
+// N. Legacy mutation function is gated at source level (auditFactoryBatch).
+import { readFileSync } from "node:fs";
+const src = readFileSync("src/lib/city-factory.functions.ts", "utf8");
+const gated =
+  src.includes("internalLinkingWritesEnabled") &&
+  /auditOne\(\s*\n?[^)]*writesEnabled\s*=\s*false/s.test(src) &&
+  src.includes("if (!writesEnabled) {");
+console.log(gated ? "PASS  N legacy auditFactoryBatch write-gated" : "FAIL  N legacy gate missing");
+if (!gated) process.exit(1);

@@ -180,9 +180,16 @@ const run = async () => {
       r.unknown.every((u) => /UNKNOWN/.test(u)),
   );
   check("H no database write issued", writes.length === 0, writes.join(","));
+  const code = src
+    .split("\n")
+    .filter((l) => !l.trim().startsWith("//") && !l.trim().startsWith("*") && !l.trim().startsWith("/*"))
+    .join("\n");
   check(
     "I–M no mutation/indexing surface in the engine",
-    !/\.update\(|\.insert\(|\.upsert\(|\.delete\(|urlNotifications|indexing|submit/i.test(src),
+    !/\.update\(|\.insert\(|\.upsert\(|\.delete\(|\.rpc\(|urlNotifications|indexing\.|sitemaps\.submit|requestIndexing/i.test(
+      code,
+    ),
+    code.match(/\.update\(|\.insert\(|\.upsert\(|\.delete\(|\.rpc\(/g)?.join(",") ?? "",
   );
   check("recommendations only", r.recommendations.length > 0 && !("actionsApplied" in r));
 

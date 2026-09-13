@@ -19,6 +19,8 @@ export const EXECUTABLE_AGENTS: Record<string, WorkforceAgentDescriptor> = {
   self_optimization_agent: { key: "self_optimization_agent", mode: "read_only", atomic: true },
   // AG-2: migrated off the legacy direct-runner path. Analysis only.
   internal_linking_engine: { key: "internal_linking_engine", mode: "read_only", atomic: true },
+  // AG-3: migrated off the legacy direct-runner path. Real GSC data, read only.
+  google_performance_agent: { key: "google_performance_agent", mode: "read_only", atomic: true },
 };
 
 /**
@@ -28,6 +30,7 @@ export const EXECUTABLE_AGENTS: Record<string, WorkforceAgentDescriptor> = {
 export const GOVERNED_ONLY_AGENTS = new Set<string>([
   "self_optimization_agent",
   "internal_linking_engine",
+  "google_performance_agent",
 ]);
 
 export const isGovernedOnly = (key: string) => GOVERNED_ONLY_AGENTS.has(key);

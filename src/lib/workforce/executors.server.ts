@@ -14,6 +14,10 @@ import {
   analyzeInternalLinking,
   summarizeInternalLinking,
 } from "./internal-linking.server";
+import {
+  computeGooglePerformance,
+  summarizeGooglePerformance,
+} from "./google-performance.server";
 
 export type ExecutorLog = (
   message: string,
@@ -115,6 +119,30 @@ export const WORKFORCE_EXECUTORS: Record<string, WorkforceExecutor> = {
         aiCalls: 0,
         externalCalls: 0,
         tablesRead: a.tablesRead,
+        tablesWritten: [],
+      };
+    },
+  },
+  // AG-3 — real Search Console data, read only. No writes, no indexing action.
+  google_performance_agent: {
+    key: "google_performance_agent",
+    taskLabel: "Google performance report (real GSC, read-only)",
+    mode: "read_only",
+    atomic: true,
+    async run(ctx) {
+      await ctx.log("runner_invoked: google performance report (real Search Console, read-only)");
+      const r = await computeGooglePerformance(ctx.supabase, ctx.log);
+      for (const w of r.warnings) await ctx.log(`warning: ${w}`, "warn");
+      await ctx.log(
+        `runner_completed: ${r.gscAvailable ? "GSC data observed" : "GSC data unavailable"}; ${r.gscRequests} Search Console read request(s), 0 submission(s), 0 write(s)`,
+      );
+      return {
+        summary: summarizeGooglePerformance(r),
+        result: r as unknown as Record<string, unknown>,
+        itemsProcessed: r.rowsAnalyzed,
+        aiCalls: 0,
+        externalCalls: r.gscRequests,
+        tablesRead: r.tablesRead,
         tablesWritten: [],
       };
     },

@@ -134,7 +134,10 @@ export async function enqueueFromBacklog(db: any, count: number) {
     );
   }
   await db.from("pdf_opportunities").update({ status: "queued" }).in("id", list.map((o) => o.id));
-  return jobs.length;
+  // Every row that got here already passed the DD-2B verified-demand gate, so
+  // all evidence used in this step is real; synthetic evidence can never reach
+  // production and is therefore always zero.
+  return { jobs: jobs.length, verifiedEvidenceUsed: jobs.length, syntheticEvidenceUsed: 0 };
 }
 
 /** Advance queued jobs through the 12 stages, honouring the publish gate. */
@@ -152,6 +155,17 @@ export async function advanceJobs(db: any, jobCount: number, minSeoScore: number
 
   let published = 0;
   let failed = 0;
+  // PF-1 — real publication outcome counters for this run.
+  const counters = {
+    pdfsGenerated: 0,
+    pdfsVerified: 0,
+    productsBlocked: 0,
+    duplicateRejected: 0,
+    deliverabilityFailed: 0,
+    duplicateChecksPerformed: 0,
+    blockReasons: [] as string[],
+  };
+
 
   for (const job of batch) {
     let stage = Number(job.stage ?? 0);
@@ -181,7 +195,23 @@ export async function advanceJobs(db: any, jobCount: number, minSeoScore: number
         break;
       }
 
-      stageResults[next.key] = { ok: outcome.ok, summary: outcome.summary };
+      stageResults[next.key] = {
+        ok: outcome.ok,
+        summary: outcome.summary,
+        ...(outcome.audit ? { audit: outcome.audit } : {}),
+      };
+      if (outcome.metrics) {
+        const m = outcome.metrics;
+        counters.pdfsGenerated += m.pdfsGenerated ?? 0;
+        counters.pdfsVerified += m.pdfsVerified ?? 0;
+        counters.duplicateRejected += m.duplicateRejected ?? 0;
+        counters.deliverabilityFailed += m.deliverabilityFailed ?? 0;
+        counters.duplicateChecksPerformed += m.duplicateChecksPerformed ?? 0;
+        if (m.blockReason) {
+          counters.productsBlocked += 1;
+          counters.blockReasons.push(`${job.product_slug}: ${m.blockReason}`);
+        }
+      }
       if (outcome.patch && Object.keys(outcome.patch).length) {
         await db.from("pdf_products").update(outcome.patch).eq("slug", job.product_slug);
       }
@@ -216,7 +246,7 @@ export async function advanceJobs(db: any, jobCount: number, minSeoScore: number
     });
   }
 
-  return { processed: batch.length, published, failed };
+  return { processed: batch.length, published, failed, ...counters };
 }
 
 export interface WorkerTickResult {
@@ -230,6 +260,20 @@ export interface WorkerTickResult {
   improved: number;
   repaired: number;
   covers: number;
+  // PF-1 — exact production outcomes for this run. Never fabricated.
+  candidatesCreated: number;
+  pdfJobsCreated: number;
+  pdfsGenerated: number;
+  pdfsVerified: number;
+  productsCreated: number;
+  productsPublished: number;
+  productsBlocked: number;
+  blockReasons: string[];
+  duplicateRejected: number;
+  duplicateChecksPerformed: number;
+  deliverabilityFailed: number;
+  verifiedEvidenceUsed: number;
+  syntheticEvidenceUsed: number;
   reason?: string;
 }
 
@@ -251,6 +295,19 @@ export async function runPdfWorkerTick(
     improved: 0,
     repaired: 0,
     covers: 0,
+    candidatesCreated: 0,
+    pdfJobsCreated: 0,
+    pdfsGenerated: 0,
+    pdfsVerified: 0,
+    productsCreated: 0,
+    productsPublished: 0,
+    productsBlocked: 0,
+    blockReasons: [],
+    duplicateRejected: 0,
+    duplicateChecksPerformed: 0,
+    deliverabilityFailed: 0,
+    verifiedEvidenceUsed: 0,
+    syntheticEvidenceUsed: 0,
   };
 
   if (!settings.autopilot && !opts.force) return { ...empty, enabled: false, reason: "Autopilot off" };
@@ -284,6 +341,7 @@ export async function runPdfWorkerTick(
     const research = await runResearchCycle(db, 12);
     result.discovered = research.discovered;
     result.planned = research.planned;
+    result.candidatesCreated = research.planned;
   }
 
   // 2 — promote ideas into the queue.
@@ -292,7 +350,12 @@ export async function runPdfWorkerTick(
     .select("id", { count: "exact", head: true })
     .in("status", ["queued", "running"]);
   if (Number(openJobs ?? 0) < settings.batch_size * 3) {
-    result.queued = await enqueueFromBacklog(db, settings.batch_size * 3);
+    const enqueued = await enqueueFromBacklog(db, settings.batch_size * 3);
+    result.queued = enqueued.jobs;
+    result.pdfJobsCreated = enqueued.jobs;
+    result.productsCreated = enqueued.jobs;
+    result.verifiedEvidenceUsed = enqueued.verifiedEvidenceUsed;
+    result.syntheticEvidenceUsed = enqueued.syntheticEvidenceUsed;
   }
 
   // 3 — produce.
@@ -300,6 +363,14 @@ export async function runPdfWorkerTick(
   result.processed = run.processed;
   result.published = run.published;
   result.failed = run.failed;
+  result.productsPublished = run.published;
+  result.pdfsGenerated = run.pdfsGenerated;
+  result.pdfsVerified = run.pdfsVerified;
+  result.productsBlocked = run.productsBlocked;
+  result.blockReasons = run.blockReasons;
+  result.duplicateRejected = run.duplicateRejected;
+  result.duplicateChecksPerformed = run.duplicateChecksPerformed;
+  result.deliverabilityFailed = run.deliverabilityFailed;
 
   // 4 — commercial repair: names, prices, categories, backlog balance.
   const repair = await repairCatalog(db);

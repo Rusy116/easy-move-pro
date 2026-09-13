@@ -161,6 +161,17 @@ export interface StageOutcome {
   ok: boolean;
   summary: string;
   patch?: Record<string, unknown>;
+  /** PF-1 — real, per-run publication outcome counters. Never fabricated. */
+  metrics?: {
+    duplicateChecksPerformed?: number;
+    duplicateRejected?: number;
+    pdfsGenerated?: number;
+    pdfsVerified?: number;
+    deliverabilityFailed?: number;
+    blockReason?: string;
+  };
+  /** PF-1 — audit trail persisted into pdf_jobs.stage_results. */
+  audit?: Record<string, unknown>;
 }
 
 function fallbackSections(title: string, category: string): PdfSection[] {
@@ -504,11 +515,74 @@ export async function runPdfStage(
     }
 
 
-    case "publish":
+    case "publish": {
+      // PF-1 — a product may only go live when it is genuinely distinct AND a
+      // real, retrievable PDF artifact exists in storage.
+      const { checkDuplicate } = await import("./pdf-store/duplicate");
+      const { generateAndVerifyArtifact } = await import("./pdf-store/artifact.server");
+
+      const { data: catalog, error: catalogError } = await db
+        .from("pdf_products")
+        .select("id,slug,title,target_keywords,status")
+        .in("status", ["published", "approved"])
+        .limit(2000);
+
+      if (catalogError) {
+        return {
+          ok: false,
+          summary: `Blocked: duplicate check failed technically (${catalogError.message})`,
+          metrics: { duplicateChecksPerformed: 0, blockReason: "duplicate_check_error" },
+        };
+      }
+
+      const duplicateCheck = checkDuplicate(
+        { slug: job.product_slug, title, target_keywords: product?.target_keywords ?? [] },
+        ((catalog ?? []) as any[]).filter((r) => r.slug !== job.product_slug),
+      );
+
+      if (!duplicateCheck.passed) {
+        return {
+          ok: false,
+          summary: `Blocked: ${duplicateCheck.reason}`,
+          patch: { status: "review" },
+          metrics: { duplicateChecksPerformed: 1, duplicateRejected: 1, blockReason: "duplicate_similarity" },
+          audit: { duplicateCheck },
+        };
+      }
+
+      const artifact = await generateAndVerifyArtifact(db, { ...(product ?? {}), slug: job.product_slug, title });
+      if (!artifact.ready || !artifact.verified) {
+        return {
+          ok: false,
+          summary: `Blocked: downloadable PDF not verified — ${artifact.error ?? "unknown error"}`,
+          patch: { status: "review" },
+          metrics: {
+            duplicateChecksPerformed: 1,
+            pdfsGenerated: 0,
+            pdfsVerified: 0,
+            deliverabilityFailed: 1,
+            blockReason: "deliverability_failed",
+          },
+          audit: { duplicateCheck, artifact },
+        };
+      }
+
       return {
         ok: true,
-        summary: "Published to the store",
-        patch: { status: "published", published_at: new Date().toISOString() },
+        summary: `Published with verified PDF (${Math.round(artifact.bytes / 1024)} KB)`,
+        patch: {
+          status: "published",
+          published_at: new Date().toISOString(),
+          file_url: artifact.path,
+          file_size_kb: Math.max(1, Math.round(artifact.bytes / 1024)),
+        },
+        metrics: {
+          duplicateChecksPerformed: 1,
+          pdfsGenerated: 1,
+          pdfsVerified: 1,
+        },
+        audit: { duplicateCheck, artifact },
       };
+    }
   }
 }

@@ -334,9 +334,15 @@ export const redeemDownload = createServerFn({ method: "POST" })
       .maybeSingle();
     if (!product) return { ok: false as const, reason: "missing" };
 
+    // PF-1: products published with a verified stored artifact are delivered
+    // from storage. Older products keep the render-on-download path.
+    const { signedArtifactUrl } = await import("@/lib/pdf-store/artifact.server");
+    const artifactUrl = await signedArtifactUrl(db, product.file_url ?? null);
+
     return {
       ok: true as const,
       orderNumber: order.order_number,
       product,
+      artifactUrl,
     };
   });

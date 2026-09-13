@@ -283,6 +283,23 @@ export const runSelfImprovement = createServerFn({ method: "POST" })
     await assertAdmin(context);
     const db = factoryClient();
 
+    // AG-1 HARD SAFETY GATE — self-optimization production writes are OFF by
+    // default and can only be enabled server-side via ai_settings. Until then
+    // this legacy path performs no updates and no republishing at all.
+    const { selfOptimizationWritesEnabled } = await import(
+      "@/lib/workforce/self-optimization.server"
+    );
+    if (!(await selfOptimizationWritesEnabled(db))) {
+      return {
+        candidates: 0,
+        improved: 0,
+        results: [],
+        blocked: true as const,
+        reason:
+          "Self-optimization production writes are disabled. Use the governed Workforce run (analysis only).",
+      };
+    }
+
     const { data: rows } = await db
       .from("city_landing_pages")
       .select(

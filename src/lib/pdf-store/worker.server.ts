@@ -104,7 +104,7 @@ export async function enqueueFromBacklog(db: any, count: number) {
     .limit(count);
 
   const list = (opps ?? []) as any[];
-  if (!list.length) return 0;
+  if (!list.length) return { jobs: 0, verifiedEvidenceUsed: 0, syntheticEvidenceUsed: 0 };
 
   const { data: existing } = await db.from("pdf_jobs").select("product_slug");
   const taken = new Set(((existing ?? []) as any[]).map((r) => r.product_slug));

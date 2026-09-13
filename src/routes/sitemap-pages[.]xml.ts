@@ -109,8 +109,9 @@ async function buildPagesXml(): Promise<string> {
           entries.push({ path: `/partners/${c.slug}`, changefreq: "monthly", priority: "0.6" }),
         );
 
-        return renderUrlset(entries);
-      },
-    },
-  },
-});
+        return buildUrlsetXml(entries);
+      }
+    }
+  }
+}
+

@@ -103,7 +103,7 @@ const run = async () => {
   check("D1 mode analysis_only, writes disabled", a.mode === "analysis_only" && a.writesEnabled === false);
   check("D2 inspected pages and links", a.pagesInspected === 2 && a.linksInspected === 13, JSON.stringify(a));
   check("D3 detects thin link page", a.proposals.some((p) => p.slug === "movers-denver-co" && p.suggestedAdditions === 5));
-  check("D4 detects broken internal link", a.brokenLinkCount === 1);
+  check("D4 detects broken internal links", a.brokenLinkCount === 10 && a.proposals.some((p) => p.issues.some((i) => i.includes("/movers/ghost-town-zz"))), String(a.brokenLinkCount));
   check("D5 summary states writes disabled", /production writes disabled/i.test(summarizeInternalLinking(a)));
   check("E–I no write of any kind issued", writes.length === 0, writes.join(","));
   check("J/K/L reads only city_landing_pages", JSON.stringify(a.tablesRead) === '["city_landing_pages"]');

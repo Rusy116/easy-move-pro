@@ -49,6 +49,7 @@ export const AI_NAV = [
   { to: "/ai/cities", labelKey: "admin.ai.nav.cities", icon: MapPin },
   { to: "/ai/city-review", labelKey: "admin.ai.nav.cityReview", icon: ClipboardCheck },
   { to: "/ai/blog-review", labelKey: "admin.ai.nav.blogReview", icon: FileText },
+  { to: "/ai/candidate-review", labelKey: "admin.ai.nav.candidateReview", icon: ClipboardCheck },
   { to: "/ai/city-log", labelKey: "admin.ai.nav.cityLog", icon: ScrollText },
   { to: "/ai/city-index", labelKey: "admin.ai.nav.cityIndex", icon: Radar },
   { to: "/ai/city-factory", labelKey: "admin.ai.nav.cityFactory", icon: ShieldCheck },

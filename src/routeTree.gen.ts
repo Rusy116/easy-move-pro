@@ -138,6 +138,7 @@ import { Route as AuthenticatedAiCityLogRouteImport } from './routes/_authentica
 import { Route as AuthenticatedAiCityIndexRouteImport } from './routes/_authenticated/ai.city-index'
 import { Route as AuthenticatedAiCityFactoryRouteImport } from './routes/_authenticated/ai.city-factory'
 import { Route as AuthenticatedAiCitiesRouteImport } from './routes/_authenticated/ai.cities'
+import { Route as AuthenticatedAiCandidateReviewRouteImport } from './routes/_authenticated/ai.candidate-review'
 import { Route as AuthenticatedAiBlogReviewRouteImport } from './routes/_authenticated/ai.blog-review'
 import { Route as AuthenticatedAiAutomationRouteImport } from './routes/_authenticated/ai.automation'
 import { Route as AuthenticatedAiAnalyticsRouteImport } from './routes/_authenticated/ai.analytics'
@@ -867,6 +868,12 @@ const AuthenticatedAiCitiesRoute = AuthenticatedAiCitiesRouteImport.update({
   path: '/ai/cities',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAiCandidateReviewRoute =
+  AuthenticatedAiCandidateReviewRouteImport.update({
+    id: '/ai/candidate-review',
+    path: '/ai/candidate-review',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAiBlogReviewRoute =
   AuthenticatedAiBlogReviewRouteImport.update({
     id: '/ai/blog-review',
@@ -1101,6 +1108,7 @@ export interface FileRoutesByFullPath {
   '/ai/analytics': typeof AuthenticatedAiAnalyticsRoute
   '/ai/automation': typeof AuthenticatedAiAutomationRoute
   '/ai/blog-review': typeof AuthenticatedAiBlogReviewRoute
+  '/ai/candidate-review': typeof AuthenticatedAiCandidateReviewRoute
   '/ai/cities': typeof AuthenticatedAiCitiesRoute
   '/ai/city-factory': typeof AuthenticatedAiCityFactoryRoute
   '/ai/city-index': typeof AuthenticatedAiCityIndexRoute
@@ -1257,6 +1265,7 @@ export interface FileRoutesByTo {
   '/ai/analytics': typeof AuthenticatedAiAnalyticsRoute
   '/ai/automation': typeof AuthenticatedAiAutomationRoute
   '/ai/blog-review': typeof AuthenticatedAiBlogReviewRoute
+  '/ai/candidate-review': typeof AuthenticatedAiCandidateReviewRoute
   '/ai/cities': typeof AuthenticatedAiCitiesRoute
   '/ai/city-factory': typeof AuthenticatedAiCityFactoryRoute
   '/ai/city-index': typeof AuthenticatedAiCityIndexRoute
@@ -1416,6 +1425,7 @@ export interface FileRoutesById {
   '/_authenticated/ai/analytics': typeof AuthenticatedAiAnalyticsRoute
   '/_authenticated/ai/automation': typeof AuthenticatedAiAutomationRoute
   '/_authenticated/ai/blog-review': typeof AuthenticatedAiBlogReviewRoute
+  '/_authenticated/ai/candidate-review': typeof AuthenticatedAiCandidateReviewRoute
   '/_authenticated/ai/cities': typeof AuthenticatedAiCitiesRoute
   '/_authenticated/ai/city-factory': typeof AuthenticatedAiCityFactoryRoute
   '/_authenticated/ai/city-index': typeof AuthenticatedAiCityIndexRoute
@@ -1575,6 +1585,7 @@ export interface FileRouteTypes {
     | '/ai/analytics'
     | '/ai/automation'
     | '/ai/blog-review'
+    | '/ai/candidate-review'
     | '/ai/cities'
     | '/ai/city-factory'
     | '/ai/city-index'
@@ -1731,6 +1742,7 @@ export interface FileRouteTypes {
     | '/ai/analytics'
     | '/ai/automation'
     | '/ai/blog-review'
+    | '/ai/candidate-review'
     | '/ai/cities'
     | '/ai/city-factory'
     | '/ai/city-index'
@@ -1889,6 +1901,7 @@ export interface FileRouteTypes {
     | '/_authenticated/ai/analytics'
     | '/_authenticated/ai/automation'
     | '/_authenticated/ai/blog-review'
+    | '/_authenticated/ai/candidate-review'
     | '/_authenticated/ai/cities'
     | '/_authenticated/ai/city-factory'
     | '/_authenticated/ai/city-index'
@@ -2946,6 +2959,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAiCitiesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/ai/candidate-review': {
+      id: '/_authenticated/ai/candidate-review'
+      path: '/ai/candidate-review'
+      fullPath: '/ai/candidate-review'
+      preLoaderRoute: typeof AuthenticatedAiCandidateReviewRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/ai/blog-review': {
       id: '/_authenticated/ai/blog-review'
       path: '/ai/blog-review'
@@ -3220,6 +3240,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAiAnalyticsRoute: typeof AuthenticatedAiAnalyticsRoute
   AuthenticatedAiAutomationRoute: typeof AuthenticatedAiAutomationRoute
   AuthenticatedAiBlogReviewRoute: typeof AuthenticatedAiBlogReviewRoute
+  AuthenticatedAiCandidateReviewRoute: typeof AuthenticatedAiCandidateReviewRoute
   AuthenticatedAiCitiesRoute: typeof AuthenticatedAiCitiesRoute
   AuthenticatedAiCityFactoryRoute: typeof AuthenticatedAiCityFactoryRoute
   AuthenticatedAiCityIndexRoute: typeof AuthenticatedAiCityIndexRoute
@@ -3285,6 +3306,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAiAnalyticsRoute: AuthenticatedAiAnalyticsRoute,
   AuthenticatedAiAutomationRoute: AuthenticatedAiAutomationRoute,
   AuthenticatedAiBlogReviewRoute: AuthenticatedAiBlogReviewRoute,
+  AuthenticatedAiCandidateReviewRoute: AuthenticatedAiCandidateReviewRoute,
   AuthenticatedAiCitiesRoute: AuthenticatedAiCitiesRoute,
   AuthenticatedAiCityFactoryRoute: AuthenticatedAiCityFactoryRoute,
   AuthenticatedAiCityIndexRoute: AuthenticatedAiCityIndexRoute,

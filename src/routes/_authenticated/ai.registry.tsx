@@ -294,8 +294,15 @@ function AgentCard({
         <div className="flex flex-wrap items-center gap-1.5">
           <Button size="sm" onClick={() => onRun(agent)} disabled={busy || !agent.enabled}>
             {busy ? <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" /> : <Play className="mr-1.5 h-3.5 w-3.5" />}
-            {hasRunner(agent.key) ? tr("admin.ai4.reg.start") : tr("admin.ai4.reg.queue")}
+            {hasRunner(agent.key) || isGovernedOnly(agent.key)
+              ? tr("admin.ai4.reg.start")
+              : tr("admin.ai4.reg.queue")}
           </Button>
+          {isGovernedOnly(agent.key) && (
+            <span className="rounded-full bg-amber-500/15 px-2 py-0.5 text-[11px] text-amber-600">
+              Analysis only — production writes disabled
+            </span>
+          )}
           <Button
             size="sm"
             variant="outline"

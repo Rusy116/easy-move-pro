@@ -2,9 +2,9 @@
 //
 // Canonical, og:url and every schema `url`/`item` MUST be absolute so search
 // engines attribute the page to one host (no preview/production ambiguity).
-export const SITE_ORIGIN = "https://easymove.pro";
+export const SITE_ORIGIN = "https://www.easymove.pro";
 
-/** "/movers/dallas-tx" → "https://easymove.pro/movers/dallas-tx" */
+/** "/movers/dallas-tx" → "https://www.easymove.pro/movers/dallas-tx" */
 export function absoluteUrl(path: string): string {
   if (/^https?:\/\//i.test(path)) return path;
   return `${SITE_ORIGIN}${path.startsWith("/") ? path : `/${path}`}`;

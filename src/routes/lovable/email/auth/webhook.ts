@@ -11,7 +11,7 @@ import { ReauthenticationEmail } from '@/lib/email-templates/reauthentication'
 // Configuration
 const SITE_NAME = "Easy Move Pro"
 const SENDER_DOMAIN = "notify.easymove.pro"
-const ROOT_DOMAIN = "easymove.pro"
+const ROOT_DOMAIN = "www.easymove.pro"
 const FROM_DOMAIN = "notify.easymove.pro"
 const SITE_URL = `https://${ROOT_DOMAIN}`
 

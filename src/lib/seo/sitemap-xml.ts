@@ -5,7 +5,7 @@ export interface SitemapEntry {
   priority?: string;
 }
 
-export const SITEMAP_BASE_URL = "https://easymove.pro";
+export const SITEMAP_BASE_URL = "https://www.easymove.pro";
 
 /**
  * Part sizing is computed from GENERATED URL COUNT, not slug count.

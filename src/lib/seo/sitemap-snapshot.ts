@@ -6,7 +6,7 @@
 // anything: production sitemap delivery is untouched by SR-1.
 // ---------------------------------------------------------------------------
 
-export const CANONICAL_HOST = "easymove.pro";
+export const CANONICAL_HOST = "www.easymove.pro";
 export const CANONICAL_ORIGIN = `https://${CANONICAL_HOST}`;
 
 /** Google hard limits, with the same safety margin used by the live renderer. */

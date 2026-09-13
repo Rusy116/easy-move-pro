@@ -26,7 +26,7 @@ const values = v.analyses
       `(${q(releaseId)}, ${q(a.partKey)}, ${q(a.xml)}, ${a.urlCount}, ${a.cityUrlCount}, ${q(a.checksum)}, ${a.byteSize}, 'active', true, ${q(
         JSON.stringify({
           kind: a.kind,
-          origin: "https://easymove.pro",
+          origin: "https://www.easymove.pro",
           published_city_count: publishedCityCount,
           baseline: true,
           source: "live-production-capture",

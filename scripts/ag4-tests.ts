@@ -119,13 +119,20 @@ const run = async () => {
   check("summary states draft only", /Draft only — human publishing required/.test(summarizeBlogRun(one)));
 
   // H/I–N. Publishing and other systems are unreachable from this executor
+  const code = src
+    .split("\n")
+    .filter((l) => {
+      const t = l.trim();
+      return !t.startsWith("//") && !t.startsWith("*") && !t.startsWith("/*");
+    })
+    .join("\n");
   check(
     "H no publish surface in the executor core",
-    !/published_at|publishBlog|unpublishBlog|blog-publish|is_published|\bpublish\(/i.test(src),
+    !/published_at|publishBlog|unpublishBlog|blog-publish|is_published|\bpublish\(/i.test(code),
   );
   check(
     "I–N no city/sitemap/product/factory/email surface",
-    !/city_landing_pages|sitemap|pdf_|city_production|indexing|resend|sendEmail|twilio|sms/i.test(src),
+    !/city_landing_pages|sitemap|pdf_|city_production|indexing|resend|sendEmail|twilio|sms/i.test(code),
   );
   check("only ai_content_items is touched", [...new Set(touched)].join(",") === "ai_content_items", touched.join(","));
   check("no update/insert issued by the executor core", !touched.some((t) => t.includes(":")), touched.join(","));

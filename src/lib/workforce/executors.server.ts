@@ -6,6 +6,10 @@
 // ---------------------------------------------------------------------------
 import { computeRevenueAnalysis, summarizeRevenue } from "./revenue.server";
 import { computeAnalytics, summarizeAnalytics } from "./analytics.server";
+import {
+  analyzeSelfOptimization,
+  summarizeSelfOptimization,
+} from "./self-optimization.server";
 
 export type ExecutorLog = (
   message: string,

@@ -1,10 +1,42 @@
-import { describe, expect, it } from "vitest";
+// SR-1 safety tests — standalone runner: `bun run scripts/sr1-validation-tests.ts`
 import {
   evaluateShrinkGuard,
   validateCandidate,
   type SnapshotPart,
-} from "./sitemap-snapshot";
-import { buildAndPromoteSnapshot } from "./sitemap-snapshot.server";
+} from "../src/lib/seo/sitemap-snapshot";
+import { buildAndPromoteSnapshot } from "../src/lib/seo/sitemap-snapshot.server";
+
+let passed = 0;
+const failures: string[] = [];
+const pending: Array<[string, () => unknown | Promise<unknown>]> = [];
+function describe(name: string, fn: () => void) {
+  current = name;
+  fn();
+}
+let current = "";
+function it(name: string, fn: () => unknown | Promise<unknown>) {
+  const label = `${current} > ${name}`;
+  pending.push([label, fn]);
+}
+function expect(actual: any) {
+  return {
+    toBe(expected: any) {
+      if (actual !== expected) throw new Error(`expected ${expected}, got ${actual}`);
+    },
+    rejects: {
+      async toThrow(re: RegExp) {
+        try {
+          await actual;
+        } catch (e) {
+          const msg = e instanceof Error ? e.message : String(e);
+          if (!re.test(msg)) throw new Error(`error "${msg}" does not match ${re}`);
+          return;
+        }
+        throw new Error("expected promise to reject");
+      },
+    },
+  };
+}
 
 const ORIGIN = "https://easymove.pro";
 
@@ -231,3 +263,16 @@ describe("SR-1 failure safety", () => {
     expect(db.rows[0].is_active).toBe(true);
   });
 });
+
+for (const [label, fn] of pending) {
+  try {
+    await fn();
+    passed++;
+    console.log(`PASS  ${label}`);
+  } catch (e) {
+    failures.push(`${label}: ${e instanceof Error ? e.message : String(e)}`);
+    console.log(`FAIL  ${label} — ${e instanceof Error ? e.message : String(e)}`);
+  }
+}
+console.log(`\n${passed} passed, ${failures.length} failed`);
+if (failures.length) process.exit(1);

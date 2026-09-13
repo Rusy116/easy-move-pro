@@ -66,27 +66,29 @@ const check = (name: string, ok: boolean, extra = "") => {
 
 const writes: string[] = [];
 function mockDb(snaps: any[] = [{ file_key: "cities-1", url_count: 45000, city_url_count: 45000, is_active: true }]) {
-  const q: any = {
-    _table: "",
-    select: (_s?: string, o?: any) =>
-      o?.head ? Promise.resolve({ count: 28850, error: null }) : q,
-    eq: () => (q._table === "sitemap_snapshots" ? Promise.resolve({ data: snaps, error: null }) : q),
-    update: () => {
-      writes.push("update");
-      return q;
-    },
-    insert: () => {
-      writes.push("insert");
-      return q;
-    },
-    upsert: () => {
-      writes.push("upsert");
-      return q;
-    },
-  };
   return {
-    from: (t: string) => {
-      q._table = t;
+    from(table: string) {
+      const result =
+        table === "sitemap_snapshots"
+          ? { data: snaps, error: null }
+          : { count: 28850, error: null };
+      const q: any = {
+        select: () => q,
+        eq: () => q,
+        then: (res: any, rej: any) => Promise.resolve(result).then(res, rej),
+        update: () => {
+          writes.push("update");
+          return q;
+        },
+        insert: () => {
+          writes.push("insert");
+          return q;
+        },
+        upsert: () => {
+          writes.push("upsert");
+          return q;
+        },
+      };
       return q;
     },
   };

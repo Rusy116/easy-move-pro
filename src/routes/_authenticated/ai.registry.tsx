@@ -33,7 +33,7 @@ import {
   type RegistryAgent,
 } from "@/lib/ai/agent-registry";
 import { AGENT_RUNNERS, hasRunner } from "@/lib/ai/agent-runners";
-import { isGovernedOnly } from "@/lib/workforce/registry";
+import { isGovernedOnly, governedBadge } from "@/lib/workforce/registry";
 import { executeAgent } from "@/lib/workforce.functions";
 import { useT } from "@/i18n";
 
@@ -300,7 +300,7 @@ function AgentCard({
           </Button>
           {isGovernedOnly(agent.key) && (
             <span className="rounded-full bg-amber-500/15 px-2 py-0.5 text-[11px] text-amber-600">
-              Analysis only — production writes disabled
+              {governedBadge(agent.key)}
             </span>
           )}
           <Button

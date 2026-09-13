@@ -36,3 +36,13 @@ export const GOVERNED_ONLY_AGENTS = new Set<string>([
 export const isGovernedOnly = (key: string) => GOVERNED_ONLY_AGENTS.has(key);
 
 export const isExecutable = (key: string) => Boolean(EXECUTABLE_AGENTS[key]);
+
+/** Badge shown next to the governed Start action. */
+export const GOVERNED_BADGE: Record<string, string> = {
+  self_optimization_agent: "Analysis only — production writes disabled",
+  internal_linking_engine: "Analysis only — production writes disabled",
+  google_performance_agent: "Real GSC data — read only",
+};
+
+export const governedBadge = (key: string) =>
+  GOVERNED_BADGE[key] ?? "Analysis only — production writes disabled";

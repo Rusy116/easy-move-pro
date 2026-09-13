@@ -13,12 +13,12 @@ import { useT } from "@/i18n";
 import { ECOSYSTEM_AGENTS, PRODUCTION_PIPELINE } from "@/lib/ai/ecosystem";
 import {
   ecosystemStatus,
-  runGrowthAgent,
   runProductAgent,
   runImageAgent,
   runRevenueAgent,
 } from "@/lib/ai-ecosystem.functions";
 import { executeAgent } from "@/lib/workforce.functions";
+import { governedBadge } from "@/lib/workforce/registry";
 
 export const Route = createFileRoute("/_authenticated/ai/ecosystem")({
   head: () => ({
@@ -39,6 +39,7 @@ function EcosystemPage() {
   const qc = useQueryClient();
   const [log, setLog] = useState<{ t: string; msg: string }[]>([]);
   const [blogCount, setBlogCount] = useState<number>(1);
+  const [growthCount, setGrowthCount] = useState<number>(1);
   const push = (msg: string) =>
     setLog((l) => [{ t: new Date().toLocaleTimeString(), msg }, ...l].slice(0, 40));
 
@@ -66,10 +67,16 @@ function EcosystemPage() {
   });
 
   const growth = useMutation({
-    mutationFn: () => runGrowthAgent({ data: { count: 3 } }),
+    // AG-5: routed through the governed Workforce execution service (draft only).
+    mutationFn: () => executeAgent({ data: { agentKey: "mover_growth_agent", count: growthCount } }),
     onSuccess: (r) => {
-      push(tr("admin.ai4.eco.growthLog", { created: r.created, aiGenerated: r.aiGenerated }));
-      toast.success(tr("admin.ai4.eco.growthToast", { created: r.created }));
+      if (!r.ok) {
+        toast.error(r.message);
+        return;
+      }
+      push(r.summary);
+      if (r.status === "failed") toast.error(r.summary);
+      else toast.success(r.summary);
       refresh();
     },
     onError: (e: Error) => toast.error(e.message),
@@ -195,10 +202,31 @@ function EcosystemPage() {
               {tr("admin.ai4.eco.blogAgent")}
             </Button>
           </div>
-          <Button onClick={() => growth.mutate()} disabled={busy} variant="outline" className="justify-start gap-2">
-            {growth.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Building2 className="h-4 w-4" />}
-            {tr("admin.ai4.eco.growthAgent")}
-          </Button>
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center gap-2 text-sm">
+              <label htmlFor="growth-count" className="text-muted-foreground">
+                {tr("admin.ai4.eco.countLabel")}
+              </label>
+              <Input
+                id="growth-count"
+                type="number"
+                min={1}
+                max={10}
+                value={growthCount}
+                onChange={(e) =>
+                  setGrowthCount(Math.min(Math.max(parseInt(e.target.value || "1", 10), 1), 10))
+                }
+                className="h-8 w-20"
+              />
+            </div>
+            <Button onClick={() => growth.mutate()} disabled={busy} variant="outline" className="justify-start gap-2">
+              {growth.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Building2 className="h-4 w-4" />}
+              {tr("admin.ai4.eco.growthAgent")}
+            </Button>
+            <p className="text-[11px] text-muted-foreground">
+              {governedBadge("mover_growth_agent")}
+            </p>
+          </div>
           <Button onClick={() => product.mutate()} disabled={busy} variant="outline" className="justify-start gap-2">
             {product.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Package className="h-4 w-4" />}
             {tr("admin.ai4.eco.productAgent")}

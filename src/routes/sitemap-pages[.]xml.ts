@@ -3,13 +3,31 @@ import type {} from "@tanstack/react-start";
 import { STATES, CITIES } from "@/lib/seo/locations";
 import { PRODUCT_PAGES, EDUCATION_PAGES, COMPARISON_PAGES } from "@/lib/seo/content";
 import { GEO_STATES, GEO_ROUTES, statePath, routePath } from "@/lib/seo/geo";
-import { renderUrlset, type SitemapEntry } from "@/lib/seo/sitemap-xml";
+import { buildUrlsetXml, type SitemapEntry } from "@/lib/seo/sitemap-xml";
 
-/** Non-city public pages. */
+/**
+ * Non-city public pages.
+ * SR-2: live first, Last-Known-Good snapshot as fallback.
+ */
 export const Route = createFileRoute("/sitemap-pages.xml")({
   server: {
     handlers: {
       GET: async () => {
+        const { deliverSitemap } = await import("@/lib/seo/sitemap-delivery.server");
+        return deliverSitemap({
+          partKey: "pages",
+          kind: "pages",
+          buildLive: buildPagesXml,
+        });
+      },
+    },
+  },
+});
+
+async function buildPagesXml(): Promise<string> {
+  {
+    {
+      {
         const entries: SitemapEntry[] = [
           { path: "/", changefreq: "weekly", priority: "1.0" },
           { path: "/calculator", changefreq: "weekly", priority: "0.9" },

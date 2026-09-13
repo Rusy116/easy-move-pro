@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { ClipboardCheck, Loader2, ShieldCheck } from "lucide-react";
+import { Loader2, ShieldCheck } from "lucide-react";
 import { AiShell } from "@/components/ai/AiShell";
 import { PageHeader, SectionShell } from "@/components/shell/Chrome";
 import { EmptyState } from "@/components/ai/blocks";
@@ -75,7 +75,7 @@ function CandidateReviewPage() {
       <PageHeader
         eyebrow={t("aip.candidateReview.eyebrow")}
         title={t("aip.candidateReview.title")}
-        description={t("aip.candidateReview.subtitle")}
+        subtitle={t("aip.candidateReview.subtitle")}
       />
 
       <div className="mb-4 flex flex-wrap items-center gap-2">
@@ -103,7 +103,6 @@ function CandidateReviewPage() {
           </div>
         ) : !queue.data?.groups.length ? (
           <EmptyState
-            icon={ClipboardCheck}
             title={t("aip.candidateReview.empty.title")}
             hint={t("aip.candidateReview.empty.hint")}
           />

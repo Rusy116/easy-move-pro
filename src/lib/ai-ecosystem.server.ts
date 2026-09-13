@@ -3,7 +3,7 @@
 // Uses the Lovable AI Gateway Responses API in streaming mode.
 // ---------------------------------------------------------------------------
 
-const MODEL = "openai/gpt-5.6-sol";
+export const MODEL = "openai/gpt-5.6-sol";
 
 async function readOutputText(body: ReadableStream<Uint8Array>): Promise<string> {
   const reader = body.getReader();

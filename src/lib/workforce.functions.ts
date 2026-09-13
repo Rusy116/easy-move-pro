@@ -19,11 +19,16 @@ async function assertAdmin(context: Ctx) {
 
 export const executeAgent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { agentKey: string }) => {
+  .inputValidator((input: { agentKey: string; count?: number }) => {
     if (!input || typeof input.agentKey !== "string" || !input.agentKey.trim()) {
       throw new Error("agentKey is required");
     }
-    return { agentKey: input.agentKey.trim() };
+    // Server-side clamp; the UI clamp is a convenience, not the guarantee.
+    const count =
+      input.count == null
+        ? undefined
+        : Math.min(Math.max(Math.floor(Number(input.count)) || 1, 1), 10);
+    return { agentKey: input.agentKey.trim(), ...(count == null ? {} : { count }) };
   })
   .handler(async ({ data, context }) => {
     const ctx = context as Ctx;
@@ -33,5 +38,6 @@ export const executeAgent = createServerFn({ method: "POST" })
       supabase: ctx.supabase,
       userId: ctx.userId,
       agentKey: data.agentKey,
+      ...(data.count == null ? {} : { runParams: { count: data.count } }),
     });
   });

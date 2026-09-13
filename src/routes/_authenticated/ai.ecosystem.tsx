@@ -13,12 +13,12 @@ import { useT } from "@/i18n";
 import { ECOSYSTEM_AGENTS, PRODUCTION_PIPELINE } from "@/lib/ai/ecosystem";
 import {
   ecosystemStatus,
-  runBlogAgent,
   runGrowthAgent,
   runProductAgent,
   runImageAgent,
   runRevenueAgent,
 } from "@/lib/ai-ecosystem.functions";
+import { executeAgent } from "@/lib/workforce.functions";
 
 export const Route = createFileRoute("/_authenticated/ai/ecosystem")({
   head: () => ({
@@ -50,10 +50,16 @@ function EcosystemPage() {
   const refresh = () => qc.invalidateQueries({ queryKey: ["ai-ecosystem-status"] });
 
   const blog = useMutation({
-    mutationFn: () => runBlogAgent({ data: { count: blogCount } }),
+    // AG-4: routed through the governed Workforce execution service (draft only).
+    mutationFn: () => executeAgent({ data: { agentKey: "blog_agent", count: blogCount } }),
     onSuccess: (r) => {
-      push(tr("admin.ai4.eco.blogLog", { created: r.created, aiGenerated: r.aiGenerated }));
-      toast.success(tr("admin.ai4.eco.blogToast", { created: r.created }));
+      if (!r.ok) {
+        toast.error(r.message);
+        return;
+      }
+      push(r.summary);
+      if (r.status === "failed") toast.error(r.summary);
+      else toast.success(r.summary);
       refresh();
     },
     onError: (e: Error) => toast.error(e.message),

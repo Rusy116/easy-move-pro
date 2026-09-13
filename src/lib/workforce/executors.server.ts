@@ -18,6 +18,7 @@ import {
   computeGooglePerformance,
   summarizeGooglePerformance,
 } from "./google-performance.server";
+import { runBlogDraftGeneration, summarizeBlogRun, clampBlogCount } from "./blog.server";
 
 export type ExecutorLog = (
   message: string,
@@ -29,6 +30,8 @@ export type ExecutorContext = {
   supabase: any;
   userId: string;
   log: ExecutorLog;
+  /** Validated, clamped run parameters (e.g. blog article count). */
+  params?: Record<string, unknown>;
 };
 
 export type ExecutorResult = {
@@ -144,6 +147,31 @@ export const WORKFORCE_EXECUTORS: Record<string, WorkforceExecutor> = {
         externalCalls: r.gscRequests,
         tablesRead: r.tablesRead,
         tablesWritten: [],
+      };
+    },
+  },
+  // AG-4 — draft only. This executor cannot publish; a human admin does that.
+  blog_agent: {
+    key: "blog_agent",
+    taskLabel: "Blog drafting (draft only, no publishing)",
+    mode: "mutating",
+    atomic: true,
+    async run(ctx) {
+      const count = clampBlogCount(ctx.params?.["count"]);
+      await ctx.log(`runner_invoked: blog drafting, ${count} article(s) requested (draft only)`);
+      const r = await runBlogDraftGeneration(ctx.supabase, { count });
+      for (const w of r.warnings) await ctx.log(`warning: ${w}`, "warn");
+      await ctx.log(
+        `runner_completed: ${r.generatedCount} draft(s) created via ${r.model}; ${r.publicationActionsPerformed} publication action(s)`,
+      );
+      return {
+        summary: summarizeBlogRun(r),
+        result: r as unknown as Record<string, unknown>,
+        itemsProcessed: r.generatedCount,
+        aiCalls: r.aiGenerated,
+        externalCalls: r.aiGenerated,
+        tablesRead: r.tablesRead,
+        tablesWritten: r.tablesWritten,
       };
     },
   },

@@ -144,7 +144,12 @@ function renderMarkdown(a: Article, audience: "customer" | "mover") {
   return `${body}${cta}${related}`;
 }
 
-async function writeArticles(
+/**
+ * Shared article-draft generator. Inserts rows into ai_content_items with
+ * status "draft" only — it never publishes. Reused by the legacy server
+ * functions below and by the governed Workforce blog executor (AG-4).
+ */
+export async function writeArticles(
   context: Ctx,
   audience: "customer" | "mover",
   count: number,
